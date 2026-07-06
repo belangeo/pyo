@@ -135,6 +135,8 @@ Record_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *input_listtmp;
     Record *self;
     self = (Record *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnls = 2;
     self->buffering = 4;
@@ -146,8 +148,10 @@ Record_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "filename", "chnls", "fileformat", "sampletype", "buffering", "quality", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os#|iiiid", kwlist, &input_listtmp, &self->recpath, &psize, &self->chnls, &fileformat, &sampletype, &self->buffering, &quality))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os#|iiiid", kwlist, &input_listtmp, &self->recpath, &psize, &self->chnls, &fileformat, &sampletype, &self->buffering, &quality)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->input_list = input_listtmp;
     Py_INCREF(self->input_list);
@@ -455,6 +459,8 @@ ControlRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp;
     ControlRec *self;
     self = (ControlRec *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->dur = 0.0;
     self->rate = 1000;
@@ -466,8 +472,10 @@ ControlRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "rate", "dur", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_IF, kwlist, &inputtmp, &self->rate, &self->dur))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_IF, kwlist, &inputtmp, &self->rate, &self->dur)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -768,6 +776,8 @@ ControlRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *valuestmp, *multmp = NULL, *addtmp = NULL;
     ControlRead *self;
     self = (ControlRead *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->loop = 0;
     self->rate = 1000;
@@ -782,8 +792,10 @@ ControlRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"values", "rate", "loop", "interp", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iiiOO", kwlist, &valuestmp, &self->rate, &self->loop, &self->interp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iiiOO", kwlist, &valuestmp, &self->rate, &self->loop, &self->interp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (valuestmp)
     {
@@ -1114,6 +1126,8 @@ NoteinRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputptmp, *inputp_streamtmp, *inputvtmp, *inputv_streamtmp;
     NoteinRec *self;
     self = (NoteinRec *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->tmp_list_p = PyList_New(0);
     self->tmp_list_v = PyList_New(0);
@@ -1126,8 +1140,10 @@ NoteinRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"inputp", "inputv", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &inputptmp, &inputvtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &inputptmp, &inputvtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->inputp = inputptmp;
     Py_INCREF(self->inputp);
@@ -1398,6 +1414,8 @@ NoteinRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *valuestmp, *timestampstmp, *multmp = NULL, *addtmp = NULL;
     NoteinRead *self;
     self = (NoteinRead *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->value = 0.0;
     self->loop = 0;
@@ -1411,8 +1429,10 @@ NoteinRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"values", "timestamps", "loop", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|iOO", kwlist, &valuestmp, &timestampstmp, &self->loop, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|iOO", kwlist, &valuestmp, &timestampstmp, &self->loop, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (valuestmp)
     {

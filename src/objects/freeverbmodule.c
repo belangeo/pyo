@@ -713,6 +713,8 @@ Freeverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *sizetmp = NULL, *damptmp = NULL, *mixtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Freeverb *self;
     self = (Freeverb *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->size = PyFloat_FromDouble(.5);
     self->damp = PyFloat_FromDouble(.5);
@@ -731,8 +733,10 @@ Freeverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "size", "damp", "mix", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOO", kwlist, &inputtmp, &sizetmp, &damptmp, &mixtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOO", kwlist, &inputtmp, &sizetmp, &damptmp, &mixtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 

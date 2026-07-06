@@ -160,6 +160,8 @@ Noise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *multmp = NULL, *addtmp = NULL;
     Noise *self;
     self = (Noise *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->type = 0;
     self->modebuffer[0] = 0;
@@ -171,8 +173,10 @@ Noise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OO", kwlist, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OO", kwlist, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (multmp)
     {
@@ -461,6 +465,8 @@ PinkNoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *multmp = NULL, *addtmp = NULL;
     PinkNoise *self;
     self = (PinkNoise *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->c0 = self->c1 = self->c2 = self->c3 = self->c4 = self->c5 = self->c6 = 0.0;
     self->modebuffer[0] = 0;
@@ -472,8 +478,10 @@ PinkNoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OO", kwlist, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OO", kwlist, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (multmp)
     {
@@ -733,6 +741,8 @@ BrownNoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *multmp = NULL, *addtmp = NULL;
     BrownNoise *self;
     self = (BrownNoise *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -744,8 +754,10 @@ BrownNoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OO", kwlist, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OO", kwlist, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (multmp)
     {

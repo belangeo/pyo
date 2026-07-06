@@ -297,6 +297,8 @@ Sine_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     Sine *self;
     self = (Sine *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(1000);
     self->phase = PyFloat_FromDouble(0.0);
@@ -312,8 +314,10 @@ Sine_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"freq", "phase", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &freqtmp, &phasetmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &freqtmp, &phasetmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (freqtmp)
     {
@@ -814,6 +818,8 @@ FastSine_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     FastSine *self;
     self = (FastSine *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(1000);
     self->initphase = 0.0;
@@ -832,8 +838,10 @@ FastSine_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"freq", "initphase", "quality", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OFIOO, kwlist, &freqtmp, &self->initphase, &self->quality, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OFIOO, kwlist, &freqtmp, &self->initphase, &self->quality, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (self->initphase < 0.0)
         self->initphase = 0.0;
@@ -1243,6 +1251,8 @@ SineLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *freqtmp = NULL, *feedbacktmp = NULL, *multmp = NULL, *addtmp = NULL;
     SineLoop *self;
     self = (SineLoop *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(1000);
     self->feedback = PyFloat_FromDouble(0.0);
@@ -1258,8 +1268,10 @@ SineLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"freq", "feedback", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &freqtmp, &feedbacktmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &freqtmp, &feedbacktmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (freqtmp)
     {
@@ -1692,6 +1704,8 @@ Osc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *tabletmp, *freqtmp = NULL, *phasetmp = NULL, *multmp = NULL, *addtmp = NULL;
     Osc *self;
     self = (Osc *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(1000);
     self->phase = PyFloat_FromDouble(0);
@@ -1708,8 +1722,10 @@ Osc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"table", "freq", "phase", "interp", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOiOO", kwlist, &tabletmp, &freqtmp, &phasetmp, &self->interp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOiOO", kwlist, &tabletmp, &freqtmp, &phasetmp, &self->interp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
     {
@@ -2178,6 +2194,8 @@ OscLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *tabletmp, *freqtmp = NULL, *feedbacktmp = NULL, *multmp = NULL, *addtmp = NULL;
     OscLoop *self;
     self = (OscLoop *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(1000);
     self->feedback = PyFloat_FromDouble(0);
@@ -2193,8 +2211,10 @@ OscLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"table", "freq", "feedback", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &tabletmp, &freqtmp, &feedbacktmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &tabletmp, &freqtmp, &feedbacktmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
     {
@@ -2673,6 +2693,8 @@ OscTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *tabletmp, *trigtmp, *freqtmp = NULL, *phasetmp = NULL, *multmp = NULL, *addtmp = NULL;
     OscTrig *self;
     self = (OscTrig *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->trig = PyFloat_FromDouble(0.0);
     self->freq = PyFloat_FromDouble(1000);
@@ -2690,8 +2712,10 @@ OscTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"table", "trig", "freq", "phase", "interp", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOiOO", kwlist, &tabletmp, &trigtmp, &freqtmp, &phasetmp, &self->interp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOiOO", kwlist, &tabletmp, &trigtmp, &freqtmp, &phasetmp, &self->interp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
     {
@@ -3190,6 +3214,8 @@ Phasor_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *freqtmp = NULL, *phasetmp = NULL, *multmp = NULL, *addtmp = NULL;
     Phasor *self;
     self = (Phasor *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(100);
     self->phase = PyFloat_FromDouble(0);
@@ -3205,8 +3231,10 @@ Phasor_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"freq", "phase", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &freqtmp, &phasetmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &freqtmp, &phasetmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (freqtmp)
     {
@@ -3503,6 +3531,8 @@ Pointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *tabletmp, *indextmp, *multmp = NULL, *addtmp = NULL;
     Pointer *self;
     self = (Pointer *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->index = PyFloat_FromDouble(0.0);
 
@@ -3515,8 +3545,10 @@ Pointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"table", "index", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OO", kwlist, &tabletmp, &indextmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OO", kwlist, &tabletmp, &indextmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
     {
@@ -3879,6 +3911,8 @@ Pointer2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *tabletmp, *indextmp, *multmp = NULL, *addtmp = NULL;
     Pointer2 *self;
     self = (Pointer2 *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->index = PyFloat_FromDouble(0.0);
 
@@ -3896,8 +3930,10 @@ Pointer2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"table", "index", "interp", "autosmooth", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|iiOO", kwlist, &tabletmp, &indextmp, &self->interp, &self->autosmooth, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|iiOO", kwlist, &tabletmp, &indextmp, &self->interp, &self->autosmooth, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
     {
@@ -4261,6 +4297,8 @@ TableIndex_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *tabletmp, *indextmp, *multmp = NULL, *addtmp = NULL;
     TableIndex *self;
     self = (TableIndex *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->index = PyFloat_FromDouble(0.0);
 
@@ -4273,8 +4311,10 @@ TableIndex_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"table", "index", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OO", kwlist, &tabletmp, &indextmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OO", kwlist, &tabletmp, &indextmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
     {
@@ -4614,6 +4654,8 @@ Lookup_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *tabletmp, *indextmp, *multmp = NULL, *addtmp = NULL;
     Lookup *self;
     self = (Lookup *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->index = PyFloat_FromDouble(0.0);
 
@@ -4626,8 +4668,10 @@ Lookup_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"table", "index", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OO", kwlist, &tabletmp, &indextmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OO", kwlist, &tabletmp, &indextmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
     {
@@ -5406,6 +5450,8 @@ Pulsar_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *tabletmp, *envtmp, *freqtmp = NULL, *phasetmp = NULL, *fractmp = NULL, *multmp = NULL, *addtmp = NULL;
     Pulsar *self;
     self = (Pulsar *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(100);
     self->phase = PyFloat_FromDouble(0);
@@ -5424,8 +5470,10 @@ Pulsar_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"table", "env", "freq", "frac", "phase", "interp", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOOiOO", kwlist, &tabletmp, &envtmp, &freqtmp, &fractmp, &phasetmp, &self->interp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOOiOO", kwlist, &tabletmp, &envtmp, &freqtmp, &fractmp, &phasetmp, &self->interp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
     {
@@ -5923,6 +5971,8 @@ TableRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *tabletmp, *freqtmp = NULL, *multmp = NULL, *addtmp = NULL;
     TableRead *self;
     self = (TableRead *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(1);
     self->loop = 0;
@@ -5941,8 +5991,10 @@ TableRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"table", "freq", "loop", "interp", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OiiOO", kwlist, &tabletmp, &freqtmp, &self->loop, &self->interp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OiiOO", kwlist, &tabletmp, &freqtmp, &self->loop, &self->interp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
     {
@@ -6644,6 +6696,8 @@ Fm_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *cartmp = NULL, *ratiotmp = NULL, *indextmp = NULL, *multmp = NULL, *addtmp = NULL;
     Fm *self;
     self = (Fm *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->car = PyFloat_FromDouble(100);
     self->ratio = PyFloat_FromDouble(0.5);
@@ -6663,8 +6717,10 @@ Fm_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"carrier", "ratio", "index", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOOO", kwlist, &cartmp, &ratiotmp, &indextmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOOO", kwlist, &cartmp, &ratiotmp, &indextmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (cartmp)
     {
@@ -7064,6 +7120,8 @@ CrossFm_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *cartmp = NULL, *ratiotmp = NULL, *ind1tmp = NULL, *ind2tmp = NULL, *multmp = NULL, *addtmp = NULL;
     CrossFm *self;
     self = (CrossFm *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->car = PyFloat_FromDouble(100);
     self->ratio = PyFloat_FromDouble(0.5);
@@ -7086,8 +7144,10 @@ CrossFm_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"carrier", "ratio", "ind1", "ind2", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOOOO", kwlist, &cartmp, &ratiotmp, &ind1tmp, &ind2tmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOOOO", kwlist, &cartmp, &ratiotmp, &ind1tmp, &ind2tmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (cartmp)
     {
@@ -7528,6 +7588,8 @@ Blit_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *freqtmp = NULL, *harmstmp = NULL, *multmp = NULL, *addtmp = NULL;
     Blit *self;
     self = (Blit *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(100);
     self->harms = PyFloat_FromDouble(40);
@@ -7543,8 +7605,10 @@ Blit_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"freq", "harms", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &freqtmp, &harmstmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &freqtmp, &harmstmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (freqtmp)
     {
@@ -8009,6 +8073,8 @@ Rossler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *pitchtmp = NULL, *chaostmp = NULL, *multmp = NULL, *addtmp = NULL;
     Rossler *self;
     self = (Rossler *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->pitch = PyFloat_FromDouble(0.25);
     self->chaos = PyFloat_FromDouble(0.5);
@@ -8029,8 +8095,10 @@ Rossler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"pitch", "chaos", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &pitchtmp, &chaostmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &pitchtmp, &chaostmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (pitchtmp)
     {
@@ -8312,6 +8380,8 @@ RosslerAlt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     RosslerAlt *self;
     self = (RosslerAlt *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -8322,8 +8392,10 @@ RosslerAlt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainRossler", "mul", "alt", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &maintmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &maintmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainRossler = (Rossler *)maintmp;
     Py_INCREF(self->mainRossler);
@@ -8773,6 +8845,8 @@ Lorenz_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *pitchtmp = NULL, *chaostmp = NULL, *multmp = NULL, *addtmp = NULL;
     Lorenz *self;
     self = (Lorenz *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->pitch = PyFloat_FromDouble(0.25);
     self->chaos = PyFloat_FromDouble(0.5);
@@ -8793,8 +8867,10 @@ Lorenz_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"pitch", "chaos", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &pitchtmp, &chaostmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &pitchtmp, &chaostmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (pitchtmp)
     {
@@ -9076,6 +9152,8 @@ LorenzAlt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     LorenzAlt *self;
     self = (LorenzAlt *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -9086,8 +9164,10 @@ LorenzAlt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainLorenz", "mul", "alt", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &maintmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &maintmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainLorenz = (Lorenz *)maintmp;
     Py_INCREF(self->mainLorenz);
@@ -9545,6 +9625,8 @@ ChenLee_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *pitchtmp = NULL, *chaostmp = NULL, *multmp = NULL, *addtmp = NULL;
     ChenLee *self;
     self = (ChenLee *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->pitch = PyFloat_FromDouble(0.25);
     self->chaos = PyFloat_FromDouble(0.5);
@@ -9565,8 +9647,10 @@ ChenLee_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"pitch", "chaos", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &pitchtmp, &chaostmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &pitchtmp, &chaostmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (pitchtmp)
     {
@@ -9848,6 +9932,8 @@ ChenLeeAlt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     ChenLeeAlt *self;
     self = (ChenLeeAlt *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -9858,8 +9944,10 @@ ChenLeeAlt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainChenLee", "mul", "alt", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &maintmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &maintmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainChenLee = (ChenLee *)maintmp;
     Py_INCREF(self->mainChenLee);
@@ -10519,6 +10607,8 @@ SumOsc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *freqtmp = NULL, *ratiotmp = NULL, *indextmp = NULL, *multmp = NULL, *addtmp = NULL;
     SumOsc *self;
     self = (SumOsc *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(100);
     self->ratio = PyFloat_FromDouble(0.5);
@@ -10539,8 +10629,10 @@ SumOsc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"freq", "ratio", "index", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOOO", kwlist, &freqtmp, &ratiotmp, &indextmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOOO", kwlist, &freqtmp, &ratiotmp, &indextmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (freqtmp)
     {
@@ -11362,6 +11454,8 @@ SuperSaw_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *freqtmp = NULL, *detunetmp = NULL, *baltmp = NULL, *multmp = NULL, *addtmp = NULL;
     SuperSaw *self;
     self = (SuperSaw *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(100);
     self->detune = PyFloat_FromDouble(0.5);
@@ -11390,8 +11484,10 @@ SuperSaw_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"freq", "detune", "bal", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOOO", kwlist, &freqtmp, &detunetmp, &baltmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOOO", kwlist, &freqtmp, &detunetmp, &baltmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (freqtmp)
     {
@@ -11831,6 +11927,8 @@ RCOsc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *freqtmp = NULL, *sharptmp = NULL, *multmp = NULL, *addtmp = NULL;
     RCOsc *self;
     self = (RCOsc *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(100);
     self->sharp = PyFloat_FromDouble(0.25);
@@ -11846,8 +11944,10 @@ RCOsc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"freq", "sharp", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &freqtmp, &sharptmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &freqtmp, &sharptmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (freqtmp)
     {
@@ -12170,6 +12270,8 @@ TableScale_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *tabletmp, *outtabletmp, *multmp = NULL, *addtmp = NULL;
     TableScale *self;
     self = (TableScale *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -12180,8 +12282,10 @@ TableScale_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"table", "outtable", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OO", kwlist, &tabletmp, &outtabletmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OO", kwlist, &tabletmp, &outtabletmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
     {
@@ -12442,6 +12546,8 @@ TableFill_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *tabletmp;
     TableFill *self;
     self = (TableFill *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->pointer = 0;
 
@@ -12451,8 +12557,10 @@ TableFill_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "table", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &inputtmp, &tabletmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &inputtmp, &tabletmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -12681,6 +12789,8 @@ TableScan_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *tabletmp, *multmp = NULL, *addtmp = NULL;
     TableScan *self;
     self = (TableScan *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -12692,8 +12802,10 @@ TableScan_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"table", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &tabletmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &tabletmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
     {

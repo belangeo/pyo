@@ -124,13 +124,17 @@ MidiListener_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     MidiListener *self;
 
     self = (MidiListener *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->active = self->midicount = self->reportdevice = 0;
 
     static char *kwlist[] = {"midicallable", "mididevice", "reportdevice", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOi", kwlist, &midicalltmp, &mididevtmp, &self->reportdevice))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOi", kwlist, &midicalltmp, &mididevtmp, &self->reportdevice)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (midicalltmp)
     {
@@ -447,13 +451,17 @@ MidiDispatcher_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     MidiDispatcher *self;
 
     self = (MidiDispatcher *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->active = self->midicount = 0;
 
     static char *kwlist[] = {"mididevice", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &mididevtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &mididevtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (mididevtmp)
     {

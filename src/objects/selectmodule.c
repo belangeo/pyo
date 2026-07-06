@@ -156,6 +156,8 @@ Select_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp = NULL, *addtmp = NULL;
     Select *self;
     self = (Select *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->value = 0;
     self->last_value = -99.0;
@@ -168,8 +170,10 @@ Select_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "value", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|LOO", kwlist, &inputtmp, &self->value, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|LOO", kwlist, &inputtmp, &self->value, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -455,6 +459,8 @@ Change_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp = NULL, *addtmp = NULL;
     Change *self;
     self = (Change *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->last_value = 0.0;
     self->modebuffer[0] = 0;
@@ -466,8 +472,10 @@ Change_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO", kwlist, &inputtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO", kwlist, &inputtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 

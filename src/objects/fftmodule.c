@@ -220,6 +220,8 @@ FFTMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp;
     FFTMain *self;
     self = (FFTMain *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->size = 1024;
     self->wintype = 2;
@@ -230,8 +232,10 @@ FFTMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "size", "hopsize", "wintype", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iii", kwlist, &inputtmp, &self->size, &self->hopsize, &self->wintype))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iii", kwlist, &inputtmp, &self->size, &self->hopsize, &self->wintype)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -462,6 +466,8 @@ FFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     FFT *self;
     self = (FFT *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -472,8 +478,10 @@ FFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainSplitter = (FFTMain *)maintmp;
     Py_INCREF(self->mainSplitter);
@@ -837,6 +845,8 @@ IFFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inrealtmp, *inreal_streamtmp, *inimagtmp, *inimag_streamtmp, *multmp = NULL, *addtmp = NULL;
     IFFT *self;
     self = (IFFT *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->size = 1024;
     self->wintype = 2;
@@ -850,8 +860,10 @@ IFFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"inreal", "inimag", "size", "hopsize", "wintype", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|iiiOO", kwlist, &inrealtmp, &inimagtmp, &self->size, &self->hopsize, &self->wintype, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|iiiOO", kwlist, &inrealtmp, &inimagtmp, &self->size, &self->hopsize, &self->wintype, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->inimag = inimagtmp;
     Py_INCREF(self->inimag);
@@ -1180,6 +1192,8 @@ CarToPol_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *multmp = NULL, *addtmp = NULL;
     CarToPol *self;
     self = (CarToPol *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -1190,8 +1204,10 @@ CarToPol_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "input2", "chnl", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOi|OO", kwlist, &inputtmp, &input2tmp, &self->chnl, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOi|OO", kwlist, &inputtmp, &input2tmp, &self->chnl, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -1474,6 +1490,8 @@ PolToCar_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *multmp = NULL, *addtmp = NULL;
     PolToCar *self;
     self = (PolToCar *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -1484,8 +1502,10 @@ PolToCar_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "input2", "chnl", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOi|OO", kwlist, &inputtmp, &input2tmp, &self->chnl, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOi|OO", kwlist, &inputtmp, &input2tmp, &self->chnl, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -1765,6 +1785,8 @@ FrameDeltaMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp;
     FrameDeltaMain *self;
     self = (FrameDeltaMain *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->count = 0;
     self->input = PyList_New(0);
@@ -1775,8 +1797,10 @@ FrameDeltaMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "frameSize", "overlaps", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oii", kwlist, &inputtmp, &self->frameSize, &self->overlaps))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oii", kwlist, &inputtmp, &self->frameSize, &self->overlaps)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (inputtmp)
     {
@@ -2046,6 +2070,8 @@ FrameDelta_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     FrameDelta *self;
     self = (FrameDelta *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -2056,8 +2082,10 @@ FrameDelta_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainSplitter = (FrameDeltaMain *)maintmp;
     Py_INCREF(self->mainSplitter);
@@ -2321,6 +2349,8 @@ FrameAccumMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp;
     FrameAccumMain *self;
     self = (FrameAccumMain *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->count = 0;
     self->input = PyList_New(0);
@@ -2331,8 +2361,10 @@ FrameAccumMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "framesize", "overlaps", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oii", kwlist, &inputtmp, &self->frameSize, &self->overlaps))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oii", kwlist, &inputtmp, &self->frameSize, &self->overlaps)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (inputtmp)
     {
@@ -2602,6 +2634,8 @@ FrameAccum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     FrameAccum *self;
     self = (FrameAccum *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -2612,8 +2646,10 @@ FrameAccum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainSplitter = (FrameAccumMain *)maintmp;
     Py_INCREF(self->mainSplitter);
@@ -2939,6 +2975,8 @@ VectralMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *uptmp = NULL, *downtmp = NULL, *damptmp = NULL;
     VectralMain *self;
     self = (VectralMain *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->input = PyList_New(0);
     self->up = PyFloat_FromDouble(1.0);
@@ -2957,8 +2995,10 @@ VectralMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "frameSize", "overlaps", "up", "down", "damp", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oii|OOO", kwlist, &inputtmp, &self->frameSize, &self->overlaps, &uptmp, &downtmp, &damptmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oii|OOO", kwlist, &inputtmp, &self->frameSize, &self->overlaps, &uptmp, &downtmp, &damptmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (inputtmp)
     {
@@ -3250,6 +3290,8 @@ Vectral_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     Vectral *self;
     self = (Vectral *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -3260,8 +3302,10 @@ Vectral_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainSplitter = (VectralMain *)maintmp;
     Py_INCREF(self->mainSplitter);
@@ -3877,6 +3921,8 @@ CvlVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *baltmp = NULL, *multmp = NULL, *addtmp = NULL;
     CvlVerb *self;
     self = (CvlVerb *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->bal = PyFloat_FromDouble(0.25);
     self->size = 1024;
@@ -3889,8 +3935,10 @@ CvlVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "impulse", "bal", "size", "chnl", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os#|OiiOO", kwlist, &inputtmp, &self->impulse_path, &psize, &baltmp, &self->size, &self->chnl, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os#|OiiOO", kwlist, &inputtmp, &self->impulse_path, &psize, &baltmp, &self->size, &self->chnl, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (self->size < self->bufsize)
     {
@@ -4336,6 +4384,8 @@ Spectrum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp;
     Spectrum *self;
     self = (Spectrum *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->size = 1024;
     self->wintype = 2;
@@ -4357,8 +4407,10 @@ Spectrum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "size", "wintype", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|ii", kwlist, &inputtmp, &self->size, &self->wintype))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|ii", kwlist, &inputtmp, &self->size, &self->wintype)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -4790,6 +4842,8 @@ IFFTMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *matrixtmp, *indextmp, *phasetmp, *multmp = NULL, *addtmp = NULL;
     IFFTMatrix *self;
     self = (IFFTMatrix *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->index = PyFloat_FromDouble(0.0);
     self->phase = PyFloat_FromDouble(0.0);
@@ -4805,8 +4859,10 @@ IFFTMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"matrix", "index", "phase", "size", "hopsize", "wintype", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO|iiiOO", kwlist, &matrixtmp, &indextmp, &phasetmp, &self->size, &self->hopsize, &self->wintype, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO|iiiOO", kwlist, &matrixtmp, &indextmp, &phasetmp, &self->size, &self->hopsize, &self->wintype, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)matrixtmp, "getMatrixStream") == 0 )
     {

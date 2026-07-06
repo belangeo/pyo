@@ -172,11 +172,15 @@ OscListener_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     OscListener *self;
 
     self = (OscListener *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     static char *kwlist[] = {"osccallable", "port", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi", kwlist, &osccalltmp, &self->oscport))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi", kwlist, &osccalltmp, &self->oscport)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (osccalltmp)
     {

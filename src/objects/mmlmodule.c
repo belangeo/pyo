@@ -776,6 +776,8 @@ MMLMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     int i;
     MMLMain *self;
     self = (MMLMain *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->pitches = PyDict_New();
     PyDict_SetItem(self->pitches, PyUnicode_FromString("c"), PyLong_FromLong(0));
@@ -814,8 +816,10 @@ MMLMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"loop", "poly", "updateAtEnd", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iii", kwlist, &self->loop, &self->poly, &self->updateAtEnd))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iii", kwlist, &self->loop, &self->poly, &self->updateAtEnd)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -1100,6 +1104,8 @@ MML_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     MML *self;
     self = (MML *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
@@ -1111,8 +1117,10 @@ MML_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (MMLMain *)maintmp;
     Py_INCREF(self->mainPlayer);
@@ -1362,6 +1370,8 @@ MMLFreqStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     MMLFreqStream *self;
     self = (MMLFreqStream *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
@@ -1373,8 +1383,10 @@ MMLFreqStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (MMLMain *)maintmp;
     Py_INCREF(self->mainPlayer);
@@ -1624,6 +1636,8 @@ MMLAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     MMLAmpStream *self;
     self = (MMLAmpStream *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
@@ -1635,8 +1649,10 @@ MMLAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (MMLMain *)maintmp;
     Py_INCREF(self->mainPlayer);
@@ -1886,6 +1902,8 @@ MMLDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     MMLDurStream *self;
     self = (MMLDurStream *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
@@ -1897,8 +1915,10 @@ MMLDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (MMLMain *)maintmp;
     Py_INCREF(self->mainPlayer);
@@ -2148,6 +2168,8 @@ MMLEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     MMLEndStream *self;
     self = (MMLEndStream *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
@@ -2159,8 +2181,10 @@ MMLEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (MMLMain *)maintmp;
     Py_INCREF(self->mainPlayer);
@@ -2410,6 +2434,8 @@ MMLXStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     MMLXStream *self;
     self = (MMLXStream *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
@@ -2421,8 +2447,10 @@ MMLXStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (MMLMain *)maintmp;
     Py_INCREF(self->mainPlayer);
@@ -2672,6 +2700,8 @@ MMLYStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     MMLYStream *self;
     self = (MMLYStream *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
@@ -2683,8 +2713,10 @@ MMLYStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (MMLMain *)maintmp;
     Py_INCREF(self->mainPlayer);
@@ -2934,6 +2966,8 @@ MMLZStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     MMLZStream *self;
     self = (MMLZStream *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
@@ -2945,8 +2979,10 @@ MMLZStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (MMLMain *)maintmp;
     Py_INCREF(self->mainPlayer);

@@ -475,6 +475,8 @@ OscBank_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *tabletmp, *freqtmp = NULL, *spreadtmp = NULL, *slopetmp = NULL, *frndftmp = NULL, *frndatmp = NULL, *arndftmp = NULL, *arndatmp = NULL, *multmp = NULL, *addtmp = NULL;
     OscBank *self;
     self = (OscBank *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(100.0);
     self->spread = PyFloat_FromDouble(1.0);
@@ -508,8 +510,10 @@ OscBank_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"table", "freq", "spread", "slope", "frndf", "frnda", "arndf", "arnda", "num", "fjit", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOOOOiiOO", kwlist, &tabletmp, &freqtmp, &spreadtmp, &slopetmp, &frndftmp, &frndatmp, &arndftmp, &arndatmp, &self->stages, &self->fjit, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOOOOiiOO", kwlist, &tabletmp, &freqtmp, &spreadtmp, &slopetmp, &frndftmp, &frndatmp, &arndftmp, &arndatmp, &self->stages, &self->fjit, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
     {

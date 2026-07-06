@@ -319,6 +319,8 @@ PVAnal_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *callbacktmp = NULL;
     PVAnal *self;
     self = (PVAnal *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     Py_INCREF(Py_None);
     self->callback = Py_None;
@@ -332,8 +334,10 @@ PVAnal_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "size", "olaps", "wintype", "callback", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iiiO", kwlist, &inputtmp, &self->size, &self->olaps, &self->wintype, &callbacktmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iiiO", kwlist, &inputtmp, &self->size, &self->olaps, &self->wintype, &callbacktmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -782,6 +786,8 @@ PVSynth_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp = NULL, *addtmp = NULL;
     PVSynth *self;
     self = (PVSynth *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -794,8 +800,10 @@ PVSynth_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "wintype", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &inputtmp, &self->wintype, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &inputtmp, &self->wintype, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 )
     {
@@ -1292,6 +1300,8 @@ PVAddSynth_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *pitchtmp = NULL, *multmp = NULL, *addtmp = NULL;
     PVAddSynth *self;
     self = (PVAddSynth *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->pitch = PyFloat_FromDouble(1);
     self->num = 100;
@@ -1308,8 +1318,10 @@ PVAddSynth_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "pitch", "num", "first", "inc", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OiiiOO", kwlist, &inputtmp, &pitchtmp, &self->num, &self->first, &self->inc, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OiiiOO", kwlist, &inputtmp, &pitchtmp, &self->num, &self->first, &self->inc, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 )
     {
@@ -1798,6 +1810,8 @@ PVTranspose_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *transpotmp;
     PVTranspose *self;
     self = (PVTranspose *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->transpo = PyFloat_FromDouble(1);
     self->size = 1024;
@@ -1809,8 +1823,10 @@ PVTranspose_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "transpo", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|O", kwlist, &inputtmp, &transpotmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|O", kwlist, &inputtmp, &transpotmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 )
     {
@@ -2372,6 +2388,8 @@ PVVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *revtimetmp = NULL, *damptmp = NULL;
     PVVerb *self;
     self = (PVVerb *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->revtime = PyFloat_FromDouble(0.75);
     self->damp = PyFloat_FromDouble(0.75);
@@ -2384,8 +2402,10 @@ PVVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "revtime", "damp", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &revtimetmp, &damptmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &revtimetmp, &damptmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 )
     {
@@ -2930,6 +2950,8 @@ PVGate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *threshtmp = NULL, *damptmp = NULL;
     PVGate *self;
     self = (PVGate *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->thresh = PyFloat_FromDouble(-20);
     self->damp = PyFloat_FromDouble(0.0);
@@ -2943,8 +2965,10 @@ PVGate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "thresh", "damp", "inverse", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOi", kwlist, &inputtmp, &threshtmp, &damptmp, &self->inverse))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOi", kwlist, &inputtmp, &threshtmp, &damptmp, &self->inverse)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 )
     {
@@ -3313,6 +3337,8 @@ PVCross_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *fadetmp;
     PVCross *self;
     self = (PVCross *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->fade = PyFloat_FromDouble(1);
     self->size = 1024;
@@ -3324,8 +3350,10 @@ PVCross_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "input2", "fade", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|O", kwlist, &inputtmp, &input2tmp, &fadetmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|O", kwlist, &inputtmp, &input2tmp, &fadetmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 )
     {
@@ -3641,6 +3669,8 @@ PVMult_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp;
     PVMult *self;
     self = (PVMult *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->size = 1024;
     self->olaps = self->last_olaps = 4;
@@ -3651,8 +3681,10 @@ PVMult_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "input2", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &inputtmp, &input2tmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &inputtmp, &input2tmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 )
     {
@@ -4030,6 +4062,8 @@ PVMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *fadetmp;
     PVMorph *self;
     self = (PVMorph *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->fade = PyFloat_FromDouble(0.5);
     self->size = 1024;
@@ -4041,8 +4075,10 @@ PVMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "input2", "fade", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|O", kwlist, &inputtmp, &input2tmp, &fadetmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|O", kwlist, &inputtmp, &input2tmp, &fadetmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 )
     {
@@ -4475,6 +4511,8 @@ PVFilter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *tabletmp, *gaintmp = NULL;
     PVFilter *self;
     self = (PVFilter *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->gain = PyFloat_FromDouble(1);
     self->size = 1024;
@@ -4488,8 +4526,10 @@ PVFilter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "table", "gain", "mode", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|Oi", kwlist, &inputtmp, &tabletmp, &gaintmp, &self->mode))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|Oi", kwlist, &inputtmp, &tabletmp, &gaintmp, &self->mode)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 )
     {
@@ -4985,6 +5025,8 @@ PVDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *deltabletmp, *feedtabletmp;
     PVDelay *self;
     self = (PVDelay *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->size = 1024;
     self->olaps = self->last_olaps = 4;
@@ -4998,8 +5040,10 @@ PVDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "deltable", "feedtable", "maxdelay", "mode", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OOO_FI, kwlist, &inputtmp, &deltabletmp, &feedtabletmp, &self->maxdelay, &self->mode))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OOO_FI, kwlist, &inputtmp, &deltabletmp, &feedtabletmp, &self->maxdelay, &self->mode)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 )
     {
@@ -5503,6 +5547,8 @@ PVBuffer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *indextmp, *pitchtmp = NULL;
     PVBuffer *self;
     self = (PVBuffer *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->index = PyFloat_FromDouble(0.0);
 
@@ -5518,8 +5564,10 @@ PVBuffer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "index", "pitch", "length", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OO_OF, kwlist, &inputtmp, &indextmp, &pitchtmp, &self->length))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OO_OF, kwlist, &inputtmp, &indextmp, &pitchtmp, &self->length)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 )
     {
@@ -5939,6 +5987,8 @@ PVShift_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *shifttmp;
     PVShift *self;
     self = (PVShift *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->shift = PyFloat_FromDouble(0);
     self->size = 1024;
@@ -5950,8 +6000,10 @@ PVShift_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "shift", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|O", kwlist, &inputtmp, &shifttmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|O", kwlist, &inputtmp, &shifttmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 )
     {
@@ -6537,6 +6589,8 @@ PVAmpMod_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *basefreqtmp = NULL, *spreadtmp = NULL;
     PVAmpMod *self;
     self = (PVAmpMod *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->basefreq = PyFloat_FromDouble(1);
     self->spread = PyFloat_FromDouble(0);
@@ -6549,8 +6603,10 @@ PVAmpMod_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "basefreq", "spread", "shape", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOi", kwlist, &inputtmp, &basefreqtmp, &spreadtmp, &shape))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOi", kwlist, &inputtmp, &basefreqtmp, &spreadtmp, &shape)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 )
     {
@@ -7183,6 +7239,8 @@ PVFreqMod_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *basefreqtmp = NULL, *spreadtmp = NULL, *depthtmp = NULL;
     PVFreqMod *self;
     self = (PVFreqMod *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->basefreq = PyFloat_FromDouble(1);
     self->spread = PyFloat_FromDouble(0);
@@ -7196,8 +7254,10 @@ PVFreqMod_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "basefreq", "spread", "depth", "shape", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOi", kwlist, &inputtmp, &basefreqtmp, &spreadtmp, &depthtmp, &shape))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOi", kwlist, &inputtmp, &basefreqtmp, &spreadtmp, &depthtmp, &shape)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 )
     {
@@ -7720,6 +7780,8 @@ PVBufLoops_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *lowtmp = NULL, *hightmp = NULL;
     PVBufLoops *self;
     self = (PVBufLoops *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->low = PyFloat_FromDouble(1.0);
     self->high = PyFloat_FromDouble(1.0);
@@ -7737,8 +7799,10 @@ PVBufLoops_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "low", "high", "mode", "length", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOIF, kwlist, &inputtmp, &lowtmp, &hightmp, &self->mode, &self->length))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOIF, kwlist, &inputtmp, &lowtmp, &hightmp, &self->mode, &self->length)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 )
     {
@@ -8148,6 +8212,8 @@ PVBufTabLoops_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *speedtmp;
     PVBufTabLoops *self;
     self = (PVBufTabLoops *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->size = 1024;
     self->olaps = self->last_olaps = 4;
@@ -8160,8 +8226,10 @@ PVBufTabLoops_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "speed", "length", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OO_F, kwlist, &inputtmp, &speedtmp, &self->length))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OO_F, kwlist, &inputtmp, &speedtmp, &self->length)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 )
     {
@@ -8485,6 +8553,8 @@ PVMix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp;
     PVMix *self;
     self = (PVMix *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->size = 1024;
     self->olaps = self->last_olaps = 4;
@@ -8495,8 +8565,10 @@ PVMix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "input2", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &inputtmp, &input2tmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &inputtmp, &input2tmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 )
     {

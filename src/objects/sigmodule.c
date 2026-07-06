@@ -148,6 +148,8 @@ Sig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *valuetmp = NULL, *multmp = NULL, *addtmp = NULL;
     Sig *self;
     self = (Sig *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->value = PyFloat_FromDouble(0.0);
     self->modebuffer[0] = 0;
@@ -160,8 +162,10 @@ Sig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"value", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &valuetmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &valuetmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (valuetmp)
     {
@@ -527,6 +531,8 @@ SigTo_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *valuetmp = NULL, *timetmp = NULL, *multmp = NULL, *addtmp = NULL;
     SigTo *self;
     self = (SigTo *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->value = PyFloat_FromDouble(0.0);
     self->time = PyFloat_FromDouble(0.025);
@@ -544,8 +550,10 @@ SigTo_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"value", "time", "init", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OFOO, kwlist, &valuetmp, &timetmp, &inittmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OFOO, kwlist, &valuetmp, &timetmp, &inittmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (valuetmp)
     {
@@ -895,6 +903,8 @@ VarPort_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *valuetmp = NULL, *timetmp = NULL, *calltmp = NULL, *argtmp = NULL, *multmp = NULL, *addtmp = NULL;
     VarPort *self;
     self = (VarPort *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->flag = 1;
     self->time = self->lastTime = 0.025;
@@ -914,8 +924,10 @@ VarPort_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"value", "time", "init", "callable", "arg", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OFOOOO, kwlist, &valuetmp, &timetmp, &inittmp, &calltmp, &argtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OFOOOO, kwlist, &valuetmp, &timetmp, &inittmp, &calltmp, &argtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (valuetmp)
     {

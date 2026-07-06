@@ -101,14 +101,18 @@ OscReceiver_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *pathtmp;
     OscReceiver *self;
     self = (OscReceiver *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, OscReceiver_compute_next_data_frame);
 
     static char *kwlist[] = {"port", "address", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "iO", kwlist, &self->port, &pathtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "iO", kwlist, &self->port, &pathtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -398,6 +402,8 @@ OscReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp = NULL, *pathtmp = NULL, *multmp = NULL, *addtmp = NULL;;
     OscReceive *self;
     self = (OscReceive *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->value = 0.;
     self->interpolation = 1;
@@ -413,8 +419,10 @@ OscReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "address", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OO", kwlist, &inputtmp, &pathtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OO", kwlist, &inputtmp, &pathtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->input = inputtmp;
     Py_INCREF(self->input);
@@ -652,6 +660,8 @@ OscSend_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *pathtmp;
     OscSend *self;
     self = (OscSend *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->host = NULL;
     self->count = 0;
@@ -662,8 +672,10 @@ OscSend_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "port", "address", "host", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OiO|s", kwlist, &inputtmp, &self->port, &pathtmp, &self->host))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OiO|s", kwlist, &inputtmp, &self->port, &pathtmp, &self->host)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -927,6 +939,8 @@ OscDataSend_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *pathtmp;
     OscDataSend *self;
     self = (OscDataSend *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->value = PyList_New(0);
     self->something_to_send = 0;
@@ -937,8 +951,10 @@ OscDataSend_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"types", "port", "address", "host", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "siO|s", kwlist, &self->types, &self->port, &pathtmp, &self->host))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "siO|s", kwlist, &self->types, &self->port, &pathtmp, &self->host)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -1219,14 +1235,18 @@ OscDataReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *pathtmp, *calltmp;
     OscDataReceive *self;
     self = (OscDataReceive *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, OscDataReceive_compute_next_data_frame);
 
     static char *kwlist[] = {"port", "address", "callable", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "iOO", kwlist, &self->port, &pathtmp, &calltmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "iOO", kwlist, &self->port, &pathtmp, &calltmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -1441,6 +1461,8 @@ OscListReceiver_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *pathtmp, *flist;
     OscListReceiver *self;
     self = (OscListReceiver *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->num = 8;
 
@@ -1449,8 +1471,10 @@ OscListReceiver_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"port", "address", "num", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "iO|i", kwlist, &self->port, &pathtmp, &self->num))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "iO|i", kwlist, &self->port, &pathtmp, &self->num)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -1770,6 +1794,8 @@ OscListReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp = NULL, *pathtmp = NULL, *multmp = NULL, *addtmp = NULL;;
     OscListReceive *self;
     self = (OscListReceive *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->order = 0;
     self->value = 0.;
@@ -1786,8 +1812,10 @@ OscListReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "address", "order", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOi|OO", kwlist, &inputtmp, &pathtmp, &self->order, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOi|OO", kwlist, &inputtmp, &pathtmp, &self->order, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->input = inputtmp;
     Py_INCREF(self->input);

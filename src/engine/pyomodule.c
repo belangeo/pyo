@@ -1067,7 +1067,7 @@ reducePoints(PyObject *self, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"pointlist", "tolerance", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_F, kwlist, &pointlist, &dTolerance))
-        return PyLong_FromLong(-1);
+        Py_RETURN_NONE;
 
     nPointsCount = PyList_Size(pointlist);
 
@@ -1473,7 +1473,7 @@ rescale(PyObject *self, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"data", "xmin", "xmax", "ymin", "ymax", "xlog", "ylog", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FFFFII, kwlist, &data, &xmin, &xmax, &ymin, &ymax, &xlog, &ylog))
-        return PyLong_FromLong(-1);
+        Py_RETURN_NONE;
 
     if (PyNumber_Check(data))
         type = 0;

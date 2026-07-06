@@ -171,6 +171,8 @@ Convolve_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *tabletmp, *multmp = NULL, *addtmp = NULL;
     Convolve *self;
     self = (Convolve *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->count = 0;
     self->modebuffer[0] = 0;
@@ -182,8 +184,10 @@ Convolve_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "table", "size", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOi|OO", kwlist, &inputtmp, &tabletmp, &self->size, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOi|OO", kwlist, &inputtmp, &tabletmp, &self->size, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -687,6 +691,8 @@ IRWinSinc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freqtmp = NULL, *bandwidthtmp = NULL, *multmp = NULL, *addtmp = NULL;
     IRWinSinc *self;
     self = (IRWinSinc *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->last_freq = -1.0;
     self->last_bandwidth = -1.0;
@@ -707,8 +713,10 @@ IRWinSinc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "freq", "bw", "type", "order", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOiiOO", kwlist, &inputtmp, &freqtmp, &bandwidthtmp, &self->filtertype, &self->order, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOiiOO", kwlist, &inputtmp, &freqtmp, &bandwidthtmp, &self->filtertype, &self->order, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -1061,6 +1069,8 @@ IRAverage_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp = NULL, *addtmp = NULL;
     IRAverage *self;
     self = (IRAverage *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->order = 32;
     self->count = 0;
@@ -1073,8 +1083,10 @@ IRAverage_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "order", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &inputtmp, &self->order, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &inputtmp, &self->order, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -1577,6 +1589,8 @@ IRPulse_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freqtmp = NULL, *bandwidthtmp = NULL, *multmp = NULL, *addtmp = NULL;
     IRPulse *self;
     self = (IRPulse *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->last_freq = -1.0;
     self->last_bandwidth = -1.0;
@@ -1597,8 +1611,10 @@ IRPulse_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "freq", "bw", "type", "order", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOiiOO", kwlist, &inputtmp, &freqtmp, &bandwidthtmp, &self->filtertype, &self->order, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOiiOO", kwlist, &inputtmp, &freqtmp, &bandwidthtmp, &self->filtertype, &self->order, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -2030,6 +2046,8 @@ IRFM_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *carriertmp = NULL, *ratiotmp = NULL, *indextmp = NULL, *multmp = NULL, *addtmp = NULL;
     IRFM *self;
     self = (IRFM *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->last_carrier = -1.0;
     self->last_ratio = -1.0;
@@ -2051,8 +2069,10 @@ IRFM_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "carrier", "ratio", "index", "order", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOiOO", kwlist, &inputtmp, &carriertmp, &ratiotmp, &indextmp, &self->order, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOiOO", kwlist, &inputtmp, &carriertmp, &ratiotmp, &indextmp, &self->order, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 

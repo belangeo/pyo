@@ -105,6 +105,8 @@ CtlScan_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *calltmp = NULL;
     CtlScan *self;
     self = (CtlScan *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->ctlnumber = -1;
     self->toprint = 1;
@@ -115,8 +117,10 @@ CtlScan_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"callable", "toprint", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &calltmp, &self->toprint))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &calltmp, &self->toprint)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (calltmp)
     {
@@ -312,6 +316,8 @@ CtlScan2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *calltmp = NULL;
     CtlScan2 *self;
     self = (CtlScan2 *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->ctlnumber = self->midichnl = -1;
     self->toprint = 1;
@@ -322,8 +328,10 @@ CtlScan2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"callable", "toprint", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &calltmp, &self->toprint))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &calltmp, &self->toprint)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (calltmp)
     {
@@ -638,6 +646,8 @@ Midictl_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *multmp = NULL, *addtmp = NULL;
     Midictl *self;
     self = (Midictl *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->channel = 0;
     self->value = 0.;
@@ -652,8 +662,10 @@ Midictl_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"ctlnumber", "minscale", "maxscale", "init", "channel", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_I_FFFIOO, kwlist, &self->ctlnumber, &self->minscale, &self->maxscale, &self->value, &self->channel, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_I_FFFIOO, kwlist, &self->ctlnumber, &self->minscale, &self->maxscale, &self->value, &self->channel, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (multmp)
     {
@@ -1053,6 +1065,8 @@ Bendin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *multmp = NULL, *addtmp = NULL;
     Bendin *self;
     self = (Bendin *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->channel = 0;
     self->scale = 0;
@@ -1067,8 +1081,10 @@ Bendin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"brange", "scale", "channel", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FIIOO, kwlist, &self->range, &self->scale, &self->channel, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FIIOO, kwlist, &self->range, &self->scale, &self->channel, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (multmp)
     {
@@ -1441,6 +1457,8 @@ Touchin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *multmp = NULL, *addtmp = NULL;
     Touchin *self;
     self = (Touchin *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->channel = 0;
     self->value = 0.;
@@ -1455,8 +1473,10 @@ Touchin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"minscale", "maxscale", "init", "channel", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FFFIOO, kwlist, &self->minscale, &self->maxscale, &self->value, &self->channel, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FFFIOO, kwlist, &self->minscale, &self->maxscale, &self->value, &self->channel, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (multmp)
     {
@@ -1790,6 +1810,8 @@ Programin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *multmp = NULL, *addtmp = NULL;
     Programin *self;
     self = (Programin *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->channel = 0;
     self->value = 0.;
@@ -1802,8 +1824,10 @@ Programin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"channel", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "iOO", kwlist, &self->channel, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "iOO", kwlist, &self->channel, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (multmp)
     {
@@ -2233,6 +2257,8 @@ MidiNote_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     MidiNote *self;
     self = (MidiNote *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->voices = 10;
     self->vcount = 0;
@@ -2252,8 +2278,10 @@ MidiNote_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"voices", "scale", "first", "last", "channel", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iiiii", kwlist, &self->voices, &self->scale, &self->first, &self->last, &self->channel))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iiiii", kwlist, &self->voices, &self->scale, &self->first, &self->last, &self->channel)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -2737,6 +2765,8 @@ Notein_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *handlertmp = NULL, *multmp = NULL, *addtmp = NULL;
     Notein *self;
     self = (Notein *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->voice = 0;
     self->mode = 0;
@@ -2751,8 +2781,10 @@ Notein_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"handler", "voice", "mode", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iiOO", kwlist, &handlertmp, &self->voice, &self->mode, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iiOO", kwlist, &handlertmp, &self->voice, &self->mode, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     Py_XDECREF(self->handler);
     Py_INCREF(handlertmp);
@@ -3008,6 +3040,8 @@ NoteinTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *handlertmp = NULL, *multmp = NULL, *addtmp = NULL;
     NoteinTrig *self;
     self = (NoteinTrig *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->voice = 0;
     self->mode = 0;
@@ -3020,8 +3054,10 @@ NoteinTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"handler", "voice", "mode", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iiOO", kwlist, &handlertmp, &self->voice, &self->mode, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iiOO", kwlist, &handlertmp, &self->voice, &self->mode, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     Py_XDECREF(self->handler);
     Py_INCREF(handlertmp);
@@ -3362,6 +3398,8 @@ MidiAdsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp = NULL, *addtmp = NULL;
     MidiAdsr *self;
     self = (MidiAdsr *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -3383,8 +3421,10 @@ MidiAdsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "attack", "decay", "sustain", "release", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FFFFOO, kwlist, &inputtmp, &self->attack, &self->decay, &self->sustain, &self->release, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FFFFOO, kwlist, &inputtmp, &self->attack, &self->decay, &self->sustain, &self->release, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -3835,6 +3875,8 @@ MidiDelAdsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp = NULL, *addtmp = NULL;
     MidiDelAdsr *self;
     self = (MidiDelAdsr *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -3857,8 +3899,10 @@ MidiDelAdsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "delay", "attack", "decay", "sustain", "release", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FFFFFOO, kwlist, &inputtmp, &self->delay, &self->attack, &self->decay, &self->sustain, &self->release, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FFFFFOO, kwlist, &inputtmp, &self->delay, &self->attack, &self->decay, &self->sustain, &self->release, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -4190,6 +4234,8 @@ RawMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *calltmp = NULL;
     RawMidi *self;
     self = (RawMidi *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, RawMidi_compute_next_data_frame);
@@ -4197,8 +4243,10 @@ RawMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"callable", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &calltmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &calltmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (calltmp)
     {
@@ -4559,6 +4607,8 @@ MidiLinseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *pointslist = NULL, *multmp = NULL, *addtmp = NULL;
     MidiLinseg *self;
     self = (MidiLinseg *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->noteon = 0;
     self->newlist = 1;
@@ -4575,8 +4625,10 @@ MidiLinseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "list", "hold", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|iOO", kwlist, &inputtmp, &pointslist, &self->hold, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|iOO", kwlist, &inputtmp, &pointslist, &self->hold, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 

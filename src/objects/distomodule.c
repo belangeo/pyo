@@ -272,6 +272,8 @@ Disto_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *drivetmp = NULL, *slopetmp = NULL, *multmp = NULL, *addtmp = NULL;
     Disto *self;
     self = (Disto *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->drive = PyFloat_FromDouble(.75);
     self->slope = PyFloat_FromDouble(.5);
@@ -287,8 +289,10 @@ Disto_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "drive", "slope", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &drivetmp, &slopetmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &drivetmp, &slopetmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -677,6 +681,8 @@ Clip_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *mintmp = NULL, *maxtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Clip *self;
     self = (Clip *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->min = PyFloat_FromDouble(-1.0);
     self->max = PyFloat_FromDouble(1.0);
@@ -691,8 +697,10 @@ Clip_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "min", "max", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &mintmp, &maxtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &mintmp, &maxtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -1129,6 +1137,8 @@ Mirror_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *mintmp = NULL, *maxtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Mirror *self;
     self = (Mirror *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->min = PyFloat_FromDouble(0.0);
     self->max = PyFloat_FromDouble(1.0);
@@ -1143,8 +1153,10 @@ Mirror_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "min", "max", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &mintmp, &maxtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &mintmp, &maxtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -1617,6 +1629,8 @@ Wrap_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *mintmp = NULL, *maxtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Wrap *self;
     self = (Wrap *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->min = PyFloat_FromDouble(0.0);
     self->max = PyFloat_FromDouble(1.0);
@@ -1631,8 +1645,10 @@ Wrap_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "min", "max", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &mintmp, &maxtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &mintmp, &maxtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -2074,6 +2090,8 @@ Degrade_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *bitdepthtmp = NULL, *srscaletmp = NULL, *multmp = NULL, *addtmp = NULL;
     Degrade *self;
     self = (Degrade *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->bitdepth = PyFloat_FromDouble(16);
     self->srscale = PyFloat_FromDouble(1.0);
@@ -2090,8 +2108,10 @@ Degrade_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "bitdepth", "srscale", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &bitdepthtmp, &srscaletmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &bitdepthtmp, &srscaletmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -2401,6 +2421,8 @@ Min_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *comptmp = NULL, *multmp = NULL, *addtmp = NULL;
     Min *self;
     self = (Min *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->comp = PyFloat_FromDouble(0.5);
     self->modebuffer[0] = 0;
@@ -2414,8 +2436,10 @@ Min_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "comp", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &comptmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &comptmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -2717,6 +2741,8 @@ Max_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *comptmp = NULL, *multmp = NULL, *addtmp = NULL;
     Max *self;
     self = (Max *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->comp = PyFloat_FromDouble(0.5);
     self->modebuffer[0] = 0;
@@ -2730,8 +2756,10 @@ Max_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "comp", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &comptmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &comptmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 

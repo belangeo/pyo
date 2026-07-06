@@ -264,6 +264,8 @@ Fader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *multmp = NULL, *addtmp = NULL;
     Fader *self;
     self = (Fader *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -286,8 +288,10 @@ Fader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"fadein", "fadeout", "dur", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FFFOO, kwlist, &self->attack, &self->release, &self->duration, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FFFOO, kwlist, &self->attack, &self->release, &self->duration, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (multmp)
     {
@@ -740,6 +744,8 @@ Adsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *multmp = NULL, *addtmp = NULL;
     Adsr *self;
     self = (Adsr *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -764,8 +770,10 @@ Adsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"attack", "decay", "sustain", "release", "dur", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FFFFFOO, kwlist, &self->attack, &self->decay, &self->sustain, &self->release, &self->duration, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FFFFFOO, kwlist, &self->attack, &self->decay, &self->sustain, &self->release, &self->duration, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (multmp)
     {
@@ -1247,6 +1255,8 @@ Linseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *pointslist = NULL, *multmp = NULL, *addtmp = NULL;
     Linseg *self;
     self = (Linseg *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->loop = 0;
     self->newlist = 1;
@@ -1262,8 +1272,10 @@ Linseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"list", "loop", "initToFirstVal", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iiOO", kwlist, &pointslist, &self->loop, &initToFirstVal, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iiOO", kwlist, &pointslist, &self->loop, &initToFirstVal, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->pointslist = pointslist;
     Py_INCREF(self->pointslist);
@@ -1711,6 +1723,8 @@ Expseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *pointslist = NULL, *multmp = NULL, *addtmp = NULL;
     Expseg *self;
     self = (Expseg *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->loop = 0;
     self->newlist = 1;
@@ -1728,8 +1742,10 @@ Expseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"list", "loop", "exp", "inverse", "initToFirstVal", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|idiiOO", kwlist, &pointslist, &self->loop, &self->exp_tmp, &self->inverse_tmp, &initToFirstVal, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|idiiOO", kwlist, &pointslist, &self->loop, &self->exp_tmp, &self->inverse_tmp, &initToFirstVal, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->pointslist = pointslist;
     Py_INCREF(self->pointslist);

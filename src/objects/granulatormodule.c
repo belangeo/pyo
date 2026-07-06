@@ -788,6 +788,8 @@ Granulator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *tabletmp, *envtmp, *pitchtmp = NULL, *postmp = NULL, *durtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Granulator *self;
     self = (Granulator *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->pitch = PyFloat_FromDouble(1);
     self->pos = PyFloat_FromDouble(0.0);
@@ -808,8 +810,10 @@ Granulator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"table", "env", "pitch", "pos", "dur", "grains", "basedur", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OO_OOOIFOO, kwlist, &tabletmp, &envtmp, &pitchtmp, &postmp, &durtmp, &self->ngrains, &self->basedur, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OO_OOOIFOO, kwlist, &tabletmp, &envtmp, &pitchtmp, &postmp, &durtmp, &self->ngrains, &self->basedur, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
     {
@@ -2068,6 +2072,8 @@ Looper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *tabletmp, *pitchtmp = NULL, *starttmp = NULL, *durtmp = NULL, *xfadetmp = NULL, *multmp = NULL, *addtmp = NULL;
     Looper *self;
     self = (Looper *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->pitch = PyFloat_FromDouble(1.0);
     self->start = PyFloat_FromDouble(0.0);
@@ -2098,8 +2104,10 @@ Looper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"table", "pitch", "start", "dur", "xfade", "mode", "xfadeshape", "startfromloop", "interp", "autosmooth", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOiiiiiOO", kwlist, &tabletmp, &pitchtmp, &starttmp, &durtmp, &xfadetmp, &self->tmpmode, &self->xfadeshape, &self->startfromloop, &self->interp, &self->autosmooth, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOiiiiiOO", kwlist, &tabletmp, &pitchtmp, &starttmp, &durtmp, &xfadetmp, &self->tmpmode, &self->xfadeshape, &self->startfromloop, &self->interp, &self->autosmooth, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
     {
@@ -2556,6 +2564,8 @@ LooperTimeStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     LooperTimeStream *self;
     self = (LooperTimeStream *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -2566,8 +2576,10 @@ LooperTimeStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainPlayer", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &maintmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &maintmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (Looper *)maintmp;
     Py_INCREF(self->mainPlayer);
@@ -3084,6 +3096,8 @@ Granule_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *tabletmp, *envtmp, *denstmp = NULL, *pitchtmp = NULL, *postmp = NULL, *durtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Granule *self;
     self = (Granule *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->dens = PyFloat_FromDouble(50);
     self->pitch = PyFloat_FromDouble(1);
@@ -3109,8 +3123,10 @@ Granule_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"table", "env", "dens", "pitch", "pos", "dur", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOOOOO", kwlist, &tabletmp, &envtmp, &denstmp, &pitchtmp, &postmp, &durtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOOOOO", kwlist, &tabletmp, &envtmp, &denstmp, &pitchtmp, &postmp, &durtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
     {
@@ -4097,6 +4113,8 @@ MainParticle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *tabletmp, *envtmp, *denstmp = NULL, *pitchtmp = NULL, *postmp = NULL, *durtmp = NULL, *devtmp = NULL, *pantmp = NULL;
     MainParticle *self;
     self = (MainParticle *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->dens = PyFloat_FromDouble(50);
     self->pitch = PyFloat_FromDouble(1);
@@ -4125,8 +4143,10 @@ MainParticle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"table", "env", "dens", "pitch", "pos", "dur", "dev", "pan", "chnls", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOOOOOi", kwlist, &tabletmp, &envtmp, &denstmp, &pitchtmp, &postmp, &durtmp, &devtmp, &pantmp, &self->chnls))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOOOOOi", kwlist, &tabletmp, &envtmp, &denstmp, &pitchtmp, &postmp, &durtmp, &devtmp, &pantmp, &self->chnls)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
     {
@@ -4448,6 +4468,8 @@ Particle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     Particle *self;
     self = (Particle *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -4458,8 +4480,10 @@ Particle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainSplitter = (MainParticle *)maintmp;
     Py_INCREF(self->mainSplitter);
@@ -5692,6 +5716,8 @@ MainParticle2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *devtmp = NULL, *pantmp = NULL, *filterfreqtmp = NULL, *filterqtmp = NULL, *filtertypetmp = NULL;
     MainParticle2 *self;
     self = (MainParticle2 *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->dens = PyFloat_FromDouble(50);
     self->pitch = PyFloat_FromDouble(1);
@@ -5729,8 +5755,10 @@ MainParticle2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"table", "env", "dens", "pitch", "pos", "dur", "dev", "pan", "filterfreq", "filterq", "filtertype", "chnls", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOOOOOOOOi", kwlist, &tabletmp, &envtmp, &denstmp, &pitchtmp, &postmp, &durtmp, &devtmp, &pantmp, &filterfreqtmp, &filterqtmp, &filtertypetmp, &self->chnls))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOOOOOOOOi", kwlist, &tabletmp, &envtmp, &denstmp, &pitchtmp, &postmp, &durtmp, &devtmp, &pantmp, &filterfreqtmp, &filterqtmp, &filtertypetmp, &self->chnls)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
     {
@@ -6097,6 +6125,8 @@ Particle2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     Particle2 *self;
     self = (Particle2 *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -6107,8 +6137,10 @@ Particle2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainSplitter = (MainParticle2 *)maintmp;
     Py_INCREF(self->mainSplitter);

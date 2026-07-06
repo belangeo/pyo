@@ -213,6 +213,8 @@ Follower_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freqtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Follower *self;
     self = (Follower *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(20);
     self->follow = 0.0;
@@ -228,8 +230,10 @@ Follower_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "freq", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &freqtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &freqtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -699,6 +703,8 @@ Follower2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *risetimetmp = NULL, *falltimetmp = NULL, *multmp = NULL, *addtmp = NULL;
     Follower2 *self;
     self = (Follower2 *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->risetime = PyFloat_FromDouble(0.01);
     self->falltime = PyFloat_FromDouble(0.1);
@@ -719,8 +725,10 @@ Follower2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "risetime", "falltime", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &risetimetmp, &falltimetmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &risetimetmp, &falltimetmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -1021,6 +1029,8 @@ ZCross_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp = NULL, *addtmp = NULL;
     ZCross *self;
     self = (ZCross *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->thresh = 0.0;
     self->lastValue = self->lastSample = 0.0;
@@ -1033,8 +1043,10 @@ ZCross_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "thresh", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FOO, kwlist, &inputtmp, &self->thresh, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FOO, kwlist, &inputtmp, &self->thresh, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -1418,6 +1430,8 @@ Yin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp = NULL, *addtmp = NULL;
     Yin *self;
     self = (Yin *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->winsize = 1024;
     self->halfsize = 512;
@@ -1438,8 +1452,10 @@ Yin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "tolerance", "minfreq", "maxfreq", "cutoff", "winsize", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FFFFIOO, kwlist, &inputtmp, &self->tolerance, &self->minfreq, &self->maxfreq, &self->cutoff, &self->winsize, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FFFFIOO, kwlist, &inputtmp, &self->tolerance, &self->minfreq, &self->maxfreq, &self->cutoff, &self->winsize, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -1856,6 +1872,8 @@ Centroid_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp = NULL, *addtmp = NULL;
     Centroid *self;
     self = (Centroid *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->centroid = 0;
     self->size = 1024;
@@ -1865,8 +1883,10 @@ Centroid_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "size", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &inputtmp, &self->size, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &inputtmp, &self->size, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (self->size < self->bufsize)
     {
@@ -2215,6 +2235,8 @@ AttackDetector_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp = NULL, *addtmp = NULL;
     AttackDetector *self;
     self = (AttackDetector *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->deltime = 0.005;
     self->cutoff = 10.0;
@@ -2237,8 +2259,10 @@ AttackDetector_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "deltime", "cutoff", "maxthresh", "minthresh", "reltime", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FFFFFOO, kwlist, &inputtmp, &self->deltime, &self->cutoff, &self->maxthresh, &self->minthresh, &self->reltime, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FFFFFOO, kwlist, &inputtmp, &self->deltime, &self->cutoff, &self->maxthresh, &self->minthresh, &self->reltime, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -2634,6 +2658,8 @@ Scope_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp;
     Scope *self;
     self = (Scope *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->gain = 1.0;
     self->width = 500;
@@ -2647,8 +2673,10 @@ Scope_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "length", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_F, kwlist, &inputtmp, &length))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_F, kwlist, &inputtmp, &length)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -2974,6 +3002,8 @@ PeakAmp_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp = NULL, *addtmp = NULL;
     PeakAmp *self;
     self = (PeakAmp *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->follow = 0.0;
     self->modebuffer[0] = 0;
@@ -2985,8 +3015,10 @@ PeakAmp_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -3262,6 +3294,8 @@ RMS_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp = NULL, *addtmp = NULL;
     RMS *self;
     self = (RMS *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->follow = 0.0;
     self->modebuffer[0] = 0;
@@ -3273,8 +3307,10 @@ RMS_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 

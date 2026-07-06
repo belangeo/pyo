@@ -134,6 +134,8 @@ Input_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *multmp = NULL, *addtmp = NULL;
     Input *self;
     self = (Input *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
@@ -145,8 +147,10 @@ Input_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"chnl", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOO", kwlist, &self->chnl, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOO", kwlist, &self->chnl, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (multmp)
     {

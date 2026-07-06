@@ -270,6 +270,8 @@ Compress_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *looktmp = NULL, *kneetmp = NULL;
     Compress *self;
     self = (Compress *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->thresh = PyFloat_FromDouble(-20.0);
     self->ratio = PyFloat_FromDouble(2.0);
@@ -294,8 +296,10 @@ Compress_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "thresh", "ratio", "risetime", "falltime", "lookahead", "knee", "outputAmp", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOOOiOO", kwlist, &inputtmp, &threshtmp, &ratiotmp, &risetimetmp, &falltimetmp, &looktmp, &kneetmp, &self->outputAmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOOOiOO", kwlist, &inputtmp, &threshtmp, &ratiotmp, &risetimetmp, &falltimetmp, &looktmp, &kneetmp, &self->outputAmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -1247,6 +1251,8 @@ Gate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *looktmp = NULL;
     Gate *self;
     self = (Gate *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->thresh = PyFloat_FromDouble(-70.0);
     self->risetime = PyFloat_FromDouble(0.01);
@@ -1273,8 +1279,10 @@ Gate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "thresh", "risetime", "falltime", "lookahead", "outputAmp", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOiOO", kwlist, &inputtmp, &threshtmp, &risetimetmp, &falltimetmp, &looktmp, &self->outputAmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOiOO", kwlist, &inputtmp, &threshtmp, &risetimetmp, &falltimetmp, &looktmp, &self->outputAmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -1687,6 +1695,8 @@ Balance_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *freqtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Balance *self;
     self = (Balance *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(10);
     self->follow1 = self->follow2 = 0.0;
@@ -1702,8 +1712,10 @@ Balance_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "input2", "freq", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOO", kwlist, &inputtmp, &input2tmp, &freqtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOO", kwlist, &inputtmp, &input2tmp, &freqtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -2100,6 +2112,8 @@ Expand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *looktmp = NULL;
     Expand *self;
     self = (Expand *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->downthresh = PyFloat_FromDouble(-60.0);
     self->upthresh = PyFloat_FromDouble(-20.0);
@@ -2125,8 +2139,10 @@ Expand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "downthresh", "upthresh", "ratio", "risetime", "falltime", "lookahead", "outputAmp", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOOOiOO", kwlist, &inputtmp, &downthreshtmp, &upthreshtmp, &ratiotmp, &risetimetmp, &falltimetmp, &looktmp, &self->outputAmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOOOiOO", kwlist, &inputtmp, &downthreshtmp, &upthreshtmp, &ratiotmp, &risetimetmp, &falltimetmp, &looktmp, &self->outputAmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 

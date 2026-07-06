@@ -511,6 +511,8 @@ Harmonizer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *transpotmp = NULL, *feedbacktmp = NULL, *multmp = NULL, *addtmp = NULL;
     Harmonizer *self;
     self = (Harmonizer *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->transpo = PyFloat_FromDouble(-7.0);
     self->feedback = PyFloat_FromDouble(0.0);
@@ -529,8 +531,10 @@ Harmonizer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "transpo", "feedback", "winsize", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOFOO, kwlist, &inputtmp, &transpotmp, &feedbacktmp, &wintmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOFOO, kwlist, &inputtmp, &transpotmp, &feedbacktmp, &wintmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 

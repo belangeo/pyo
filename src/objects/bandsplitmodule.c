@@ -233,6 +233,8 @@ BandSplitter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *qtmp = NULL;
     BandSplitter *self;
     self = (BandSplitter *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
 
     self->bands = 4;
@@ -248,8 +250,10 @@ BandSplitter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "bands", "min", "max", "q", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_IFFO, kwlist, &inputtmp, &self->bands, &self->min_freq, &self->max_freq, &qtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_IFFO, kwlist, &inputtmp, &self->bands, &self->min_freq, &self->max_freq, &qtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -467,6 +471,8 @@ BandSplit_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     BandSplit *self;
     self = (BandSplit *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
@@ -478,8 +484,10 @@ BandSplit_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainSplitter = (BandSplitter *)maintmp;
     Py_INCREF(self->mainSplitter);
@@ -914,6 +922,8 @@ FourBandMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freq1tmp = NULL, *freq2tmp = NULL, *freq3tmp = NULL;
     FourBandMain *self;
     self = (FourBandMain *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq1 = PyFloat_FromDouble(150);
     self->freq2 = PyFloat_FromDouble(500);
@@ -930,8 +940,10 @@ FourBandMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "freq1", "freq2", "freq3", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &freq1tmp, &freq2tmp, &freq3tmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &freq1tmp, &freq2tmp, &freq3tmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -1159,6 +1171,8 @@ FourBand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     FourBand *self;
     self = (FourBand *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
@@ -1170,8 +1184,10 @@ FourBand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainSplitter = (FourBandMain *)maintmp;
     Py_INCREF(self->mainSplitter);
@@ -1572,6 +1588,8 @@ MultiBandMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp;
     MultiBandMain *self;
     self = (MultiBandMain *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, MultiBandMain_compute_next_data_frame);
@@ -1579,8 +1597,10 @@ MultiBandMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "num", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi", kwlist, &inputtmp, &self->nbands))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi", kwlist, &inputtmp, &self->nbands)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -1817,6 +1837,8 @@ MultiBand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     MultiBand *self;
     self = (MultiBand *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
@@ -1828,8 +1850,10 @@ MultiBand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainSplitter = (MultiBandMain *)maintmp;
     Py_INCREF(self->mainSplitter);

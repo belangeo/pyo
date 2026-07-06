@@ -376,6 +376,8 @@ Biquad_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freqtmp = NULL, *qtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Biquad *self;
     self = (Biquad *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(1000);
     self->q = PyFloat_FromDouble(1);
@@ -396,8 +398,10 @@ Biquad_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "freq", "q", "type", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOiOO", kwlist, &inputtmp, &freqtmp, &qtmp, &self->filtertype, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOiOO", kwlist, &inputtmp, &freqtmp, &qtmp, &self->filtertype, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -989,6 +993,8 @@ Biquadx_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freqtmp = NULL, *qtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Biquadx *self;
     self = (Biquadx *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(1000);
     self->q = PyFloat_FromDouble(1);
@@ -1009,8 +1015,10 @@ Biquadx_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "freq", "q", "type", "stages", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOiiOO", kwlist, &inputtmp, &freqtmp, &qtmp, &self->filtertype, &self->stages, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOiiOO", kwlist, &inputtmp, &freqtmp, &qtmp, &self->filtertype, &self->stages, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -1353,6 +1361,8 @@ Biquada_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *b0tmp, *b1tmp, *b2tmp, *a0tmp, *a1tmp, *a2tmp, *multmp = NULL, *addtmp = NULL;
     Biquada *self;
     self = (Biquada *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -1365,8 +1375,10 @@ Biquada_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "b0", "b1", "b2", "a0", "a1", "a2", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOOOOOOOO", kwlist, &inputtmp, &b0tmp, &b1tmp, &b2tmp, &a0tmp, &a1tmp, &a2tmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOOOOOOOO", kwlist, &inputtmp, &b0tmp, &b1tmp, &b2tmp, &a0tmp, &a1tmp, &a2tmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -2074,6 +2086,8 @@ EQ_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freqtmp = NULL, *qtmp = NULL, *boosttmp = NULL, *multmp = NULL, *addtmp = NULL;
     EQ *self;
     self = (EQ *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(1000);
     self->q = PyFloat_FromDouble(1);
@@ -2096,8 +2110,10 @@ EQ_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "freq", "q", "boost", "type", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOiOO", kwlist, &inputtmp, &freqtmp, &qtmp, &boosttmp, &self->filtertype, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOiOO", kwlist, &inputtmp, &freqtmp, &qtmp, &boosttmp, &self->filtertype, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -2552,6 +2568,8 @@ Port_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *risetimetmp = NULL, *falltimetmp = NULL, *multmp = NULL, *addtmp = NULL;
     Port *self;
     self = (Port *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->risetime = PyFloat_FromDouble(0.05);
     self->falltime = PyFloat_FromDouble(0.05);
@@ -2569,8 +2587,10 @@ Port_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "risetime", "falltime", "init", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOFOO, kwlist, &inputtmp, &risetimetmp, &falltimetmp, &inittmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOFOO, kwlist, &inputtmp, &risetimetmp, &falltimetmp, &inittmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -2915,6 +2935,8 @@ Tone_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freqtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Tone *self;
     self = (Tone *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(1000);
     self->lastFreq = -1.0;
@@ -2933,8 +2955,10 @@ Tone_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "freq", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &freqtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &freqtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -3270,6 +3294,8 @@ Atone_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freqtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Atone *self;
     self = (Atone *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(1000);
     self->lastFreq = -1.0;
@@ -3288,8 +3314,10 @@ Atone_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "freq", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &freqtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &freqtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -3566,6 +3594,8 @@ DCBlock_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp = NULL, *addtmp = NULL;
     DCBlock *self;
     self = (DCBlock *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->x1 = self->y1 = 0.0;
     self->modebuffer[0] = 0;
@@ -3577,8 +3607,10 @@ DCBlock_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -4056,6 +4088,8 @@ Allpass_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *delaytmp = NULL, *feedbacktmp = NULL, *multmp = NULL, *addtmp = NULL;
     Allpass *self;
     self = (Allpass *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->delay = PyFloat_FromDouble(0);
     self->feedback = PyFloat_FromDouble(0);
@@ -4072,8 +4106,10 @@ Allpass_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "delay", "feedback", "maxDelay", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOFOO, kwlist, &inputtmp, &delaytmp, &feedbacktmp, &self->maxDelay, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOFOO, kwlist, &inputtmp, &delaytmp, &feedbacktmp, &self->maxDelay, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -4503,6 +4539,8 @@ Allpass2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freqtmp = NULL, *bwtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Allpass2 *self;
     self = (Allpass2 *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(1000);
     self->bw = PyFloat_FromDouble(100);
@@ -4523,8 +4561,10 @@ Allpass2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "freq", "bw", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &freqtmp, &bwtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &freqtmp, &bwtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -5312,6 +5352,8 @@ Phaser_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freqtmp = NULL, *spreadtmp = NULL, *qtmp = NULL, *feedbacktmp = NULL, *multmp = NULL, *addtmp = NULL;
     Phaser *self;
     self = (Phaser *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(1000.0);
     self->spread = PyFloat_FromDouble(1.0);
@@ -5338,8 +5380,10 @@ Phaser_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "freq", "spread", "q", "feedback", "num", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOiOO", kwlist, &inputtmp, &freqtmp, &spreadtmp, &qtmp, &feedbacktmp, &self->stages, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOiOO", kwlist, &inputtmp, &freqtmp, &spreadtmp, &qtmp, &feedbacktmp, &self->stages, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -6572,6 +6616,8 @@ Vocoder_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *freqtmp = NULL, *spreadtmp = NULL, *qtmp = NULL, *slopetmp = NULL, *multmp = NULL, *addtmp = NULL;
     Vocoder *self;
     self = (Vocoder *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(60);
     self->spread = PyFloat_FromDouble(1.25);
@@ -6599,8 +6645,10 @@ Vocoder_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "input2", "freq", "spread", "q", "slope", "stages", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOOOiOO", kwlist, &inputtmp, &input2tmp, &freqtmp, &spreadtmp, &qtmp, &slopetmp, &self->stages, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOOOiOO", kwlist, &inputtmp, &input2tmp, &freqtmp, &spreadtmp, &qtmp, &slopetmp, &self->stages, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -7398,6 +7446,8 @@ SVF_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freqtmp = NULL, *qtmp = NULL, *typetmp = NULL, *multmp = NULL, *addtmp = NULL;
     SVF *self;
     self = (SVF *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(1000);
     self->q = PyFloat_FromDouble(1);
@@ -7420,8 +7470,10 @@ SVF_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "freq", "q", "type", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOO", kwlist, &inputtmp, &freqtmp, &qtmp, &typetmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOO", kwlist, &inputtmp, &freqtmp, &qtmp, &typetmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -8186,6 +8238,8 @@ SVF2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freqtmp = NULL, *shelftmp = NULL, *qtmp = NULL, *typetmp = NULL, *multmp = NULL, *addtmp = NULL;
     SVF2 *self;
     self = (SVF2 *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(1000);
     self->shelf = PyFloat_FromDouble(-3.0);
@@ -8216,8 +8270,10 @@ SVF2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "freq", "q", "shelf", "type", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOOO", kwlist, &inputtmp, &freqtmp, &qtmp, &shelftmp, &typetmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOOO", kwlist, &inputtmp, &freqtmp, &qtmp, &shelftmp, &typetmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -8590,6 +8646,8 @@ Average_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp = NULL, *addtmp = NULL;
     Average *self;
     self = (Average *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->size = 10;
     self->init = 1;
@@ -8604,8 +8662,10 @@ Average_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "size", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &inputtmp, &self->size, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &inputtmp, &self->size, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -9062,6 +9122,8 @@ Reson_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freqtmp = NULL, *qtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Reson *self;
     self = (Reson *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(1000);
     self->q = PyFloat_FromDouble(1);
@@ -9083,8 +9145,10 @@ Reson_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "freq", "q", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &freqtmp, &qtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &freqtmp, &qtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -9574,6 +9638,8 @@ Resonx_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freqtmp = NULL, *qtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Resonx *self;
     self = (Resonx *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(1000);
     self->q = PyFloat_FromDouble(1);
@@ -9595,8 +9661,10 @@ Resonx_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "freq", "q", "stages", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOiOO", kwlist, &inputtmp, &freqtmp, &qtmp, &self->stages, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOiOO", kwlist, &inputtmp, &freqtmp, &qtmp, &self->stages, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -9982,6 +10050,8 @@ ButLP_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freqtmp = NULL, *multmp = NULL, *addtmp = NULL;
     ButLP *self;
     self = (ButLP *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(1000);
     self->lastFreq = -1.0;
@@ -10001,8 +10071,10 @@ ButLP_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "freq", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &freqtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &freqtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -10363,6 +10435,8 @@ ButHP_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freqtmp = NULL, *multmp = NULL, *addtmp = NULL;
     ButHP *self;
     self = (ButHP *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(1000);
     self->lastFreq = -1.0;
@@ -10382,8 +10456,10 @@ ButHP_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "freq", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &freqtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &freqtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -10819,6 +10895,8 @@ ButBP_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freqtmp = NULL, *qtmp = NULL, *multmp = NULL, *addtmp = NULL;
     ButBP *self;
     self = (ButBP *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(1000);
     self->q = PyFloat_FromDouble(1);
@@ -10840,8 +10918,10 @@ ButBP_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "freq", "q", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &freqtmp, &qtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &freqtmp, &qtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -11285,6 +11365,8 @@ ButBR_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freqtmp = NULL, *qtmp = NULL, *multmp = NULL, *addtmp = NULL;
     ButBR *self;
     self = (ButBR *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(1000);
     self->q = PyFloat_FromDouble(1);
@@ -11306,8 +11388,10 @@ ButBR_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "freq", "q", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &freqtmp, &qtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &freqtmp, &qtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -11759,6 +11843,8 @@ ComplexRes_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freqtmp = NULL, *decaytmp = NULL, *multmp = NULL, *addtmp = NULL;
     ComplexRes *self;
     self = (ComplexRes *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(1000);
     self->decay = PyFloat_FromDouble(.25);
@@ -11781,8 +11867,10 @@ ComplexRes_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "freq", "decay", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &freqtmp, &decaytmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &freqtmp, &decaytmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -12253,6 +12341,8 @@ MoogLP_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freqtmp = NULL, *restmp = NULL, *multmp = NULL, *addtmp = NULL;
     MoogLP *self;
     self = (MoogLP *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(1000);
     self->res = PyFloat_FromDouble(1);
@@ -12273,8 +12363,10 @@ MoogLP_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "freq", "res", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &freqtmp, &restmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &freqtmp, &restmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 

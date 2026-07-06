@@ -497,6 +497,8 @@ Chorus_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *depthtmp = NULL, *feedbacktmp = NULL, *mixtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Chorus *self;
     self = (Chorus *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->feedback = PyFloat_FromDouble(0.5);
     self->depth = PyFloat_FromDouble(1.0);
@@ -525,8 +527,10 @@ Chorus_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "depth", "feedback", "mix", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOO", kwlist, &inputtmp, &depthtmp, &feedbacktmp, &mixtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOO", kwlist, &inputtmp, &depthtmp, &feedbacktmp, &mixtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 

@@ -776,6 +776,8 @@ Exprer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *exprtmp = NULL;
     Exprer *self;
     self = (Exprer *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Exprer_compute_next_data_frame);
@@ -787,8 +789,10 @@ Exprer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "expr", "outs", "initout", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OIF, kwlist, &inputtmp, &exprtmp, &self->chnls, &initout))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OIF, kwlist, &inputtmp, &exprtmp, &self->chnls, &initout)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->input = inputtmp;
     Py_INCREF(self->input);
@@ -1366,6 +1370,8 @@ Expr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     Expr *self;
     self = (Expr *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -1376,8 +1382,10 @@ Expr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainSplitter = (Exprer *)maintmp;
     Py_INCREF(self->mainSplitter);

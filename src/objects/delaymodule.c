@@ -361,6 +361,8 @@ Delay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *delaytmp = NULL, *feedbacktmp = NULL, *multmp = NULL, *addtmp = NULL;
     Delay *self;
     self = (Delay *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->delay = PyFloat_FromDouble(0.25);
     self->feedback = PyFloat_FromDouble(0);
@@ -380,8 +382,10 @@ Delay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "delay", "feedback", "maxdelay", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOFOO, kwlist, &inputtmp, &delaytmp, &feedbacktmp, &self->maxdelay, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOFOO, kwlist, &inputtmp, &delaytmp, &feedbacktmp, &self->maxdelay, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -780,6 +784,8 @@ SDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *delaytmp = NULL, *multmp = NULL, *addtmp = NULL;
     SDelay *self;
     self = (SDelay *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->delay = PyFloat_FromDouble(0.25);
     self->maxdelay = 1;
@@ -794,8 +800,10 @@ SDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "delay", "maxdelay", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OFOO, kwlist, &inputtmp, &delaytmp, &self->maxdelay, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OFOO, kwlist, &inputtmp, &delaytmp, &self->maxdelay, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -1497,6 +1505,8 @@ Waveguide_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freqtmp = NULL, *durtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Waveguide *self;
     self = (Waveguide *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(100);
     self->dur = PyFloat_FromDouble(0.99);
@@ -1529,8 +1539,10 @@ Waveguide_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "freq", "dur", "minfreq", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOFOO, kwlist, &inputtmp, &freqtmp, &durtmp, &self->minfreq, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOFOO, kwlist, &inputtmp, &freqtmp, &durtmp, &self->minfreq, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -2635,6 +2647,8 @@ AllpassWG_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freqtmp = NULL, *feedtmp = NULL, *detunetmp = NULL, *multmp = NULL, *addtmp = NULL;
     AllpassWG *self;
     self = (AllpassWG *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(100);
     self->feed = PyFloat_FromDouble(0.);
@@ -2658,8 +2672,10 @@ AllpassWG_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "freq", "feed", "detune", "minfreq", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOOFOO, kwlist, &inputtmp, &freqtmp, &feedtmp, &detunetmp, &self->minfreq, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOOFOO, kwlist, &inputtmp, &freqtmp, &feedtmp, &detunetmp, &self->minfreq, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -2996,6 +3012,8 @@ Delay1_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp = NULL, *addtmp = NULL;
     Delay1 *self;
     self = (Delay1 *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->x1 = 0.0;
     self->modebuffer[0] = 0;
@@ -3007,8 +3025,10 @@ Delay1_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -3692,6 +3712,8 @@ SmoothDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *delaytmp = NULL, *feedbacktmp = NULL, *multmp = NULL, *addtmp = NULL;
     SmoothDelay *self;
     self = (SmoothDelay *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->delay = PyFloat_FromDouble(0.25);
     self->feedback = PyFloat_FromDouble(0);
@@ -3717,8 +3739,10 @@ SmoothDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "delay", "feedback", "crossfade", "maxdelay", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOFFOO, kwlist, &inputtmp, &delaytmp, &feedbacktmp, &self->crossfade, &self->maxdelay, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOFFOO, kwlist, &inputtmp, &delaytmp, &feedbacktmp, &self->crossfade, &self->maxdelay, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 

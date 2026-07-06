@@ -710,8 +710,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|diiissisi", kwlist,
                                       &samplingRate, &nchnls, &bufferSize, &duplex, &audioType, &serverName, &ichnls, &midiType, &verbosity))
     {
-        Py_INCREF(Py_False);
-        return Py_False;
+        return NULL;
     }
 
     int server_id = 0;
@@ -740,6 +739,8 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     Server *self;
     self = (Server *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
     self->server_booted = 0;
     self->audio_be_data = NULL;
     self->midi_be_data = NULL;
@@ -886,7 +887,7 @@ Server_setDefaultRecPath(Server *self, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"path", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "s", kwlist, &self->recpath))
-        return PyLong_FromLong(-1);
+        return NULL;
 
     Py_RETURN_NONE;
 }
@@ -1901,7 +1902,7 @@ Server_recordOptions(Server *self, PyObject *args, PyObject *kwds)
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "d|siid", kwlist, &self->recdur, &self->recpath, &self->recformat, &self->rectype, &self->recquality))
     {
-        return PyLong_FromLong(-1);
+        return NULL;
     }
 
     Py_RETURN_NONE;

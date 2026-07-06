@@ -158,6 +158,8 @@ InputFader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp = NULL;
     InputFader *self;
     self = (InputFader *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->switcher = 0;
     self->fadetime = 0.05;
@@ -175,8 +177,10 @@ InputFader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &inputtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &inputtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "server") == 0 )
     {

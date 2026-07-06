@@ -152,6 +152,8 @@ Mix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Mix *self;
     self = (Mix *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -162,8 +164,10 @@ Mix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->input = inputtmp;
     Py_INCREF(self->input);

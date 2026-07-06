@@ -254,6 +254,8 @@ NewMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     NewMatrix *self;
 
     self = (NewMatrix *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->server = PyServer_get_server();
     Py_INCREF(self->server);
@@ -264,8 +266,10 @@ NewMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"width", "height", "init", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii|O", kwlist, &self->width, &self->height, &inittmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii|O", kwlist, &self->width, &self->height, &inittmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->data = (MYFLT **)PyMem_RawRealloc(self->data, (self->height + 1) * sizeof(MYFLT *));
 
@@ -660,6 +664,8 @@ MatrixRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *matrixtmp;
     MatrixRec *self;
     self = (MatrixRec *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->pointer = 0;
     self->active = 1;
@@ -672,8 +678,10 @@ MatrixRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "matrix", "fadetime", "delay", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OO_FI, kwlist, &inputtmp, &matrixtmp, &self->fadetime, &self->delay))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OO_FI, kwlist, &inputtmp, &matrixtmp, &self->fadetime, &self->delay)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -870,6 +878,8 @@ MatrixRecLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *matrixtmp;
     MatrixRecLoop *self;
     self = (MatrixRecLoop *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->pointer = 0;
 
@@ -879,8 +889,10 @@ MatrixRecLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "matrix", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &inputtmp, &matrixtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &inputtmp, &matrixtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -1083,6 +1095,8 @@ MatrixMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *matrixtmp, *sourcestmp;
     MatrixMorph *self;
     self = (MatrixMorph *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     INIT_OBJECT_COMMON
 
@@ -1090,8 +1104,10 @@ MatrixMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "matrix", "sources", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO", kwlist, &inputtmp, &matrixtmp, &sourcestmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO", kwlist, &inputtmp, &matrixtmp, &sourcestmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 

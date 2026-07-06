@@ -198,6 +198,8 @@ Pattern_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *timetmp = NULL, *calltmp = NULL, *argtmp = NULL;
     Pattern *self;
     self = (Pattern *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->time = PyFloat_FromDouble(1.);
     self->modebuffer[0] = 0;
@@ -213,8 +215,10 @@ Pattern_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"callable", "time", "arg", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &calltmp, &timetmp, &argtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &calltmp, &timetmp, &argtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (calltmp)
     {
@@ -426,6 +430,8 @@ Score_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp;
     Score *self;
     self = (Score *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->last_value = -99;
 
@@ -435,8 +441,10 @@ Score_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "fname", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|s", kwlist, &inputtmp, &self->fname))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|s", kwlist, &inputtmp, &self->fname)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -607,6 +615,8 @@ CallAfter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *calltmp = NULL, *argtmp = NULL;
     CallAfter *self;
     self = (CallAfter *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->time = 1.;
     self->arg = Py_None;
@@ -620,8 +630,10 @@ CallAfter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"callable", "time", "arg", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FO, kwlist, &calltmp, &self->time, &argtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FO, kwlist, &calltmp, &self->time, &argtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (! PyCallable_Check(calltmp))
         Py_RETURN_NONE;

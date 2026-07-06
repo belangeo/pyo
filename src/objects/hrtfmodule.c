@@ -153,6 +153,8 @@ HRTFData_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     HRTFData *self;
     self = (HRTFData *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     /* Dataset descriptors. */
     self->length = 128;
@@ -163,8 +165,10 @@ HRTFData_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"path", "length", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &impulses, &self->length))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &impulses, &self->length)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     /* Store HRIRs. */
     self->hrtf_left = (MYFLT ***)PyMem_RawRealloc(self->hrtf_left, 14 * sizeof(MYFLT **));
@@ -664,6 +668,8 @@ HRTFSpatter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *hrtfdatatmp = NULL, *azitmp = NULL, *eletmp = NULL;
     HRTFSpatter *self;
     self = (HRTFSpatter *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, HRTFSpatter_compute_next_data_frame);
@@ -680,8 +686,10 @@ HRTFSpatter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "hrtfdata", "azi", "ele", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &hrtfdatatmp, &azitmp, &eletmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &hrtfdatatmp, &azitmp, &eletmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -930,6 +938,8 @@ HRTF_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     HRTF *self;
     self = (HRTF *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -940,8 +950,10 @@ HRTF_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainSplitter = (HRTFSpatter *)maintmp;
     Py_INCREF(self->mainSplitter);
@@ -1320,6 +1332,8 @@ Binauraler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *azitmp = NULL, *eletmp = NULL, *azispantmp = NULL, *elespantmp = NULL;
     Binauraler *self;
     self = (Binauraler *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Binauraler_compute_next_data_frame);
@@ -1337,8 +1351,10 @@ Binauraler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "azi", "ele", "azispan", "elespan", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &azitmp, &eletmp, &azispantmp, &elespantmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &azitmp, &eletmp, &azispantmp, &elespantmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -1640,6 +1656,8 @@ Binaural_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     Binaural *self;
     self = (Binaural *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -1650,8 +1668,10 @@ Binaural_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainSplitter = (Binauraler *)maintmp;
     Py_INCREF(self->mainSplitter);

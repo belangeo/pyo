@@ -340,6 +340,8 @@ SfPlayer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *speedtmp = NULL;
     SfPlayer *self;
     self = (SfPlayer *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->speed = PyFloat_FromDouble(1);
     self->loop = 0;
@@ -353,8 +355,10 @@ SfPlayer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"path", "speed", "loop", "offset", "interp", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_P__OIFI, kwlist, &self->path, &psize, &speedtmp, &self->loop, &offset, &self->interp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_P__OIFI, kwlist, &self->path, &psize, &speedtmp, &self->loop, &offset, &self->interp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (speedtmp)
     {
@@ -691,6 +695,8 @@ SfPlay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     SfPlay *self;
     self = (SfPlay *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
@@ -702,8 +708,10 @@ SfPlay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainPlayer", "chnl", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (SfPlayer *)maintmp;
     Py_INCREF(self->mainPlayer);
@@ -1330,6 +1338,8 @@ SfMarkerShuffler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *speedtmp = NULL;
     SfMarkerShuffler *self;
     self = (SfMarkerShuffler *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->speed = PyFloat_FromDouble(1);
     self->interp = 2;
@@ -1344,8 +1354,10 @@ SfMarkerShuffler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"path", "speed", "interp", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "s#|Oi", kwlist, &self->path, &psize, &speedtmp, &self->interp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "s#|Oi", kwlist, &self->path, &psize, &speedtmp, &self->interp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (speedtmp)
     {
@@ -1706,6 +1718,8 @@ SfMarkerShuffle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     SfMarkerShuffle *self;
     self = (SfMarkerShuffle *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
@@ -1717,8 +1731,10 @@ SfMarkerShuffle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainPlayer", "chnl", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (SfMarkerShuffler *)maintmp;
     Py_INCREF(self->mainPlayer);
@@ -2220,6 +2236,8 @@ SfMarkerLooper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *speedtmp = NULL, *marktmp = NULL;
     SfMarkerLooper *self;
     self = (SfMarkerLooper *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->speed = PyFloat_FromDouble(1);
     self->mark = PyFloat_FromDouble(0);
@@ -2237,8 +2255,10 @@ SfMarkerLooper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"path", "speed", "mark", "interp", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "s#|OOi", kwlist, &self->path, &psize, &speedtmp, &marktmp, &self->interp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "s#|OOi", kwlist, &self->path, &psize, &speedtmp, &marktmp, &self->interp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (speedtmp)
     {
@@ -2527,6 +2547,8 @@ SfMarkerLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     SfMarkerLoop *self;
     self = (SfMarkerLoop *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
@@ -2538,8 +2560,10 @@ SfMarkerLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainPlayer", "chnl", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (SfMarkerLooper *)maintmp;
     Py_INCREF(self->mainPlayer);

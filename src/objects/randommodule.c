@@ -410,6 +410,8 @@ Randi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *mintmp = NULL, *maxtmp = NULL, *freqtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Randi *self;
     self = (Randi *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->min = PyFloat_FromDouble(0.);
     self->max = PyFloat_FromDouble(1.);
@@ -428,8 +430,10 @@ Randi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"min", "max", "freq", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOOO", kwlist, &mintmp, &maxtmp, &freqtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOOO", kwlist, &mintmp, &maxtmp, &freqtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (mintmp)
     {
@@ -979,6 +983,8 @@ Randh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *mintmp = NULL, *maxtmp = NULL, *freqtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Randh *self;
     self = (Randh *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->min = PyFloat_FromDouble(0.);
     self->max = PyFloat_FromDouble(1.);
@@ -997,8 +1003,10 @@ Randh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"min", "max", "freq", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOOO", kwlist, &mintmp, &maxtmp, &freqtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOOO", kwlist, &mintmp, &maxtmp, &freqtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (mintmp)
     {
@@ -1350,6 +1358,8 @@ Choice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *choicetmp = NULL, *freqtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Choice *self;
     self = (Choice *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(1.);
     self->value = 0.0;
@@ -1364,8 +1374,10 @@ Choice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"choice", "freq", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &choicetmp, &freqtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &choicetmp, &freqtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (choicetmp)
     {
@@ -1780,6 +1792,8 @@ RandInt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maxtmp = NULL, *freqtmp = NULL, *multmp = NULL, *addtmp = NULL;
     RandInt *self;
     self = (RandInt *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->max = PyFloat_FromDouble(100.);
     self->freq = PyFloat_FromDouble(1.);
@@ -1796,8 +1810,10 @@ RandInt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"max", "freq", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &maxtmp, &freqtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &maxtmp, &freqtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (maxtmp)
     {
@@ -2230,6 +2246,8 @@ RandDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *mintmp = NULL, *maxtmp = NULL, *multmp = NULL, *addtmp = NULL;
     RandDur *self;
     self = (RandDur *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->min = PyFloat_FromDouble(0.01);
     self->max = PyFloat_FromDouble(1.);
@@ -2246,8 +2264,10 @@ RandDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"min", "max", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &mintmp, &maxtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &mintmp, &maxtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (mintmp)
     {
@@ -3128,6 +3148,8 @@ Xnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *freqtmp = NULL, *x1tmp = NULL, *x2tmp = NULL, *multmp = NULL, *addtmp = NULL;
     Xnoise *self;
     self = (Xnoise *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->x1 = PyFloat_FromDouble(0.5);
     self->x2 = PyFloat_FromDouble(0.5);
@@ -3166,8 +3188,10 @@ Xnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"type", "freq", "x1", "x2", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOOOO", kwlist, &self->type, &freqtmp, &x1tmp, &x2tmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOOOO", kwlist, &self->type, &freqtmp, &x1tmp, &x2tmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (x1tmp)
     {
@@ -4091,6 +4115,8 @@ XnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *freqtmp = NULL, *x1tmp = NULL, *x2tmp = NULL, *rangetmp = NULL, *multmp = NULL, *addtmp = NULL;
     XnoiseMidi *self;
     self = (XnoiseMidi *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->x1 = PyFloat_FromDouble(0.5);
     self->x2 = PyFloat_FromDouble(0.5);
@@ -4133,8 +4159,10 @@ XnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"type", "freq", "x1", "x2", "scale", "range", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOOiOOO", kwlist, &self->type, &freqtmp, &x1tmp, &x2tmp, &self->scale, &rangetmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOOiOOO", kwlist, &self->type, &freqtmp, &x1tmp, &x2tmp, &self->scale, &rangetmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (x1tmp)
     {
@@ -4875,6 +4903,8 @@ XnoiseDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *mintmp = NULL, *maxtmp = NULL, *x1tmp = NULL, *x2tmp = NULL, *multmp = NULL, *addtmp = NULL;
     XnoiseDur *self;
     self = (XnoiseDur *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->x1 = PyFloat_FromDouble(0.5);
     self->x2 = PyFloat_FromDouble(0.5);
@@ -4914,8 +4944,10 @@ XnoiseDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"type", "min", "max", "x1", "x2", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOOOOO", kwlist, &self->type, &mintmp, &maxtmp, &x1tmp, &x2tmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOOOOO", kwlist, &self->type, &mintmp, &maxtmp, &x1tmp, &x2tmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (x1tmp)
     {
@@ -5354,6 +5386,8 @@ Urn_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *freqtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Urn *self;
     self = (Urn *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(1.);
     self->max = 100;
@@ -5371,8 +5405,10 @@ Urn_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"max", "freq", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOO", kwlist, &self->max, &freqtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOO", kwlist, &self->max, &freqtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (freqtmp)
     {
@@ -5802,6 +5838,8 @@ LogiMap_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *chaostmp = NULL, *freqtmp = NULL, *multmp = NULL, *addtmp = NULL;
     LogiMap *self;
     self = (LogiMap *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chaos = PyFloat_FromDouble(0.6);
     self->freq = PyFloat_FromDouble(1.);
@@ -5817,8 +5855,10 @@ LogiMap_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"chaos", "freq", "init", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OOFOO, kwlist, &chaostmp, &freqtmp, &init, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OOFOO, kwlist, &chaostmp, &freqtmp, &init, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (chaostmp)
     {

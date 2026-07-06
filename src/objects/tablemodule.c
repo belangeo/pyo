@@ -262,6 +262,8 @@ HarmTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *amplist = NULL;
     HarmTable *self;
     self = (HarmTable *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->server = PyServer_get_server();
     Py_INCREF(self->server);
@@ -276,8 +278,10 @@ HarmTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"list", "size", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|On", kwlist, &amplist, &self->size))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|On", kwlist, &amplist, &self->size)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (amplist)
     {
@@ -588,6 +592,8 @@ ChebyTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *amplist = NULL;
     ChebyTable *self;
     self = (ChebyTable *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->server = PyServer_get_server();
     Py_INCREF(self->server);
@@ -602,8 +608,10 @@ ChebyTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"list", "size", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|On", kwlist, &amplist, &self->size))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|On", kwlist, &amplist, &self->size)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (amplist)
     {
@@ -932,6 +940,8 @@ HannTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     HannTable *self;
     self = (HannTable *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->server = PyServer_get_server();
     Py_INCREF(self->server);
@@ -942,8 +952,10 @@ HannTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"size", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|n", kwlist, &self->size))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|n", kwlist, &self->size)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->data = (MYFLT *)PyMem_RawRealloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
@@ -1168,6 +1180,8 @@ SincTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     SincTable *self;
     self = (SincTable *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->server = PyServer_get_server();
     Py_INCREF(self->server);
@@ -1180,8 +1194,10 @@ SincTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"freq", "windowed", "size", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FIN, kwlist, &self->freq, &self->windowed, &self->size))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FIN, kwlist, &self->freq, &self->windowed, &self->size)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->data = (MYFLT *)PyMem_RawRealloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
@@ -1405,6 +1421,8 @@ WinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     WinTable *self;
     self = (WinTable *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->server = PyServer_get_server();
     Py_INCREF(self->server);
@@ -1416,8 +1434,10 @@ WinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"type", "size", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|in", kwlist, &self->type, &self->size))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|in", kwlist, &self->type, &self->size)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->data = (MYFLT *)PyMem_RawRealloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
@@ -1644,6 +1664,8 @@ ParaTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     ParaTable *self;
     self = (ParaTable *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->server = PyServer_get_server();
     Py_INCREF(self->server);
@@ -1654,8 +1676,10 @@ ParaTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"size", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|n", kwlist, &self->size))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|n", kwlist, &self->size)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->data = (MYFLT *)PyMem_RawRealloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
@@ -1907,6 +1931,8 @@ LinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *pointslist = NULL;
     LinTable *self;
     self = (LinTable *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->server = PyServer_get_server();
     Py_INCREF(self->server);
@@ -1918,8 +1944,10 @@ LinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"list", "size", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|On", kwlist, &pointslist, &self->size))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|On", kwlist, &pointslist, &self->size)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (pointslist)
     {
@@ -2249,6 +2277,8 @@ LogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *pointslist = NULL;
     LogTable *self;
     self = (LogTable *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->server = PyServer_get_server();
     Py_INCREF(self->server);
@@ -2260,8 +2290,10 @@ LogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"list", "size", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|On", kwlist, &pointslist, &self->size))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|On", kwlist, &pointslist, &self->size)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (pointslist)
     {
@@ -2559,6 +2591,8 @@ CosTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *pointslist = NULL;
     CosTable *self;
     self = (CosTable *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->server = PyServer_get_server();
     Py_INCREF(self->server);
@@ -2570,8 +2604,10 @@ CosTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"list", "size", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|On", kwlist, &pointslist, &self->size))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|On", kwlist, &pointslist, &self->size)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (pointslist)
     {
@@ -2902,6 +2938,8 @@ CosLogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *pointslist = NULL;
     CosLogTable *self;
     self = (CosLogTable *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->server = PyServer_get_server();
     Py_INCREF(self->server);
@@ -2913,8 +2951,10 @@ CosLogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"list", "size", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|On", kwlist, &pointslist, &self->size))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|On", kwlist, &pointslist, &self->size)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (pointslist)
     {
@@ -3236,6 +3276,8 @@ CurveTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *pointslist = NULL;
     CurveTable *self;
     self = (CurveTable *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->server = PyServer_get_server();
     Py_INCREF(self->server);
@@ -3249,8 +3291,10 @@ CurveTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"list", "tension", "bias", "size", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OFFN, kwlist, &pointslist, &self->tension, &self->bias, &self->size))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OFFN, kwlist, &pointslist, &self->tension, &self->bias, &self->size)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (pointslist)
     {
@@ -3618,6 +3662,8 @@ ExpTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *pointslist = NULL;
     ExpTable *self;
     self = (ExpTable *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->server = PyServer_get_server();
     Py_INCREF(self->server);
@@ -3631,8 +3677,10 @@ ExpTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"list", "exp", "inverse", "size", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OFIN, kwlist, &pointslist, &self->exp, &self->inverse, &self->size))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OFIN, kwlist, &pointslist, &self->exp, &self->inverse, &self->size)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (pointslist)
     {
@@ -4366,6 +4414,8 @@ SndTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     SndTable *self;
 
     self = (SndTable *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->server = PyServer_get_server();
     Py_INCREF(self->server);
@@ -4445,7 +4495,7 @@ SndTable_getViewTable(SndTable *self, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"size", "begin", "end", "yOffset", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OFFI, kwlist, &sizetmp, &begin, &end, &yOffset))
-        return PyLong_FromLong(-1);
+        Py_RETURN_NONE;
 
     if (end <= 0.0)
         end = self->size;
@@ -4841,6 +4891,8 @@ NewTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inittmp = NULL;
     NewTable *self;
     self = (NewTable *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->server = PyServer_get_server();
     Py_INCREF(self->server);
@@ -4851,8 +4903,10 @@ NewTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"length", "init", "feedback", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_OF, kwlist, &self->length, &inittmp, &self->feedback))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_OF, kwlist, &self->length, &inittmp, &self->feedback)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
     self->sr = (MYFLT)PyFloat_AsDouble(srobj);
@@ -5280,6 +5334,8 @@ DataTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inittmp = NULL;
     DataTable *self;
     self = (DataTable *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->server = PyServer_get_server();
     Py_INCREF(self->server);
@@ -5288,8 +5344,10 @@ DataTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"size", "init", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "n|O", kwlist, &self->size, &inittmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "n|O", kwlist, &self->size, &inittmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->data = (MYFLT *)PyMem_RawRealloc(self->data, (self->size + 1) * sizeof(MYFLT));
 
@@ -5496,6 +5554,8 @@ AtanTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     AtanTable *self;
     self = (AtanTable *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->server = PyServer_get_server();
     Py_INCREF(self->server);
@@ -5507,8 +5567,10 @@ AtanTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"slope", "size", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_N, kwlist, &self->slope, &self->size))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_N, kwlist, &self->slope, &self->size)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->data = (MYFLT *)PyMem_RawRealloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
@@ -5836,6 +5898,8 @@ PadSynthTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     PadSynthTable *self;
     self = (PadSynthTable *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->server = PyServer_get_server();
     Py_INCREF(self->server);
@@ -5854,8 +5918,10 @@ PadSynthTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"basefreq", "spread", "bw", "bwscl", "nharms", "damp", "size", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FFFFIFN, kwlist, &self->basefreq, &self->spread, &self->bw,
-                                      &self->bwscl, &self->nharms, &self->damp, &self->size))
-        Py_RETURN_NONE;
+                                      &self->bwscl, &self->nharms, &self->damp, &self->size)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (!isPowerOfTwo(self->size))
     {
@@ -6276,6 +6342,8 @@ TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *tabletmp;
     TableRec *self;
     self = (TableRec *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->pointer = 0;
     self->active = 1;
@@ -6287,8 +6355,10 @@ TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "table", "fadetime", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OO_F, kwlist, &inputtmp, &tabletmp, &self->fadetime))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OO_F, kwlist, &inputtmp, &tabletmp, &self->fadetime)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -6562,6 +6632,8 @@ TableRecTimeStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     TableRecTimeStream *self;
     self = (TableRecTimeStream *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -6572,8 +6644,10 @@ TableRecTimeStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainPlayer", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &maintmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &maintmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (TableRec *)maintmp;
     Py_INCREF(self->mainPlayer);
@@ -6822,6 +6896,8 @@ TableMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *tabletmp, *sourcestmp;
     TableMorph *self;
     self = (TableMorph *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     INIT_OBJECT_COMMON
 
@@ -6829,8 +6905,10 @@ TableMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "table", "sources", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO", kwlist, &inputtmp, &tabletmp, &sourcestmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO", kwlist, &inputtmp, &tabletmp, &sourcestmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -7144,6 +7222,8 @@ TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *trigtmp, *trig_streamtmp, *tabletmp;
     TrigTableRec *self;
     self = (TrigTableRec *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->pointer = 0;
     self->active = 0;
@@ -7155,8 +7235,10 @@ TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "trig", "table", "fadetime", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OOO_F, kwlist, &inputtmp, &trigtmp, &tabletmp, &self->fadetime))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OOO_F, kwlist, &inputtmp, &trigtmp, &tabletmp, &self->fadetime)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -7391,6 +7473,8 @@ TrigTableRecTimeStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     TrigTableRecTimeStream *self;
     self = (TrigTableRecTimeStream *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -7401,8 +7485,10 @@ TrigTableRecTimeStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainPlayer", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &maintmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &maintmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (TrigTableRec *)maintmp;
     Py_INCREF(self->mainPlayer);
@@ -7619,6 +7705,8 @@ TablePut_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *tabletmp;
     TablePut *self;
     self = (TablePut *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->pointer = 0;
     self->active = 1;
@@ -7630,8 +7718,10 @@ TablePut_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "table", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &inputtmp, &tabletmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &inputtmp, &tabletmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -7882,6 +7972,8 @@ TableWrite_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *postmp, *tabletmp;
     TableWrite *self;
     self = (TableWrite *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->pos = PyFloat_FromDouble(0.0);
 
@@ -7899,8 +7991,10 @@ TableWrite_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "pos", "table", "mode", "maxwindow", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOOii", kwlist, &inputtmp, &postmp, &tabletmp, &self->mode, &self->maxwindow))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOOii", kwlist, &inputtmp, &postmp, &tabletmp, &self->mode, &self->maxwindow)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -8071,6 +8165,8 @@ SharedTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     SharedTable *self;
     self = (SharedTable *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->server = PyServer_get_server();
     Py_INCREF(self->server);
@@ -8079,8 +8175,10 @@ SharedTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"name", "create", "size", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "sin", kwlist, &self->name, &self->create, &self->size))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "sin", kwlist, &self->name, &self->create, &self->size)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
 #if !defined(_WIN32) && !defined(_WIN64)
     T_SIZE_T i;

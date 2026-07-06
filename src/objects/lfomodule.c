@@ -1346,6 +1346,8 @@ LFO_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *freqtmp = NULL, *sharptmp = NULL, *multmp = NULL, *addtmp = NULL;
     LFO *self;
     self = (LFO *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(100);
     self->sharp = PyFloat_FromDouble(0.5);
@@ -1369,8 +1371,10 @@ LFO_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"freq", "sharp", "type", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOiOO", kwlist, &freqtmp, &sharptmp, &self->wavetype, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOiOO", kwlist, &freqtmp, &sharptmp, &self->wavetype, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (freqtmp)
     {

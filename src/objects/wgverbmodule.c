@@ -565,6 +565,8 @@ WGVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *feedbacktmp = NULL, *cutofftmp = NULL, *mixtmp = NULL, *multmp = NULL, *addtmp = NULL;
     WGVerb *self;
     self = (WGVerb *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->feedback = PyFloat_FromDouble(0.5);
     self->cutoff = PyFloat_FromDouble(5000.0);
@@ -596,8 +598,10 @@ WGVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "feedback", "cutoff", "mix", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOO", kwlist, &inputtmp, &feedbacktmp, &cutofftmp, &mixtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOO", kwlist, &inputtmp, &feedbacktmp, &cutofftmp, &mixtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -1620,6 +1624,8 @@ STReverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *inpostmp = NULL, *revtimetmp = NULL, *cutofftmp = NULL, *mixtmp = NULL;
     STReverb *self;
     self = (STReverb *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->inpos = PyFloat_FromDouble(0.5);
     self->revtime = PyFloat_FromDouble(0.5);
@@ -1642,8 +1648,10 @@ STReverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "inpos", "revtime", "cutoff", "mix", "roomSize", "firstRefGain", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOOOFF, kwlist, &inputtmp, &inpostmp, &revtimetmp, &cutofftmp, &mixtmp, &roomSize, &firstRefTmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOOOFF, kwlist, &inputtmp, &inpostmp, &revtimetmp, &cutofftmp, &mixtmp, &roomSize, &firstRefTmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -2061,6 +2069,8 @@ STRev_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     STRev *self;
     self = (STRev *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
@@ -2071,8 +2081,10 @@ STRev_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainSplitter = (STReverb *)maintmp;
     Py_INCREF(self->mainSplitter);

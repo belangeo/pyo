@@ -155,6 +155,8 @@ MatrixPointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *matrixtmp, *xtmp, *ytmp, *multmp = NULL, *addtmp = NULL;
     MatrixPointer *self;
     self = (MatrixPointer *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->x = PyFloat_FromDouble(0.0);
     self->y = PyFloat_FromDouble(0.0);
@@ -168,8 +170,10 @@ MatrixPointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"matrix", "x", "y", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO|OO", kwlist, &matrixtmp, &xtmp, &ytmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO|OO", kwlist, &matrixtmp, &xtmp, &ytmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)matrixtmp, "getMatrixStream") == 0 )
     {

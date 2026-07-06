@@ -211,6 +211,8 @@ Metro_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *timetmp = NULL;
     Metro *self;
     self = (Metro *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->time = PyFloat_FromDouble(1.);
     self->modebuffer[0] = 0;
@@ -229,8 +231,10 @@ Metro_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"time", "offset", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Od", kwlist, &timetmp, &self->offset))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Od", kwlist, &timetmp, &self->offset)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (timetmp)
     {
@@ -701,6 +705,8 @@ Seqer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *timetmp = NULL, *speedtmp = NULL, *seqtmp = NULL;
     Seqer *self;
     self = (Seqer *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->time = PyFloat_FromDouble(1.);
     self->speed = PyFloat_FromDouble(1.);
@@ -727,8 +733,10 @@ Seqer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"time", "seq", "poly", "onlyonce", "speed", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOiiO", kwlist, &timetmp, &seqtmp, &self->poly, &self->onlyonce, &speedtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOiiO", kwlist, &timetmp, &seqtmp, &self->poly, &self->onlyonce, &speedtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (timetmp)
     {
@@ -980,6 +988,8 @@ Seq_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     Seq *self;
     self = (Seq *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
@@ -991,8 +1001,10 @@ Seq_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (Seqer *)maintmp;
     Py_INCREF(self->mainPlayer);
@@ -1273,6 +1285,8 @@ Clouder_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *densitytmp = NULL;
     Clouder *self;
     self = (Clouder *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->density = PyFloat_FromDouble(10.0);
     self->poly = 1;
@@ -1287,8 +1301,10 @@ Clouder_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"density", "poly", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oi", kwlist, &densitytmp, &self->poly))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oi", kwlist, &densitytmp, &self->poly)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (densitytmp)
     {
@@ -1489,6 +1505,8 @@ Cloud_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     Cloud *self;
     self = (Cloud *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
@@ -1500,8 +1518,10 @@ Cloud_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (Clouder *)maintmp;
     Py_INCREF(self->mainPlayer);
@@ -1745,6 +1765,8 @@ Trig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     int i;
     Trig *self;
     self = (Trig *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->flag = 1;
     self->modebuffer[0] = 0;
@@ -1756,8 +1778,10 @@ Trig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "", kwlist))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "", kwlist)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -2496,6 +2520,8 @@ Beater_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *timetmp = NULL;
     Beater *self;
     self = (Beater *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     for (i = 0; i < 32; i++)
     {
@@ -2535,8 +2561,10 @@ Beater_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"time", "taps", "weight1", "weight2", "weight3", "poly", "onlyonce", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oiiiiii", kwlist, &timetmp, &self->taps, &self->weight1, &self->weight2, &self->weight3, &self->poly, &self->onlyonce))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oiiiiii", kwlist, &timetmp, &self->taps, &self->weight1, &self->weight2, &self->weight3, &self->poly, &self->onlyonce)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (timetmp)
     {
@@ -2952,6 +2980,8 @@ Beat_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     Beat *self;
     self = (Beat *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
@@ -2963,8 +2993,10 @@ Beat_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (Beater *)maintmp;
     Py_INCREF(self->mainPlayer);
@@ -3214,6 +3246,8 @@ BeatTapStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     BeatTapStream *self;
     self = (BeatTapStream *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
@@ -3225,8 +3259,10 @@ BeatTapStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (Beater *)maintmp;
     Py_INCREF(self->mainPlayer);
@@ -3476,6 +3512,8 @@ BeatAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     BeatAmpStream *self;
     self = (BeatAmpStream *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
@@ -3487,8 +3525,10 @@ BeatAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (Beater *)maintmp;
     Py_INCREF(self->mainPlayer);
@@ -3738,6 +3778,8 @@ BeatDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     BeatDurStream *self;
     self = (BeatDurStream *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
@@ -3749,8 +3791,10 @@ BeatDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (Beater *)maintmp;
     Py_INCREF(self->mainPlayer);
@@ -4000,6 +4044,8 @@ BeatEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     BeatEndStream *self;
     self = (BeatEndStream *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
@@ -4011,8 +4057,10 @@ BeatEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (Beater *)maintmp;
     Py_INCREF(self->mainPlayer);
@@ -4323,6 +4371,8 @@ TrigBurster_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp;
     TrigBurster *self;
     self = (TrigBurster *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
 
     self->poly = 1;
@@ -4346,8 +4396,10 @@ TrigBurster_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "time", "count", "expand", "ampfade", "poly", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FIFFI, kwlist, &inputtmp, &self->time, &self->count, &self->expand, &self->ampfade, &self->poly))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FIFFI, kwlist, &inputtmp, &self->time, &self->count, &self->expand, &self->ampfade, &self->poly)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -4611,6 +4663,8 @@ TrigBurst_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     TrigBurst *self;
     self = (TrigBurst *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
@@ -4622,8 +4676,10 @@ TrigBurst_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (TrigBurster *)maintmp;
     Py_INCREF(self->mainPlayer);
@@ -4873,6 +4929,8 @@ TrigBurstTapStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     TrigBurstTapStream *self;
     self = (TrigBurstTapStream *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
@@ -4884,8 +4942,10 @@ TrigBurstTapStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (TrigBurster *)maintmp;
     Py_INCREF(self->mainPlayer);
@@ -5135,6 +5195,8 @@ TrigBurstAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     TrigBurstAmpStream *self;
     self = (TrigBurstAmpStream *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
@@ -5146,8 +5208,10 @@ TrigBurstAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (TrigBurster *)maintmp;
     Py_INCREF(self->mainPlayer);
@@ -5397,6 +5461,8 @@ TrigBurstDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     TrigBurstDurStream *self;
     self = (TrigBurstDurStream *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
@@ -5408,8 +5474,10 @@ TrigBurstDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (TrigBurster *)maintmp;
     Py_INCREF(self->mainPlayer);
@@ -5659,6 +5727,8 @@ TrigBurstEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     TrigBurstEndStream *self;
     self = (TrigBurstEndStream *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
@@ -5670,8 +5740,10 @@ TrigBurstEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (TrigBurster *)maintmp;
     Py_INCREF(self->mainPlayer);
