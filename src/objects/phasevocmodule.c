@@ -240,7 +240,7 @@ PVAnal_process(PVAnal *self)
 static void
 PVAnal_setProcMode(PVAnal *self)
 {
-    self->proc_func_ptr = PVAnal_process;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVAnal_process);
 }
 
 static void
@@ -308,7 +308,7 @@ PVAnal_dealloc(PVAnal* self)
     PyMem_RawFree(self->count);
     PVAnal_clear(self);
     Py_TYPE(self->pv_stream)->tp_free((PyObject*)self->pv_stream);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -329,8 +329,8 @@ PVAnal_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->wintype = 2;
     self->allocated = 0;
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, PVAnal_compute_next_data_frame);
-    self->mode_func_ptr = PVAnal_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(PVAnal_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(PVAnal_setProcMode);
 
     static char *kwlist[] = {"input", "size", "olaps", "wintype", "callback", NULL};
 
@@ -480,47 +480,31 @@ static PyMethodDef PVAnal_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject PVAnalType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.PVAnal_base",                                   /*tp_name*/
-    sizeof(PVAnal),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)PVAnal_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVAnal objects. Phase Vocoder analysis object.",           /* tp_doc */
-    (traverseproc)PVAnal_traverse,                  /* tp_traverse */
-    (inquiry)PVAnal_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    PVAnal_methods,                                 /* tp_methods */
-    PVAnal_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    PVAnal_new,                                     /* tp_new */
+static PyType_Slot PVAnalType_slots[] = {
+    {Py_tp_dealloc, PVAnal_dealloc},
+    {Py_tp_doc, "PVAnal objects. Phase Vocoder analysis object."},
+    {Py_tp_traverse, PVAnal_traverse},
+    {Py_tp_clear, PVAnal_clear},
+    {Py_tp_methods, PVAnal_methods},
+    {Py_tp_members, PVAnal_members},
+    {Py_tp_new, PVAnal_new},
+    {0, NULL}
 };
+
+static PyType_Spec PVAnalType_spec =
+{
+    "_pyo.PVAnal_base",
+    sizeof(PVAnal),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    PVAnalType_slots
+};
+
+PyTypeObject *
+PyoCreatePVAnalType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &PVAnalType_spec, NULL);
+}
 
 /*****************/
 /**** PVSynth ****/
@@ -689,44 +673,44 @@ PVSynth_setProcMode(PVSynth *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = PVSynth_process;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVSynth_process);
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = PVSynth_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(PVSynth_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = PVSynth_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(PVSynth_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = PVSynth_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(PVSynth_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = PVSynth_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(PVSynth_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = PVSynth_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(PVSynth_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = PVSynth_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(PVSynth_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = PVSynth_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(PVSynth_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = PVSynth_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(PVSynth_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = PVSynth_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(PVSynth_postprocessing_revareva);
             break;
     }
 }
@@ -775,7 +759,7 @@ PVSynth_dealloc(PVSynth* self)
     PyMem_RawFree(self->twiddle);
     PyMem_RawFree(self->window);
     PVSynth_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -795,8 +779,8 @@ PVSynth_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->wintype = 2;
     self->allocated = 0;
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, PVSynth_compute_next_data_frame);
-    self->mode_func_ptr = PVSynth_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(PVSynth_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(PVSynth_setProcMode);
 
     static char *kwlist[] = {"input", "wintype", "mul", "add", NULL};
 
@@ -914,85 +898,39 @@ static PyMethodDef PVSynth_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods PVSynth_as_number =
-{
-    (binaryfunc)PVSynth_add,                         /*nb_add*/
-    (binaryfunc)PVSynth_sub,                         /*nb_subtract*/
-    (binaryfunc)PVSynth_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)PVSynth_inplace_add,                 /*inplace_add*/
-    (binaryfunc)PVSynth_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)PVSynth_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)PVSynth_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)PVSynth_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot PVSynthType_slots[] = {
+    {Py_tp_dealloc, PVSynth_dealloc},
+    {Py_tp_doc, "PVSynth objects. Phase Vocoder synthesis object."},
+    {Py_tp_traverse, PVSynth_traverse},
+    {Py_tp_clear, PVSynth_clear},
+    {Py_tp_methods, PVSynth_methods},
+    {Py_tp_members, PVSynth_members},
+    {Py_tp_new, PVSynth_new},
+    {Py_nb_add, PVSynth_add},
+    {Py_nb_subtract, PVSynth_sub},
+    {Py_nb_multiply, PVSynth_multiply},
+    {Py_nb_true_divide, PVSynth_div},
+    {Py_nb_inplace_add, PVSynth_inplace_add},
+    {Py_nb_inplace_subtract, PVSynth_inplace_sub},
+    {Py_nb_inplace_multiply, PVSynth_inplace_multiply},
+    {Py_nb_inplace_true_divide, PVSynth_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject PVSynthType =
+static PyType_Spec PVSynthType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.PVSynth_base",                                   /*tp_name*/
-    sizeof(PVSynth),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)PVSynth_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    &PVSynth_as_number,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVSynth objects. Phase Vocoder synthesis object.",           /* tp_doc */
-    (traverseproc)PVSynth_traverse,                  /* tp_traverse */
-    (inquiry)PVSynth_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    PVSynth_methods,                                 /* tp_methods */
-    PVSynth_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    PVSynth_new,                                     /* tp_new */
+    "_pyo.PVSynth_base",
+    sizeof(PVSynth),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    PVSynthType_slots
 };
+
+PyTypeObject *
+PyoCreatePVSynthType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &PVSynthType_spec, NULL);
+}
 
 /*****************/
 /**** PVAddSynth ****/
@@ -1206,50 +1144,50 @@ PVAddSynth_setProcMode(PVAddSynth *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = PVAddSynth_process_i;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVAddSynth_process_i);
             break;
 
         case 1:
-            self->proc_func_ptr = PVAddSynth_process_a;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVAddSynth_process_a);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = PVAddSynth_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(PVAddSynth_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = PVAddSynth_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(PVAddSynth_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = PVAddSynth_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(PVAddSynth_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = PVAddSynth_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(PVAddSynth_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = PVAddSynth_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(PVAddSynth_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = PVAddSynth_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(PVAddSynth_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = PVAddSynth_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(PVAddSynth_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = PVAddSynth_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(PVAddSynth_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = PVAddSynth_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(PVAddSynth_postprocessing_revareva);
             break;
     }
 }
@@ -1289,7 +1227,7 @@ PVAddSynth_dealloc(PVAddSynth* self)
     PyMem_RawFree(self->amp);
     PyMem_RawFree(self->freq);
     PVAddSynth_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1313,8 +1251,8 @@ PVAddSynth_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[2] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, PVAddSynth_compute_next_data_frame);
-    self->mode_func_ptr = PVAddSynth_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(PVAddSynth_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(PVAddSynth_setProcMode);
 
     static char *kwlist[] = {"input", "pitch", "num", "first", "inc", "mul", "add", NULL};
 
@@ -1491,85 +1429,39 @@ static PyMethodDef PVAddSynth_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods PVAddSynth_as_number =
-{
-    (binaryfunc)PVAddSynth_add,                         /*nb_add*/
-    (binaryfunc)PVAddSynth_sub,                         /*nb_subtract*/
-    (binaryfunc)PVAddSynth_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)PVAddSynth_inplace_add,                 /*inplace_add*/
-    (binaryfunc)PVAddSynth_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)PVAddSynth_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)PVAddSynth_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)PVAddSynth_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot PVAddSynthType_slots[] = {
+    {Py_tp_dealloc, PVAddSynth_dealloc},
+    {Py_tp_doc, "PVAddSynth objects. Phase Vocoder additive resynthesis object."},
+    {Py_tp_traverse, PVAddSynth_traverse},
+    {Py_tp_clear, PVAddSynth_clear},
+    {Py_tp_methods, PVAddSynth_methods},
+    {Py_tp_members, PVAddSynth_members},
+    {Py_tp_new, PVAddSynth_new},
+    {Py_nb_add, PVAddSynth_add},
+    {Py_nb_subtract, PVAddSynth_sub},
+    {Py_nb_multiply, PVAddSynth_multiply},
+    {Py_nb_true_divide, PVAddSynth_div},
+    {Py_nb_inplace_add, PVAddSynth_inplace_add},
+    {Py_nb_inplace_subtract, PVAddSynth_inplace_sub},
+    {Py_nb_inplace_multiply, PVAddSynth_inplace_multiply},
+    {Py_nb_inplace_true_divide, PVAddSynth_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject PVAddSynthType =
+static PyType_Spec PVAddSynthType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.PVAddSynth_base",                                   /*tp_name*/
-    sizeof(PVAddSynth),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)PVAddSynth_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    &PVAddSynth_as_number,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVAddSynth objects. Phase Vocoder additive resynthesis object.",           /* tp_doc */
-    (traverseproc)PVAddSynth_traverse,                  /* tp_traverse */
-    (inquiry)PVAddSynth_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    PVAddSynth_methods,                                 /* tp_methods */
-    PVAddSynth_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    PVAddSynth_new,                                     /* tp_new */
+    "_pyo.PVAddSynth_base",
+    sizeof(PVAddSynth),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    PVAddSynthType_slots
 };
+
+PyTypeObject *
+PyoCreatePVAddSynthType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &PVAddSynthType_spec, NULL);
+}
 
 /*****************/
 /** PVTranspose **/
@@ -1749,11 +1641,11 @@ PVTranspose_setProcMode(PVTranspose *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = PVTranspose_process_i;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVTranspose_process_i);
             break;
 
         case 1:
-            self->proc_func_ptr = PVTranspose_process_a;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVTranspose_process_a);
             break;
     }
 }
@@ -1799,7 +1691,7 @@ PVTranspose_dealloc(PVTranspose* self)
     PyMem_RawFree(self->count);
     PVTranspose_clear(self);
     Py_TYPE(self->pv_stream)->tp_free((PyObject*)self->pv_stream);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1818,8 +1710,8 @@ PVTranspose_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->olaps = self->last_olaps = 4;
     self->allocated = 0;
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, PVTranspose_compute_next_data_frame);
-    self->mode_func_ptr = PVTranspose_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(PVTranspose_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(PVTranspose_setProcMode);
 
     static char *kwlist[] = {"input", "transpo", NULL};
 
@@ -1908,47 +1800,31 @@ static PyMethodDef PVTranspose_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject PVTransposeType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.PVTranspose_base",                                   /*tp_name*/
-    sizeof(PVTranspose),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)PVTranspose_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVTranspose objects. Spectral domain transposition.",           /* tp_doc */
-    (traverseproc)PVTranspose_traverse,                  /* tp_traverse */
-    (inquiry)PVTranspose_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    PVTranspose_methods,                                 /* tp_methods */
-    PVTranspose_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    PVTranspose_new,                                     /* tp_new */
+static PyType_Slot PVTransposeType_slots[] = {
+    {Py_tp_dealloc, PVTranspose_dealloc},
+    {Py_tp_doc, "PVTranspose objects. Spectral domain transposition."},
+    {Py_tp_traverse, PVTranspose_traverse},
+    {Py_tp_clear, PVTranspose_clear},
+    {Py_tp_methods, PVTranspose_methods},
+    {Py_tp_members, PVTranspose_members},
+    {Py_tp_new, PVTranspose_new},
+    {0, NULL}
 };
+
+static PyType_Spec PVTransposeType_spec =
+{
+    "_pyo.PVTranspose_base",
+    sizeof(PVTranspose),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    PVTransposeType_slots
+};
+
+PyTypeObject *
+PyoCreatePVTransposeType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &PVTransposeType_spec, NULL);
+}
 
 /*****************/
 /** PVVerb **/
@@ -2315,19 +2191,19 @@ PVVerb_setProcMode(PVVerb *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = PVVerb_process_ii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVVerb_process_ii);
             break;
 
         case 1:
-            self->proc_func_ptr = PVVerb_process_ai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVVerb_process_ai);
             break;
 
         case 10:
-            self->proc_func_ptr = PVVerb_process_ia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVVerb_process_ia);
             break;
 
         case 11:
-            self->proc_func_ptr = PVVerb_process_aa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVVerb_process_aa);
             break;
     }
 }
@@ -2377,7 +2253,7 @@ PVVerb_dealloc(PVVerb* self)
     PyMem_RawFree(self->count);
     PVVerb_clear(self);
     Py_TYPE(self->pv_stream)->tp_free((PyObject*)self->pv_stream);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2397,8 +2273,8 @@ PVVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->olaps = self->last_olaps = 4;
     self->allocated = 0;
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, PVVerb_compute_next_data_frame);
-    self->mode_func_ptr = PVVerb_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(PVVerb_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(PVVerb_setProcMode);
 
     static char *kwlist[] = {"input", "revtime", "damp", NULL};
 
@@ -2495,47 +2371,31 @@ static PyMethodDef PVVerb_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject PVVerbType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.PVVerb_base",                                   /*tp_name*/
-    sizeof(PVVerb),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)PVVerb_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVVerb objects. Spectral reverberation.",           /* tp_doc */
-    (traverseproc)PVVerb_traverse,                  /* tp_traverse */
-    (inquiry)PVVerb_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    PVVerb_methods,                                 /* tp_methods */
-    PVVerb_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    PVVerb_new,                                     /* tp_new */
+static PyType_Slot PVVerbType_slots[] = {
+    {Py_tp_dealloc, PVVerb_dealloc},
+    {Py_tp_doc, "PVVerb objects. Spectral reverberation."},
+    {Py_tp_traverse, PVVerb_traverse},
+    {Py_tp_clear, PVVerb_clear},
+    {Py_tp_methods, PVVerb_methods},
+    {Py_tp_members, PVVerb_members},
+    {Py_tp_new, PVVerb_new},
+    {0, NULL}
 };
+
+static PyType_Spec PVVerbType_spec =
+{
+    "_pyo.PVVerb_base",
+    sizeof(PVVerb),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    PVVerbType_slots
+};
+
+PyTypeObject *
+PyoCreatePVVerbType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &PVVerbType_spec, NULL);
+}
 
 /*****************/
 /** PVGate **/
@@ -2879,19 +2739,19 @@ PVGate_setProcMode(PVGate *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = PVGate_process_ii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVGate_process_ii);
             break;
 
         case 1:
-            self->proc_func_ptr = PVGate_process_ai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVGate_process_ai);
             break;
 
         case 10:
-            self->proc_func_ptr = PVGate_process_ia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVGate_process_ia);
             break;
 
         case 11:
-            self->proc_func_ptr = PVGate_process_aa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVGate_process_aa);
             break;
     }
 }
@@ -2939,7 +2799,7 @@ PVGate_dealloc(PVGate* self)
     PyMem_RawFree(self->count);
     PVGate_clear(self);
     Py_TYPE(self->pv_stream)->tp_free((PyObject*)self->pv_stream);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2960,8 +2820,8 @@ PVGate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->allocated = 0;
     self->inverse = 0;
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, PVGate_compute_next_data_frame);
-    self->mode_func_ptr = PVGate_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(PVGate_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(PVGate_setProcMode);
 
     static char *kwlist[] = {"input", "thresh", "damp", "inverse", NULL};
 
@@ -3072,47 +2932,31 @@ static PyMethodDef PVGate_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject PVGateType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.PVGate_base",                                   /*tp_name*/
-    sizeof(PVGate),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)PVGate_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVGate objects. Spectral gate.",           /* tp_doc */
-    (traverseproc)PVGate_traverse,                  /* tp_traverse */
-    (inquiry)PVGate_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    PVGate_methods,                                 /* tp_methods */
-    PVGate_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    PVGate_new,                                     /* tp_new */
+static PyType_Slot PVGateType_slots[] = {
+    {Py_tp_dealloc, PVGate_dealloc},
+    {Py_tp_doc, "PVGate objects. Spectral gate."},
+    {Py_tp_traverse, PVGate_traverse},
+    {Py_tp_clear, PVGate_clear},
+    {Py_tp_methods, PVGate_methods},
+    {Py_tp_members, PVGate_members},
+    {Py_tp_new, PVGate_new},
+    {0, NULL}
 };
+
+static PyType_Spec PVGateType_spec =
+{
+    "_pyo.PVGate_base",
+    sizeof(PVGate),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    PVGateType_slots
+};
+
+PyTypeObject *
+PyoCreatePVGateType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &PVGateType_spec, NULL);
+}
 
 /*****************/
 /** PVCross **/
@@ -3274,11 +3118,11 @@ PVCross_setProcMode(PVCross *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = PVCross_process_i;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVCross_process_i);
             break;
 
         case 1:
-            self->proc_func_ptr = PVCross_process_a;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVCross_process_a);
             break;
     }
 }
@@ -3326,7 +3170,7 @@ PVCross_dealloc(PVCross* self)
     PyMem_RawFree(self->count);
     PVCross_clear(self);
     Py_TYPE(self->pv_stream)->tp_free((PyObject*)self->pv_stream);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3345,8 +3189,8 @@ PVCross_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->olaps = self->last_olaps = 4;
     self->allocated = 0;
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, PVCross_compute_next_data_frame);
-    self->mode_func_ptr = PVCross_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(PVCross_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(PVCross_setProcMode);
 
     static char *kwlist[] = {"input", "input2", "fade", NULL};
 
@@ -3465,47 +3309,31 @@ static PyMethodDef PVCross_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject PVCrossType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.PVCross_base",                                   /*tp_name*/
-    sizeof(PVCross),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)PVCross_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVCross objects. Cross-synthesis.",           /* tp_doc */
-    (traverseproc)PVCross_traverse,                  /* tp_traverse */
-    (inquiry)PVCross_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    PVCross_methods,                                 /* tp_methods */
-    PVCross_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    PVCross_new,                                     /* tp_new */
+static PyType_Slot PVCrossType_slots[] = {
+    {Py_tp_dealloc, PVCross_dealloc},
+    {Py_tp_doc, "PVCross objects. Cross-synthesis."},
+    {Py_tp_traverse, PVCross_traverse},
+    {Py_tp_clear, PVCross_clear},
+    {Py_tp_methods, PVCross_methods},
+    {Py_tp_members, PVCross_members},
+    {Py_tp_new, PVCross_new},
+    {0, NULL}
 };
+
+static PyType_Spec PVCrossType_spec =
+{
+    "_pyo.PVCross_base",
+    sizeof(PVCross),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    PVCrossType_slots
+};
+
+PyTypeObject *
+PyoCreatePVCrossType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &PVCrossType_spec, NULL);
+}
 
 /*****************/
 /** PVMult **/
@@ -3614,7 +3442,7 @@ PVMult_process_i(PVMult *self)
 static void
 PVMult_setProcMode(PVMult *self)
 {
-    self->proc_func_ptr = PVMult_process_i;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVMult_process_i);
 }
 
 static void
@@ -3658,7 +3486,7 @@ PVMult_dealloc(PVMult* self)
     PyMem_RawFree(self->count);
     PVMult_clear(self);
     Py_TYPE(self->pv_stream)->tp_free((PyObject*)self->pv_stream);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3676,8 +3504,8 @@ PVMult_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->olaps = self->last_olaps = 4;
     self->allocated = 0;
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, PVMult_compute_next_data_frame);
-    self->mode_func_ptr = PVMult_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(PVMult_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(PVMult_setProcMode);
 
     static char *kwlist[] = {"input", "input2", NULL};
 
@@ -3787,47 +3615,31 @@ static PyMethodDef PVMult_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject PVMultType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.PVMult_base",                                   /*tp_name*/
-    sizeof(PVMult),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)PVMult_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVMult objects. Multiply magnitudes from two pv streams.",           /* tp_doc */
-    (traverseproc)PVMult_traverse,                  /* tp_traverse */
-    (inquiry)PVMult_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    PVMult_methods,                                 /* tp_methods */
-    PVMult_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    PVMult_new,                                     /* tp_new */
+static PyType_Slot PVMultType_slots[] = {
+    {Py_tp_dealloc, PVMult_dealloc},
+    {Py_tp_doc, "PVMult objects. Multiply magnitudes from two pv streams."},
+    {Py_tp_traverse, PVMult_traverse},
+    {Py_tp_clear, PVMult_clear},
+    {Py_tp_methods, PVMult_methods},
+    {Py_tp_members, PVMult_members},
+    {Py_tp_new, PVMult_new},
+    {0, NULL}
 };
+
+static PyType_Spec PVMultType_spec =
+{
+    "_pyo.PVMult_base",
+    sizeof(PVMult),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    PVMultType_slots
+};
+
+PyTypeObject *
+PyoCreatePVMultType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &PVMultType_spec, NULL);
+}
 
 /*****************/
 /** PVMorph **/
@@ -3999,11 +3811,11 @@ PVMorph_setProcMode(PVMorph *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = PVMorph_process_i;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVMorph_process_i);
             break;
 
         case 1:
-            self->proc_func_ptr = PVMorph_process_a;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVMorph_process_a);
             break;
     }
 }
@@ -4051,7 +3863,7 @@ PVMorph_dealloc(PVMorph* self)
     PyMem_RawFree(self->count);
     PVMorph_clear(self);
     Py_TYPE(self->pv_stream)->tp_free((PyObject*)self->pv_stream);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -4070,8 +3882,8 @@ PVMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->olaps = self->last_olaps = 4;
     self->allocated = 0;
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, PVMorph_compute_next_data_frame);
-    self->mode_func_ptr = PVMorph_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(PVMorph_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(PVMorph_setProcMode);
 
     static char *kwlist[] = {"input", "input2", "fade", NULL};
 
@@ -4190,47 +4002,31 @@ static PyMethodDef PVMorph_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject PVMorphType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.PVMorph_base",                                   /*tp_name*/
-    sizeof(PVMorph),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)PVMorph_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVMorph objects. Cross-synthesis.",           /* tp_doc */
-    (traverseproc)PVMorph_traverse,                  /* tp_traverse */
-    (inquiry)PVMorph_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    PVMorph_methods,                                 /* tp_methods */
-    PVMorph_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    PVMorph_new,                                     /* tp_new */
+static PyType_Slot PVMorphType_slots[] = {
+    {Py_tp_dealloc, PVMorph_dealloc},
+    {Py_tp_doc, "PVMorph objects. Cross-synthesis."},
+    {Py_tp_traverse, PVMorph_traverse},
+    {Py_tp_clear, PVMorph_clear},
+    {Py_tp_methods, PVMorph_methods},
+    {Py_tp_members, PVMorph_members},
+    {Py_tp_new, PVMorph_new},
+    {0, NULL}
 };
+
+static PyType_Spec PVMorphType_spec =
+{
+    "_pyo.PVMorph_base",
+    sizeof(PVMorph),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    PVMorphType_slots
+};
+
+PyTypeObject *
+PyoCreatePVMorphType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &PVMorphType_spec, NULL);
+}
 
 /*****************/
 /** PVFilter **/
@@ -4450,11 +4246,11 @@ PVFilter_setProcMode(PVFilter *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = PVFilter_process_i;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVFilter_process_i);
             break;
 
         case 1:
-            self->proc_func_ptr = PVFilter_process_a;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVFilter_process_a);
             break;
     }
 }
@@ -4500,7 +4296,7 @@ PVFilter_dealloc(PVFilter* self)
     PyMem_RawFree(self->count);
     PVFilter_clear(self);
     Py_TYPE(self->pv_stream)->tp_free((PyObject*)self->pv_stream);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -4521,8 +4317,8 @@ PVFilter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mode = 0; /* 0 : index outside table range clipped to 0
                        1 : index between 0 and hsize are scaled over table length */
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, PVFilter_compute_next_data_frame);
-    self->mode_func_ptr = PVFilter_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(PVFilter_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(PVFilter_setProcMode);
 
     static char *kwlist[] = {"input", "table", "gain", "mode", NULL};
 
@@ -4653,47 +4449,31 @@ static PyMethodDef PVFilter_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject PVFilterType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.PVFilter_base",                                   /*tp_name*/
-    sizeof(PVFilter),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)PVFilter_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVFilter objects. Spectral domain gainsition.",           /* tp_doc */
-    (traverseproc)PVFilter_traverse,                  /* tp_traverse */
-    (inquiry)PVFilter_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    PVFilter_methods,                                 /* tp_methods */
-    PVFilter_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    PVFilter_new,                                     /* tp_new */
+static PyType_Slot PVFilterType_slots[] = {
+    {Py_tp_dealloc, PVFilter_dealloc},
+    {Py_tp_doc, "PVFilter objects. Spectral domain gainsition."},
+    {Py_tp_traverse, PVFilter_traverse},
+    {Py_tp_clear, PVFilter_clear},
+    {Py_tp_methods, PVFilter_methods},
+    {Py_tp_members, PVFilter_members},
+    {Py_tp_new, PVFilter_new},
+    {0, NULL}
 };
+
+static PyType_Spec PVFilterType_spec =
+{
+    "_pyo.PVFilter_base",
+    sizeof(PVFilter),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    PVFilterType_slots
+};
+
+PyTypeObject *
+PyoCreatePVFilterType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &PVFilterType_spec, NULL);
+}
 
 /*****************/
 /** PVDelay **/
@@ -4961,9 +4741,9 @@ static void
 PVDelay_setProcMode(PVDelay *self)
 {
     if (self->mode == 0)
-        self->proc_func_ptr = PVDelay_process_zero;
+        self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVDelay_process_zero);
     else
-        self->proc_func_ptr = PVDelay_process_scaled;
+        self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVDelay_process_scaled);
 }
 
 static void
@@ -5014,7 +4794,7 @@ PVDelay_dealloc(PVDelay* self)
     PyMem_RawFree(self->count);
     PVDelay_clear(self);
     Py_TYPE(self->pv_stream)->tp_free((PyObject*)self->pv_stream);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -5035,8 +4815,8 @@ PVDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->maxdelay = 1.0;
     self->mode = 0;
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, PVDelay_compute_next_data_frame);
-    self->mode_func_ptr = PVDelay_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(PVDelay_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(PVDelay_setProcMode);
 
     static char *kwlist[] = {"input", "deltable", "feedtable", "maxdelay", "mode", NULL};
 
@@ -5186,47 +4966,31 @@ static PyMethodDef PVDelay_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject PVDelayType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.PVDelay_base",                                   /*tp_name*/
-    sizeof(PVDelay),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)PVDelay_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVDelay objects. Spectral delay.",           /* tp_doc */
-    (traverseproc)PVDelay_traverse,                  /* tp_traverse */
-    (inquiry)PVDelay_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    PVDelay_methods,                                 /* tp_methods */
-    PVDelay_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    PVDelay_new,                                     /* tp_new */
+static PyType_Slot PVDelayType_slots[] = {
+    {Py_tp_dealloc, PVDelay_dealloc},
+    {Py_tp_doc, "PVDelay objects. Spectral delay."},
+    {Py_tp_traverse, PVDelay_traverse},
+    {Py_tp_clear, PVDelay_clear},
+    {Py_tp_methods, PVDelay_methods},
+    {Py_tp_members, PVDelay_members},
+    {Py_tp_new, PVDelay_new},
+    {0, NULL}
 };
+
+static PyType_Spec PVDelayType_spec =
+{
+    "_pyo.PVDelay_base",
+    sizeof(PVDelay),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    PVDelayType_slots
+};
+
+PyTypeObject *
+PyoCreatePVDelayType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &PVDelayType_spec, NULL);
+}
 
 /*****************/
 /** PVBuffer **/
@@ -5475,11 +5239,11 @@ PVBuffer_setProcMode(PVBuffer *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = PVBuffer_process_i;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVBuffer_process_i);
             break;
 
         case 1:
-            self->proc_func_ptr = PVBuffer_process_a;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVBuffer_process_a);
             break;
     }
 }
@@ -5536,7 +5300,7 @@ PVBuffer_dealloc(PVBuffer* self)
     PyMem_RawFree(self->count);
     PVBuffer_clear(self);
     Py_TYPE(self->pv_stream)->tp_free((PyObject*)self->pv_stream);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -5559,8 +5323,8 @@ PVBuffer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->allocated = 0;
     self->length = 1.0;
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, PVBuffer_compute_next_data_frame);
-    self->mode_func_ptr = PVBuffer_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(PVBuffer_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(PVBuffer_setProcMode);
 
     static char *kwlist[] = {"input", "index", "pitch", "length", NULL};
 
@@ -5700,47 +5464,31 @@ static PyMethodDef PVBuffer_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject PVBufferType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.PVBuffer_base",                                   /*tp_name*/
-    sizeof(PVBuffer),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)PVBuffer_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVBuffer objects. Phase vocoder buffer and playback reader.",           /* tp_doc */
-    (traverseproc)PVBuffer_traverse,                  /* tp_traverse */
-    (inquiry)PVBuffer_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    PVBuffer_methods,                                 /* tp_methods */
-    PVBuffer_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    PVBuffer_new,                                     /* tp_new */
+static PyType_Slot PVBufferType_slots[] = {
+    {Py_tp_dealloc, PVBuffer_dealloc},
+    {Py_tp_doc, "PVBuffer objects. Phase vocoder buffer and playback reader."},
+    {Py_tp_traverse, PVBuffer_traverse},
+    {Py_tp_clear, PVBuffer_clear},
+    {Py_tp_methods, PVBuffer_methods},
+    {Py_tp_members, PVBuffer_members},
+    {Py_tp_new, PVBuffer_new},
+    {0, NULL}
 };
+
+static PyType_Spec PVBufferType_spec =
+{
+    "_pyo.PVBuffer_base",
+    sizeof(PVBuffer),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    PVBufferType_slots
+};
+
+PyTypeObject *
+PyoCreatePVBufferType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &PVBufferType_spec, NULL);
+}
 
 /*****************/
 /** PVShift **/
@@ -5926,11 +5674,11 @@ PVShift_setProcMode(PVShift *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = PVShift_process_i;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVShift_process_i);
             break;
 
         case 1:
-            self->proc_func_ptr = PVShift_process_a;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVShift_process_a);
             break;
     }
 }
@@ -5976,7 +5724,7 @@ PVShift_dealloc(PVShift* self)
     PyMem_RawFree(self->count);
     PVShift_clear(self);
     Py_TYPE(self->pv_stream)->tp_free((PyObject*)self->pv_stream);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -5995,8 +5743,8 @@ PVShift_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->olaps = self->last_olaps = 4;
     self->allocated = 0;
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, PVShift_compute_next_data_frame);
-    self->mode_func_ptr = PVShift_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(PVShift_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(PVShift_setProcMode);
 
     static char *kwlist[] = {"input", "shift", NULL};
 
@@ -6085,47 +5833,31 @@ static PyMethodDef PVShift_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject PVShiftType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.PVShift_base",                                   /*tp_name*/
-    sizeof(PVShift),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)PVShift_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVShift objects. Frequency shifter in the spectral domain.",           /* tp_doc */
-    (traverseproc)PVShift_traverse,                  /* tp_traverse */
-    (inquiry)PVShift_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    PVShift_methods,                                 /* tp_methods */
-    PVShift_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    PVShift_new,                                     /* tp_new */
+static PyType_Slot PVShiftType_slots[] = {
+    {Py_tp_dealloc, PVShift_dealloc},
+    {Py_tp_doc, "PVShift objects. Frequency shifter in the spectral domain."},
+    {Py_tp_traverse, PVShift_traverse},
+    {Py_tp_clear, PVShift_clear},
+    {Py_tp_methods, PVShift_methods},
+    {Py_tp_members, PVShift_members},
+    {Py_tp_new, PVShift_new},
+    {0, NULL}
 };
+
+static PyType_Spec PVShiftType_spec =
+{
+    "_pyo.PVShift_base",
+    sizeof(PVShift),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    PVShiftType_slots
+};
+
+PyTypeObject *
+PyoCreatePVShiftType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &PVShiftType_spec, NULL);
+}
 
 /*****************/
 /** PVAmpMod **/
@@ -6516,19 +6248,19 @@ PVAmpMod_setProcMode(PVAmpMod *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = PVAmpMod_process_ii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVAmpMod_process_ii);
             break;
 
         case 1:
-            self->proc_func_ptr = PVAmpMod_process_ai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVAmpMod_process_ai);
             break;
 
         case 10:
-            self->proc_func_ptr = PVAmpMod_process_ia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVAmpMod_process_ia);
             break;
 
         case 11:
-            self->proc_func_ptr = PVAmpMod_process_aa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVAmpMod_process_aa);
             break;
     }
 }
@@ -6578,7 +6310,7 @@ PVAmpMod_dealloc(PVAmpMod* self)
     PyMem_RawFree(self->count);
     PVAmpMod_clear(self);
     Py_TYPE(self->pv_stream)->tp_free((PyObject*)self->pv_stream);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -6598,8 +6330,8 @@ PVAmpMod_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->olaps = self->last_olaps = 4;
     self->allocated = 0;
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, PVAmpMod_compute_next_data_frame);
-    self->mode_func_ptr = PVAmpMod_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(PVAmpMod_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(PVAmpMod_setProcMode);
 
     static char *kwlist[] = {"input", "basefreq", "spread", "shape", NULL};
 
@@ -6725,47 +6457,31 @@ static PyMethodDef PVAmpMod_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject PVAmpModType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.PVAmpMod_base",                                   /*tp_name*/
-    sizeof(PVAmpMod),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)PVAmpMod_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVAmpMod objects. Frequency independent modulators.",           /* tp_doc */
-    (traverseproc)PVAmpMod_traverse,                  /* tp_traverse */
-    (inquiry)PVAmpMod_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    PVAmpMod_methods,                                 /* tp_methods */
-    PVAmpMod_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    PVAmpMod_new,                                     /* tp_new */
+static PyType_Slot PVAmpModType_slots[] = {
+    {Py_tp_dealloc, PVAmpMod_dealloc},
+    {Py_tp_doc, "PVAmpMod objects. Frequency independent modulators."},
+    {Py_tp_traverse, PVAmpMod_traverse},
+    {Py_tp_clear, PVAmpMod_clear},
+    {Py_tp_methods, PVAmpMod_methods},
+    {Py_tp_members, PVAmpMod_members},
+    {Py_tp_new, PVAmpMod_new},
+    {0, NULL}
 };
+
+static PyType_Spec PVAmpModType_spec =
+{
+    "_pyo.PVAmpMod_base",
+    sizeof(PVAmpMod),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    PVAmpModType_slots
+};
+
+PyTypeObject *
+PyoCreatePVAmpModType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &PVAmpModType_spec, NULL);
+}
 
 /*****************/
 /** PVFreqMod **/
@@ -7164,19 +6880,19 @@ PVFreqMod_setProcMode(PVFreqMod *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = PVFreqMod_process_ii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVFreqMod_process_ii);
             break;
 
         case 1:
-            self->proc_func_ptr = PVFreqMod_process_ai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVFreqMod_process_ai);
             break;
 
         case 10:
-            self->proc_func_ptr = PVFreqMod_process_ia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVFreqMod_process_ia);
             break;
 
         case 11:
-            self->proc_func_ptr = PVFreqMod_process_aa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVFreqMod_process_aa);
             break;
     }
 }
@@ -7228,7 +6944,7 @@ PVFreqMod_dealloc(PVFreqMod* self)
     PyMem_RawFree(self->count);
     PVFreqMod_clear(self);
     Py_TYPE(self->pv_stream)->tp_free((PyObject*)self->pv_stream);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -7249,8 +6965,8 @@ PVFreqMod_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->olaps = self->last_olaps = 4;
     self->allocated = 0;
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, PVFreqMod_compute_next_data_frame);
-    self->mode_func_ptr = PVFreqMod_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(PVFreqMod_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(PVFreqMod_setProcMode);
 
     static char *kwlist[] = {"input", "basefreq", "spread", "depth", "shape", NULL};
 
@@ -7384,47 +7100,31 @@ static PyMethodDef PVFreqMod_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject PVFreqModType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.PVFreqMod_base",                                   /*tp_name*/
-    sizeof(PVFreqMod),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)PVFreqMod_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVFreqMod objects. Spectral reverberation.",           /* tp_doc */
-    (traverseproc)PVFreqMod_traverse,                  /* tp_traverse */
-    (inquiry)PVFreqMod_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    PVFreqMod_methods,                                 /* tp_methods */
-    PVFreqMod_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    PVFreqMod_new,                                     /* tp_new */
+static PyType_Slot PVFreqModType_slots[] = {
+    {Py_tp_dealloc, PVFreqMod_dealloc},
+    {Py_tp_doc, "PVFreqMod objects. Spectral reverberation."},
+    {Py_tp_traverse, PVFreqMod_traverse},
+    {Py_tp_clear, PVFreqMod_clear},
+    {Py_tp_methods, PVFreqMod_methods},
+    {Py_tp_members, PVFreqMod_members},
+    {Py_tp_new, PVFreqMod_new},
+    {0, NULL}
 };
+
+static PyType_Spec PVFreqModType_spec =
+{
+    "_pyo.PVFreqMod_base",
+    sizeof(PVFreqMod),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    PVFreqModType_slots
+};
+
+PyTypeObject *
+PyoCreatePVFreqModType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &PVFreqModType_spec, NULL);
+}
 
 /*****************/
 /** PVBufLoops **/
@@ -7712,7 +7412,7 @@ PVBufLoops_process(PVBufLoops *self)
 static void
 PVBufLoops_setProcMode(PVBufLoops *self)
 {
-    self->proc_func_ptr = PVBufLoops_process;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVBufLoops_process);
 }
 
 static void
@@ -7769,7 +7469,7 @@ PVBufLoops_dealloc(PVBufLoops* self)
     PyMem_RawFree(self->pointers);
     PVBufLoops_clear(self);
     Py_TYPE(self->pv_stream)->tp_free((PyObject*)self->pv_stream);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -7794,8 +7494,8 @@ PVBufLoops_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->allocated = 0;
     self->length = 1.0;
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, PVBufLoops_compute_next_data_frame);
-    self->mode_func_ptr = PVBufLoops_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(PVBufLoops_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(PVBufLoops_setProcMode);
 
     static char *kwlist[] = {"input", "low", "high", "mode", "length", NULL};
 
@@ -7933,47 +7633,31 @@ static PyMethodDef PVBufLoops_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject PVBufLoopsType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.PVBufLoops_base",                                   /*tp_name*/
-    sizeof(PVBufLoops),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)PVBufLoops_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVBufLoops objects. Phase vocoder buffer and playback reader.",           /* tp_doc */
-    (traverseproc)PVBufLoops_traverse,                  /* tp_traverse */
-    (inquiry)PVBufLoops_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    PVBufLoops_methods,                                 /* tp_methods */
-    PVBufLoops_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    PVBufLoops_new,                                     /* tp_new */
+static PyType_Slot PVBufLoopsType_slots[] = {
+    {Py_tp_dealloc, PVBufLoops_dealloc},
+    {Py_tp_doc, "PVBufLoops objects. Phase vocoder buffer and playback reader."},
+    {Py_tp_traverse, PVBufLoops_traverse},
+    {Py_tp_clear, PVBufLoops_clear},
+    {Py_tp_methods, PVBufLoops_methods},
+    {Py_tp_members, PVBufLoops_members},
+    {Py_tp_new, PVBufLoops_new},
+    {0, NULL}
 };
+
+static PyType_Spec PVBufLoopsType_spec =
+{
+    "_pyo.PVBufLoops_base",
+    sizeof(PVBufLoops),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    PVBufLoopsType_slots
+};
+
+PyTypeObject *
+PyoCreatePVBufLoopsType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &PVBufLoopsType_spec, NULL);
+}
 
 /*****************/
 /** PVBufTabLoops **/
@@ -8149,7 +7833,7 @@ PVBufTabLoops_process(PVBufTabLoops *self)
 static void
 PVBufTabLoops_setProcMode(PVBufTabLoops *self)
 {
-    self->proc_func_ptr = PVBufTabLoops_process;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVBufTabLoops_process);
 }
 
 static void
@@ -8201,7 +7885,7 @@ PVBufTabLoops_dealloc(PVBufTabLoops* self)
     PyMem_RawFree(self->pointers);
     PVBufTabLoops_clear(self);
     Py_TYPE(self->pv_stream)->tp_free((PyObject*)self->pv_stream);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -8221,8 +7905,8 @@ PVBufTabLoops_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->numFrames = self->last_numFrames = 0;
     self->length = 1.0;
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, PVBufTabLoops_compute_next_data_frame);
-    self->mode_func_ptr = PVBufTabLoops_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(PVBufTabLoops_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(PVBufTabLoops_setProcMode);
 
     static char *kwlist[] = {"input", "speed", "length", NULL};
 
@@ -8340,47 +8024,31 @@ static PyMethodDef PVBufTabLoops_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject PVBufTabLoopsType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.PVBufTabLoops_base",                                   /*tp_name*/
-    sizeof(PVBufTabLoops),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)PVBufTabLoops_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVBufTabLoops objects. Phase vocoder buffer and playback reader.",           /* tp_doc */
-    (traverseproc)PVBufTabLoops_traverse,                  /* tp_traverse */
-    (inquiry)PVBufTabLoops_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    PVBufTabLoops_methods,                                 /* tp_methods */
-    PVBufTabLoops_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    PVBufTabLoops_new,                                     /* tp_new */
+static PyType_Slot PVBufTabLoopsType_slots[] = {
+    {Py_tp_dealloc, PVBufTabLoops_dealloc},
+    {Py_tp_doc, "PVBufTabLoops objects. Phase vocoder buffer and playback reader."},
+    {Py_tp_traverse, PVBufTabLoops_traverse},
+    {Py_tp_clear, PVBufTabLoops_clear},
+    {Py_tp_methods, PVBufTabLoops_methods},
+    {Py_tp_members, PVBufTabLoops_members},
+    {Py_tp_new, PVBufTabLoops_new},
+    {0, NULL}
 };
+
+static PyType_Spec PVBufTabLoopsType_spec =
+{
+    "_pyo.PVBufTabLoops_base",
+    sizeof(PVBufTabLoops),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    PVBufTabLoopsType_slots
+};
+
+PyTypeObject *
+PyoCreatePVBufTabLoopsType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &PVBufTabLoopsType_spec, NULL);
+}
 
 /*****************/
 /** PVMix **/
@@ -8498,7 +8166,7 @@ PVMix_process_i(PVMix *self)
 static void
 PVMix_setProcMode(PVMix *self)
 {
-    self->proc_func_ptr = PVMix_process_i;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(PVMix_process_i);
 }
 
 static void
@@ -8542,7 +8210,7 @@ PVMix_dealloc(PVMix* self)
     PyMem_RawFree(self->count);
     PVMix_clear(self);
     Py_TYPE(self->pv_stream)->tp_free((PyObject*)self->pv_stream);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -8560,8 +8228,8 @@ PVMix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->olaps = self->last_olaps = 4;
     self->allocated = 0;
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, PVMix_compute_next_data_frame);
-    self->mode_func_ptr = PVMix_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(PVMix_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(PVMix_setProcMode);
 
     static char *kwlist[] = {"input", "input2", NULL};
 
@@ -8671,44 +8339,28 @@ static PyMethodDef PVMix_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject PVMixType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.PVMix_base",                                   /*tp_name*/
-    sizeof(PVMix),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)PVMix_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVMix objects. Mix two pv streams.",           /* tp_doc */
-    (traverseproc)PVMix_traverse,                  /* tp_traverse */
-    (inquiry)PVMix_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    PVMix_methods,                                 /* tp_methods */
-    PVMix_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    PVMix_new,                                     /* tp_new */
+static PyType_Slot PVMixType_slots[] = {
+    {Py_tp_dealloc, PVMix_dealloc},
+    {Py_tp_doc, "PVMix objects. Mix two pv streams."},
+    {Py_tp_traverse, PVMix_traverse},
+    {Py_tp_clear, PVMix_clear},
+    {Py_tp_methods, PVMix_methods},
+    {Py_tp_members, PVMix_members},
+    {Py_tp_new, PVMix_new},
+    {0, NULL}
 };
+
+static PyType_Spec PVMixType_spec =
+{
+    "_pyo.PVMix_base",
+    sizeof(PVMix),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    PVMixType_slots
+};
+
+PyTypeObject *
+PyoCreatePVMixType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &PVMixType_spec, NULL);
+}

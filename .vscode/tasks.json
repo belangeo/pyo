@@ -295,7 +295,7 @@
         {
             "label": "Run unit tests linux",
             "type": "shell",
-            "command": "${config:activate_venv}; jack_control stop; export -n PYO_SERVER_AUDIO; cd tests/pytests; python3 -m pytest -vv",
+            "command": "${config:activate_venv_d}; jack_control stop; export -n PYO_SERVER_AUDIO; cd tests/pytests; python3d -m pytest -vv",
             "problemMatcher": [],
             "options": {
                 "cwd": "${workspaceFolder}"

@@ -184,39 +184,39 @@ Compress_setProcMode(Compress *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Compress_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Compress_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Compress_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Compress_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Compress_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Compress_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Compress_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Compress_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Compress_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Compress_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Compress_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Compress_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Compress_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Compress_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Compress_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Compress_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Compress_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Compress_postprocessing_revareva);
             break;
     }
 }
@@ -258,7 +258,7 @@ Compress_dealloc(Compress* self)
     pyo_DEALLOC
     PyMem_RawFree(self->lh_buffer);
     Compress_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -291,8 +291,8 @@ Compress_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
 
-    Stream_setFunctionPtr(self->stream, Compress_compute_next_data_frame);
-    self->mode_func_ptr = Compress_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Compress_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Compress_setProcMode);
 
     static char *kwlist[] = {"input", "thresh", "ratio", "risetime", "falltime", "lookahead", "knee", "outputAmp", "mul", "add", NULL};
 
@@ -344,7 +344,7 @@ Compress_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->lh_buffer[i] = 0.;
     }
 
-    self->proc_func_ptr = Compress_compress_soft;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(Compress_compress_soft);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -452,85 +452,40 @@ static PyMethodDef Compress_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Compress_as_number =
+static PyType_Slot CompressType_slots[] =
 {
-    (binaryfunc)Compress_add,                         /*nb_add*/
-    (binaryfunc)Compress_sub,                         /*nb_subtract*/
-    (binaryfunc)Compress_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)Compress_inplace_add,                 /*inplace_add*/
-    (binaryfunc)Compress_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)Compress_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)Compress_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)Compress_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+    {Py_tp_dealloc, Compress_dealloc},
+    {Py_tp_doc, "Compress objects. Compress audio signal by a certain ratio above a threshold."},
+    {Py_tp_traverse, Compress_traverse},
+    {Py_tp_clear, Compress_clear},
+    {Py_tp_methods, Compress_methods},
+    {Py_tp_members, Compress_members},
+    {Py_nb_add, Compress_add},
+    {Py_nb_subtract, Compress_sub},
+    {Py_nb_multiply, Compress_multiply},
+    {Py_nb_true_divide, Compress_div},
+    {Py_nb_inplace_add, Compress_inplace_add},
+    {Py_nb_inplace_subtract, Compress_inplace_sub},
+    {Py_nb_inplace_multiply, Compress_inplace_multiply},
+    {Py_nb_inplace_true_divide, Compress_inplace_div},
+    {Py_tp_new, Compress_new},
+    {0, NULL}
 };
 
-PyTypeObject CompressType =
+static PyType_Spec CompressType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Compress_base",                                   /*tp_name*/
-    sizeof(Compress),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)Compress_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    &Compress_as_number,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Compress objects. Compress audio signal by a certain ratio above a threshold.",           /* tp_doc */
-    (traverseproc)Compress_traverse,                  /* tp_traverse */
-    (inquiry)Compress_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    Compress_methods,                                 /* tp_methods */
-    Compress_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    Compress_new,                                     /* tp_new */
+    "_pyo.Compress_base",
+    sizeof(Compress),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    CompressType_slots
 };
+
+PyTypeObject *
+PyoCreateCompressType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &CompressType_spec, NULL);
+}
 
 const MYFLT GATE_MIN_RAMP_TIME = 0.0001;
 /************/
@@ -1132,74 +1087,74 @@ Gate_setProcMode(Gate *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Gate_filters_iii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Gate_filters_iii);
             break;
 
         case 1:
-            self->proc_func_ptr = Gate_filters_aii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Gate_filters_aii);
             break;
 
         case 10:
-            self->proc_func_ptr = Gate_filters_iai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Gate_filters_iai);
             break;
 
         case 11:
-            self->proc_func_ptr = Gate_filters_aai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Gate_filters_aai);
             break;
 
         case 100:
-            self->proc_func_ptr = Gate_filters_iia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Gate_filters_iia);
             break;
 
         case 101:
-            self->proc_func_ptr = Gate_filters_aia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Gate_filters_aia);
             break;
 
         case 110:
-            self->proc_func_ptr = Gate_filters_iaa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Gate_filters_iaa);
             break;
 
         case 111:
-            self->proc_func_ptr = Gate_filters_aaa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Gate_filters_aaa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Gate_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Gate_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Gate_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Gate_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Gate_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Gate_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Gate_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Gate_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Gate_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Gate_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Gate_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Gate_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Gate_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Gate_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Gate_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Gate_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Gate_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Gate_postprocessing_revareva);
             break;
     }
 }
@@ -1239,7 +1194,7 @@ Gate_dealloc(Gate* self)
     pyo_DEALLOC
     PyMem_RawFree(self->lh_buffer);
     Gate_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1274,8 +1229,8 @@ Gate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->lpfactor = MYEXP(-1.0 / (self->sr / 20.0));
 
-    Stream_setFunctionPtr(self->stream, Gate_compute_next_data_frame);
-    self->mode_func_ptr = Gate_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Gate_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Gate_setProcMode);
 
     static char *kwlist[] = {"input", "thresh", "risetime", "falltime", "lookahead", "outputAmp", "mul", "add", NULL};
 
@@ -1403,85 +1358,40 @@ static PyMethodDef Gate_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Gate_as_number =
+static PyType_Slot GateType_slots[] =
 {
-    (binaryfunc)Gate_add,                         /*nb_add*/
-    (binaryfunc)Gate_sub,                         /*nb_subtract*/
-    (binaryfunc)Gate_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)Gate_inplace_add,                 /*inplace_add*/
-    (binaryfunc)Gate_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)Gate_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)Gate_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)Gate_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+    {Py_tp_dealloc, Gate_dealloc},
+    {Py_tp_doc, "Gate objects. Noise gate dynamic processor."},
+    {Py_tp_traverse, Gate_traverse},
+    {Py_tp_clear, Gate_clear},
+    {Py_tp_methods, Gate_methods},
+    {Py_tp_members, Gate_members},
+    {Py_nb_add, Gate_add},
+    {Py_nb_subtract, Gate_sub},
+    {Py_nb_multiply, Gate_multiply},
+    {Py_nb_true_divide, Gate_div},
+    {Py_nb_inplace_add, Gate_inplace_add},
+    {Py_nb_inplace_subtract, Gate_inplace_sub},
+    {Py_nb_inplace_multiply, Gate_inplace_multiply},
+    {Py_nb_inplace_true_divide, Gate_inplace_div},
+    {Py_tp_new, Gate_new},
+    {0, NULL}
 };
 
-PyTypeObject GateType =
+static PyType_Spec GateType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Gate_base",                                   /*tp_name*/
-    sizeof(Gate),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)Gate_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    &Gate_as_number,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Gate objects. Noise gate dynamic processor.",           /* tp_doc */
-    (traverseproc)Gate_traverse,                  /* tp_traverse */
-    (inquiry)Gate_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    Gate_methods,                                 /* tp_methods */
-    Gate_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    Gate_new,                                     /* tp_new */
+    "_pyo.Gate_base",
+    sizeof(Gate),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    GateType_slots
 };
+
+PyTypeObject *
+PyoCreateGateType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &GateType_spec, NULL);
+}
 
 /************/
 /* Balance */
@@ -1604,50 +1514,50 @@ Balance_setProcMode(Balance *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Balance_filters_i;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Balance_filters_i);
             break;
 
         case 1:
-            self->proc_func_ptr = Balance_filters_a;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Balance_filters_a);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Balance_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Balance_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Balance_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Balance_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Balance_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Balance_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Balance_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Balance_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Balance_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Balance_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Balance_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Balance_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Balance_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Balance_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Balance_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Balance_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Balance_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Balance_postprocessing_revareva);
             break;
     }
 }
@@ -1684,7 +1594,7 @@ Balance_dealloc(Balance* self)
 {
     pyo_DEALLOC
     Balance_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1707,8 +1617,8 @@ Balance_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[2] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Balance_compute_next_data_frame);
-    self->mode_func_ptr = Balance_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Balance_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Balance_setProcMode);
 
     static char *kwlist[] = {"input", "input2", "freq", "mul", "add", NULL};
 
@@ -1796,85 +1706,40 @@ static PyMethodDef Balance_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Balance_as_number =
+static PyType_Slot BalanceType_slots[] =
 {
-    (binaryfunc)Balance_add,                         /*nb_add*/
-    (binaryfunc)Balance_sub,                         /*nb_subtract*/
-    (binaryfunc)Balance_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)Balance_inplace_add,                 /*inplace_add*/
-    (binaryfunc)Balance_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)Balance_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)Balance_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)Balance_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+    {Py_tp_dealloc, Balance_dealloc},
+    {Py_tp_doc, "Balance objects. The rms power of a signal is adjusted to match that of a comparator signal."},
+    {Py_tp_traverse, Balance_traverse},
+    {Py_tp_clear, Balance_clear},
+    {Py_tp_methods, Balance_methods},
+    {Py_tp_members, Balance_members},
+    {Py_nb_add, Balance_add},
+    {Py_nb_subtract, Balance_sub},
+    {Py_nb_multiply, Balance_multiply},
+    {Py_nb_true_divide, Balance_div},
+    {Py_nb_inplace_add, Balance_inplace_add},
+    {Py_nb_inplace_subtract, Balance_inplace_sub},
+    {Py_nb_inplace_multiply, Balance_inplace_multiply},
+    {Py_nb_inplace_true_divide, Balance_inplace_div},
+    {Py_tp_new, Balance_new},
+    {0, NULL}
 };
 
-PyTypeObject BalanceType =
+static PyType_Spec BalanceType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Balance_base",                                   /*tp_name*/
-    sizeof(Balance),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)Balance_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    &Balance_as_number,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Balance objects. The rms power of a signal is adjusted to match that of a comparator signal.",           /* tp_doc */
-    (traverseproc)Balance_traverse,                  /* tp_traverse */
-    (inquiry)Balance_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    Balance_methods,                                 /* tp_methods */
-    Balance_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    Balance_new,                                     /* tp_new */
+    "_pyo.Balance_base",
+    sizeof(Balance),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    BalanceType_slots
 };
+
+PyTypeObject *
+PyoCreateBalanceType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &BalanceType_spec, NULL);
+}
 
 /* Expander */
 typedef struct
@@ -2024,39 +1889,39 @@ Expand_setProcMode(Expand *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Expand_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Expand_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Expand_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Expand_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Expand_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Expand_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Expand_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Expand_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Expand_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Expand_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Expand_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Expand_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Expand_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Expand_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Expand_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Expand_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Expand_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Expand_postprocessing_revareva);
             break;
     }
 }
@@ -2100,7 +1965,7 @@ Expand_dealloc(Expand* self)
     pyo_DEALLOC
     PyMem_RawFree(self->lh_buffer);
     Expand_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2134,8 +1999,8 @@ Expand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
 
-    Stream_setFunctionPtr(self->stream, Expand_compute_next_data_frame);
-    self->mode_func_ptr = Expand_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Expand_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Expand_setProcMode);
 
     static char *kwlist[] = {"input", "downthresh", "upthresh", "ratio", "risetime", "falltime", "lookahead", "outputAmp", "mul", "add", NULL};
 
@@ -2191,7 +2056,7 @@ Expand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->lh_buffer[i] = 0.;
     }
 
-    self->proc_func_ptr = Expand_compress_soft;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(Expand_compress_soft);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -2281,83 +2146,37 @@ static PyMethodDef Expand_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Expand_as_number =
+static PyType_Slot ExpandType_slots[] =
 {
-    (binaryfunc)Expand_add,                         /*nb_add*/
-    (binaryfunc)Expand_sub,                         /*nb_subtract*/
-    (binaryfunc)Expand_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)Expand_inplace_add,                 /*inplace_add*/
-    (binaryfunc)Expand_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)Expand_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)Expand_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)Expand_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+    {Py_tp_dealloc, Expand_dealloc},
+    {Py_tp_doc, "Expand objects. Expand audio signal by a certain ratio when below or above certain thresholds."},
+    {Py_tp_traverse, Expand_traverse},
+    {Py_tp_clear, Expand_clear},
+    {Py_tp_methods, Expand_methods},
+    {Py_tp_members, Expand_members},
+    {Py_nb_add, Expand_add},
+    {Py_nb_subtract, Expand_sub},
+    {Py_nb_multiply, Expand_multiply},
+    {Py_nb_true_divide, Expand_div},
+    {Py_nb_inplace_add, Expand_inplace_add},
+    {Py_nb_inplace_subtract, Expand_inplace_sub},
+    {Py_nb_inplace_multiply, Expand_inplace_multiply},
+    {Py_nb_inplace_true_divide, Expand_inplace_div},
+    {Py_tp_new, Expand_new},
+    {0, NULL}
 };
 
-PyTypeObject ExpandType =
+static PyType_Spec ExpandType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Expand_base",                                   /*tp_name*/
-    sizeof(Expand),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)Expand_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    &Expand_as_number,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Expand objects. Expand audio signal by a certain ratio when below or above certain thresholds.", /* tp_doc */
-    (traverseproc)Expand_traverse,                  /* tp_traverse */
-    (inquiry)Expand_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    Expand_methods,                                 /* tp_methods */
-    Expand_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    Expand_new,                                     /* tp_new */
+    "_pyo.Expand_base",
+    sizeof(Expand),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    ExpandType_slots
 };
 
+PyTypeObject *
+PyoCreateExpandType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &ExpandType_spec, NULL);
+}

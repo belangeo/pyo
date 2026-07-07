@@ -290,7 +290,7 @@ SfPlayer_readframes_i(SfPlayer *self)
 static void
 SfPlayer_setProcMode(SfPlayer *self)
 {
-    self->proc_func_ptr = SfPlayer_readframes_i;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(SfPlayer_readframes_i);
 }
 
 static void
@@ -326,7 +326,7 @@ SfPlayer_dealloc(SfPlayer* self)
     PyMem_RawFree(self->trigsBuffer);
     PyMem_RawFree(self->samplesBuffer);
     SfPlayer_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -350,8 +350,8 @@ SfPlayer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[0] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, SfPlayer_compute_next_data_frame);
-    self->mode_func_ptr = SfPlayer_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(SfPlayer_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(SfPlayer_setProcMode);
 
     static char *kwlist[] = {"path", "speed", "loop", "offset", "interp", NULL};
 
@@ -538,47 +538,31 @@ static PyMethodDef SfPlayer_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject SfPlayerType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.SfPlayer_base",         /*tp_name*/
-    sizeof(SfPlayer),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)SfPlayer_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "SfPlayer objects. Reads a soundfile directly from disk.",           /* tp_doc */
-    (traverseproc)SfPlayer_traverse,   /* tp_traverse */
-    (inquiry)SfPlayer_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    SfPlayer_methods,             /* tp_methods */
-    SfPlayer_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    SfPlayer_new,                 /* tp_new */
+static PyType_Slot SfPlayerType_slots[] = {
+    {Py_tp_dealloc, SfPlayer_dealloc},
+    {Py_tp_doc, "SfPlayer objects. Reads a soundfile directly from disk."},
+    {Py_tp_traverse, SfPlayer_traverse},
+    {Py_tp_clear, SfPlayer_clear},
+    {Py_tp_methods, SfPlayer_methods},
+    {Py_tp_members, SfPlayer_members},
+    {Py_tp_new, SfPlayer_new},
+    {0, NULL}
 };
+
+static PyType_Spec SfPlayerType_spec =
+{
+    "_pyo.SfPlayer_base",
+    sizeof(SfPlayer),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    SfPlayerType_slots
+};
+
+PyTypeObject *
+PyoCreateSfPlayerType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &SfPlayerType_spec, NULL);
+}
 
 /************************************************************************************************/
 /* Sfplay streamer object per channel */
@@ -610,39 +594,39 @@ SfPlay_setProcMode(SfPlay *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = SfPlay_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SfPlay_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = SfPlay_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SfPlay_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = SfPlay_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SfPlay_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = SfPlay_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SfPlay_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = SfPlay_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SfPlay_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = SfPlay_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SfPlay_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = SfPlay_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SfPlay_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = SfPlay_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SfPlay_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = SfPlay_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SfPlay_postprocessing_revareva);
             break;
     }
 }
@@ -684,7 +668,7 @@ SfPlay_dealloc(SfPlay* self)
 {
     pyo_DEALLOC
     SfPlay_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -703,8 +687,8 @@ SfPlay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, SfPlay_compute_next_data_frame);
-    self->mode_func_ptr = SfPlay_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(SfPlay_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(SfPlay_setProcMode);
 
     static char *kwlist[] = {"mainPlayer", "chnl", "mul", "add", NULL};
 
@@ -776,85 +760,39 @@ static PyMethodDef SfPlay_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods SfPlay_as_number =
-{
-    (binaryfunc)SfPlay_add,                      /*nb_add*/
-    (binaryfunc)SfPlay_sub,                 /*nb_subtract*/
-    (binaryfunc)SfPlay_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)SfPlay_inplace_add,              /*inplace_add*/
-    (binaryfunc)SfPlay_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)SfPlay_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)SfPlay_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)SfPlay_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot SfPlayType_slots[] = {
+    {Py_tp_dealloc, SfPlay_dealloc},
+    {Py_tp_doc, "SfPlay objects. Reads a channel from a soundfile directly from disk."},
+    {Py_tp_traverse, SfPlay_traverse},
+    {Py_tp_clear, SfPlay_clear},
+    {Py_tp_methods, SfPlay_methods},
+    {Py_tp_members, SfPlay_members},
+    {Py_tp_new, SfPlay_new},
+    {Py_nb_add, SfPlay_add},
+    {Py_nb_subtract, SfPlay_sub},
+    {Py_nb_multiply, SfPlay_multiply},
+    {Py_nb_true_divide, SfPlay_div},
+    {Py_nb_inplace_add, SfPlay_inplace_add},
+    {Py_nb_inplace_subtract, SfPlay_inplace_sub},
+    {Py_nb_inplace_multiply, SfPlay_inplace_multiply},
+    {Py_nb_inplace_true_divide, SfPlay_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject SfPlayType =
+static PyType_Spec SfPlayType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.SfPlay_base",         /*tp_name*/
-    sizeof(SfPlay),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)SfPlay_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &SfPlay_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "SfPlay objects. Reads a channel from a soundfile directly from disk.",           /* tp_doc */
-    (traverseproc)SfPlay_traverse,   /* tp_traverse */
-    (inquiry)SfPlay_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    SfPlay_methods,             /* tp_methods */
-    SfPlay_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    SfPlay_new,                 /* tp_new */
+    "_pyo.SfPlay_base",
+    sizeof(SfPlay),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    SfPlayType_slots
 };
+
+PyTypeObject *
+PyoCreateSfPlayType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &SfPlayType_spec, NULL);
+}
 
 /************************************************************************************************/
 /* SfMarkerShuffler object */
@@ -1221,7 +1159,7 @@ SfMarkerShuffler_readframes_i(SfMarkerShuffler *self)
 static void
 SfMarkerShuffler_setProcMode(SfMarkerShuffler *self)
 {
-    self->proc_func_ptr = SfMarkerShuffler_readframes_i;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(SfMarkerShuffler_readframes_i);
 }
 
 static void
@@ -1326,7 +1264,7 @@ SfMarkerShuffler_dealloc(SfMarkerShuffler* self)
     if (self->markers)
         PyMem_RawFree(self->markers);
     SfMarkerShuffler_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1349,8 +1287,8 @@ SfMarkerShuffler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->lastDir = 1;
     self->x = 0.5;
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, SfMarkerShuffler_compute_next_data_frame);
-    self->mode_func_ptr = SfMarkerShuffler_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(SfMarkerShuffler_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(SfMarkerShuffler_setProcMode);
 
     static char *kwlist[] = {"path", "speed", "interp", NULL};
 
@@ -1561,47 +1499,31 @@ static PyMethodDef SfMarkerShuffler_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject SfMarkerShufflerType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.SfMarkerShuffler_base",         /*tp_name*/
-    sizeof(SfMarkerShuffler),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)SfMarkerShuffler_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "SfMarkerShuffler objects. Shuffle an AIFF soundfile from markers points.",           /* tp_doc */
-    (traverseproc)SfMarkerShuffler_traverse,   /* tp_traverse */
-    (inquiry)SfMarkerShuffler_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    SfMarkerShuffler_methods,             /* tp_methods */
-    SfMarkerShuffler_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    SfMarkerShuffler_new,                 /* tp_new */
+static PyType_Slot SfMarkerShufflerType_slots[] = {
+    {Py_tp_dealloc, SfMarkerShuffler_dealloc},
+    {Py_tp_doc, "SfMarkerShuffler objects. Shuffle an AIFF soundfile from markers points."},
+    {Py_tp_traverse, SfMarkerShuffler_traverse},
+    {Py_tp_clear, SfMarkerShuffler_clear},
+    {Py_tp_methods, SfMarkerShuffler_methods},
+    {Py_tp_members, SfMarkerShuffler_members},
+    {Py_tp_new, SfMarkerShuffler_new},
+    {0, NULL}
 };
+
+static PyType_Spec SfMarkerShufflerType_spec =
+{
+    "_pyo.SfMarkerShuffler_base",
+    sizeof(SfMarkerShuffler),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    SfMarkerShufflerType_slots
+};
+
+PyTypeObject *
+PyoCreateSfMarkerShufflerType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &SfMarkerShufflerType_spec, NULL);
+}
 
 /************************************************************************************************/
 /* SfMarkerShuffle streamer object per channel */
@@ -1633,39 +1555,39 @@ SfMarkerShuffle_setProcMode(SfMarkerShuffle *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = SfMarkerShuffle_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SfMarkerShuffle_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = SfMarkerShuffle_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SfMarkerShuffle_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = SfMarkerShuffle_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SfMarkerShuffle_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = SfMarkerShuffle_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SfMarkerShuffle_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = SfMarkerShuffle_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SfMarkerShuffle_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = SfMarkerShuffle_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SfMarkerShuffle_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = SfMarkerShuffle_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SfMarkerShuffle_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = SfMarkerShuffle_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SfMarkerShuffle_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = SfMarkerShuffle_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SfMarkerShuffle_postprocessing_revareva);
             break;
     }
 }
@@ -1707,7 +1629,7 @@ SfMarkerShuffle_dealloc(SfMarkerShuffle* self)
 {
     pyo_DEALLOC
     SfMarkerShuffle_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1726,8 +1648,8 @@ SfMarkerShuffle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, SfMarkerShuffle_compute_next_data_frame);
-    self->mode_func_ptr = SfMarkerShuffle_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(SfMarkerShuffle_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(SfMarkerShuffle_setProcMode);
 
     static char *kwlist[] = {"mainPlayer", "chnl", "mul", "add", NULL};
 
@@ -1799,85 +1721,39 @@ static PyMethodDef SfMarkerShuffle_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods SfMarkerShuffle_as_number =
-{
-    (binaryfunc)SfMarkerShuffle_add,                      /*nb_add*/
-    (binaryfunc)SfMarkerShuffle_sub,                 /*nb_subtract*/
-    (binaryfunc)SfMarkerShuffle_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)SfMarkerShuffle_inplace_add,              /*inplace_add*/
-    (binaryfunc)SfMarkerShuffle_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)SfMarkerShuffle_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)SfMarkerShuffle_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)SfMarkerShuffle_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot SfMarkerShuffleType_slots[] = {
+    {Py_tp_dealloc, SfMarkerShuffle_dealloc},
+    {Py_tp_doc, "SfMarkerShuffle objects. Reads a channel from a soundfile directly from disk."},
+    {Py_tp_traverse, SfMarkerShuffle_traverse},
+    {Py_tp_clear, SfMarkerShuffle_clear},
+    {Py_tp_methods, SfMarkerShuffle_methods},
+    {Py_tp_members, SfMarkerShuffle_members},
+    {Py_tp_new, SfMarkerShuffle_new},
+    {Py_nb_add, SfMarkerShuffle_add},
+    {Py_nb_subtract, SfMarkerShuffle_sub},
+    {Py_nb_multiply, SfMarkerShuffle_multiply},
+    {Py_nb_true_divide, SfMarkerShuffle_div},
+    {Py_nb_inplace_add, SfMarkerShuffle_inplace_add},
+    {Py_nb_inplace_subtract, SfMarkerShuffle_inplace_sub},
+    {Py_nb_inplace_multiply, SfMarkerShuffle_inplace_multiply},
+    {Py_nb_inplace_true_divide, SfMarkerShuffle_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject SfMarkerShuffleType =
+static PyType_Spec SfMarkerShuffleType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.SfMarkerShuffle_base",         /*tp_name*/
-    sizeof(SfMarkerShuffle),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)SfMarkerShuffle_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &SfMarkerShuffle_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "SfMarkerShuffle objects. Reads a channel from a soundfile directly from disk.",           /* tp_doc */
-    (traverseproc)SfMarkerShuffle_traverse,   /* tp_traverse */
-    (inquiry)SfMarkerShuffle_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    SfMarkerShuffle_methods,             /* tp_methods */
-    SfMarkerShuffle_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    SfMarkerShuffle_new,                 /* tp_new */
+    "_pyo.SfMarkerShuffle_base",
+    sizeof(SfMarkerShuffle),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    SfMarkerShuffleType_slots
 };
+
+PyTypeObject *
+PyoCreateSfMarkerShuffleType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &SfMarkerShuffleType_spec, NULL);
+}
 
 /************************************************************************************************/
 /* SfMarkerLooper object */
@@ -2107,7 +1983,7 @@ SfMarkerLooper_readframes_i(SfMarkerLooper *self)
 static void
 SfMarkerLooper_setProcMode(SfMarkerLooper *self)
 {
-    self->proc_func_ptr = SfMarkerLooper_readframes_i;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(SfMarkerLooper_readframes_i);
 }
 
 static void
@@ -2224,7 +2100,7 @@ SfMarkerLooper_dealloc(SfMarkerLooper* self)
     if (self->markers)
         PyMem_RawFree(self->markers);
     SfMarkerLooper_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2250,8 +2126,8 @@ SfMarkerLooper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, SfMarkerLooper_compute_next_data_frame);
-    self->mode_func_ptr = SfMarkerLooper_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(SfMarkerLooper_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(SfMarkerLooper_setProcMode);
 
     static char *kwlist[] = {"path", "speed", "mark", "interp", NULL};
 
@@ -2390,47 +2266,31 @@ static PyMethodDef SfMarkerLooper_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject SfMarkerLooperType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.SfMarkerLooper_base",         /*tp_name*/
-    sizeof(SfMarkerLooper),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)SfMarkerLooper_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "SfMarkerLooper objects. Shuffle an AIFF soundfile from markers points.",           /* tp_doc */
-    (traverseproc)SfMarkerLooper_traverse,   /* tp_traverse */
-    (inquiry)SfMarkerLooper_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    SfMarkerLooper_methods,             /* tp_methods */
-    SfMarkerLooper_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    SfMarkerLooper_new,                 /* tp_new */
+static PyType_Slot SfMarkerLooperType_slots[] = {
+    {Py_tp_dealloc, SfMarkerLooper_dealloc},
+    {Py_tp_doc, "SfMarkerLooper objects. Shuffle an AIFF soundfile from markers points."},
+    {Py_tp_traverse, SfMarkerLooper_traverse},
+    {Py_tp_clear, SfMarkerLooper_clear},
+    {Py_tp_methods, SfMarkerLooper_methods},
+    {Py_tp_members, SfMarkerLooper_members},
+    {Py_tp_new, SfMarkerLooper_new},
+    {0, NULL}
 };
+
+static PyType_Spec SfMarkerLooperType_spec =
+{
+    "_pyo.SfMarkerLooper_base",
+    sizeof(SfMarkerLooper),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    SfMarkerLooperType_slots
+};
+
+PyTypeObject *
+PyoCreateSfMarkerLooperType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &SfMarkerLooperType_spec, NULL);
+}
 
 /************************************************************************************************/
 /* SfMarkerLoop streamer object per channel */
@@ -2462,39 +2322,39 @@ SfMarkerLoop_setProcMode(SfMarkerLoop *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = SfMarkerLoop_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SfMarkerLoop_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = SfMarkerLoop_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SfMarkerLoop_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = SfMarkerLoop_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SfMarkerLoop_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = SfMarkerLoop_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SfMarkerLoop_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = SfMarkerLoop_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SfMarkerLoop_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = SfMarkerLoop_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SfMarkerLoop_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = SfMarkerLoop_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SfMarkerLoop_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = SfMarkerLoop_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SfMarkerLoop_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = SfMarkerLoop_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SfMarkerLoop_postprocessing_revareva);
             break;
     }
 }
@@ -2536,7 +2396,7 @@ SfMarkerLoop_dealloc(SfMarkerLoop* self)
 {
     pyo_DEALLOC
     SfMarkerLoop_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2555,8 +2415,8 @@ SfMarkerLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, SfMarkerLoop_compute_next_data_frame);
-    self->mode_func_ptr = SfMarkerLoop_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(SfMarkerLoop_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(SfMarkerLoop_setProcMode);
 
     static char *kwlist[] = {"mainPlayer", "chnl", "mul", "add", NULL};
 
@@ -2628,82 +2488,36 @@ static PyMethodDef SfMarkerLoop_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods SfMarkerLoop_as_number =
-{
-    (binaryfunc)SfMarkerLoop_add,                      /*nb_add*/
-    (binaryfunc)SfMarkerLoop_sub,                 /*nb_subtract*/
-    (binaryfunc)SfMarkerLoop_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)SfMarkerLoop_inplace_add,              /*inplace_add*/
-    (binaryfunc)SfMarkerLoop_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)SfMarkerLoop_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)SfMarkerLoop_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)SfMarkerLoop_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot SfMarkerLoopType_slots[] = {
+    {Py_tp_dealloc, SfMarkerLoop_dealloc},
+    {Py_tp_doc, "SfMarkerLoop objects. Reads a channel from a soundfile directly from disk."},
+    {Py_tp_traverse, SfMarkerLoop_traverse},
+    {Py_tp_clear, SfMarkerLoop_clear},
+    {Py_tp_methods, SfMarkerLoop_methods},
+    {Py_tp_members, SfMarkerLoop_members},
+    {Py_tp_new, SfMarkerLoop_new},
+    {Py_nb_add, SfMarkerLoop_add},
+    {Py_nb_subtract, SfMarkerLoop_sub},
+    {Py_nb_multiply, SfMarkerLoop_multiply},
+    {Py_nb_true_divide, SfMarkerLoop_div},
+    {Py_nb_inplace_add, SfMarkerLoop_inplace_add},
+    {Py_nb_inplace_subtract, SfMarkerLoop_inplace_sub},
+    {Py_nb_inplace_multiply, SfMarkerLoop_inplace_multiply},
+    {Py_nb_inplace_true_divide, SfMarkerLoop_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject SfMarkerLoopType =
+static PyType_Spec SfMarkerLoopType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.SfMarkerLoop_base",         /*tp_name*/
-    sizeof(SfMarkerLoop),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)SfMarkerLoop_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &SfMarkerLoop_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "SfMarkerLoop objects. Reads a channel from a soundfile directly from disk.",           /* tp_doc */
-    (traverseproc)SfMarkerLoop_traverse,   /* tp_traverse */
-    (inquiry)SfMarkerLoop_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    SfMarkerLoop_methods,             /* tp_methods */
-    SfMarkerLoop_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    SfMarkerLoop_new,                 /* tp_new */
+    "_pyo.SfMarkerLoop_base",
+    sizeof(SfMarkerLoop),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    SfMarkerLoopType_slots
 };
+
+PyTypeObject *
+PyoCreateSfMarkerLoopType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &SfMarkerLoopType_spec, NULL);
+}

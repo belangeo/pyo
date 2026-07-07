@@ -33,16 +33,689 @@
 
 typedef struct Server Server;
 
+typedef enum
+{
+    PYO_RUNTIME_TYPE_SERVER = 0,
+    PYO_RUNTIME_TYPE_STREAM,
+    PYO_RUNTIME_TYPE_TRIGGER_STREAM,
+    PYO_RUNTIME_TYPE_PV_STREAM,
+    PYO_RUNTIME_TYPE_DUMMY,
+    PYO_RUNTIME_TYPE_TRIGGER_DUMMY,
+    PYO_RUNTIME_TYPE_TABLE_STREAM,
+    PYO_RUNTIME_TYPE_MATRIX_STREAM,
+    PYO_RUNTIME_TYPE_SIG,
+    PYO_RUNTIME_TYPE_SIGTO,
+    PYO_RUNTIME_TYPE_VARPORT,
+    PYO_RUNTIME_TYPE_MIX,
+    PYO_RUNTIME_TYPE_INPUTFADER,
+    PYO_RUNTIME_TYPE_MIDI_LISTENER,
+    PYO_RUNTIME_TYPE_MIDI_DISPATCHER,
+    PYO_RUNTIME_TYPE_OSC_LISTENER,
+    PYO_RUNTIME_TYPE_OSC_RECEIVE,
+    PYO_RUNTIME_TYPE_OSC_RECEIVER,
+    PYO_RUNTIME_TYPE_OSC_SEND,
+    PYO_RUNTIME_TYPE_OSC_DATA_SEND,
+    PYO_RUNTIME_TYPE_OSC_DATA_RECEIVE,
+    PYO_RUNTIME_TYPE_OSC_LIST_RECEIVE,
+    PYO_RUNTIME_TYPE_OSC_LIST_RECEIVER,
+    PYO_RUNTIME_TYPE_PATTERN,
+    PYO_RUNTIME_TYPE_SCORE,
+    PYO_RUNTIME_TYPE_CALLAFTER,
+    PYO_RUNTIME_TYPE_M_SIN,
+    PYO_RUNTIME_TYPE_M_COS,
+    PYO_RUNTIME_TYPE_M_TAN,
+    PYO_RUNTIME_TYPE_M_ABS,
+    PYO_RUNTIME_TYPE_M_SQRT,
+    PYO_RUNTIME_TYPE_M_LOG,
+    PYO_RUNTIME_TYPE_M_LOG2,
+    PYO_RUNTIME_TYPE_M_LOG10,
+    PYO_RUNTIME_TYPE_M_POW,
+    PYO_RUNTIME_TYPE_M_ATAN2,
+    PYO_RUNTIME_TYPE_M_FLOOR,
+    PYO_RUNTIME_TYPE_M_CEIL,
+    PYO_RUNTIME_TYPE_M_ROUND,
+    PYO_RUNTIME_TYPE_M_TANH,
+    PYO_RUNTIME_TYPE_M_EXP,
+    PYO_RUNTIME_TYPE_M_DIV,
+    PYO_RUNTIME_TYPE_M_SUB,
+    PYO_RUNTIME_TYPE_FOLLOWER,
+    PYO_RUNTIME_TYPE_FOLLOWER2,
+    PYO_RUNTIME_TYPE_ZCROSS,
+    PYO_RUNTIME_TYPE_YIN,
+    PYO_RUNTIME_TYPE_CENTROID,
+    PYO_RUNTIME_TYPE_ATTACK_DETECTOR,
+    PYO_RUNTIME_TYPE_SCOPE,
+    PYO_RUNTIME_TYPE_PEAKAMP,
+    PYO_RUNTIME_TYPE_RMS,
+    PYO_RUNTIME_TYPE_CHORUS,
+    PYO_RUNTIME_TYPE_BANDSPLITTER,
+    PYO_RUNTIME_TYPE_BANDSPLIT,
+    PYO_RUNTIME_TYPE_FOURBAND_MAIN,
+    PYO_RUNTIME_TYPE_FOURBAND,
+    PYO_RUNTIME_TYPE_MULTIBAND_MAIN,
+    PYO_RUNTIME_TYPE_MULTIBAND,
+    PYO_RUNTIME_TYPE_COMPRESS,
+    PYO_RUNTIME_TYPE_GATE,
+    PYO_RUNTIME_TYPE_BALANCE,
+    PYO_RUNTIME_TYPE_EXPAND,
+    PYO_RUNTIME_TYPE_CONVOLVE,
+    PYO_RUNTIME_TYPE_IRWINSINC,
+    PYO_RUNTIME_TYPE_IRPULSE,
+    PYO_RUNTIME_TYPE_IRAVERAGE,
+    PYO_RUNTIME_TYPE_IRFM,
+    PYO_RUNTIME_TYPE_DISTO,
+    PYO_RUNTIME_TYPE_CLIP,
+    PYO_RUNTIME_TYPE_MIRROR,
+    PYO_RUNTIME_TYPE_WRAP,
+    PYO_RUNTIME_TYPE_DEGRADE,
+    PYO_RUNTIME_TYPE_DELAY,
+    PYO_RUNTIME_TYPE_SDELAY,
+    PYO_RUNTIME_TYPE_WAVEGUIDE,
+    PYO_RUNTIME_TYPE_ALLPASSWG,
+    PYO_RUNTIME_TYPE_MIN,
+    PYO_RUNTIME_TYPE_MAX,
+    PYO_RUNTIME_TYPE_DELAY1,
+    PYO_RUNTIME_TYPE_SMOOTHDELAY,
+    PYO_RUNTIME_TYPE_EXPRER,
+    PYO_RUNTIME_TYPE_EXPR,
+    PYO_RUNTIME_TYPE_FADER,
+    PYO_RUNTIME_TYPE_ADSR,
+    PYO_RUNTIME_TYPE_LINSEG,
+    PYO_RUNTIME_TYPE_EXPSEG,
+    PYO_RUNTIME_TYPE_FFTMAIN,
+    PYO_RUNTIME_TYPE_FFT,
+    PYO_RUNTIME_TYPE_IFFT,
+    PYO_RUNTIME_TYPE_CARTOPOL,
+    PYO_RUNTIME_TYPE_POLTOCAR,
+    PYO_RUNTIME_TYPE_FRAMEDELTAMAIN,
+    PYO_RUNTIME_TYPE_FRAMEDELTA,
+    PYO_RUNTIME_TYPE_FRAMEACCUMMAIN,
+    PYO_RUNTIME_TYPE_FRAMEACCUM,
+    PYO_RUNTIME_TYPE_VECTRALMAIN,
+    PYO_RUNTIME_TYPE_VECTRAL,
+    PYO_RUNTIME_TYPE_CVLVERB,
+    PYO_RUNTIME_TYPE_SPECTRUM,
+    PYO_RUNTIME_TYPE_IFFTMATRIX,
+    PYO_RUNTIME_TYPE_BIQUAD,
+    PYO_RUNTIME_TYPE_BIQUADX,
+    PYO_RUNTIME_TYPE_BIQUADA,
+    PYO_RUNTIME_TYPE_EQ,
+    PYO_RUNTIME_TYPE_PORT,
+    PYO_RUNTIME_TYPE_TONE,
+    PYO_RUNTIME_TYPE_ATONE,
+    PYO_RUNTIME_TYPE_DCBLOCK,
+    PYO_RUNTIME_TYPE_ALLPASS,
+    PYO_RUNTIME_TYPE_ALLPASS2,
+    PYO_RUNTIME_TYPE_PHASER,
+    PYO_RUNTIME_TYPE_VOCODER,
+    PYO_RUNTIME_TYPE_SVF,
+    PYO_RUNTIME_TYPE_SVF2,
+    PYO_RUNTIME_TYPE_AVERAGE,
+    PYO_RUNTIME_TYPE_RESON,
+    PYO_RUNTIME_TYPE_RESONX,
+    PYO_RUNTIME_TYPE_BUTLP,
+    PYO_RUNTIME_TYPE_BUTHP,
+    PYO_RUNTIME_TYPE_BUTBP,
+    PYO_RUNTIME_TYPE_BUTBR,
+    PYO_RUNTIME_TYPE_COMPLEXRES,
+    PYO_RUNTIME_TYPE_MOOGLP,
+    PYO_RUNTIME_TYPE_FREEVERB,
+    PYO_RUNTIME_TYPE_GRANULATOR,
+    PYO_RUNTIME_TYPE_LOOPER,
+    PYO_RUNTIME_TYPE_LOOPERTIMESTREAM,
+    PYO_RUNTIME_TYPE_GRANULE,
+    PYO_RUNTIME_TYPE_MAINPARTICLE,
+    PYO_RUNTIME_TYPE_PARTICLE,
+    PYO_RUNTIME_TYPE_MAINPARTICLE2,
+    PYO_RUNTIME_TYPE_PARTICLE2,
+    PYO_RUNTIME_TYPE_HARMONIZER,
+    PYO_RUNTIME_TYPE_HILBERTMAIN,
+    PYO_RUNTIME_TYPE_HILBERT,
+    PYO_RUNTIME_TYPE_INPUT,
+    PYO_RUNTIME_TYPE_LFO,
+    PYO_RUNTIME_TYPE_HRTFDATA,
+    PYO_RUNTIME_TYPE_HRTFSPATTER,
+    PYO_RUNTIME_TYPE_HRTF,
+    PYO_RUNTIME_TYPE_BINAURALER,
+    PYO_RUNTIME_TYPE_BINAURAL,
+    PYO_RUNTIME_TYPE_MATRIXPOINTER,
+    PYO_RUNTIME_TYPE_TRIG,
+    PYO_RUNTIME_TYPE_METRO,
+    PYO_RUNTIME_TYPE_SEQER,
+    PYO_RUNTIME_TYPE_SEQ,
+    PYO_RUNTIME_TYPE_CLOUDER,
+    PYO_RUNTIME_TYPE_CLOUD,
+    PYO_RUNTIME_TYPE_BEATER,
+    PYO_RUNTIME_TYPE_BEAT,
+    PYO_RUNTIME_TYPE_BEATTAPSTREAM,
+    PYO_RUNTIME_TYPE_BEATAMPSTREAM,
+    PYO_RUNTIME_TYPE_BEATDURSTREAM,
+    PYO_RUNTIME_TYPE_BEATENDSTREAM,
+    PYO_RUNTIME_TYPE_TRIGBURSTER,
+    PYO_RUNTIME_TYPE_TRIGBURST,
+    PYO_RUNTIME_TYPE_TRIGBURSTTAPSTREAM,
+    PYO_RUNTIME_TYPE_TRIGBURSTAMPSTREAM,
+    PYO_RUNTIME_TYPE_TRIGBURSTDURSTREAM,
+    PYO_RUNTIME_TYPE_TRIGBURSTENDSTREAM,
+    PYO_RUNTIME_TYPE_MIDICTL,
+    PYO_RUNTIME_TYPE_CTLSCAN,
+    PYO_RUNTIME_TYPE_CTLSCAN2,
+    PYO_RUNTIME_TYPE_MIDINOTE,
+    PYO_RUNTIME_TYPE_NOTEIN,
+    PYO_RUNTIME_TYPE_NOTEINTRIG,
+    PYO_RUNTIME_TYPE_BENDIN,
+    PYO_RUNTIME_TYPE_TOUCHIN,
+    PYO_RUNTIME_TYPE_PROGRAMIN,
+    PYO_RUNTIME_TYPE_MIDIADSR,
+    PYO_RUNTIME_TYPE_MIDIDELADSR,
+    PYO_RUNTIME_TYPE_RAWMIDI,
+    PYO_RUNTIME_TYPE_MIDILINSEG,
+    PYO_RUNTIME_TYPE_MMLMAIN,
+    PYO_RUNTIME_TYPE_MML,
+    PYO_RUNTIME_TYPE_MMLFREQSTREAM,
+    PYO_RUNTIME_TYPE_MMLAMPSTREAM,
+    PYO_RUNTIME_TYPE_MMLDURSTREAM,
+    PYO_RUNTIME_TYPE_MMLENDSTREAM,
+    PYO_RUNTIME_TYPE_MMLXSTREAM,
+    PYO_RUNTIME_TYPE_MMLYSTREAM,
+    PYO_RUNTIME_TYPE_MMLZSTREAM,
+    PYO_RUNTIME_TYPE_NOISE,
+    PYO_RUNTIME_TYPE_PINKNOISE,
+    PYO_RUNTIME_TYPE_BROWNNOISE,
+    PYO_RUNTIME_TYPE_OSCBANK,
+    PYO_RUNTIME_TYPE_SINE,
+    PYO_RUNTIME_TYPE_FASTSINE,
+    PYO_RUNTIME_TYPE_SINELOOP,
+    PYO_RUNTIME_TYPE_FM,
+    PYO_RUNTIME_TYPE_CROSSFM,
+    PYO_RUNTIME_TYPE_BLIT,
+    PYO_RUNTIME_TYPE_ROSSLER,
+    PYO_RUNTIME_TYPE_ROSSLERALT,
+    PYO_RUNTIME_TYPE_LORENZ,
+    PYO_RUNTIME_TYPE_LORENZALT,
+    PYO_RUNTIME_TYPE_CHENLEE,
+    PYO_RUNTIME_TYPE_CHENLEEALT,
+    PYO_RUNTIME_TYPE_PHASOR,
+    PYO_RUNTIME_TYPE_POINTER,
+    PYO_RUNTIME_TYPE_POINTER2,
+    PYO_RUNTIME_TYPE_TABLEINDEX,
+    PYO_RUNTIME_TYPE_LOOKUP,
+    PYO_RUNTIME_TYPE_PULSAR,
+    PYO_RUNTIME_TYPE_TABLEREAD,
+    PYO_RUNTIME_TYPE_OSC,
+    PYO_RUNTIME_TYPE_OSCLOOP,
+    PYO_RUNTIME_TYPE_OSCTRIG,
+    PYO_RUNTIME_TYPE_SUMOSC,
+    PYO_RUNTIME_TYPE_SUPERSAW,
+    PYO_RUNTIME_TYPE_RCOSC,
+    PYO_RUNTIME_TYPE_TABLESCALE,
+    PYO_RUNTIME_TYPE_TABLEFILL,
+    PYO_RUNTIME_TYPE_TABLESCAN,
+    PYO_RUNTIME_TYPE_PANNER,
+    PYO_RUNTIME_TYPE_PAN,
+    PYO_RUNTIME_TYPE_SPANNER,
+    PYO_RUNTIME_TYPE_SPAN,
+    PYO_RUNTIME_TYPE_SWITCHER,
+    PYO_RUNTIME_TYPE_SWITCH,
+    PYO_RUNTIME_TYPE_VOICEMANAGER,
+    PYO_RUNTIME_TYPE_MIXER,
+    PYO_RUNTIME_TYPE_MIXERVOICE,
+    PYO_RUNTIME_TYPE_SELECTOR,
+    PYO_RUNTIME_TYPE_RANDI,
+    PYO_RUNTIME_TYPE_RANDH,
+    PYO_RUNTIME_TYPE_RANDDUR,
+    PYO_RUNTIME_TYPE_CHOICE,
+    PYO_RUNTIME_TYPE_RANDINT,
+    PYO_RUNTIME_TYPE_XNOISE,
+    PYO_RUNTIME_TYPE_XNOISEMIDI,
+    PYO_RUNTIME_TYPE_XNOISEDUR,
+    PYO_RUNTIME_TYPE_URN,
+    PYO_RUNTIME_TYPE_LOGIMAP,
+    PYO_RUNTIME_TYPE_PVANAL,
+    PYO_RUNTIME_TYPE_PVSYNTH,
+    PYO_RUNTIME_TYPE_PVTRANSPOSE,
+    PYO_RUNTIME_TYPE_PVVERB,
+    PYO_RUNTIME_TYPE_PVGATE,
+    PYO_RUNTIME_TYPE_PVADDSYNTH,
+    PYO_RUNTIME_TYPE_PVCROSS,
+    PYO_RUNTIME_TYPE_PVMULT,
+    PYO_RUNTIME_TYPE_PVMORPH,
+    PYO_RUNTIME_TYPE_PVFILTER,
+    PYO_RUNTIME_TYPE_PVDELAY,
+    PYO_RUNTIME_TYPE_PVBUFFER,
+    PYO_RUNTIME_TYPE_PVSHIFT,
+    PYO_RUNTIME_TYPE_PVAMPMOD,
+    PYO_RUNTIME_TYPE_PVFREQMOD,
+    PYO_RUNTIME_TYPE_PVBUFLOOPS,
+    PYO_RUNTIME_TYPE_PVBUFTABLOOPS,
+    PYO_RUNTIME_TYPE_PVMIX,
+    PYO_RUNTIME_TYPE_RECORD,
+    PYO_RUNTIME_TYPE_CONTROLREC,
+    PYO_RUNTIME_TYPE_CONTROLREAD,
+    PYO_RUNTIME_TYPE_NOTEINREC,
+    PYO_RUNTIME_TYPE_NOTEINREAD,
+    PYO_RUNTIME_TYPE_SELECT,
+    PYO_RUNTIME_TYPE_CHANGE,
+    PYO_RUNTIME_TYPE_SFPLAYER,
+    PYO_RUNTIME_TYPE_SFPLAY,
+    PYO_RUNTIME_TYPE_SFMARKERSHUFFLER,
+    PYO_RUNTIME_TYPE_SFMARKERSHUFFLE,
+    PYO_RUNTIME_TYPE_SFMARKERLOOPER,
+    PYO_RUNTIME_TYPE_SFMARKERLOOP,
+    PYO_RUNTIME_TYPE_NEXTTRIG,
+    PYO_RUNTIME_TYPE_COUNTER,
+    PYO_RUNTIME_TYPE_COUNTOBJ,
+    PYO_RUNTIME_TYPE_THRESH,
+    PYO_RUNTIME_TYPE_PERCENT,
+    PYO_RUNTIME_TYPE_TIMER,
+    PYO_RUNTIME_TYPE_DENORM,
+    PYO_RUNTIME_TYPE_BETWEEN,
+    PYO_RUNTIME_TYPE_WGVERB,
+    PYO_RUNTIME_TYPE_COMPARE,
+    PYO_RUNTIME_TYPE_TRIGRANDINT,
+    PYO_RUNTIME_TYPE_TRIGVAL,
+    PYO_RUNTIME_TYPE_TRIGRAND,
+    PYO_RUNTIME_TYPE_TRIGCHOICE,
+    PYO_RUNTIME_TYPE_ITER,
+    PYO_RUNTIME_TYPE_TRIGENV,
+    PYO_RUNTIME_TYPE_TRIGLINSEG,
+    PYO_RUNTIME_TYPE_TRIGEXPSEG,
+    PYO_RUNTIME_TYPE_TRIGFUNC,
+    PYO_RUNTIME_TYPE_TRIGXNOISE,
+    PYO_RUNTIME_TYPE_TRIGXNOISEMIDI,
+    PYO_RUNTIME_TYPE_PRINT,
+    PYO_RUNTIME_TYPE_SNAP,
+    PYO_RUNTIME_TYPE_INTERP,
+    PYO_RUNTIME_TYPE_SAMPHOLD,
+    PYO_RUNTIME_TYPE_DBTOA,
+    PYO_RUNTIME_TYPE_ATODB,
+    PYO_RUNTIME_TYPE_SCALE,
+    PYO_RUNTIME_TYPE_CENTSTOTRANSPO,
+    PYO_RUNTIME_TYPE_TRANSPOTOCENTS,
+    PYO_RUNTIME_TYPE_MTOF,
+    PYO_RUNTIME_TYPE_FTOM,
+    PYO_RUNTIME_TYPE_MTOT,
+    PYO_RUNTIME_TYPE_TRACKHOLD,
+    PYO_RUNTIME_TYPE_STREVERB,
+    PYO_RUNTIME_TYPE_STREV,
+    PYO_RUNTIME_TYPE_RESAMPLE,
+    PYO_RUNTIME_TYPE_HARMTABLE,
+    PYO_RUNTIME_TYPE_CHEBYTABLE,
+    PYO_RUNTIME_TYPE_HANNTABLE,
+    PYO_RUNTIME_TYPE_SINCTABLE,
+    PYO_RUNTIME_TYPE_WINTABLE,
+    PYO_RUNTIME_TYPE_PARATABLE,
+    PYO_RUNTIME_TYPE_LINTABLE,
+    PYO_RUNTIME_TYPE_LOGTABLE,
+    PYO_RUNTIME_TYPE_COSLOGTABLE,
+    PYO_RUNTIME_TYPE_COSTABLE,
+    PYO_RUNTIME_TYPE_CURVETABLE,
+    PYO_RUNTIME_TYPE_EXPTABLE,
+    PYO_RUNTIME_TYPE_SNDTABLE,
+    PYO_RUNTIME_TYPE_DATATABLE,
+    PYO_RUNTIME_TYPE_NEWTABLE,
+    PYO_RUNTIME_TYPE_TABLEREC,
+    PYO_RUNTIME_TYPE_TABLEWRITE,
+    PYO_RUNTIME_TYPE_TABLERECTIMESTREAM,
+    PYO_RUNTIME_TYPE_TABLEMORPH,
+    PYO_RUNTIME_TYPE_TRIGTABLEREC,
+    PYO_RUNTIME_TYPE_TRIGTABLERECTIMESTREAM,
+    PYO_RUNTIME_TYPE_TABLEPUT,
+    PYO_RUNTIME_TYPE_NEWMATRIX,
+    PYO_RUNTIME_TYPE_MATRIXREC,
+    PYO_RUNTIME_TYPE_MATRIXRECLOOP,
+    PYO_RUNTIME_TYPE_MATRIXMORPH,
+    PYO_RUNTIME_TYPE_ATANTABLE,
+    PYO_RUNTIME_TYPE_PADSYNTHTABLE,
+    PYO_RUNTIME_TYPE_SHAREDTABLE,
+    PYO_RUNTIME_TYPE_COUNT
+} PyoRuntimeTypeId;
+
 typedef struct
 {
     Server *servers[MAX_NBR_SERVER];
     int current_server_id;
     int rnd_objs_count[PYO_NUM_RND_OBJS];
     unsigned int rand_seed;
+    PyTypeObject *runtime_types[PYO_RUNTIME_TYPE_COUNT];
 } PyoModuleState;
 
 PyoModuleState * PyoState_Get(void);
 void PyoState_Init(PyoModuleState *state);
+
+PyTypeObject * PyoType_GetCurrent(PyoRuntimeTypeId id);
+int PyoType_SetCurrent(PyoRuntimeTypeId id, PyTypeObject *type);
+PyTypeObject * PyoCreateServerType(PyObject *module);
+PyTypeObject * PyoCreateSigType(PyObject *module);
+PyTypeObject * PyoCreateSigToType(PyObject *module);
+PyTypeObject * PyoCreateVarPortType(PyObject *module);
+PyTypeObject * PyoCreateMixType(PyObject *module);
+PyTypeObject * PyoCreateInputFaderType(PyObject *module);
+#ifdef USE_PORTMIDI
+PyTypeObject * PyoCreateMidiListenerType(PyObject *module);
+PyTypeObject * PyoCreateMidiDispatcherType(PyObject *module);
+#endif
+#ifdef USE_OSC
+PyTypeObject * PyoCreateOscListenerType(PyObject *module);
+PyTypeObject * PyoCreateOscReceiveType(PyObject *module);
+PyTypeObject * PyoCreateOscReceiverType(PyObject *module);
+PyTypeObject * PyoCreateOscSendType(PyObject *module);
+PyTypeObject * PyoCreateOscDataSendType(PyObject *module);
+PyTypeObject * PyoCreateOscDataReceiveType(PyObject *module);
+PyTypeObject * PyoCreateOscListReceiveType(PyObject *module);
+PyTypeObject * PyoCreateOscListReceiverType(PyObject *module);
+#endif
+PyTypeObject * PyoCreatePatternType(PyObject *module);
+PyTypeObject * PyoCreateScoreType(PyObject *module);
+PyTypeObject * PyoCreateCallAfterType(PyObject *module);
+PyTypeObject * PyoCreateMSinType(PyObject *module);
+PyTypeObject * PyoCreateMCosType(PyObject *module);
+PyTypeObject * PyoCreateMTanType(PyObject *module);
+PyTypeObject * PyoCreateMAbsType(PyObject *module);
+PyTypeObject * PyoCreateMSqrtType(PyObject *module);
+PyTypeObject * PyoCreateMLogType(PyObject *module);
+PyTypeObject * PyoCreateMLog2Type(PyObject *module);
+PyTypeObject * PyoCreateMLog10Type(PyObject *module);
+PyTypeObject * PyoCreateMPowType(PyObject *module);
+PyTypeObject * PyoCreateMAtan2Type(PyObject *module);
+PyTypeObject * PyoCreateMFloorType(PyObject *module);
+PyTypeObject * PyoCreateMCeilType(PyObject *module);
+PyTypeObject * PyoCreateMRoundType(PyObject *module);
+PyTypeObject * PyoCreateMTanhType(PyObject *module);
+PyTypeObject * PyoCreateMExpType(PyObject *module);
+PyTypeObject * PyoCreateMDivType(PyObject *module);
+PyTypeObject * PyoCreateMSubType(PyObject *module);
+PyTypeObject * PyoCreateFollowerType(PyObject *module);
+PyTypeObject * PyoCreateFollower2Type(PyObject *module);
+PyTypeObject * PyoCreateZCrossType(PyObject *module);
+PyTypeObject * PyoCreateYinType(PyObject *module);
+PyTypeObject * PyoCreateCentroidType(PyObject *module);
+PyTypeObject * PyoCreateAttackDetectorType(PyObject *module);
+PyTypeObject * PyoCreateScopeType(PyObject *module);
+PyTypeObject * PyoCreatePeakAmpType(PyObject *module);
+PyTypeObject * PyoCreateRMSType(PyObject *module);
+PyTypeObject * PyoCreateChorusType(PyObject *module);
+PyTypeObject * PyoCreateBandSplitterType(PyObject *module);
+PyTypeObject * PyoCreateBandSplitType(PyObject *module);
+PyTypeObject * PyoCreateFourBandMainType(PyObject *module);
+PyTypeObject * PyoCreateFourBandType(PyObject *module);
+PyTypeObject * PyoCreateMultiBandMainType(PyObject *module);
+PyTypeObject * PyoCreateMultiBandType(PyObject *module);
+PyTypeObject * PyoCreateCompressType(PyObject *module);
+PyTypeObject * PyoCreateGateType(PyObject *module);
+PyTypeObject * PyoCreateBalanceType(PyObject *module);
+PyTypeObject * PyoCreateExpandType(PyObject *module);
+PyTypeObject * PyoCreateConvolveType(PyObject *module);
+PyTypeObject * PyoCreateIRWinSincType(PyObject *module);
+PyTypeObject * PyoCreateIRPulseType(PyObject *module);
+PyTypeObject * PyoCreateIRAverageType(PyObject *module);
+PyTypeObject * PyoCreateIRFMType(PyObject *module);
+PyTypeObject * PyoCreateDistoType(PyObject *module);
+PyTypeObject * PyoCreateClipType(PyObject *module);
+PyTypeObject * PyoCreateMirrorType(PyObject *module);
+PyTypeObject * PyoCreateWrapType(PyObject *module);
+PyTypeObject * PyoCreateDegradeType(PyObject *module);
+PyTypeObject * PyoCreateDelayType(PyObject *module);
+PyTypeObject * PyoCreateSDelayType(PyObject *module);
+PyTypeObject * PyoCreateWaveguideType(PyObject *module);
+PyTypeObject * PyoCreateAllpassWGType(PyObject *module);
+PyTypeObject * PyoCreateMinType(PyObject *module);
+PyTypeObject * PyoCreateMaxType(PyObject *module);
+PyTypeObject * PyoCreateDelay1Type(PyObject *module);
+PyTypeObject * PyoCreateSmoothDelayType(PyObject *module);
+PyTypeObject * PyoCreateExprerType(PyObject *module);
+PyTypeObject * PyoCreateExprType(PyObject *module);
+PyTypeObject * PyoCreateFaderType(PyObject *module);
+PyTypeObject * PyoCreateAdsrType(PyObject *module);
+PyTypeObject * PyoCreateLinsegType(PyObject *module);
+PyTypeObject * PyoCreateExpsegType(PyObject *module);
+PyTypeObject * PyoCreateFFTMainType(PyObject *module);
+PyTypeObject * PyoCreateFFTType(PyObject *module);
+PyTypeObject * PyoCreateIFFTType(PyObject *module);
+PyTypeObject * PyoCreateCarToPolType(PyObject *module);
+PyTypeObject * PyoCreatePolToCarType(PyObject *module);
+PyTypeObject * PyoCreateFrameDeltaMainType(PyObject *module);
+PyTypeObject * PyoCreateFrameDeltaType(PyObject *module);
+PyTypeObject * PyoCreateFrameAccumMainType(PyObject *module);
+PyTypeObject * PyoCreateFrameAccumType(PyObject *module);
+PyTypeObject * PyoCreateVectralMainType(PyObject *module);
+PyTypeObject * PyoCreateVectralType(PyObject *module);
+PyTypeObject * PyoCreateCvlVerbType(PyObject *module);
+PyTypeObject * PyoCreateSpectrumType(PyObject *module);
+PyTypeObject * PyoCreateIFFTMatrixType(PyObject *module);
+PyTypeObject * PyoCreateBiquadType(PyObject *module);
+PyTypeObject * PyoCreateBiquadxType(PyObject *module);
+PyTypeObject * PyoCreateBiquadaType(PyObject *module);
+PyTypeObject * PyoCreateEQType(PyObject *module);
+PyTypeObject * PyoCreatePortType(PyObject *module);
+PyTypeObject * PyoCreateToneType(PyObject *module);
+PyTypeObject * PyoCreateAtoneType(PyObject *module);
+PyTypeObject * PyoCreateDCBlockType(PyObject *module);
+PyTypeObject * PyoCreateAllpassType(PyObject *module);
+PyTypeObject * PyoCreateAllpass2Type(PyObject *module);
+PyTypeObject * PyoCreatePhaserType(PyObject *module);
+PyTypeObject * PyoCreateVocoderType(PyObject *module);
+PyTypeObject * PyoCreateSVFType(PyObject *module);
+PyTypeObject * PyoCreateSVF2Type(PyObject *module);
+PyTypeObject * PyoCreateAverageType(PyObject *module);
+PyTypeObject * PyoCreateResonType(PyObject *module);
+PyTypeObject * PyoCreateResonxType(PyObject *module);
+PyTypeObject * PyoCreateButLPType(PyObject *module);
+PyTypeObject * PyoCreateButHPType(PyObject *module);
+PyTypeObject * PyoCreateButBPType(PyObject *module);
+PyTypeObject * PyoCreateButBRType(PyObject *module);
+PyTypeObject * PyoCreateComplexResType(PyObject *module);
+PyTypeObject * PyoCreateMoogLPType(PyObject *module);
+PyTypeObject * PyoCreateFreeverbType(PyObject *module);
+PyTypeObject * PyoCreateGranulatorType(PyObject *module);
+PyTypeObject * PyoCreateLooperType(PyObject *module);
+PyTypeObject * PyoCreateLooperTimeStreamType(PyObject *module);
+PyTypeObject * PyoCreateGranuleType(PyObject *module);
+PyTypeObject * PyoCreateMainParticleType(PyObject *module);
+PyTypeObject * PyoCreateParticleType(PyObject *module);
+PyTypeObject * PyoCreateMainParticle2Type(PyObject *module);
+PyTypeObject * PyoCreateParticle2Type(PyObject *module);
+PyTypeObject * PyoCreateHarmonizerType(PyObject *module);
+PyTypeObject * PyoCreateHilbertMainType(PyObject *module);
+PyTypeObject * PyoCreateHilbertType(PyObject *module);
+PyTypeObject * PyoCreateInputType(PyObject *module);
+PyTypeObject * PyoCreateLFOType(PyObject *module);
+PyTypeObject * PyoCreateHRTFDataType(PyObject *module);
+PyTypeObject * PyoCreateHRTFSpatterType(PyObject *module);
+PyTypeObject * PyoCreateHRTFType(PyObject *module);
+PyTypeObject * PyoCreateBinauralerType(PyObject *module);
+PyTypeObject * PyoCreateBinauralType(PyObject *module);
+PyTypeObject * PyoCreateMatrixPointerType(PyObject *module);
+PyTypeObject * PyoCreateTrigType(PyObject *module);
+PyTypeObject * PyoCreateMetroType(PyObject *module);
+PyTypeObject * PyoCreateSeqerType(PyObject *module);
+PyTypeObject * PyoCreateSeqType(PyObject *module);
+PyTypeObject * PyoCreateClouderType(PyObject *module);
+PyTypeObject * PyoCreateCloudType(PyObject *module);
+PyTypeObject * PyoCreateBeaterType(PyObject *module);
+PyTypeObject * PyoCreateBeatType(PyObject *module);
+PyTypeObject * PyoCreateBeatTapStreamType(PyObject *module);
+PyTypeObject * PyoCreateBeatAmpStreamType(PyObject *module);
+PyTypeObject * PyoCreateBeatDurStreamType(PyObject *module);
+PyTypeObject * PyoCreateBeatEndStreamType(PyObject *module);
+PyTypeObject * PyoCreateTrigBursterType(PyObject *module);
+PyTypeObject * PyoCreateTrigBurstType(PyObject *module);
+PyTypeObject * PyoCreateTrigBurstTapStreamType(PyObject *module);
+PyTypeObject * PyoCreateTrigBurstAmpStreamType(PyObject *module);
+PyTypeObject * PyoCreateTrigBurstDurStreamType(PyObject *module);
+PyTypeObject * PyoCreateTrigBurstEndStreamType(PyObject *module);
+PyTypeObject * PyoCreateMidictlType(PyObject *module);
+PyTypeObject * PyoCreateCtlScanType(PyObject *module);
+PyTypeObject * PyoCreateCtlScan2Type(PyObject *module);
+PyTypeObject * PyoCreateMidiNoteType(PyObject *module);
+PyTypeObject * PyoCreateNoteinType(PyObject *module);
+PyTypeObject * PyoCreateNoteinTrigType(PyObject *module);
+PyTypeObject * PyoCreateBendinType(PyObject *module);
+PyTypeObject * PyoCreateTouchinType(PyObject *module);
+PyTypeObject * PyoCreatePrograminType(PyObject *module);
+PyTypeObject * PyoCreateMidiAdsrType(PyObject *module);
+PyTypeObject * PyoCreateMidiDelAdsrType(PyObject *module);
+PyTypeObject * PyoCreateRawMidiType(PyObject *module);
+PyTypeObject * PyoCreateMidiLinsegType(PyObject *module);
+PyTypeObject * PyoCreateMMLMainType(PyObject *module);
+PyTypeObject * PyoCreateMMLType(PyObject *module);
+PyTypeObject * PyoCreateMMLFreqStreamType(PyObject *module);
+PyTypeObject * PyoCreateMMLAmpStreamType(PyObject *module);
+PyTypeObject * PyoCreateMMLDurStreamType(PyObject *module);
+PyTypeObject * PyoCreateMMLEndStreamType(PyObject *module);
+PyTypeObject * PyoCreateMMLXStreamType(PyObject *module);
+PyTypeObject * PyoCreateMMLYStreamType(PyObject *module);
+PyTypeObject * PyoCreateMMLZStreamType(PyObject *module);
+PyTypeObject * PyoCreateNoiseType(PyObject *module);
+PyTypeObject * PyoCreatePinkNoiseType(PyObject *module);
+PyTypeObject * PyoCreateBrownNoiseType(PyObject *module);
+PyTypeObject * PyoCreateOscBankType(PyObject *module);
+PyTypeObject * PyoCreateSineType(PyObject *module);
+PyTypeObject * PyoCreateFastSineType(PyObject *module);
+PyTypeObject * PyoCreateSineLoopType(PyObject *module);
+PyTypeObject * PyoCreateFmType(PyObject *module);
+PyTypeObject * PyoCreateCrossFmType(PyObject *module);
+PyTypeObject * PyoCreateBlitType(PyObject *module);
+PyTypeObject * PyoCreateRosslerType(PyObject *module);
+PyTypeObject * PyoCreateRosslerAltType(PyObject *module);
+PyTypeObject * PyoCreateLorenzType(PyObject *module);
+PyTypeObject * PyoCreateLorenzAltType(PyObject *module);
+PyTypeObject * PyoCreateChenLeeType(PyObject *module);
+PyTypeObject * PyoCreateChenLeeAltType(PyObject *module);
+PyTypeObject * PyoCreatePhasorType(PyObject *module);
+PyTypeObject * PyoCreatePointerType(PyObject *module);
+PyTypeObject * PyoCreatePointer2Type(PyObject *module);
+PyTypeObject * PyoCreateTableIndexType(PyObject *module);
+PyTypeObject * PyoCreateLookupType(PyObject *module);
+PyTypeObject * PyoCreatePulsarType(PyObject *module);
+PyTypeObject * PyoCreateTableReadType(PyObject *module);
+PyTypeObject * PyoCreateOscType(PyObject *module);
+PyTypeObject * PyoCreateOscLoopType(PyObject *module);
+PyTypeObject * PyoCreateOscTrigType(PyObject *module);
+PyTypeObject * PyoCreateSumOscType(PyObject *module);
+PyTypeObject * PyoCreateSuperSawType(PyObject *module);
+PyTypeObject * PyoCreateRCOscType(PyObject *module);
+PyTypeObject * PyoCreateTableScaleType(PyObject *module);
+PyTypeObject * PyoCreateTableFillType(PyObject *module);
+PyTypeObject * PyoCreateTableScanType(PyObject *module);
+PyTypeObject * PyoCreatePannerType(PyObject *module);
+PyTypeObject * PyoCreatePanType(PyObject *module);
+PyTypeObject * PyoCreateSPannerType(PyObject *module);
+PyTypeObject * PyoCreateSPanType(PyObject *module);
+PyTypeObject * PyoCreateSwitcherType(PyObject *module);
+PyTypeObject * PyoCreateSwitchType(PyObject *module);
+PyTypeObject * PyoCreateVoiceManagerType(PyObject *module);
+PyTypeObject * PyoCreateMixerType(PyObject *module);
+PyTypeObject * PyoCreateMixerVoiceType(PyObject *module);
+PyTypeObject * PyoCreateSelectorType(PyObject *module);
+PyTypeObject * PyoCreateRandiType(PyObject *module);
+PyTypeObject * PyoCreateRandhType(PyObject *module);
+PyTypeObject * PyoCreateRandDurType(PyObject *module);
+PyTypeObject * PyoCreateChoiceType(PyObject *module);
+PyTypeObject * PyoCreateRandIntType(PyObject *module);
+PyTypeObject * PyoCreateXnoiseType(PyObject *module);
+PyTypeObject * PyoCreateXnoiseMidiType(PyObject *module);
+PyTypeObject * PyoCreateXnoiseDurType(PyObject *module);
+PyTypeObject * PyoCreateUrnType(PyObject *module);
+PyTypeObject * PyoCreateLogiMapType(PyObject *module);
+PyTypeObject * PyoCreatePVAnalType(PyObject *module);
+PyTypeObject * PyoCreatePVSynthType(PyObject *module);
+PyTypeObject * PyoCreatePVTransposeType(PyObject *module);
+PyTypeObject * PyoCreatePVVerbType(PyObject *module);
+PyTypeObject * PyoCreatePVGateType(PyObject *module);
+PyTypeObject * PyoCreatePVAddSynthType(PyObject *module);
+PyTypeObject * PyoCreatePVCrossType(PyObject *module);
+PyTypeObject * PyoCreatePVMultType(PyObject *module);
+PyTypeObject * PyoCreatePVMorphType(PyObject *module);
+PyTypeObject * PyoCreatePVFilterType(PyObject *module);
+PyTypeObject * PyoCreatePVDelayType(PyObject *module);
+PyTypeObject * PyoCreatePVBufferType(PyObject *module);
+PyTypeObject * PyoCreatePVShiftType(PyObject *module);
+PyTypeObject * PyoCreatePVAmpModType(PyObject *module);
+PyTypeObject * PyoCreatePVFreqModType(PyObject *module);
+PyTypeObject * PyoCreatePVBufLoopsType(PyObject *module);
+PyTypeObject * PyoCreatePVBufTabLoopsType(PyObject *module);
+PyTypeObject * PyoCreatePVMixType(PyObject *module);
+PyTypeObject * PyoCreateRecordType(PyObject *module);
+PyTypeObject * PyoCreateControlRecType(PyObject *module);
+PyTypeObject * PyoCreateControlReadType(PyObject *module);
+PyTypeObject * PyoCreateNoteinRecType(PyObject *module);
+PyTypeObject * PyoCreateNoteinReadType(PyObject *module);
+PyTypeObject * PyoCreateSelectType(PyObject *module);
+PyTypeObject * PyoCreateChangeType(PyObject *module);
+PyTypeObject * PyoCreateSfPlayerType(PyObject *module);
+PyTypeObject * PyoCreateSfPlayType(PyObject *module);
+PyTypeObject * PyoCreateSfMarkerShufflerType(PyObject *module);
+PyTypeObject * PyoCreateSfMarkerShuffleType(PyObject *module);
+PyTypeObject * PyoCreateSfMarkerLooperType(PyObject *module);
+PyTypeObject * PyoCreateSfMarkerLoopType(PyObject *module);
+PyTypeObject * PyoCreateNextTrigType(PyObject *module);
+PyTypeObject * PyoCreateCounterType(PyObject *module);
+PyTypeObject * PyoCreateCountType(PyObject *module);
+PyTypeObject * PyoCreateThreshType(PyObject *module);
+PyTypeObject * PyoCreatePercentType(PyObject *module);
+PyTypeObject * PyoCreateTimerType(PyObject *module);
+PyTypeObject * PyoCreateDenormType(PyObject *module);
+PyTypeObject * PyoCreateBetweenType(PyObject *module);
+PyTypeObject * PyoCreateWGVerbType(PyObject *module);
+PyTypeObject * PyoCreateCompareType(PyObject *module);
+PyTypeObject * PyoCreateTrigRandIntType(PyObject *module);
+PyTypeObject * PyoCreateTrigValType(PyObject *module);
+PyTypeObject * PyoCreateTrigRandType(PyObject *module);
+PyTypeObject * PyoCreateTrigChoiceType(PyObject *module);
+PyTypeObject * PyoCreateIterType(PyObject *module);
+PyTypeObject * PyoCreateTrigEnvType(PyObject *module);
+PyTypeObject * PyoCreateTrigLinsegType(PyObject *module);
+PyTypeObject * PyoCreateTrigExpsegType(PyObject *module);
+PyTypeObject * PyoCreateTrigFuncType(PyObject *module);
+PyTypeObject * PyoCreateTrigXnoiseType(PyObject *module);
+PyTypeObject * PyoCreateTrigXnoiseMidiType(PyObject *module);
+PyTypeObject * PyoCreatePrintType(PyObject *module);
+PyTypeObject * PyoCreateSnapType(PyObject *module);
+PyTypeObject * PyoCreateInterpType(PyObject *module);
+PyTypeObject * PyoCreateSampHoldType(PyObject *module);
+PyTypeObject * PyoCreateDBToAType(PyObject *module);
+PyTypeObject * PyoCreateAToDBType(PyObject *module);
+PyTypeObject * PyoCreateScaleType(PyObject *module);
+PyTypeObject * PyoCreateCentsToTranspoType(PyObject *module);
+PyTypeObject * PyoCreateTranspoToCentsType(PyObject *module);
+PyTypeObject * PyoCreateMToFType(PyObject *module);
+PyTypeObject * PyoCreateFToMType(PyObject *module);
+PyTypeObject * PyoCreateMToTType(PyObject *module);
+PyTypeObject * PyoCreateTrackHoldType(PyObject *module);
+PyTypeObject * PyoCreateSTReverbType(PyObject *module);
+PyTypeObject * PyoCreateSTRevType(PyObject *module);
+PyTypeObject * PyoCreateResampleType(PyObject *module);
+
+PyTypeObject * PyoCreateHarmTableType(PyObject *module);
+PyTypeObject * PyoCreateChebyTableType(PyObject *module);
+PyTypeObject * PyoCreateHannTableType(PyObject *module);
+PyTypeObject * PyoCreateSincTableType(PyObject *module);
+PyTypeObject * PyoCreateWinTableType(PyObject *module);
+PyTypeObject * PyoCreateParaTableType(PyObject *module);
+PyTypeObject * PyoCreateLinTableType(PyObject *module);
+PyTypeObject * PyoCreateLogTableType(PyObject *module);
+PyTypeObject * PyoCreateCosLogTableType(PyObject *module);
+PyTypeObject * PyoCreateCosTableType(PyObject *module);
+PyTypeObject * PyoCreateCurveTableType(PyObject *module);
+PyTypeObject * PyoCreateExpTableType(PyObject *module);
+PyTypeObject * PyoCreateSndTableType(PyObject *module);
+PyTypeObject * PyoCreateDataTableType(PyObject *module);
+PyTypeObject * PyoCreateNewTableType(PyObject *module);
+PyTypeObject * PyoCreateTableRecType(PyObject *module);
+PyTypeObject * PyoCreateTableWriteType(PyObject *module);
+PyTypeObject * PyoCreateTableRecTimeStreamType(PyObject *module);
+PyTypeObject * PyoCreateTableMorphType(PyObject *module);
+PyTypeObject * PyoCreateTrigTableRecType(PyObject *module);
+PyTypeObject * PyoCreateTrigTableRecTimeStreamType(PyObject *module);
+PyTypeObject * PyoCreateTablePutType(PyObject *module);
+PyTypeObject * PyoCreateNewMatrixType(PyObject *module);
+PyTypeObject * PyoCreateMatrixRecType(PyObject *module);
+PyTypeObject * PyoCreateMatrixRecLoopType(PyObject *module);
+PyTypeObject * PyoCreateMatrixMorphType(PyObject *module);
+PyTypeObject * PyoCreateAtanTableType(PyObject *module);
+PyTypeObject * PyoCreatePadSynthTableType(PyObject *module);
+PyTypeObject * PyoCreateSharedTableType(PyObject *module);
 
 typedef Py_ssize_t T_SIZE_T;
 
@@ -248,337 +921,338 @@ typedef Py_ssize_t T_SIZE_T;
 #include "externalmodule.h"
 #endif
 
+#define ServerType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SERVER))
 #ifdef USE_PORTMIDI
-extern PyTypeObject MidiListenerType;
-extern PyTypeObject MidiDispatcherType;
+#define MidiListenerType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MIDI_LISTENER))
+#define MidiDispatcherType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MIDI_DISPATCHER))
 #endif
 #ifdef USE_OSC
-extern PyTypeObject OscListenerType;
-extern PyTypeObject OscSendType;
-extern PyTypeObject OscReceiveType;
-extern PyTypeObject OscReceiverType;
-extern PyTypeObject OscDataSendType;
-extern PyTypeObject OscDataReceiveType;
-extern PyTypeObject OscListReceiveType;
-extern PyTypeObject OscListReceiverType;
+#define OscListenerType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_OSC_LISTENER))
+#define OscSendType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_OSC_SEND))
+#define OscReceiveType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_OSC_RECEIVE))
+#define OscReceiverType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_OSC_RECEIVER))
+#define OscDataSendType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_OSC_DATA_SEND))
+#define OscDataReceiveType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_OSC_DATA_RECEIVE))
+#define OscListReceiveType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_OSC_LIST_RECEIVE))
+#define OscListReceiverType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_OSC_LIST_RECEIVER))
 #endif
-extern PyTypeObject SineType;
-extern PyTypeObject FastSineType;
-extern PyTypeObject SineLoopType;
-extern PyTypeObject FmType;
-extern PyTypeObject CrossFmType;
-extern PyTypeObject LFOType;
-extern PyTypeObject BlitType;
-extern PyTypeObject RosslerType;
-extern PyTypeObject RosslerAltType;
-extern PyTypeObject LorenzType;
-extern PyTypeObject LorenzAltType;
-extern PyTypeObject ChenLeeType;
-extern PyTypeObject ChenLeeAltType;
-extern PyTypeObject PhasorType;
-extern PyTypeObject SuperSawType;
-extern PyTypeObject PointerType;
-extern PyTypeObject TableIndexType;
-extern PyTypeObject LookupType;
-extern PyTypeObject TableReadType;
-extern PyTypeObject OscType;
-extern PyTypeObject OscLoopType;
-extern PyTypeObject OscTrigType;
-extern PyTypeObject OscBankType;
-extern PyTypeObject SumOscType;
-extern PyTypeObject PulsarType;
-extern PyTypeObject NoiseType;
-extern PyTypeObject PinkNoiseType;
-extern PyTypeObject BrownNoiseType;
-extern PyTypeObject InputType;
-extern PyTypeObject SfPlayerType;
-extern PyTypeObject SfPlayType;
-extern PyTypeObject SfMarkerShufflerType;
-extern PyTypeObject SfMarkerShuffleType;
-extern PyTypeObject SfMarkerLooperType;
-extern PyTypeObject SfMarkerLoopType;
-extern PyTypeObject TrigType;
-extern PyTypeObject NextTrigType;
-extern PyTypeObject MetroType;
-extern PyTypeObject SeqerType;
-extern PyTypeObject SeqType;
-extern PyTypeObject ClouderType;
-extern PyTypeObject CloudType;
-extern PyTypeObject BeaterType;
-extern PyTypeObject BeatType;
-extern PyTypeObject BeatTapStreamType;
-extern PyTypeObject BeatAmpStreamType;
-extern PyTypeObject BeatDurStreamType;
-extern PyTypeObject BeatEndStreamType;
-extern PyTypeObject CounterType;
-extern PyTypeObject CountType;
-extern PyTypeObject SelectType;
-extern PyTypeObject ChangeType;
-extern PyTypeObject ThreshType;
-extern PyTypeObject PercentType;
-extern PyTypeObject TimerType;
-extern PyTypeObject ScoreType;
-extern PyTypeObject FaderType;
-extern PyTypeObject AdsrType;
-extern PyTypeObject LinsegType;
-extern PyTypeObject ExpsegType;
-extern PyTypeObject RandiType;
-extern PyTypeObject RandhType;
-extern PyTypeObject RandDurType;
-extern PyTypeObject ChoiceType;
-extern PyTypeObject RandIntType;
-extern PyTypeObject XnoiseType;
-extern PyTypeObject XnoiseMidiType;
-extern PyTypeObject XnoiseDurType;
-extern PyTypeObject UrnType;
-extern PyTypeObject BiquadType;
-extern PyTypeObject BiquadxType;
-extern PyTypeObject BiquadaType;
-extern PyTypeObject EQType;
-extern PyTypeObject ToneType;
-extern PyTypeObject AtoneType;
-extern PyTypeObject DCBlockType;
-extern PyTypeObject PortType;
-extern PyTypeObject AllpassType;
-extern PyTypeObject Allpass2Type;
-extern PyTypeObject PhaserType;
-extern PyTypeObject VocoderType;
-extern PyTypeObject DenormType;
-extern PyTypeObject DistoType;
-extern PyTypeObject ClipType;
-extern PyTypeObject MirrorType;
-extern PyTypeObject WrapType;
-extern PyTypeObject BetweenType;
-extern PyTypeObject DegradeType;
-extern PyTypeObject CompressType;
-extern PyTypeObject GateType;
-extern PyTypeObject BalanceType;
-extern PyTypeObject DelayType;
-extern PyTypeObject SDelayType;
-extern PyTypeObject WaveguideType;
-extern PyTypeObject AllpassWGType;
-extern PyTypeObject FreeverbType;
-extern PyTypeObject WGVerbType;
-extern PyTypeObject ChorusType;
-extern PyTypeObject ConvolveType;
-extern PyTypeObject IRWinSincType;
-extern PyTypeObject IRPulseType;
-extern PyTypeObject IRAverageType;
-extern PyTypeObject IRFMType;
-extern PyTypeObject GranulatorType;
-extern PyTypeObject LooperType;
-extern PyTypeObject LooperTimeStreamType;
-extern PyTypeObject HarmonizerType;
-extern PyTypeObject MidictlType;
-extern PyTypeObject CtlScanType;
-extern PyTypeObject CtlScan2Type;
-extern PyTypeObject MidiNoteType;
-extern PyTypeObject NoteinType;
-extern PyTypeObject NoteinTrigType;
-extern PyTypeObject BendinType;
-extern PyTypeObject TouchinType;
-extern PyTypeObject PrograminType;
-extern PyTypeObject MidiAdsrType;
-extern PyTypeObject MidiDelAdsrType;
-extern PyTypeObject DummyType;
-extern PyTypeObject TriggerDummyType;
-extern PyTypeObject RecordType;
-extern PyTypeObject ControlRecType;
-extern PyTypeObject ControlReadType;
-extern PyTypeObject NoteinRecType;
-extern PyTypeObject NoteinReadType;
-extern PyTypeObject CompareType;
-extern PyTypeObject MixType;
-extern PyTypeObject SigType;
-extern PyTypeObject SigToType;
-extern PyTypeObject VarPortType;
-extern PyTypeObject InputFaderType;
-extern PyTypeObject HarmTableType;
-extern PyTypeObject ChebyTableType;
-extern PyTypeObject HannTableType;
-extern PyTypeObject SincTableType;
-extern PyTypeObject WinTableType;
-extern PyTypeObject ParaTableType;
-extern PyTypeObject LinTableType;
-extern PyTypeObject LogTableType;
-extern PyTypeObject CosLogTableType;
-extern PyTypeObject CosTableType;
-extern PyTypeObject CurveTableType;
-extern PyTypeObject ExpTableType;
-extern PyTypeObject SndTableType;
-extern PyTypeObject DataTableType;
-extern PyTypeObject NewTableType;
-extern PyTypeObject TableRecType;
-extern PyTypeObject TableWriteType;
-extern PyTypeObject TableRecTimeStreamType;
-extern PyTypeObject TableMorphType;
-extern PyTypeObject TrigTableRecType;
-extern PyTypeObject TrigTableRecTimeStreamType;
-extern PyTypeObject TablePutType;
-extern PyTypeObject NewMatrixType;
-extern PyTypeObject MatrixPointerType;
-extern PyTypeObject MatrixRecType;
-extern PyTypeObject MatrixRecLoopType;
-extern PyTypeObject MatrixMorphType;
-extern PyTypeObject TrigRandIntType;
-extern PyTypeObject TrigValType;
-extern PyTypeObject TrigRandType;
-extern PyTypeObject TrigChoiceType;
-extern PyTypeObject IterType;
-extern PyTypeObject TrigEnvType;
-extern PyTypeObject TrigLinsegType;
-extern PyTypeObject TrigExpsegType;
-extern PyTypeObject TrigFuncType;
-extern PyTypeObject TrigXnoiseType;
-extern PyTypeObject TrigXnoiseMidiType;
-extern PyTypeObject PatternType;
-extern PyTypeObject CallAfterType;
-extern PyTypeObject BandSplitterType;
-extern PyTypeObject BandSplitType;
-extern PyTypeObject FourBandMainType;
-extern PyTypeObject FourBandType;
-extern PyTypeObject HilbertMainType;
-extern PyTypeObject HilbertType;
-extern PyTypeObject FollowerType;
-extern PyTypeObject Follower2Type;
-extern PyTypeObject ZCrossType;
-extern PyTypeObject SPannerType;
-extern PyTypeObject SPanType;
-extern PyTypeObject PannerType;
-extern PyTypeObject PanType;
-extern PyTypeObject SwitcherType;
-extern PyTypeObject SwitchType;
-extern PyTypeObject SelectorType;
-extern PyTypeObject VoiceManagerType;
-extern PyTypeObject MixerType;
-extern PyTypeObject MixerVoiceType;
-extern PyTypeObject PrintType;
-extern PyTypeObject SnapType;
-extern PyTypeObject InterpType;
-extern PyTypeObject SampHoldType;
-extern PyTypeObject DBToAType;
-extern PyTypeObject AToDBType;
-extern PyTypeObject ScaleType;
-extern PyTypeObject CentsToTranspoType;
-extern PyTypeObject TranspoToCentsType;
-extern PyTypeObject MToFType;
-extern PyTypeObject FToMType;
-extern PyTypeObject MToTType;
-extern PyTypeObject M_SinType;
-extern PyTypeObject M_CosType;
-extern PyTypeObject M_TanType;
-extern PyTypeObject M_AbsType;
-extern PyTypeObject M_SqrtType;
-extern PyTypeObject M_LogType;
-extern PyTypeObject M_Log2Type;
-extern PyTypeObject M_Log10Type;
-extern PyTypeObject M_PowType;
-extern PyTypeObject M_Atan2Type;
-extern PyTypeObject M_FloorType;
-extern PyTypeObject M_CeilType;
-extern PyTypeObject M_RoundType;
-extern PyTypeObject M_TanhType;
-extern PyTypeObject M_ExpType;
-extern PyTypeObject FFTMainType;
-extern PyTypeObject FFTType;
-extern PyTypeObject IFFTType;
-extern PyTypeObject IFFTMatrixType;
-extern PyTypeObject CarToPolType;
-extern PyTypeObject PolToCarType;
-extern PyTypeObject FrameDeltaMainType;
-extern PyTypeObject FrameDeltaType;
-extern PyTypeObject FrameAccumMainType;
-extern PyTypeObject FrameAccumType;
-extern PyTypeObject VectralMainType;
-extern PyTypeObject VectralType;
-extern PyTypeObject MinType;
-extern PyTypeObject MaxType;
-extern PyTypeObject Delay1Type;
-extern PyTypeObject RCOscType;
-extern PyTypeObject YinType;
-extern PyTypeObject SVFType;
-extern PyTypeObject SVF2Type;
-extern PyTypeObject AverageType;
-extern PyTypeObject CvlVerbType;
-extern PyTypeObject SpectrumType;
-extern PyTypeObject ResonType;
-extern PyTypeObject ResonxType;
-extern PyTypeObject ButLPType;
-extern PyTypeObject ButHPType;
-extern PyTypeObject ButBPType;
-extern PyTypeObject ButBRType;
-extern PyTypeObject MoogLPType;
-extern PyTypeObject PVAnalType;
-extern PyTypeObject PVSynthType;
-extern PyTypeObject PVTransposeType;
-extern PyTypeObject PVVerbType;
-extern PyTypeObject PVGateType;
-extern PyTypeObject PVAddSynthType;
-extern PyTypeObject PVCrossType;
-extern PyTypeObject PVMultType;
-extern PyTypeObject PVMorphType;
-extern PyTypeObject PVFilterType;
-extern PyTypeObject PVDelayType;
-extern PyTypeObject PVBufferType;
-extern PyTypeObject PVShiftType;
-extern PyTypeObject PVAmpModType;
-extern PyTypeObject PVFreqModType;
-extern PyTypeObject PVBufLoopsType;
-extern PyTypeObject PVBufTabLoopsType;
-extern PyTypeObject PVMixType;
-extern PyTypeObject GranuleType;
-extern PyTypeObject TableScaleType;
-extern PyTypeObject TrackHoldType;
-extern PyTypeObject ComplexResType;
-extern PyTypeObject STReverbType;
-extern PyTypeObject STRevType;
-extern PyTypeObject Pointer2Type;
-extern PyTypeObject CentroidType;
-extern PyTypeObject AttackDetectorType;
-extern PyTypeObject SmoothDelayType;
-extern PyTypeObject TrigBursterType;
-extern PyTypeObject TrigBurstType;
-extern PyTypeObject TrigBurstTapStreamType;
-extern PyTypeObject TrigBurstAmpStreamType;
-extern PyTypeObject TrigBurstDurStreamType;
-extern PyTypeObject TrigBurstEndStreamType;
-extern PyTypeObject ScopeType;
-extern PyTypeObject PeakAmpType;
-extern PyTypeObject MainParticleType;
-extern PyTypeObject ParticleType;
-extern PyTypeObject MainParticle2Type;
-extern PyTypeObject Particle2Type;
-extern PyTypeObject AtanTableType;
-extern PyTypeObject RawMidiType;
-extern PyTypeObject ResampleType;
-extern PyTypeObject ExprerType;
-extern PyTypeObject ExprType;
-extern PyTypeObject PadSynthTableType;
-extern PyTypeObject LogiMapType;
-extern PyTypeObject SharedTableType;
-extern PyTypeObject TableFillType;
-extern PyTypeObject TableScanType;
-extern PyTypeObject HRTFDataType;
-extern PyTypeObject HRTFSpatterType;
-extern PyTypeObject HRTFType;
-extern PyTypeObject ExpandType;
-extern PyTypeObject RMSType;
-extern PyTypeObject MidiLinsegType;
-extern PyTypeObject MultiBandMainType;
-extern PyTypeObject MultiBandType;
-extern PyTypeObject M_DivType;
-extern PyTypeObject M_SubType;
-extern PyTypeObject BinauralerType;
-extern PyTypeObject BinauralType;
-extern PyTypeObject MMLMainType;
-extern PyTypeObject MMLType;
-extern PyTypeObject MMLFreqStreamType;
-extern PyTypeObject MMLAmpStreamType;
-extern PyTypeObject MMLDurStreamType;
-extern PyTypeObject MMLEndStreamType;
-extern PyTypeObject MMLXStreamType;
-extern PyTypeObject MMLYStreamType;
-extern PyTypeObject MMLZStreamType;
+#define SineType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SINE))
+#define FastSineType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_FASTSINE))
+#define SineLoopType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SINELOOP))
+#define FmType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_FM))
+#define CrossFmType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_CROSSFM))
+#define LFOType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_LFO))
+#define BlitType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_BLIT))
+#define RosslerType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_ROSSLER))
+#define RosslerAltType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_ROSSLERALT))
+#define LorenzType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_LORENZ))
+#define LorenzAltType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_LORENZALT))
+#define ChenLeeType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_CHENLEE))
+#define ChenLeeAltType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_CHENLEEALT))
+#define PhasorType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PHASOR))
+#define SuperSawType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SUPERSAW))
+#define PointerType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_POINTER))
+#define TableIndexType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLEINDEX))
+#define LookupType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_LOOKUP))
+#define TableReadType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLEREAD))
+#define OscType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_OSC))
+#define OscLoopType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_OSCLOOP))
+#define OscTrigType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_OSCTRIG))
+#define OscBankType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_OSCBANK))
+#define SumOscType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SUMOSC))
+#define PulsarType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PULSAR))
+#define NoiseType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_NOISE))
+#define PinkNoiseType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PINKNOISE))
+#define BrownNoiseType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_BROWNNOISE))
+#define InputType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_INPUT))
+#define SfPlayerType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SFPLAYER))
+#define SfPlayType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SFPLAY))
+#define SfMarkerShufflerType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SFMARKERSHUFFLER))
+#define SfMarkerShuffleType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SFMARKERSHUFFLE))
+#define SfMarkerLooperType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SFMARKERLOOPER))
+#define SfMarkerLoopType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SFMARKERLOOP))
+#define TrigType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIG))
+#define NextTrigType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_NEXTTRIG))
+#define MetroType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_METRO))
+#define SeqerType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SEQER))
+#define SeqType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SEQ))
+#define ClouderType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_CLOUDER))
+#define CloudType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_CLOUD))
+#define BeaterType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_BEATER))
+#define BeatType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_BEAT))
+#define BeatTapStreamType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_BEATTAPSTREAM))
+#define BeatAmpStreamType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_BEATAMPSTREAM))
+#define BeatDurStreamType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_BEATDURSTREAM))
+#define BeatEndStreamType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_BEATENDSTREAM))
+#define CounterType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_COUNTER))
+#define CountType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_COUNTOBJ))
+#define SelectType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SELECT))
+#define ChangeType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_CHANGE))
+#define ThreshType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_THRESH))
+#define PercentType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PERCENT))
+#define TimerType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TIMER))
+#define ScoreType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SCORE))
+#define FaderType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_FADER))
+#define AdsrType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_ADSR))
+#define LinsegType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_LINSEG))
+#define ExpsegType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_EXPSEG))
+#define RandiType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_RANDI))
+#define RandhType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_RANDH))
+#define RandDurType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_RANDDUR))
+#define ChoiceType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_CHOICE))
+#define RandIntType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_RANDINT))
+#define XnoiseType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_XNOISE))
+#define XnoiseMidiType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_XNOISEMIDI))
+#define XnoiseDurType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_XNOISEDUR))
+#define UrnType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_URN))
+#define BiquadType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_BIQUAD))
+#define BiquadxType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_BIQUADX))
+#define BiquadaType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_BIQUADA))
+#define EQType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_EQ))
+#define ToneType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TONE))
+#define AtoneType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_ATONE))
+#define DCBlockType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_DCBLOCK))
+#define PortType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PORT))
+#define AllpassType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_ALLPASS))
+#define Allpass2Type (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_ALLPASS2))
+#define PhaserType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PHASER))
+#define VocoderType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_VOCODER))
+#define DenormType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_DENORM))
+#define DistoType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_DISTO))
+#define ClipType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_CLIP))
+#define MirrorType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MIRROR))
+#define WrapType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_WRAP))
+#define BetweenType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_BETWEEN))
+#define DegradeType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_DEGRADE))
+#define CompressType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_COMPRESS))
+#define GateType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_GATE))
+#define BalanceType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_BALANCE))
+#define DelayType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_DELAY))
+#define SDelayType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SDELAY))
+#define WaveguideType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_WAVEGUIDE))
+#define AllpassWGType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_ALLPASSWG))
+#define FreeverbType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_FREEVERB))
+#define WGVerbType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_WGVERB))
+#define ChorusType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_CHORUS))
+#define ConvolveType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_CONVOLVE))
+#define IRWinSincType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_IRWINSINC))
+#define IRPulseType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_IRPULSE))
+#define IRAverageType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_IRAVERAGE))
+#define IRFMType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_IRFM))
+#define GranulatorType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_GRANULATOR))
+#define LooperType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_LOOPER))
+#define LooperTimeStreamType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_LOOPERTIMESTREAM))
+#define HarmonizerType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_HARMONIZER))
+#define MidictlType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MIDICTL))
+#define CtlScanType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_CTLSCAN))
+#define CtlScan2Type (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_CTLSCAN2))
+#define MidiNoteType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MIDINOTE))
+#define NoteinType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_NOTEIN))
+#define NoteinTrigType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_NOTEINTRIG))
+#define BendinType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_BENDIN))
+#define TouchinType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TOUCHIN))
+#define PrograminType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PROGRAMIN))
+#define MidiAdsrType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MIDIADSR))
+#define MidiDelAdsrType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MIDIDELADSR))
+#define DummyType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_DUMMY))
+#define TriggerDummyType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGGER_DUMMY))
+#define RecordType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_RECORD))
+#define ControlRecType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_CONTROLREC))
+#define ControlReadType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_CONTROLREAD))
+#define NoteinRecType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_NOTEINREC))
+#define NoteinReadType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_NOTEINREAD))
+#define CompareType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_COMPARE))
+#define MixType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MIX))
+#define SigType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SIG))
+#define SigToType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SIGTO))
+#define VarPortType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_VARPORT))
+#define InputFaderType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_INPUTFADER))
+#define HarmTableType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_HARMTABLE))
+#define ChebyTableType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_CHEBYTABLE))
+#define HannTableType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_HANNTABLE))
+#define SincTableType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SINCTABLE))
+#define WinTableType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_WINTABLE))
+#define ParaTableType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PARATABLE))
+#define LinTableType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_LINTABLE))
+#define LogTableType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_LOGTABLE))
+#define CosLogTableType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_COSLOGTABLE))
+#define CosTableType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_COSTABLE))
+#define CurveTableType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_CURVETABLE))
+#define ExpTableType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_EXPTABLE))
+#define SndTableType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SNDTABLE))
+#define DataTableType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_DATATABLE))
+#define NewTableType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_NEWTABLE))
+#define TableRecType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLEREC))
+#define TableWriteType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLEWRITE))
+#define TableRecTimeStreamType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLERECTIMESTREAM))
+#define TableMorphType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLEMORPH))
+#define TrigTableRecType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGTABLEREC))
+#define TrigTableRecTimeStreamType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGTABLERECTIMESTREAM))
+#define TablePutType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLEPUT))
+#define NewMatrixType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_NEWMATRIX))
+#define MatrixPointerType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MATRIXPOINTER))
+#define MatrixRecType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MATRIXREC))
+#define MatrixRecLoopType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MATRIXRECLOOP))
+#define MatrixMorphType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MATRIXMORPH))
+#define TrigRandIntType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGRANDINT))
+#define TrigValType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGVAL))
+#define TrigRandType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGRAND))
+#define TrigChoiceType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGCHOICE))
+#define IterType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_ITER))
+#define TrigEnvType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGENV))
+#define TrigLinsegType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGLINSEG))
+#define TrigExpsegType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGEXPSEG))
+#define TrigFuncType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGFUNC))
+#define TrigXnoiseType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGXNOISE))
+#define TrigXnoiseMidiType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGXNOISEMIDI))
+#define PatternType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PATTERN))
+#define CallAfterType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_CALLAFTER))
+#define BandSplitterType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_BANDSPLITTER))
+#define BandSplitType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_BANDSPLIT))
+#define FourBandMainType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_FOURBAND_MAIN))
+#define FourBandType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_FOURBAND))
+#define HilbertMainType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_HILBERTMAIN))
+#define HilbertType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_HILBERT))
+#define FollowerType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_FOLLOWER))
+#define Follower2Type (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_FOLLOWER2))
+#define ZCrossType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_ZCROSS))
+#define SPannerType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SPANNER))
+#define SPanType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SPAN))
+#define PannerType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PANNER))
+#define PanType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PAN))
+#define SwitcherType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SWITCHER))
+#define SwitchType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SWITCH))
+#define SelectorType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SELECTOR))
+#define VoiceManagerType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_VOICEMANAGER))
+#define MixerType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MIXER))
+#define MixerVoiceType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MIXERVOICE))
+#define PrintType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PRINT))
+#define SnapType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SNAP))
+#define InterpType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_INTERP))
+#define SampHoldType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SAMPHOLD))
+#define DBToAType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_DBTOA))
+#define AToDBType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_ATODB))
+#define ScaleType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SCALE))
+#define CentsToTranspoType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_CENTSTOTRANSPO))
+#define TranspoToCentsType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRANSPOTOCENTS))
+#define MToFType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MTOF))
+#define FToMType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_FTOM))
+#define MToTType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MTOT))
+#define M_SinType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_M_SIN))
+#define M_CosType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_M_COS))
+#define M_TanType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_M_TAN))
+#define M_AbsType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_M_ABS))
+#define M_SqrtType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_M_SQRT))
+#define M_LogType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_M_LOG))
+#define M_Log2Type (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_M_LOG2))
+#define M_Log10Type (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_M_LOG10))
+#define M_PowType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_M_POW))
+#define M_Atan2Type (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_M_ATAN2))
+#define M_FloorType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_M_FLOOR))
+#define M_CeilType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_M_CEIL))
+#define M_RoundType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_M_ROUND))
+#define M_TanhType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_M_TANH))
+#define M_ExpType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_M_EXP))
+#define FFTMainType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_FFTMAIN))
+#define FFTType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_FFT))
+#define IFFTType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_IFFT))
+#define IFFTMatrixType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_IFFTMATRIX))
+#define CarToPolType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_CARTOPOL))
+#define PolToCarType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_POLTOCAR))
+#define FrameDeltaMainType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_FRAMEDELTAMAIN))
+#define FrameDeltaType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_FRAMEDELTA))
+#define FrameAccumMainType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_FRAMEACCUMMAIN))
+#define FrameAccumType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_FRAMEACCUM))
+#define VectralMainType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_VECTRALMAIN))
+#define VectralType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_VECTRAL))
+#define MinType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MIN))
+#define MaxType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MAX))
+#define Delay1Type (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_DELAY1))
+#define RCOscType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_RCOSC))
+#define YinType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_YIN))
+#define SVFType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SVF))
+#define SVF2Type (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SVF2))
+#define AverageType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_AVERAGE))
+#define CvlVerbType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_CVLVERB))
+#define SpectrumType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SPECTRUM))
+#define ResonType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_RESON))
+#define ResonxType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_RESONX))
+#define ButLPType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_BUTLP))
+#define ButHPType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_BUTHP))
+#define ButBPType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_BUTBP))
+#define ButBRType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_BUTBR))
+#define MoogLPType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MOOGLP))
+#define PVAnalType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PVANAL))
+#define PVSynthType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PVSYNTH))
+#define PVTransposeType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PVTRANSPOSE))
+#define PVVerbType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PVVERB))
+#define PVGateType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PVGATE))
+#define PVAddSynthType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PVADDSYNTH))
+#define PVCrossType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PVCROSS))
+#define PVMultType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PVMULT))
+#define PVMorphType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PVMORPH))
+#define PVFilterType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PVFILTER))
+#define PVDelayType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PVDELAY))
+#define PVBufferType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PVBUFFER))
+#define PVShiftType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PVSHIFT))
+#define PVAmpModType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PVAMPMOD))
+#define PVFreqModType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PVFREQMOD))
+#define PVBufLoopsType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PVBUFLOOPS))
+#define PVBufTabLoopsType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PVBUFTABLOOPS))
+#define PVMixType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PVMIX))
+#define GranuleType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_GRANULE))
+#define TableScaleType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLESCALE))
+#define TrackHoldType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRACKHOLD))
+#define ComplexResType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_COMPLEXRES))
+#define STReverbType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_STREVERB))
+#define STRevType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_STREV))
+#define Pointer2Type (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_POINTER2))
+#define CentroidType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_CENTROID))
+#define AttackDetectorType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_ATTACK_DETECTOR))
+#define SmoothDelayType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SMOOTHDELAY))
+#define TrigBursterType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGBURSTER))
+#define TrigBurstType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGBURST))
+#define TrigBurstTapStreamType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGBURSTTAPSTREAM))
+#define TrigBurstAmpStreamType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGBURSTAMPSTREAM))
+#define TrigBurstDurStreamType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGBURSTDURSTREAM))
+#define TrigBurstEndStreamType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGBURSTENDSTREAM))
+#define ScopeType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SCOPE))
+#define PeakAmpType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PEAKAMP))
+#define MainParticleType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MAINPARTICLE))
+#define ParticleType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PARTICLE))
+#define MainParticle2Type (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MAINPARTICLE2))
+#define Particle2Type (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PARTICLE2))
+#define AtanTableType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_ATANTABLE))
+#define RawMidiType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_RAWMIDI))
+#define ResampleType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_RESAMPLE))
+#define ExprerType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_EXPRER))
+#define ExprType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_EXPR))
+#define PadSynthTableType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PADSYNTHTABLE))
+#define LogiMapType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_LOGIMAP))
+#define SharedTableType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_SHAREDTABLE))
+#define TableFillType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLEFILL))
+#define TableScanType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLESCAN))
+#define HRTFDataType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_HRTFDATA))
+#define HRTFSpatterType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_HRTFSPATTER))
+#define HRTFType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_HRTF))
+#define ExpandType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_EXPAND))
+#define RMSType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_RMS))
+#define MidiLinsegType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MIDILINSEG))
+#define MultiBandMainType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MULTIBAND_MAIN))
+#define MultiBandType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MULTIBAND))
+#define M_DivType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_M_DIV))
+#define M_SubType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_M_SUB))
+#define BinauralerType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_BINAURALER))
+#define BinauralType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_BINAURAL))
+#define MMLMainType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MMLMAIN))
+#define MMLType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MML))
+#define MMLFreqStreamType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MMLFREQSTREAM))
+#define MMLAmpStreamType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MMLAMPSTREAM))
+#define MMLDurStreamType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MMLDURSTREAM))
+#define MMLEndStreamType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MMLENDSTREAM))
+#define MMLXStreamType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MMLXSTREAM))
+#define MMLYStreamType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MMLYSTREAM))
+#define MMLZStreamType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_MMLZSTREAM))
 
 /* Constants */
 #define E M_E
@@ -693,8 +1367,12 @@ extern PyTypeObject MMLZStreamType;
         self->server = NULL; \
     } \
 
+#define pyo_GC_UNTRACK(self) \
+    if (PyObject_GC_IsTracked((PyObject *)(self))) \
+        PyObject_GC_UnTrack((PyObject *)(self)); \
+
 #define pyo_DEALLOC \
-    PyObject_GC_UnTrack(self); \
+    pyo_GC_UNTRACK(self); \
     if (self->server != NULL && self->stream != NULL) \
         Server_removeStream((Server *)self->server, Stream_getStreamId(self->stream)); \
     PyMem_RawFree(self->data); \
@@ -768,7 +1446,7 @@ extern PyTypeObject MMLZStreamType;
         self->data[i] = 0.0; \
     MAKE_NEW_STREAM(self->stream, &StreamType, NULL); \
     Stream_setStreamObject(self->stream, (PyObject *)self); \
-    Stream_setStreamId(self->stream, Server_getNewStreamId(self->server)); \
+    Stream_setStreamId(self->stream, Server_getNewStreamId((Server *)self->server)); \
     Stream_setBufferSize(self->stream, self->bufsize); \
     Stream_setData(self->stream, self->data); \
     Py_INCREF(self->stream);

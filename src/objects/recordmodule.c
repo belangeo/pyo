@@ -86,7 +86,7 @@ Record_process(Record *self)
 static void
 Record_setProcMode(Record *self)
 {
-    self->proc_func_ptr = Record_process;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(Record_process);
 }
 
 static void
@@ -120,7 +120,7 @@ Record_dealloc(Record* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer);
     Record_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -143,8 +143,8 @@ Record_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->count = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Record_compute_next_data_frame);
-    self->mode_func_ptr = Record_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Record_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Record_setProcMode);
 
     static char *kwlist[] = {"input", "filename", "chnls", "fileformat", "sampletype", "buffering", "quality", NULL};
 
@@ -311,47 +311,31 @@ static PyMethodDef Record_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject RecordType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Record_base",                                   /*tp_name*/
-    sizeof(Record),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)Record_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Record objects. Records its audio input in a file.",           /* tp_doc */
-    (traverseproc)Record_traverse,                  /* tp_traverse */
-    (inquiry)Record_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    Record_methods,                                 /* tp_methods */
-    Record_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    Record_new,                                     /* tp_new */
+static PyType_Slot RecordType_slots[] = {
+    {Py_tp_dealloc, Record_dealloc},
+    {Py_tp_doc, "Record objects. Records its audio input in a file."},
+    {Py_tp_traverse, Record_traverse},
+    {Py_tp_clear, Record_clear},
+    {Py_tp_methods, Record_methods},
+    {Py_tp_members, Record_members},
+    {Py_tp_new, Record_new},
+    {0, NULL}
 };
+
+static PyType_Spec RecordType_spec =
+{
+    "_pyo.Record_base",
+    sizeof(Record),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    RecordType_slots
+};
+
+PyTypeObject *
+PyoCreateRecordType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &RecordType_spec, NULL);
+}
 
 /************/
 /* ControlRec */
@@ -411,7 +395,7 @@ ControlRec_process(ControlRec *self)
 static void
 ControlRec_setProcMode(ControlRec *self)
 {
-    self->proc_func_ptr = ControlRec_process;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(ControlRec_process);
 }
 
 static void
@@ -447,7 +431,7 @@ ControlRec_dealloc(ControlRec* self)
         PyMem_RawFree(self->buffer);
 
     ControlRec_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -467,8 +451,8 @@ ControlRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->tmp_list = PyList_New(0);
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, ControlRec_compute_next_data_frame);
-    self->mode_func_ptr = ControlRec_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(ControlRec_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(ControlRec_setProcMode);
 
     static char *kwlist[] = {"input", "rate", "dur", NULL};
 
@@ -570,47 +554,31 @@ static PyMethodDef ControlRec_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject ControlRecType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.ControlRec_base",                                   /*tp_name*/
-    sizeof(ControlRec),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)ControlRec_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "ControlRec objects. Records control signal with user-defined sampling rate.",           /* tp_doc */
-    (traverseproc)ControlRec_traverse,                  /* tp_traverse */
-    (inquiry)ControlRec_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    ControlRec_methods,                                 /* tp_methods */
-    ControlRec_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    ControlRec_new,                                     /* tp_new */
+static PyType_Slot ControlRecType_slots[] = {
+    {Py_tp_dealloc, ControlRec_dealloc},
+    {Py_tp_doc, "ControlRec objects. Records control signal with user-defined sampling rate."},
+    {Py_tp_traverse, ControlRec_traverse},
+    {Py_tp_clear, ControlRec_clear},
+    {Py_tp_methods, ControlRec_methods},
+    {Py_tp_members, ControlRec_members},
+    {Py_tp_new, ControlRec_new},
+    {0, NULL}
 };
+
+static PyType_Spec ControlRecType_spec =
+{
+    "_pyo.ControlRec_base",
+    sizeof(ControlRec),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    ControlRecType_slots
+};
+
+PyTypeObject *
+PyoCreateControlRecType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &ControlRecType_spec, NULL);
+}
 
 /**************/
 /* ControlRead object */
@@ -694,44 +662,44 @@ ControlRead_setProcMode(ControlRead *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = ControlRead_readframes_i;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(ControlRead_readframes_i);
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = ControlRead_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(ControlRead_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = ControlRead_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(ControlRead_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = ControlRead_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(ControlRead_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = ControlRead_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(ControlRead_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = ControlRead_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(ControlRead_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = ControlRead_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(ControlRead_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = ControlRead_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(ControlRead_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = ControlRead_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(ControlRead_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = ControlRead_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(ControlRead_postprocessing_revareva);
             break;
     }
 }
@@ -765,7 +733,7 @@ ControlRead_dealloc(ControlRead* self)
     PyMem_RawFree(self->trigsBuffer);
     ControlRead_clear(self);
     Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -787,8 +755,8 @@ ControlRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, ControlRead_compute_next_data_frame);
-    self->mode_func_ptr = ControlRead_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(ControlRead_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(ControlRead_setProcMode);
 
     static char *kwlist[] = {"values", "rate", "loop", "interp", "mul", "add", NULL};
 
@@ -945,85 +913,39 @@ static PyMethodDef ControlRead_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods ControlRead_as_number =
-{
-    (binaryfunc)ControlRead_add,                      /*nb_add*/
-    (binaryfunc)ControlRead_sub,                 /*nb_subtract*/
-    (binaryfunc)ControlRead_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)ControlRead_inplace_add,              /*inplace_add*/
-    (binaryfunc)ControlRead_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)ControlRead_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)ControlRead_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)ControlRead_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot ControlReadType_slots[] = {
+    {Py_tp_dealloc, ControlRead_dealloc},
+    {Py_tp_doc, "ControlRead objects. Generates an oscillatory waveform."},
+    {Py_tp_traverse, ControlRead_traverse},
+    {Py_tp_clear, ControlRead_clear},
+    {Py_tp_methods, ControlRead_methods},
+    {Py_tp_members, ControlRead_members},
+    {Py_tp_new, ControlRead_new},
+    {Py_nb_add, ControlRead_add},
+    {Py_nb_subtract, ControlRead_sub},
+    {Py_nb_multiply, ControlRead_multiply},
+    {Py_nb_true_divide, ControlRead_div},
+    {Py_nb_inplace_add, ControlRead_inplace_add},
+    {Py_nb_inplace_subtract, ControlRead_inplace_sub},
+    {Py_nb_inplace_multiply, ControlRead_inplace_multiply},
+    {Py_nb_inplace_true_divide, ControlRead_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject ControlReadType =
+static PyType_Spec ControlReadType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.ControlRead_base",         /*tp_name*/
-    sizeof(ControlRead),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)ControlRead_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &ControlRead_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "ControlRead objects. Generates an oscillatory waveform.",           /* tp_doc */
-    (traverseproc)ControlRead_traverse,   /* tp_traverse */
-    (inquiry)ControlRead_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    ControlRead_methods,             /* tp_methods */
-    ControlRead_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    ControlRead_new,                 /* tp_new */
+    "_pyo.ControlRead_base",
+    sizeof(ControlRead),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    ControlReadType_slots
 };
+
+PyTypeObject *
+PyoCreateControlReadType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &ControlReadType_spec, NULL);
+}
 
 /************/
 /* NoteinRec */
@@ -1073,7 +995,7 @@ NoteinRec_process(NoteinRec *self)
 static void
 NoteinRec_setProcMode(NoteinRec *self)
 {
-    self->proc_func_ptr = NoteinRec_process;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(NoteinRec_process);
 }
 
 static void
@@ -1115,7 +1037,7 @@ NoteinRec_dealloc(NoteinRec* self)
 {
     pyo_DEALLOC
     NoteinRec_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1135,8 +1057,8 @@ NoteinRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->last_pitch = self->last_vel = 0.0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, NoteinRec_compute_next_data_frame);
-    self->mode_func_ptr = NoteinRec_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(NoteinRec_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(NoteinRec_setProcMode);
 
     static char *kwlist[] = {"inputp", "inputv", NULL};
 
@@ -1215,47 +1137,31 @@ static PyMethodDef NoteinRec_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject NoteinRecType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.NoteinRec_base",                                   /*tp_name*/
-    sizeof(NoteinRec),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)NoteinRec_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "NoteinRec objects. Records Notein signal with user-defined sampling rate.",           /* tp_doc */
-    (traverseproc)NoteinRec_traverse,                  /* tp_traverse */
-    (inquiry)NoteinRec_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    NoteinRec_methods,                                 /* tp_methods */
-    NoteinRec_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    NoteinRec_new,                                     /* tp_new */
+static PyType_Slot NoteinRecType_slots[] = {
+    {Py_tp_dealloc, NoteinRec_dealloc},
+    {Py_tp_doc, "NoteinRec objects. Records Notein signal with user-defined sampling rate."},
+    {Py_tp_traverse, NoteinRec_traverse},
+    {Py_tp_clear, NoteinRec_clear},
+    {Py_tp_methods, NoteinRec_methods},
+    {Py_tp_members, NoteinRec_members},
+    {Py_tp_new, NoteinRec_new},
+    {0, NULL}
 };
+
+static PyType_Spec NoteinRecType_spec =
+{
+    "_pyo.NoteinRec_base",
+    sizeof(NoteinRec),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    NoteinRecType_slots
+};
+
+PyTypeObject *
+PyoCreateNoteinRecType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &NoteinRecType_spec, NULL);
+}
 
 /**************/
 /* NoteinRead object */
@@ -1332,44 +1238,44 @@ NoteinRead_setProcMode(NoteinRead *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = NoteinRead_readframes_i;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(NoteinRead_readframes_i);
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = NoteinRead_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(NoteinRead_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = NoteinRead_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(NoteinRead_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = NoteinRead_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(NoteinRead_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = NoteinRead_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(NoteinRead_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = NoteinRead_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(NoteinRead_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = NoteinRead_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(NoteinRead_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = NoteinRead_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(NoteinRead_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = NoteinRead_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(NoteinRead_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = NoteinRead_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(NoteinRead_postprocessing_revareva);
             break;
     }
 }
@@ -1403,7 +1309,7 @@ NoteinRead_dealloc(NoteinRead* self)
     PyMem_RawFree(self->timestamps);
     PyMem_RawFree(self->trigsBuffer);
     NoteinRead_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1424,8 +1330,8 @@ NoteinRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, NoteinRead_compute_next_data_frame);
-    self->mode_func_ptr = NoteinRead_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(NoteinRead_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(NoteinRead_setProcMode);
 
     static char *kwlist[] = {"values", "timestamps", "loop", "mul", "add", NULL};
 
@@ -1574,82 +1480,36 @@ static PyMethodDef NoteinRead_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods NoteinRead_as_number =
-{
-    (binaryfunc)NoteinRead_add,                      /*nb_add*/
-    (binaryfunc)NoteinRead_sub,                 /*nb_subtract*/
-    (binaryfunc)NoteinRead_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)NoteinRead_inplace_add,              /*inplace_add*/
-    (binaryfunc)NoteinRead_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)NoteinRead_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)NoteinRead_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)NoteinRead_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot NoteinReadType_slots[] = {
+    {Py_tp_dealloc, NoteinRead_dealloc},
+    {Py_tp_doc, "NoteinRead objects. Reads a NoteinRec file."},
+    {Py_tp_traverse, NoteinRead_traverse},
+    {Py_tp_clear, NoteinRead_clear},
+    {Py_tp_methods, NoteinRead_methods},
+    {Py_tp_members, NoteinRead_members},
+    {Py_tp_new, NoteinRead_new},
+    {Py_nb_add, NoteinRead_add},
+    {Py_nb_subtract, NoteinRead_sub},
+    {Py_nb_multiply, NoteinRead_multiply},
+    {Py_nb_true_divide, NoteinRead_div},
+    {Py_nb_inplace_add, NoteinRead_inplace_add},
+    {Py_nb_inplace_subtract, NoteinRead_inplace_sub},
+    {Py_nb_inplace_multiply, NoteinRead_inplace_multiply},
+    {Py_nb_inplace_true_divide, NoteinRead_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject NoteinReadType =
+static PyType_Spec NoteinReadType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.NoteinRead_base",         /*tp_name*/
-    sizeof(NoteinRead),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)NoteinRead_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &NoteinRead_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "NoteinRead objects. Reads a NoteinRec file.",           /* tp_doc */
-    (traverseproc)NoteinRead_traverse,   /* tp_traverse */
-    (inquiry)NoteinRead_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    NoteinRead_methods,             /* tp_methods */
-    NoteinRead_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    NoteinRead_new,                 /* tp_new */
+    "_pyo.NoteinRead_base",
+    sizeof(NoteinRead),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    NoteinReadType_slots
 };
+
+PyTypeObject *
+PyoCreateNoteinReadType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &NoteinReadType_spec, NULL);
+}

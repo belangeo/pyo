@@ -147,11 +147,11 @@ Pattern_setProcMode(Pattern *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Pattern_generate_i;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Pattern_generate_i);
             break;
 
         case 1:
-            self->proc_func_ptr = Pattern_generate_a;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Pattern_generate_a);
             break;
     }
 }
@@ -187,7 +187,7 @@ Pattern_dealloc(Pattern* self)
 {
     pyo_DEALLOC
     Pattern_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -207,8 +207,8 @@ Pattern_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->arg = Py_None;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Pattern_compute_next_data_frame);
-    self->mode_func_ptr = Pattern_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Pattern_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Pattern_setProcMode);
 
     self->sampleToSec = 1. / self->sr;
     self->currentTime = 0.;
@@ -311,47 +311,32 @@ static PyMethodDef Pattern_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject PatternType =
+static PyType_Slot PatternType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Pattern_base",         /*tp_name*/
-    sizeof(Pattern),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Pattern_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Pattern objects. Create a metronome.",           /* tp_doc */
-    (traverseproc)Pattern_traverse,   /* tp_traverse */
-    (inquiry)Pattern_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Pattern_methods,             /* tp_methods */
-    Pattern_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Pattern_new,                 /* tp_new */
+    {Py_tp_dealloc, Pattern_dealloc},
+    {Py_tp_doc, "Pattern objects. Create a metronome."},
+    {Py_tp_traverse, Pattern_traverse},
+    {Py_tp_clear, Pattern_clear},
+    {Py_tp_methods, Pattern_methods},
+    {Py_tp_members, Pattern_members},
+    {Py_tp_new, Pattern_new},
+    {0, NULL}
 };
+
+static PyType_Spec PatternType_spec =
+{
+    "_pyo.Pattern_base",
+    sizeof(Pattern),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    PatternType_slots
+};
+
+PyTypeObject *
+PyoCreatePatternType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &PatternType_spec, NULL);
+}
 
 /***************/
 /**** Score ****/
@@ -389,7 +374,7 @@ Score_selector(Score *self)
 static void
 Score_setProcMode(Score *self)
 {
-    self->proc_func_ptr = Score_selector;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(Score_selector);
 }
 
 static void
@@ -419,7 +404,7 @@ Score_dealloc(Score* self)
 {
     pyo_DEALLOC
     Score_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -436,8 +421,8 @@ Score_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->last_value = -99;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Score_compute_next_data_frame);
-    self->mode_func_ptr = Score_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Score_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Score_setProcMode);
 
     static char *kwlist[] = {"input", "fname", NULL};
 
@@ -477,47 +462,32 @@ static PyMethodDef Score_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject ScoreType =
+static PyType_Slot ScoreType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Score_base",         /*tp_name*/
-    sizeof(Score),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Score_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Score objects. Calls numbered function from an integer count.",           /* tp_doc */
-    (traverseproc)Score_traverse,   /* tp_traverse */
-    (inquiry)Score_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Score_methods,             /* tp_methods */
-    Score_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Score_new,                 /* tp_new */
+    {Py_tp_dealloc, Score_dealloc},
+    {Py_tp_doc, "Score objects. Calls numbered function from an integer count."},
+    {Py_tp_traverse, Score_traverse},
+    {Py_tp_clear, Score_clear},
+    {Py_tp_methods, Score_methods},
+    {Py_tp_members, Score_members},
+    {Py_tp_new, Score_new},
+    {0, NULL}
 };
+
+static PyType_Spec ScoreType_spec =
+{
+    "_pyo.Score_base",
+    sizeof(Score),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    ScoreType_slots
+};
+
+PyTypeObject *
+PyoCreateScoreType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &ScoreType_spec, NULL);
+}
 
 /*****************/
 /*** CallAfter ***/
@@ -572,7 +542,7 @@ CallAfter_generate(CallAfter *self)
 static void
 CallAfter_setProcMode(CallAfter *self)
 {
-    self->proc_func_ptr = CallAfter_generate;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(CallAfter_generate);
 }
 
 static void
@@ -604,7 +574,7 @@ CallAfter_dealloc(CallAfter* self)
 {
     pyo_DEALLOC
     CallAfter_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -622,8 +592,8 @@ CallAfter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->arg = Py_None;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, CallAfter_compute_next_data_frame);
-    self->mode_func_ptr = CallAfter_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(CallAfter_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(CallAfter_setProcMode);
 
     self->sampleToSec = 1. / self->sr;
     self->currentTime = 0.;
@@ -705,44 +675,29 @@ static PyMethodDef CallAfter_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject CallAfterType =
+static PyType_Slot CallAfterType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.CallAfter_base",         /*tp_name*/
-    sizeof(CallAfter),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)CallAfter_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "CallAfter objects. Create a metronome.",           /* tp_doc */
-    (traverseproc)CallAfter_traverse,   /* tp_traverse */
-    (inquiry)CallAfter_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    CallAfter_methods,             /* tp_methods */
-    CallAfter_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    CallAfter_new,                 /* tp_new */
+    {Py_tp_dealloc, CallAfter_dealloc},
+    {Py_tp_doc, "CallAfter objects. Create a metronome."},
+    {Py_tp_traverse, CallAfter_traverse},
+    {Py_tp_clear, CallAfter_clear},
+    {Py_tp_methods, CallAfter_methods},
+    {Py_tp_members, CallAfter_members},
+    {Py_tp_new, CallAfter_new},
+    {0, NULL}
 };
+
+static PyType_Spec CallAfterType_spec =
+{
+    "_pyo.CallAfter_base",
+    sizeof(CallAfter),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    CallAfterType_slots
+};
+
+PyTypeObject *
+PyoCreateCallAfterType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &CallAfterType_spec, NULL);
+}

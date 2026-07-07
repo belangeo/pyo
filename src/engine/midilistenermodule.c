@@ -370,47 +370,32 @@ static PyMethodDef MidiListener_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject MidiListenerType =
+static PyType_Slot MidiListenerType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.MidiListener_base",         /*tp_name*/
-    sizeof(MidiListener),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)MidiListener_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "MidiListener objects. Calls a function with midi data as arguments.",           /* tp_doc */
-    (traverseproc)MidiListener_traverse,   /* tp_traverse */
-    (inquiry)MidiListener_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    MidiListener_methods,             /* tp_methods */
-    MidiListener_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    MidiListener_new,                 /* tp_new */
+    {Py_tp_dealloc, MidiListener_dealloc},
+    {Py_tp_doc, "MidiListener objects. Calls a function with midi data as arguments."},
+    {Py_tp_traverse, MidiListener_traverse},
+    {Py_tp_clear, MidiListener_clear},
+    {Py_tp_methods, MidiListener_methods},
+    {Py_tp_members, MidiListener_members},
+    {Py_tp_new, MidiListener_new},
+    {0, NULL}
 };
+
+static PyType_Spec MidiListenerType_spec =
+{
+    "_pyo.MidiListener_base",
+    sizeof(MidiListener),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MidiListenerType_slots
+};
+
+PyTypeObject *
+PyoCreateMidiListenerType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MidiListenerType_spec, NULL);
+}
 
 typedef struct
 {
@@ -759,44 +744,29 @@ static PyMethodDef MidiDispatcher_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject MidiDispatcherType =
+static PyType_Slot MidiDispatcherType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.MidiDispatcher_base",         /*tp_name*/
-    sizeof(MidiDispatcher),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)MidiDispatcher_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "MidiDispatcher objects. Calls a function with midi data as arguments.",           /* tp_doc */
-    (traverseproc)MidiDispatcher_traverse,   /* tp_traverse */
-    (inquiry)MidiDispatcher_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    MidiDispatcher_methods,             /* tp_methods */
-    MidiDispatcher_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    MidiDispatcher_new,                 /* tp_new */
+    {Py_tp_dealloc, MidiDispatcher_dealloc},
+    {Py_tp_doc, "MidiDispatcher objects. Calls a function with midi data as arguments."},
+    {Py_tp_traverse, MidiDispatcher_traverse},
+    {Py_tp_clear, MidiDispatcher_clear},
+    {Py_tp_methods, MidiDispatcher_methods},
+    {Py_tp_members, MidiDispatcher_members},
+    {Py_tp_new, MidiDispatcher_new},
+    {0, NULL}
 };
+
+static PyType_Spec MidiDispatcherType_spec =
+{
+    "_pyo.MidiDispatcher_base",
+    sizeof(MidiDispatcher),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MidiDispatcherType_slots
+};
+
+PyTypeObject *
+PyoCreateMidiDispatcherType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MidiDispatcherType_spec, NULL);
+}

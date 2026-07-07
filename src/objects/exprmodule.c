@@ -723,7 +723,7 @@ Exprer_getSamplesBuffer(Exprer *self)
 static void
 Exprer_setProcMode(Exprer *self)
 {
-    self->proc_func_ptr = Exprer_process;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(Exprer_process);
 }
 
 static void
@@ -764,7 +764,7 @@ Exprer_dealloc(Exprer* self)
     PyMem_RawFree(self->input_buffer);
     PyMem_RawFree(self->output_buffer);
     Exprer_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -780,8 +780,8 @@ Exprer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Exprer_compute_next_data_frame);
-    self->mode_func_ptr = Exprer_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Exprer_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Exprer_setProcMode);
 
     self->oneOverSr = 1.0 / self->sr;
 
@@ -1213,47 +1213,31 @@ static PyMethodDef Exprer_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject ExprerType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Exprer_base",         /*tp_name*/
-    sizeof(Exprer),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Exprer_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Exprer objects. Resolve a prefix notation sentence at audio rate.",           /* tp_doc */
-    (traverseproc)Exprer_traverse,   /* tp_traverse */
-    (inquiry)Exprer_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Exprer_methods,             /* tp_methods */
-    Exprer_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Exprer_new,                 /* tp_new */
+static PyType_Slot ExprerType_slots[] = {
+    {Py_tp_dealloc, Exprer_dealloc},
+    {Py_tp_doc, "Exprer objects. Resolve a prefix notation sentence at audio rate."},
+    {Py_tp_traverse, Exprer_traverse},
+    {Py_tp_clear, Exprer_clear},
+    {Py_tp_methods, Exprer_methods},
+    {Py_tp_members, Exprer_members},
+    {Py_tp_new, Exprer_new},
+    {0, NULL}
 };
+
+static PyType_Spec ExprerType_spec =
+{
+    "_pyo.Exprer_base",
+    sizeof(Exprer),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    ExprerType_slots
+};
+
+PyTypeObject *
+PyoCreateExprerType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &ExprerType_spec, NULL);
+}
 
 /************************************************************************************************/
 /* Expr streamer object */
@@ -1285,39 +1269,39 @@ Expr_setProcMode(Expr *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Expr_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Expr_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Expr_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Expr_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Expr_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Expr_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Expr_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Expr_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Expr_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Expr_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Expr_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Expr_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Expr_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Expr_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Expr_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Expr_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Expr_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Expr_postprocessing_revareva);
             break;
     }
 }
@@ -1359,7 +1343,7 @@ Expr_dealloc(Expr* self)
 {
     pyo_DEALLOC
     Expr_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1377,8 +1361,8 @@ Expr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Expr_compute_next_data_frame);
-    self->mode_func_ptr = Expr_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Expr_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Expr_setProcMode);
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
@@ -1450,82 +1434,36 @@ static PyMethodDef Expr_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Expr_as_number =
-{
-    (binaryfunc)Expr_add,                      /*nb_add*/
-    (binaryfunc)Expr_sub,                 /*nb_subtract*/
-    (binaryfunc)Expr_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Expr_inplace_add,              /*inplace_add*/
-    (binaryfunc)Expr_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Expr_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Expr_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Expr_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot ExprType_slots[] = {
+    {Py_tp_dealloc, Expr_dealloc},
+    {Py_tp_doc, "Expr objects. Reads one channel from a Exprer."},
+    {Py_tp_traverse, Expr_traverse},
+    {Py_tp_clear, Expr_clear},
+    {Py_tp_methods, Expr_methods},
+    {Py_tp_members, Expr_members},
+    {Py_nb_add, Expr_add},
+    {Py_nb_subtract, Expr_sub},
+    {Py_nb_multiply, Expr_multiply},
+    {Py_nb_true_divide, Expr_div},
+    {Py_nb_inplace_add, Expr_inplace_add},
+    {Py_nb_inplace_subtract, Expr_inplace_sub},
+    {Py_nb_inplace_multiply, Expr_inplace_multiply},
+    {Py_nb_inplace_true_divide, Expr_inplace_div},
+    {Py_tp_new, Expr_new},
+    {0, NULL}
 };
 
-PyTypeObject ExprType =
+static PyType_Spec ExprType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Expr_base",         /*tp_name*/
-    sizeof(Expr),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Expr_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Expr_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "Expr objects. Reads one channel from a Exprer.",           /* tp_doc */
-    (traverseproc)Expr_traverse,   /* tp_traverse */
-    (inquiry)Expr_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Expr_methods,             /* tp_methods */
-    Expr_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Expr_new,                 /* tp_new */
+    "_pyo.Expr_base",
+    sizeof(Expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    ExprType_slots
 };
+
+PyTypeObject *
+PyoCreateExprType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &ExprType_spec, NULL);
+}

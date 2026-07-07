@@ -89,44 +89,44 @@ Convolve_setProcMode(Convolve *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = Convolve_filters;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(Convolve_filters);
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Convolve_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Convolve_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Convolve_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Convolve_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Convolve_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Convolve_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Convolve_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Convolve_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Convolve_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Convolve_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Convolve_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Convolve_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Convolve_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Convolve_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Convolve_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Convolve_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Convolve_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Convolve_postprocessing_revareva);
             break;
     }
 }
@@ -160,7 +160,7 @@ Convolve_dealloc(Convolve* self)
     pyo_DEALLOC
     PyMem_RawFree(self->input_tmp);
     Convolve_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -179,8 +179,8 @@ Convolve_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Convolve_compute_next_data_frame);
-    self->mode_func_ptr = Convolve_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Convolve_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Convolve_setProcMode);
 
     static char *kwlist[] = {"input", "table", "size", "mul", "add", NULL};
 
@@ -287,85 +287,40 @@ static PyMethodDef Convolve_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Convolve_as_number =
+static PyType_Slot ConvolveType_slots[] =
 {
-    (binaryfunc)Convolve_add,                         /*nb_add*/
-    (binaryfunc)Convolve_sub,                         /*nb_subtract*/
-    (binaryfunc)Convolve_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)Convolve_inplace_add,                 /*inplace_add*/
-    (binaryfunc)Convolve_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)Convolve_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)Convolve_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)Convolve_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+    {Py_tp_dealloc, Convolve_dealloc},
+    {Py_tp_doc, "Convolve objects. Implements a circular convolution."},
+    {Py_tp_traverse, Convolve_traverse},
+    {Py_tp_clear, Convolve_clear},
+    {Py_tp_methods, Convolve_methods},
+    {Py_tp_members, Convolve_members},
+    {Py_nb_add, Convolve_add},
+    {Py_nb_subtract, Convolve_sub},
+    {Py_nb_multiply, Convolve_multiply},
+    {Py_nb_true_divide, Convolve_div},
+    {Py_nb_inplace_add, Convolve_inplace_add},
+    {Py_nb_inplace_subtract, Convolve_inplace_sub},
+    {Py_nb_inplace_multiply, Convolve_inplace_multiply},
+    {Py_nb_inplace_true_divide, Convolve_inplace_div},
+    {Py_tp_new, Convolve_new},
+    {0, NULL}
 };
 
-PyTypeObject ConvolveType =
+static PyType_Spec ConvolveType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Convolve_base",                                   /*tp_name*/
-    sizeof(Convolve),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)Convolve_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    &Convolve_as_number,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Convolve objects. Implements a circular convolution.",           /* tp_doc */
-    (traverseproc)Convolve_traverse,                  /* tp_traverse */
-    (inquiry)Convolve_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    Convolve_methods,                                 /* tp_methods */
-    Convolve_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    Convolve_new,                                     /* tp_new */
+    "_pyo.Convolve_base",
+    sizeof(Convolve),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    ConvolveType_slots
 };
+
+PyTypeObject *
+PyoCreateConvolveType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &ConvolveType_spec, NULL);
+}
 
 /************/
 /* IRWinSinc */
@@ -603,44 +558,44 @@ IRWinSinc_setProcMode(IRWinSinc *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = IRWinSinc_filters;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(IRWinSinc_filters);
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = IRWinSinc_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRWinSinc_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = IRWinSinc_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRWinSinc_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = IRWinSinc_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRWinSinc_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = IRWinSinc_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRWinSinc_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = IRWinSinc_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRWinSinc_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = IRWinSinc_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRWinSinc_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = IRWinSinc_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRWinSinc_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = IRWinSinc_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRWinSinc_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = IRWinSinc_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRWinSinc_postprocessing_revareva);
             break;
     }
 }
@@ -680,7 +635,7 @@ IRWinSinc_dealloc(IRWinSinc* self)
     PyMem_RawFree(self->impulse);
     PyMem_RawFree(self->impulse_tmp);
     IRWinSinc_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -708,8 +663,8 @@ IRWinSinc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[3] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, IRWinSinc_compute_next_data_frame);
-    self->mode_func_ptr = IRWinSinc_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(IRWinSinc_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(IRWinSinc_setProcMode);
 
     static char *kwlist[] = {"input", "freq", "bw", "type", "order", "mul", "add", NULL};
 
@@ -815,85 +770,40 @@ static PyMethodDef IRWinSinc_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods IRWinSinc_as_number =
+static PyType_Slot IRWinSincType_slots[] =
 {
-    (binaryfunc)IRWinSinc_add,                         /*nb_add*/
-    (binaryfunc)IRWinSinc_sub,                         /*nb_subtract*/
-    (binaryfunc)IRWinSinc_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)IRWinSinc_inplace_add,                 /*inplace_add*/
-    (binaryfunc)IRWinSinc_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)IRWinSinc_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)IRWinSinc_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)IRWinSinc_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+    {Py_tp_dealloc, IRWinSinc_dealloc},
+    {Py_tp_doc, "IRWinSinc objects. Windowed-sinc filter."},
+    {Py_tp_traverse, IRWinSinc_traverse},
+    {Py_tp_clear, IRWinSinc_clear},
+    {Py_tp_methods, IRWinSinc_methods},
+    {Py_tp_members, IRWinSinc_members},
+    {Py_nb_add, IRWinSinc_add},
+    {Py_nb_subtract, IRWinSinc_sub},
+    {Py_nb_multiply, IRWinSinc_multiply},
+    {Py_nb_true_divide, IRWinSinc_div},
+    {Py_nb_inplace_add, IRWinSinc_inplace_add},
+    {Py_nb_inplace_subtract, IRWinSinc_inplace_sub},
+    {Py_nb_inplace_multiply, IRWinSinc_inplace_multiply},
+    {Py_nb_inplace_true_divide, IRWinSinc_inplace_div},
+    {Py_tp_new, IRWinSinc_new},
+    {0, NULL}
 };
 
-PyTypeObject IRWinSincType =
+static PyType_Spec IRWinSincType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.IRWinSinc_base",                                   /*tp_name*/
-    sizeof(IRWinSinc),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)IRWinSinc_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    &IRWinSinc_as_number,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "IRWinSinc objects. Windowed-sinc filter.",           /* tp_doc */
-    (traverseproc)IRWinSinc_traverse,                  /* tp_traverse */
-    (inquiry)IRWinSinc_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    IRWinSinc_methods,                                 /* tp_methods */
-    IRWinSinc_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    IRWinSinc_new,                                     /* tp_new */
+    "_pyo.IRWinSinc_base",
+    sizeof(IRWinSinc),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    IRWinSincType_slots
 };
+
+PyTypeObject *
+PyoCreateIRWinSincType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &IRWinSincType_spec, NULL);
+}
 
 /************/
 /* IRAverage */
@@ -986,44 +896,44 @@ IRAverage_setProcMode(IRAverage *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = IRAverage_filters;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(IRAverage_filters);
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = IRAverage_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRAverage_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = IRAverage_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRAverage_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = IRAverage_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRAverage_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = IRAverage_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRAverage_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = IRAverage_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRAverage_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = IRAverage_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRAverage_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = IRAverage_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRAverage_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = IRAverage_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRAverage_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = IRAverage_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRAverage_postprocessing_revareva);
             break;
     }
 }
@@ -1058,7 +968,7 @@ IRAverage_dealloc(IRAverage* self)
     PyMem_RawFree(self->input_tmp);
     PyMem_RawFree(self->impulse);
     IRAverage_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1078,8 +988,8 @@ IRAverage_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, IRAverage_compute_next_data_frame);
-    self->mode_func_ptr = IRAverage_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(IRAverage_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(IRAverage_setProcMode);
 
     static char *kwlist[] = {"input", "order", "mul", "add", NULL};
 
@@ -1153,85 +1063,40 @@ static PyMethodDef IRAverage_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods IRAverage_as_number =
+static PyType_Slot IRAverageType_slots[] =
 {
-    (binaryfunc)IRAverage_add,                         /*nb_add*/
-    (binaryfunc)IRAverage_sub,                         /*nb_subtract*/
-    (binaryfunc)IRAverage_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)IRAverage_inplace_add,                 /*inplace_add*/
-    (binaryfunc)IRAverage_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)IRAverage_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)IRAverage_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)IRAverage_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+    {Py_tp_dealloc, IRAverage_dealloc},
+    {Py_tp_doc, "IRAverage objects. Moving average FIR filter."},
+    {Py_tp_traverse, IRAverage_traverse},
+    {Py_tp_clear, IRAverage_clear},
+    {Py_tp_methods, IRAverage_methods},
+    {Py_tp_members, IRAverage_members},
+    {Py_nb_add, IRAverage_add},
+    {Py_nb_subtract, IRAverage_sub},
+    {Py_nb_multiply, IRAverage_multiply},
+    {Py_nb_true_divide, IRAverage_div},
+    {Py_nb_inplace_add, IRAverage_inplace_add},
+    {Py_nb_inplace_subtract, IRAverage_inplace_sub},
+    {Py_nb_inplace_multiply, IRAverage_inplace_multiply},
+    {Py_nb_inplace_true_divide, IRAverage_inplace_div},
+    {Py_tp_new, IRAverage_new},
+    {0, NULL}
 };
 
-PyTypeObject IRAverageType =
+static PyType_Spec IRAverageType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.IRAverage_base",                                   /*tp_name*/
-    sizeof(IRAverage),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)IRAverage_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    &IRAverage_as_number,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "IRAverage objects. Moving average FIR filter.",           /* tp_doc */
-    (traverseproc)IRAverage_traverse,                  /* tp_traverse */
-    (inquiry)IRAverage_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    IRAverage_methods,                                 /* tp_methods */
-    IRAverage_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    IRAverage_new,                                     /* tp_new */
+    "_pyo.IRAverage_base",
+    sizeof(IRAverage),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    IRAverageType_slots
 };
+
+PyTypeObject *
+PyoCreateIRAverageType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &IRAverageType_spec, NULL);
+}
 
 /************/
 /* IRPulse */
@@ -1502,44 +1367,44 @@ IRPulse_setProcMode(IRPulse *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = IRPulse_filters;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(IRPulse_filters);
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = IRPulse_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRPulse_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = IRPulse_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRPulse_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = IRPulse_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRPulse_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = IRPulse_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRPulse_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = IRPulse_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRPulse_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = IRPulse_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRPulse_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = IRPulse_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRPulse_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = IRPulse_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRPulse_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = IRPulse_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRPulse_postprocessing_revareva);
             break;
     }
 }
@@ -1578,7 +1443,7 @@ IRPulse_dealloc(IRPulse* self)
     PyMem_RawFree(self->input_tmp);
     PyMem_RawFree(self->impulse);
     IRPulse_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1606,8 +1471,8 @@ IRPulse_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[3] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, IRPulse_compute_next_data_frame);
-    self->mode_func_ptr = IRPulse_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(IRPulse_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(IRPulse_setProcMode);
 
     static char *kwlist[] = {"input", "freq", "bw", "type", "order", "mul", "add", NULL};
 
@@ -1714,85 +1579,40 @@ static PyMethodDef IRPulse_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods IRPulse_as_number =
+static PyType_Slot IRPulseType_slots[] =
 {
-    (binaryfunc)IRPulse_add,                         /*nb_add*/
-    (binaryfunc)IRPulse_sub,                         /*nb_subtract*/
-    (binaryfunc)IRPulse_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)IRPulse_inplace_add,                 /*inplace_add*/
-    (binaryfunc)IRPulse_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)IRPulse_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)IRPulse_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)IRPulse_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+    {Py_tp_dealloc, IRPulse_dealloc},
+    {Py_tp_doc, "IRPulse objects. Windowed-sinc filter."},
+    {Py_tp_traverse, IRPulse_traverse},
+    {Py_tp_clear, IRPulse_clear},
+    {Py_tp_methods, IRPulse_methods},
+    {Py_tp_members, IRPulse_members},
+    {Py_nb_add, IRPulse_add},
+    {Py_nb_subtract, IRPulse_sub},
+    {Py_nb_multiply, IRPulse_multiply},
+    {Py_nb_true_divide, IRPulse_div},
+    {Py_nb_inplace_add, IRPulse_inplace_add},
+    {Py_nb_inplace_subtract, IRPulse_inplace_sub},
+    {Py_nb_inplace_multiply, IRPulse_inplace_multiply},
+    {Py_nb_inplace_true_divide, IRPulse_inplace_div},
+    {Py_tp_new, IRPulse_new},
+    {0, NULL}
 };
 
-PyTypeObject IRPulseType =
+static PyType_Spec IRPulseType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.IRPulse_base",                                   /*tp_name*/
-    sizeof(IRPulse),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)IRPulse_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    &IRPulse_as_number,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "IRPulse objects. Windowed-sinc filter.",           /* tp_doc */
-    (traverseproc)IRPulse_traverse,                  /* tp_traverse */
-    (inquiry)IRPulse_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    IRPulse_methods,                                 /* tp_methods */
-    IRPulse_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    IRPulse_new,                                     /* tp_new */
+    "_pyo.IRPulse_base",
+    sizeof(IRPulse),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    IRPulseType_slots
 };
+
+PyTypeObject *
+PyoCreateIRPulseType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &IRPulseType_spec, NULL);
+}
 
 /************/
 /* IRFM */
@@ -1957,44 +1777,44 @@ IRFM_setProcMode(IRFM *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = IRFM_filters;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(IRFM_filters);
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = IRFM_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRFM_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = IRFM_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRFM_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = IRFM_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRFM_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = IRFM_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRFM_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = IRFM_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRFM_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = IRFM_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRFM_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = IRFM_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRFM_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = IRFM_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRFM_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = IRFM_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(IRFM_postprocessing_revareva);
             break;
     }
 }
@@ -2035,7 +1855,7 @@ IRFM_dealloc(IRFM* self)
     PyMem_RawFree(self->input_tmp);
     PyMem_RawFree(self->impulse);
     IRFM_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2064,8 +1884,8 @@ IRFM_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[4] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, IRFM_compute_next_data_frame);
-    self->mode_func_ptr = IRFM_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(IRFM_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(IRFM_setProcMode);
 
     static char *kwlist[] = {"input", "carrier", "ratio", "index", "order", "mul", "add", NULL};
 
@@ -2164,82 +1984,37 @@ static PyMethodDef IRFM_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods IRFM_as_number =
+static PyType_Slot IRFMType_slots[] =
 {
-    (binaryfunc)IRFM_add,                         /*nb_add*/
-    (binaryfunc)IRFM_sub,                         /*nb_subtract*/
-    (binaryfunc)IRFM_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)IRFM_inplace_add,                 /*inplace_add*/
-    (binaryfunc)IRFM_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)IRFM_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)IRFM_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)IRFM_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+    {Py_tp_dealloc, IRFM_dealloc},
+    {Py_tp_doc, "IRFM objects. Convolve an input signal with a frequency modulation spectrum."},
+    {Py_tp_traverse, IRFM_traverse},
+    {Py_tp_clear, IRFM_clear},
+    {Py_tp_methods, IRFM_methods},
+    {Py_tp_members, IRFM_members},
+    {Py_nb_add, IRFM_add},
+    {Py_nb_subtract, IRFM_sub},
+    {Py_nb_multiply, IRFM_multiply},
+    {Py_nb_true_divide, IRFM_div},
+    {Py_nb_inplace_add, IRFM_inplace_add},
+    {Py_nb_inplace_subtract, IRFM_inplace_sub},
+    {Py_nb_inplace_multiply, IRFM_inplace_multiply},
+    {Py_nb_inplace_true_divide, IRFM_inplace_div},
+    {Py_tp_new, IRFM_new},
+    {0, NULL}
 };
 
-PyTypeObject IRFMType =
+static PyType_Spec IRFMType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.IRFM_base",                                   /*tp_name*/
-    sizeof(IRFM),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)IRFM_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    &IRFM_as_number,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "IRFM objects. Convolve an input signal with a frequency modulation spectrum.",           /* tp_doc */
-    (traverseproc)IRFM_traverse,                  /* tp_traverse */
-    (inquiry)IRFM_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    IRFM_methods,                                 /* tp_methods */
-    IRFM_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    IRFM_new,                                     /* tp_new */
+    "_pyo.IRFM_base",
+    sizeof(IRFM),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    IRFMType_slots
 };
+
+PyTypeObject *
+PyoCreateIRFMType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &IRFMType_spec, NULL);
+}

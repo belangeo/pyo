@@ -33,6 +33,8 @@ typedef struct
 } Dummy;
 
 extern PyObject * Dummy_initialize(Dummy *self);
+PyTypeObject * PyoCreateDummyType(PyObject *module);
+PyTypeObject * PyoCreateTriggerDummyType(PyObject *module);
 
 #define MAKE_NEW_DUMMY(self, type, rt_error)    \
 (self) = (Dummy *)(type)->tp_alloc((type), 0);  \

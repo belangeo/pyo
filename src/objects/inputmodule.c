@@ -51,39 +51,39 @@ Input_setProcMode(Input *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Input_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Input_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Input_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Input_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Input_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Input_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Input_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Input_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Input_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Input_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Input_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Input_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Input_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Input_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Input_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Input_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Input_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Input_postprocessing_revareva);
             break;
     }
 }
@@ -123,7 +123,7 @@ Input_dealloc(Input* self)
 {
     pyo_DEALLOC
     Input_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -142,8 +142,8 @@ Input_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Input_compute_next_data_frame);
-    self->mode_func_ptr = Input_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Input_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Input_setProcMode);
 
     static char *kwlist[] = {"chnl", "mul", "add", NULL};
 
@@ -212,82 +212,36 @@ static PyMethodDef Input_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Input_as_number =
-{
-    (binaryfunc)Input_add,                      /*nb_add*/
-    (binaryfunc)Input_sub,                 /*nb_subtract*/
-    (binaryfunc)Input_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Input_inplace_add,              /*inplace_add*/
-    (binaryfunc)Input_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Input_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Input_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Input_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot InputType_slots[] = {
+    {Py_tp_dealloc, Input_dealloc},
+    {Py_tp_doc, "Input objects. Retreive audio from an input channel."},
+    {Py_tp_traverse, Input_traverse},
+    {Py_tp_clear, Input_clear},
+    {Py_tp_methods, Input_methods},
+    {Py_tp_members, Input_members},
+    {Py_tp_new, Input_new},
+    {Py_nb_add, Input_add},
+    {Py_nb_subtract, Input_sub},
+    {Py_nb_multiply, Input_multiply},
+    {Py_nb_true_divide, Input_div},
+    {Py_nb_inplace_add, Input_inplace_add},
+    {Py_nb_inplace_subtract, Input_inplace_sub},
+    {Py_nb_inplace_multiply, Input_inplace_multiply},
+    {Py_nb_inplace_true_divide, Input_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject InputType =
+static PyType_Spec InputType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Input_base",         /*tp_name*/
-    sizeof(Input),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Input_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Input_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Input objects. Retreive audio from an input channel.",           /* tp_doc */
-    (traverseproc)Input_traverse,   /* tp_traverse */
-    (inquiry)Input_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Input_methods,             /* tp_methods */
-    Input_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Input_new,                 /* tp_new */
+    "_pyo.Input_base",
+    sizeof(Input),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    InputType_slots
 };
+
+PyTypeObject *
+PyoCreateInputType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &InputType_spec, NULL);
+}

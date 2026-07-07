@@ -199,58 +199,58 @@ Sine_setProcMode(Sine *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Sine_readframes_ii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Sine_readframes_ii);
             break;
 
         case 1:
-            self->proc_func_ptr = Sine_readframes_ai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Sine_readframes_ai);
             break;
 
         case 10:
-            self->proc_func_ptr = Sine_readframes_ia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Sine_readframes_ia);
             break;
 
         case 11:
-            self->proc_func_ptr = Sine_readframes_aa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Sine_readframes_aa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Sine_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Sine_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Sine_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Sine_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Sine_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Sine_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Sine_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Sine_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Sine_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Sine_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Sine_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Sine_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Sine_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Sine_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Sine_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Sine_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Sine_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Sine_postprocessing_revareva);
             break;
     }
 }
@@ -285,7 +285,7 @@ Sine_dealloc(Sine* self)
 {
     pyo_DEALLOC
     Sine_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -309,8 +309,8 @@ Sine_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->pointerPos = 0.;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Sine_compute_next_data_frame);
-    self->mode_func_ptr = Sine_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Sine_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Sine_setProcMode);
 
     static char *kwlist[] = {"freq", "phase", "mul", "add", NULL};
 
@@ -404,85 +404,39 @@ static PyMethodDef Sine_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Sine_as_number =
-{
-    (binaryfunc)Sine_add,                      /*nb_add*/
-    (binaryfunc)Sine_sub,                 /*nb_subtract*/
-    (binaryfunc)Sine_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Sine_inplace_add,              /*inplace_add*/
-    (binaryfunc)Sine_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Sine_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Sine_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Sine_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot SineType_slots[] = {
+    {Py_tp_dealloc, Sine_dealloc},
+    {Py_tp_doc, "Sine objects. Generates a sinewave."},
+    {Py_tp_traverse, Sine_traverse},
+    {Py_tp_clear, Sine_clear},
+    {Py_tp_methods, Sine_methods},
+    {Py_tp_members, Sine_members},
+    {Py_tp_new, Sine_new},
+    {Py_nb_add, Sine_add},
+    {Py_nb_subtract, Sine_sub},
+    {Py_nb_multiply, Sine_multiply},
+    {Py_nb_true_divide, Sine_div},
+    {Py_nb_inplace_add, Sine_inplace_add},
+    {Py_nb_inplace_subtract, Sine_inplace_sub},
+    {Py_nb_inplace_multiply, Sine_inplace_multiply},
+    {Py_nb_inplace_true_divide, Sine_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject SineType =
+static PyType_Spec SineType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Sine_base",         /*tp_name*/
-    sizeof(Sine),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Sine_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Sine_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "Sine objects. Generates a sinewave.",           /* tp_doc */
-    (traverseproc)Sine_traverse,   /* tp_traverse */
-    (inquiry)Sine_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Sine_methods,             /* tp_methods */
-    Sine_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Sine_new,                 /* tp_new */
+    "_pyo.Sine_base",
+    sizeof(Sine),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    SineType_slots
 };
+
+PyTypeObject *
+PyoCreateSineType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &SineType_spec, NULL);
+}
 
 
 /* FastSine object */
@@ -723,17 +677,17 @@ FastSine_setProcMode(FastSine *self)
     {
         case 0:
             if (self->quality == 0)
-                self->proc_func_ptr = FastSine_readframes_low_i;
+                self->proc_func_ptr = PYO_AUDIO_CALLBACK(FastSine_readframes_low_i);
             else if (self->quality == 1)
-                self->proc_func_ptr = FastSine_readframes_high_i;
+                self->proc_func_ptr = PYO_AUDIO_CALLBACK(FastSine_readframes_high_i);
 
             break;
 
         case 1:
             if (self->quality == 0)
-                self->proc_func_ptr = FastSine_readframes_low_a;
+                self->proc_func_ptr = PYO_AUDIO_CALLBACK(FastSine_readframes_low_a);
             else if (self->quality == 1)
-                self->proc_func_ptr = FastSine_readframes_high_a;
+                self->proc_func_ptr = PYO_AUDIO_CALLBACK(FastSine_readframes_high_a);
 
             break;
     }
@@ -741,39 +695,39 @@ FastSine_setProcMode(FastSine *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = FastSine_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(FastSine_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = FastSine_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(FastSine_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = FastSine_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(FastSine_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = FastSine_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(FastSine_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = FastSine_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(FastSine_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = FastSine_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(FastSine_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = FastSine_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(FastSine_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = FastSine_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(FastSine_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = FastSine_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(FastSine_postprocessing_revareva);
             break;
     }
 }
@@ -806,7 +760,7 @@ FastSine_dealloc(FastSine* self)
 {
     pyo_DEALLOC
     FastSine_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -829,8 +783,8 @@ FastSine_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[2] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, FastSine_compute_next_data_frame);
-    self->mode_func_ptr = FastSine_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(FastSine_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(FastSine_setProcMode);
 
     self->twoPiOnSr = TWOPI / self->sr;
     self->B = 4.0 / PI;
@@ -953,85 +907,39 @@ static PyMethodDef FastSine_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods FastSine_as_number =
-{
-    (binaryfunc)FastSine_add,                      /*nb_add*/
-    (binaryfunc)FastSine_sub,                 /*nb_subtract*/
-    (binaryfunc)FastSine_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)FastSine_inplace_add,              /*inplace_add*/
-    (binaryfunc)FastSine_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)FastSine_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)FastSine_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)FastSine_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot FastSineType_slots[] = {
+    {Py_tp_dealloc, FastSine_dealloc},
+    {Py_tp_doc, "FastSine objects. Generates a sinewave."},
+    {Py_tp_traverse, FastSine_traverse},
+    {Py_tp_clear, FastSine_clear},
+    {Py_tp_methods, FastSine_methods},
+    {Py_tp_members, FastSine_members},
+    {Py_tp_new, FastSine_new},
+    {Py_nb_add, FastSine_add},
+    {Py_nb_subtract, FastSine_sub},
+    {Py_nb_multiply, FastSine_multiply},
+    {Py_nb_true_divide, FastSine_div},
+    {Py_nb_inplace_add, FastSine_inplace_add},
+    {Py_nb_inplace_subtract, FastSine_inplace_sub},
+    {Py_nb_inplace_multiply, FastSine_inplace_multiply},
+    {Py_nb_inplace_true_divide, FastSine_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject FastSineType =
+static PyType_Spec FastSineType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.FastSine_base",         /*tp_name*/
-    sizeof(FastSine),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)FastSine_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &FastSine_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "FastSine objects. Generates a sinewave.",           /* tp_doc */
-    (traverseproc)FastSine_traverse,   /* tp_traverse */
-    (inquiry)FastSine_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    FastSine_methods,             /* tp_methods */
-    FastSine_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    FastSine_new,                 /* tp_new */
+    "_pyo.FastSine_base",
+    sizeof(FastSine),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    FastSineType_slots
 };
+
+PyTypeObject *
+PyoCreateFastSineType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &FastSineType_spec, NULL);
+}
 
 /*******************/
 /* SineLoop object */
@@ -1154,58 +1062,58 @@ SineLoop_setProcMode(SineLoop *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = SineLoop_readframes_ii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(SineLoop_readframes_ii);
             break;
 
         case 1:
-            self->proc_func_ptr = SineLoop_readframes_ai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(SineLoop_readframes_ai);
             break;
 
         case 10:
-            self->proc_func_ptr = SineLoop_readframes_ia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(SineLoop_readframes_ia);
             break;
 
         case 11:
-            self->proc_func_ptr = SineLoop_readframes_aa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(SineLoop_readframes_aa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = SineLoop_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SineLoop_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = SineLoop_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SineLoop_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = SineLoop_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SineLoop_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = SineLoop_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SineLoop_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = SineLoop_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SineLoop_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = SineLoop_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SineLoop_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = SineLoop_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SineLoop_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = SineLoop_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SineLoop_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = SineLoop_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SineLoop_postprocessing_revareva);
             break;
     }
 }
@@ -1240,7 +1148,7 @@ SineLoop_dealloc(SineLoop* self)
 {
     pyo_DEALLOC
     SineLoop_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1263,8 +1171,8 @@ SineLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->pointerPos = self->lastValue = 0.;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, SineLoop_compute_next_data_frame);
-    self->mode_func_ptr = SineLoop_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(SineLoop_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(SineLoop_setProcMode);
 
     static char *kwlist[] = {"freq", "feedback", "mul", "add", NULL};
 
@@ -1350,85 +1258,39 @@ static PyMethodDef SineLoop_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods SineLoop_as_number =
-{
-    (binaryfunc)SineLoop_add,                      /*nb_add*/
-    (binaryfunc)SineLoop_sub,                 /*nb_subtract*/
-    (binaryfunc)SineLoop_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)SineLoop_inplace_add,              /*inplace_add*/
-    (binaryfunc)SineLoop_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)SineLoop_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)SineLoop_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)SineLoop_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot SineLoopType_slots[] = {
+    {Py_tp_dealloc, SineLoop_dealloc},
+    {Py_tp_doc, "SineLoop objects. Generates a looped sinewave."},
+    {Py_tp_traverse, SineLoop_traverse},
+    {Py_tp_clear, SineLoop_clear},
+    {Py_tp_methods, SineLoop_methods},
+    {Py_tp_members, SineLoop_members},
+    {Py_tp_new, SineLoop_new},
+    {Py_nb_add, SineLoop_add},
+    {Py_nb_subtract, SineLoop_sub},
+    {Py_nb_multiply, SineLoop_multiply},
+    {Py_nb_true_divide, SineLoop_div},
+    {Py_nb_inplace_add, SineLoop_inplace_add},
+    {Py_nb_inplace_subtract, SineLoop_inplace_sub},
+    {Py_nb_inplace_multiply, SineLoop_inplace_multiply},
+    {Py_nb_inplace_true_divide, SineLoop_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject SineLoopType =
+static PyType_Spec SineLoopType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.SineLoop_base",         /*tp_name*/
-    sizeof(SineLoop),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)SineLoop_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &SineLoop_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "SineLoop objects. Generates a looped sinewave.",           /* tp_doc */
-    (traverseproc)SineLoop_traverse,   /* tp_traverse */
-    (inquiry)SineLoop_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    SineLoop_methods,             /* tp_methods */
-    SineLoop_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    SineLoop_new,                 /* tp_new */
+    "_pyo.SineLoop_base",
+    sizeof(SineLoop),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    SineLoopType_slots
 };
+
+PyTypeObject *
+PyoCreateSineLoopType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &SineLoopType_spec, NULL);
+}
 
 /***************/
 /* Osc objects */
@@ -1607,58 +1469,58 @@ Osc_setProcMode(Osc *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Osc_readframes_ii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Osc_readframes_ii);
             break;
 
         case 1:
-            self->proc_func_ptr = Osc_readframes_ai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Osc_readframes_ai);
             break;
 
         case 10:
-            self->proc_func_ptr = Osc_readframes_ia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Osc_readframes_ia);
             break;
 
         case 11:
-            self->proc_func_ptr = Osc_readframes_aa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Osc_readframes_aa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Osc_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Osc_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Osc_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Osc_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Osc_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Osc_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Osc_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Osc_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Osc_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Osc_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Osc_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Osc_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Osc_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Osc_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Osc_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Osc_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Osc_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Osc_postprocessing_revareva);
             break;
     }
 }
@@ -1693,7 +1555,7 @@ Osc_dealloc(Osc* self)
 {
     pyo_DEALLOC
     Osc_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1717,8 +1579,8 @@ Osc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->interp = 2;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Osc_compute_next_data_frame);
-    self->mode_func_ptr = Osc_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Osc_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Osc_setProcMode);
 
     static char *kwlist[] = {"table", "freq", "phase", "interp", "mul", "add", NULL};
 
@@ -1859,85 +1721,39 @@ static PyMethodDef Osc_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Osc_as_number =
-{
-    (binaryfunc)Osc_add,                      /*nb_add*/
-    (binaryfunc)Osc_sub,                 /*nb_subtract*/
-    (binaryfunc)Osc_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Osc_inplace_add,              /*inplace_add*/
-    (binaryfunc)Osc_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Osc_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Osc_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Osc_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot OscType_slots[] = {
+    {Py_tp_dealloc, Osc_dealloc},
+    {Py_tp_doc, "Osc objects. Generates an oscillatory waveform."},
+    {Py_tp_traverse, Osc_traverse},
+    {Py_tp_clear, Osc_clear},
+    {Py_tp_methods, Osc_methods},
+    {Py_tp_members, Osc_members},
+    {Py_tp_new, Osc_new},
+    {Py_nb_add, Osc_add},
+    {Py_nb_subtract, Osc_sub},
+    {Py_nb_multiply, Osc_multiply},
+    {Py_nb_true_divide, Osc_div},
+    {Py_nb_inplace_add, Osc_inplace_add},
+    {Py_nb_inplace_subtract, Osc_inplace_sub},
+    {Py_nb_inplace_multiply, Osc_inplace_multiply},
+    {Py_nb_inplace_true_divide, Osc_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject OscType =
+static PyType_Spec OscType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Osc_base",         /*tp_name*/
-    sizeof(Osc),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Osc_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Osc_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Osc objects. Generates an oscillatory waveform.",           /* tp_doc */
-    (traverseproc)Osc_traverse,   /* tp_traverse */
-    (inquiry)Osc_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Osc_methods,             /* tp_methods */
-    Osc_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Osc_new,                 /* tp_new */
+    "_pyo.Osc_base",
+    sizeof(Osc),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    OscType_slots
 };
+
+PyTypeObject *
+PyoCreateOscType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &OscType_spec, NULL);
+}
 
 /**************/
 /* OscLoop object */
@@ -2097,58 +1913,58 @@ OscLoop_setProcMode(OscLoop *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = OscLoop_readframes_ii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(OscLoop_readframes_ii);
             break;
 
         case 1:
-            self->proc_func_ptr = OscLoop_readframes_ai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(OscLoop_readframes_ai);
             break;
 
         case 10:
-            self->proc_func_ptr = OscLoop_readframes_ia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(OscLoop_readframes_ia);
             break;
 
         case 11:
-            self->proc_func_ptr = OscLoop_readframes_aa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(OscLoop_readframes_aa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = OscLoop_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(OscLoop_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = OscLoop_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(OscLoop_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = OscLoop_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(OscLoop_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = OscLoop_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(OscLoop_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = OscLoop_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(OscLoop_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = OscLoop_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(OscLoop_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = OscLoop_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(OscLoop_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = OscLoop_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(OscLoop_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = OscLoop_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(OscLoop_postprocessing_revareva);
             break;
     }
 }
@@ -2183,7 +1999,7 @@ OscLoop_dealloc(OscLoop* self)
 {
     pyo_DEALLOC
     OscLoop_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2206,8 +2022,8 @@ OscLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->pointerPos = self->lastValue = 0.;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, OscLoop_compute_next_data_frame);
-    self->mode_func_ptr = OscLoop_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(OscLoop_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(OscLoop_setProcMode);
 
     static char *kwlist[] = {"table", "freq", "feedback", "mul", "add", NULL};
 
@@ -2322,85 +2138,39 @@ static PyMethodDef OscLoop_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods OscLoop_as_number =
-{
-    (binaryfunc)OscLoop_add,                      /*nb_add*/
-    (binaryfunc)OscLoop_sub,                 /*nb_subtract*/
-    (binaryfunc)OscLoop_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)OscLoop_inplace_add,              /*inplace_add*/
-    (binaryfunc)OscLoop_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)OscLoop_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)OscLoop_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)OscLoop_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot OscLoopType_slots[] = {
+    {Py_tp_dealloc, OscLoop_dealloc},
+    {Py_tp_doc, "OscLoop objects. Generates an oscillatory waveform."},
+    {Py_tp_traverse, OscLoop_traverse},
+    {Py_tp_clear, OscLoop_clear},
+    {Py_tp_methods, OscLoop_methods},
+    {Py_tp_members, OscLoop_members},
+    {Py_tp_new, OscLoop_new},
+    {Py_nb_add, OscLoop_add},
+    {Py_nb_subtract, OscLoop_sub},
+    {Py_nb_multiply, OscLoop_multiply},
+    {Py_nb_true_divide, OscLoop_div},
+    {Py_nb_inplace_add, OscLoop_inplace_add},
+    {Py_nb_inplace_subtract, OscLoop_inplace_sub},
+    {Py_nb_inplace_multiply, OscLoop_inplace_multiply},
+    {Py_nb_inplace_true_divide, OscLoop_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject OscLoopType =
+static PyType_Spec OscLoopType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.OscLoop_base",         /*tp_name*/
-    sizeof(OscLoop),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)OscLoop_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &OscLoop_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "OscLoop objects. Generates an oscillatory waveform.",           /* tp_doc */
-    (traverseproc)OscLoop_traverse,   /* tp_traverse */
-    (inquiry)OscLoop_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    OscLoop_methods,             /* tp_methods */
-    OscLoop_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    OscLoop_new,                 /* tp_new */
+    "_pyo.OscLoop_base",
+    sizeof(OscLoop),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    OscLoopType_slots
 };
+
+PyTypeObject *
+PyoCreateOscLoopType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &OscLoopType_spec, NULL);
+}
 
 typedef struct
 {
@@ -2594,58 +2364,58 @@ OscTrig_setProcMode(OscTrig *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = OscTrig_readframes_ii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(OscTrig_readframes_ii);
             break;
 
         case 1:
-            self->proc_func_ptr = OscTrig_readframes_ai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(OscTrig_readframes_ai);
             break;
 
         case 10:
-            self->proc_func_ptr = OscTrig_readframes_ia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(OscTrig_readframes_ia);
             break;
 
         case 11:
-            self->proc_func_ptr = OscTrig_readframes_aa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(OscTrig_readframes_aa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = OscTrig_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(OscTrig_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = OscTrig_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(OscTrig_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = OscTrig_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(OscTrig_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = OscTrig_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(OscTrig_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = OscTrig_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(OscTrig_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = OscTrig_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(OscTrig_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = OscTrig_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(OscTrig_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = OscTrig_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(OscTrig_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = OscTrig_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(OscTrig_postprocessing_revareva);
             break;
     }
 }
@@ -2682,7 +2452,7 @@ OscTrig_dealloc(OscTrig* self)
 {
     pyo_DEALLOC
     OscTrig_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2707,8 +2477,8 @@ OscTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->interp = 2;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, OscTrig_compute_next_data_frame);
-    self->mode_func_ptr = OscTrig_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(OscTrig_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(OscTrig_setProcMode);
 
     static char *kwlist[] = {"table", "trig", "freq", "phase", "interp", "mul", "add", NULL};
 
@@ -2878,85 +2648,39 @@ static PyMethodDef OscTrig_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods OscTrig_as_number =
-{
-    (binaryfunc)OscTrig_add,                      /*nb_add*/
-    (binaryfunc)OscTrig_sub,                 /*nb_subtract*/
-    (binaryfunc)OscTrig_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)OscTrig_inplace_add,              /*inplace_add*/
-    (binaryfunc)OscTrig_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)OscTrig_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)OscTrig_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)OscTrig_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot OscTrigType_slots[] = {
+    {Py_tp_dealloc, OscTrig_dealloc},
+    {Py_tp_doc, "OscTrig objects. Generates an oscillatory waveform with sample accurate reset signal."},
+    {Py_tp_traverse, OscTrig_traverse},
+    {Py_tp_clear, OscTrig_clear},
+    {Py_tp_methods, OscTrig_methods},
+    {Py_tp_members, OscTrig_members},
+    {Py_tp_new, OscTrig_new},
+    {Py_nb_add, OscTrig_add},
+    {Py_nb_subtract, OscTrig_sub},
+    {Py_nb_multiply, OscTrig_multiply},
+    {Py_nb_true_divide, OscTrig_div},
+    {Py_nb_inplace_add, OscTrig_inplace_add},
+    {Py_nb_inplace_subtract, OscTrig_inplace_sub},
+    {Py_nb_inplace_multiply, OscTrig_inplace_multiply},
+    {Py_nb_inplace_true_divide, OscTrig_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject OscTrigType =
+static PyType_Spec OscTrigType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.OscTrig_base",         /*tp_name*/
-    sizeof(OscTrig),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)OscTrig_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &OscTrig_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "OscTrig objects. Generates an oscillatory waveform with sample accurate reset signal.",           /* tp_doc */
-    (traverseproc)OscTrig_traverse,   /* tp_traverse */
-    (inquiry)OscTrig_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    OscTrig_methods,             /* tp_methods */
-    OscTrig_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    OscTrig_new,                 /* tp_new */
+    "_pyo.OscTrig_base",
+    sizeof(OscTrig),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    OscTrigType_slots
 };
+
+PyTypeObject *
+PyoCreateOscTrigType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &OscTrigType_spec, NULL);
+}
 
 /**************/
 /* Phasor object */
@@ -3117,58 +2841,58 @@ Phasor_setProcMode(Phasor *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Phasor_readframes_ii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Phasor_readframes_ii);
             break;
 
         case 1:
-            self->proc_func_ptr = Phasor_readframes_ai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Phasor_readframes_ai);
             break;
 
         case 10:
-            self->proc_func_ptr = Phasor_readframes_ia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Phasor_readframes_ia);
             break;
 
         case 11:
-            self->proc_func_ptr = Phasor_readframes_aa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Phasor_readframes_aa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Phasor_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Phasor_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Phasor_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Phasor_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Phasor_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Phasor_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Phasor_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Phasor_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Phasor_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Phasor_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Phasor_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Phasor_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Phasor_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Phasor_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Phasor_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Phasor_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Phasor_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Phasor_postprocessing_revareva);
             break;
     }
 }
@@ -3203,7 +2927,7 @@ Phasor_dealloc(Phasor* self)
 {
     pyo_DEALLOC
     Phasor_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3226,8 +2950,8 @@ Phasor_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->pointerPos = 0.;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Phasor_compute_next_data_frame);
-    self->mode_func_ptr = Phasor_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Phasor_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Phasor_setProcMode);
 
     static char *kwlist[] = {"freq", "phase", "mul", "add", NULL};
 
@@ -3321,85 +3045,39 @@ static PyMethodDef Phasor_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Phasor_as_number =
-{
-    (binaryfunc)Phasor_add,                      /*nb_add*/
-    (binaryfunc)Phasor_sub,                 /*nb_subtract*/
-    (binaryfunc)Phasor_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Phasor_inplace_add,              /*inplace_add*/
-    (binaryfunc)Phasor_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Phasor_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Phasor_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Phasor_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot PhasorType_slots[] = {
+    {Py_tp_dealloc, Phasor_dealloc},
+    {Py_tp_doc, "Phasor objects. Phase incrementor from 0 to 1."},
+    {Py_tp_traverse, Phasor_traverse},
+    {Py_tp_clear, Phasor_clear},
+    {Py_tp_methods, Phasor_methods},
+    {Py_tp_members, Phasor_members},
+    {Py_tp_new, Phasor_new},
+    {Py_nb_add, Phasor_add},
+    {Py_nb_subtract, Phasor_sub},
+    {Py_nb_multiply, Phasor_multiply},
+    {Py_nb_true_divide, Phasor_div},
+    {Py_nb_inplace_add, Phasor_inplace_add},
+    {Py_nb_inplace_subtract, Phasor_inplace_sub},
+    {Py_nb_inplace_multiply, Phasor_inplace_multiply},
+    {Py_nb_inplace_true_divide, Phasor_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject PhasorType =
+static PyType_Spec PhasorType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Phasor_base",         /*tp_name*/
-    sizeof(Phasor),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Phasor_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Phasor_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Phasor objects. Phase incrementor from 0 to 1.",           /* tp_doc */
-    (traverseproc)Phasor_traverse,   /* tp_traverse */
-    (inquiry)Phasor_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Phasor_methods,             /* tp_methods */
-    Phasor_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Phasor_new,                 /* tp_new */
+    "_pyo.Phasor_base",
+    sizeof(Phasor),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    PhasorType_slots
 };
+
+PyTypeObject *
+PyoCreatePhasorType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &PhasorType_spec, NULL);
+}
 
 /**************/
 /* Pointer object */
@@ -3450,44 +3128,44 @@ Pointer_setProcMode(Pointer *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = Pointer_readframes_a;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(Pointer_readframes_a);
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Pointer_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pointer_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Pointer_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pointer_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Pointer_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pointer_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Pointer_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pointer_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Pointer_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pointer_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Pointer_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pointer_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Pointer_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pointer_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Pointer_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pointer_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Pointer_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pointer_postprocessing_revareva);
             break;
     }
 }
@@ -3520,7 +3198,7 @@ Pointer_dealloc(Pointer* self)
 {
     pyo_DEALLOC
     Pointer_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3540,8 +3218,8 @@ Pointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Pointer_compute_next_data_frame);
-    self->mode_func_ptr = Pointer_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Pointer_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Pointer_setProcMode);
 
     static char *kwlist[] = {"table", "index", "mul", "add", NULL};
 
@@ -3668,85 +3346,39 @@ static PyMethodDef Pointer_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Pointer_as_number =
-{
-    (binaryfunc)Pointer_add,                      /*nb_add*/
-    (binaryfunc)Pointer_sub,                 /*nb_subtract*/
-    (binaryfunc)Pointer_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Pointer_inplace_add,              /*inplace_add*/
-    (binaryfunc)Pointer_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Pointer_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Pointer_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Pointer_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot PointerType_slots[] = {
+    {Py_tp_dealloc, Pointer_dealloc},
+    {Py_tp_doc, "Pointer objects. Read a waveform table with a pointer index."},
+    {Py_tp_traverse, Pointer_traverse},
+    {Py_tp_clear, Pointer_clear},
+    {Py_tp_methods, Pointer_methods},
+    {Py_tp_members, Pointer_members},
+    {Py_tp_new, Pointer_new},
+    {Py_nb_add, Pointer_add},
+    {Py_nb_subtract, Pointer_sub},
+    {Py_nb_multiply, Pointer_multiply},
+    {Py_nb_true_divide, Pointer_div},
+    {Py_nb_inplace_add, Pointer_inplace_add},
+    {Py_nb_inplace_subtract, Pointer_inplace_sub},
+    {Py_nb_inplace_multiply, Pointer_inplace_multiply},
+    {Py_nb_inplace_true_divide, Pointer_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject PointerType =
+static PyType_Spec PointerType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Pointer_base",         /*tp_name*/
-    sizeof(Pointer),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Pointer_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Pointer_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Pointer objects. Read a waveform table with a pointer index.",           /* tp_doc */
-    (traverseproc)Pointer_traverse,   /* tp_traverse */
-    (inquiry)Pointer_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Pointer_methods,             /* tp_methods */
-    Pointer_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Pointer_new,                 /* tp_new */
+    "_pyo.Pointer_base",
+    sizeof(Pointer),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    PointerType_slots
 };
+
+PyTypeObject *
+PyoCreatePointerType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &PointerType_spec, NULL);
+}
 
 /**************/
 /* Pointer2 object */
@@ -3830,44 +3462,44 @@ Pointer2_setProcMode(Pointer2 *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = Pointer2_readframes_a;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(Pointer2_readframes_a);
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Pointer2_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pointer2_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Pointer2_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pointer2_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Pointer2_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pointer2_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Pointer2_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pointer2_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Pointer2_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pointer2_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Pointer2_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pointer2_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Pointer2_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pointer2_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Pointer2_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pointer2_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Pointer2_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pointer2_postprocessing_revareva);
             break;
     }
 }
@@ -3900,7 +3532,7 @@ Pointer2_dealloc(Pointer2* self)
 {
     pyo_DEALLOC
     Pointer2_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3923,8 +3555,8 @@ Pointer2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->y1 = self->y2 = self->lastPh = 0.0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Pointer2_compute_next_data_frame);
-    self->mode_func_ptr = Pointer2_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Pointer2_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Pointer2_setProcMode);
 
     self->mTwoPiOverSr = -TWOPI / self->sr;
 
@@ -4085,85 +3717,39 @@ static PyMethodDef Pointer2_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Pointer2_as_number =
-{
-    (binaryfunc)Pointer2_add,                      /*nb_add*/
-    (binaryfunc)Pointer2_sub,                 /*nb_subtract*/
-    (binaryfunc)Pointer2_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Pointer2_inplace_add,              /*inplace_add*/
-    (binaryfunc)Pointer2_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Pointer2_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Pointer2_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Pointer2_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot Pointer2Type_slots[] = {
+    {Py_tp_dealloc, Pointer2_dealloc},
+    {Py_tp_doc, "Pointer2 objects. High quality table reader with a pointer index."},
+    {Py_tp_traverse, Pointer2_traverse},
+    {Py_tp_clear, Pointer2_clear},
+    {Py_tp_methods, Pointer2_methods},
+    {Py_tp_members, Pointer2_members},
+    {Py_tp_new, Pointer2_new},
+    {Py_nb_add, Pointer2_add},
+    {Py_nb_subtract, Pointer2_sub},
+    {Py_nb_multiply, Pointer2_multiply},
+    {Py_nb_true_divide, Pointer2_div},
+    {Py_nb_inplace_add, Pointer2_inplace_add},
+    {Py_nb_inplace_subtract, Pointer2_inplace_sub},
+    {Py_nb_inplace_multiply, Pointer2_inplace_multiply},
+    {Py_nb_inplace_true_divide, Pointer2_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject Pointer2Type =
+static PyType_Spec Pointer2Type_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Pointer2_base",         /*tp_name*/
-    sizeof(Pointer2),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Pointer2_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Pointer2_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Pointer2 objects. High quality table reader with a pointer index.",           /* tp_doc */
-    (traverseproc)Pointer2_traverse,   /* tp_traverse */
-    (inquiry)Pointer2_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Pointer2_methods,             /* tp_methods */
-    Pointer2_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Pointer2_new,                 /* tp_new */
+    "_pyo.Pointer2_base",
+    sizeof(Pointer2),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    Pointer2Type_slots
 };
+
+PyTypeObject *
+PyoCreatePointer2Type(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &Pointer2Type_spec, NULL);
+}
 
 /**************/
 /* TableIndex object */
@@ -4216,44 +3802,44 @@ TableIndex_setProcMode(TableIndex *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = TableIndex_readframes_a;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(TableIndex_readframes_a);
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = TableIndex_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableIndex_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = TableIndex_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableIndex_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = TableIndex_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableIndex_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = TableIndex_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableIndex_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = TableIndex_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableIndex_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = TableIndex_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableIndex_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = TableIndex_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableIndex_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = TableIndex_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableIndex_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = TableIndex_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableIndex_postprocessing_revareva);
             break;
     }
 }
@@ -4286,7 +3872,7 @@ TableIndex_dealloc(TableIndex* self)
 {
     pyo_DEALLOC
     TableIndex_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -4306,8 +3892,8 @@ TableIndex_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, TableIndex_compute_next_data_frame);
-    self->mode_func_ptr = TableIndex_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(TableIndex_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(TableIndex_setProcMode);
 
     static char *kwlist[] = {"table", "index", "mul", "add", NULL};
 
@@ -4434,85 +4020,39 @@ static PyMethodDef TableIndex_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods TableIndex_as_number =
-{
-    (binaryfunc)TableIndex_add,                      /*nb_add*/
-    (binaryfunc)TableIndex_sub,                 /*nb_subtract*/
-    (binaryfunc)TableIndex_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)TableIndex_inplace_add,              /*inplace_add*/
-    (binaryfunc)TableIndex_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)TableIndex_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)TableIndex_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)TableIndex_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot TableIndexType_slots[] = {
+    {Py_tp_dealloc, TableIndex_dealloc},
+    {Py_tp_doc, "TableIndex objects. Read a table by indexing without interpolation."},
+    {Py_tp_traverse, TableIndex_traverse},
+    {Py_tp_clear, TableIndex_clear},
+    {Py_tp_methods, TableIndex_methods},
+    {Py_tp_members, TableIndex_members},
+    {Py_tp_new, TableIndex_new},
+    {Py_nb_add, TableIndex_add},
+    {Py_nb_subtract, TableIndex_sub},
+    {Py_nb_multiply, TableIndex_multiply},
+    {Py_nb_true_divide, TableIndex_div},
+    {Py_nb_inplace_add, TableIndex_inplace_add},
+    {Py_nb_inplace_subtract, TableIndex_inplace_sub},
+    {Py_nb_inplace_multiply, TableIndex_inplace_multiply},
+    {Py_nb_inplace_true_divide, TableIndex_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject TableIndexType =
+static PyType_Spec TableIndexType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.TableIndex_base",         /*tp_name*/
-    sizeof(TableIndex),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)TableIndex_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &TableIndex_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "TableIndex objects. Read a table by indexing without interpolation.",           /* tp_doc */
-    (traverseproc)TableIndex_traverse,   /* tp_traverse */
-    (inquiry)TableIndex_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    TableIndex_methods,             /* tp_methods */
-    TableIndex_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    TableIndex_new,                 /* tp_new */
+    "_pyo.TableIndex_base",
+    sizeof(TableIndex),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    TableIndexType_slots
 };
+
+PyTypeObject *
+PyoCreateTableIndexType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &TableIndexType_spec, NULL);
+}
 
 /**************/
 /* Lookup object */
@@ -4573,44 +4113,44 @@ Lookup_setProcMode(Lookup *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = Lookup_readframes_a;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(Lookup_readframes_a);
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Lookup_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Lookup_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Lookup_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Lookup_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Lookup_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Lookup_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Lookup_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Lookup_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Lookup_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Lookup_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Lookup_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Lookup_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Lookup_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Lookup_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Lookup_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Lookup_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Lookup_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Lookup_postprocessing_revareva);
             break;
     }
 }
@@ -4643,7 +4183,7 @@ Lookup_dealloc(Lookup* self)
 {
     pyo_DEALLOC
     Lookup_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -4663,8 +4203,8 @@ Lookup_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Lookup_compute_next_data_frame);
-    self->mode_func_ptr = Lookup_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Lookup_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Lookup_setProcMode);
 
     static char *kwlist[] = {"table", "index", "mul", "add", NULL};
 
@@ -4791,85 +4331,39 @@ static PyMethodDef Lookup_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Lookup_as_number =
-{
-    (binaryfunc)Lookup_add,                      /*nb_add*/
-    (binaryfunc)Lookup_sub,                 /*nb_subtract*/
-    (binaryfunc)Lookup_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Lookup_inplace_add,              /*inplace_add*/
-    (binaryfunc)Lookup_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Lookup_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Lookup_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Lookup_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot LookupType_slots[] = {
+    {Py_tp_dealloc, Lookup_dealloc},
+    {Py_tp_doc, "Lookup objects. Modify a signal by reading a table with the signal as the index."},
+    {Py_tp_traverse, Lookup_traverse},
+    {Py_tp_clear, Lookup_clear},
+    {Py_tp_methods, Lookup_methods},
+    {Py_tp_members, Lookup_members},
+    {Py_tp_new, Lookup_new},
+    {Py_nb_add, Lookup_add},
+    {Py_nb_subtract, Lookup_sub},
+    {Py_nb_multiply, Lookup_multiply},
+    {Py_nb_true_divide, Lookup_div},
+    {Py_nb_inplace_add, Lookup_inplace_add},
+    {Py_nb_inplace_subtract, Lookup_inplace_sub},
+    {Py_nb_inplace_multiply, Lookup_inplace_multiply},
+    {Py_nb_inplace_true_divide, Lookup_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject LookupType =
+static PyType_Spec LookupType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Lookup_base",         /*tp_name*/
-    sizeof(Lookup),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Lookup_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Lookup_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Lookup objects. Modify a signal by reading a table with the signal as the index.",           /* tp_doc */
-    (traverseproc)Lookup_traverse,   /* tp_traverse */
-    (inquiry)Lookup_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Lookup_methods,             /* tp_methods */
-    Lookup_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Lookup_new,                 /* tp_new */
+    "_pyo.Lookup_base",
+    sizeof(Lookup),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    LookupType_slots
 };
+
+PyTypeObject *
+PyoCreateLookupType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &LookupType_spec, NULL);
+}
 
 /**************/
 /* Pulsar object */
@@ -5335,74 +4829,74 @@ Pulsar_setProcMode(Pulsar *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Pulsar_readframes_iii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Pulsar_readframes_iii);
             break;
 
         case 1:
-            self->proc_func_ptr = Pulsar_readframes_aii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Pulsar_readframes_aii);
             break;
 
         case 10:
-            self->proc_func_ptr = Pulsar_readframes_iai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Pulsar_readframes_iai);
             break;
 
         case 11:
-            self->proc_func_ptr = Pulsar_readframes_aai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Pulsar_readframes_aai);
             break;
 
         case 100:
-            self->proc_func_ptr = Pulsar_readframes_iia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Pulsar_readframes_iia);
             break;
 
         case 101:
-            self->proc_func_ptr = Pulsar_readframes_aia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Pulsar_readframes_aia);
             break;
 
         case 110:
-            self->proc_func_ptr = Pulsar_readframes_iaa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Pulsar_readframes_iaa);
             break;
 
         case 111:
-            self->proc_func_ptr = Pulsar_readframes_aaa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Pulsar_readframes_aaa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Pulsar_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pulsar_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Pulsar_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pulsar_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Pulsar_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pulsar_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Pulsar_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pulsar_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Pulsar_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pulsar_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Pulsar_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pulsar_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Pulsar_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pulsar_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Pulsar_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pulsar_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Pulsar_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pulsar_postprocessing_revareva);
             break;
     }
 }
@@ -5439,7 +4933,7 @@ Pulsar_dealloc(Pulsar* self)
 {
     pyo_DEALLOC
     Pulsar_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -5465,8 +4959,8 @@ Pulsar_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->pointerPos = 0.;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Pulsar_compute_next_data_frame);
-    self->mode_func_ptr = Pulsar_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Pulsar_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Pulsar_setProcMode);
 
     static char *kwlist[] = {"table", "env", "freq", "frac", "phase", "interp", "mul", "add", NULL};
 
@@ -5635,85 +5129,39 @@ static PyMethodDef Pulsar_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Pulsar_as_number =
-{
-    (binaryfunc)Pulsar_add,                      /*nb_add*/
-    (binaryfunc)Pulsar_sub,                 /*nb_subtract*/
-    (binaryfunc)Pulsar_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Pulsar_inplace_add,              /*inplace_add*/
-    (binaryfunc)Pulsar_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Pulsar_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Pulsar_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Pulsar_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot PulsarType_slots[] = {
+    {Py_tp_dealloc, Pulsar_dealloc},
+    {Py_tp_doc, "Pulsar objects. Generates pulsar synthesis oscillator."},
+    {Py_tp_traverse, Pulsar_traverse},
+    {Py_tp_clear, Pulsar_clear},
+    {Py_tp_methods, Pulsar_methods},
+    {Py_tp_members, Pulsar_members},
+    {Py_tp_new, Pulsar_new},
+    {Py_nb_add, Pulsar_add},
+    {Py_nb_subtract, Pulsar_sub},
+    {Py_nb_multiply, Pulsar_multiply},
+    {Py_nb_true_divide, Pulsar_div},
+    {Py_nb_inplace_add, Pulsar_inplace_add},
+    {Py_nb_inplace_subtract, Pulsar_inplace_sub},
+    {Py_nb_inplace_multiply, Pulsar_inplace_multiply},
+    {Py_nb_inplace_true_divide, Pulsar_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject PulsarType =
+static PyType_Spec PulsarType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Pulsar_base",         /*tp_name*/
-    sizeof(Pulsar),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Pulsar_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Pulsar_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Pulsar objects. Generates pulsar synthesis oscillator.",           /* tp_doc */
-    (traverseproc)Pulsar_traverse,   /* tp_traverse */
-    (inquiry)Pulsar_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Pulsar_methods,             /* tp_methods */
-    Pulsar_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Pulsar_new,                 /* tp_new */
+    "_pyo.Pulsar_base",
+    sizeof(Pulsar),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    PulsarType_slots
 };
+
+PyTypeObject *
+PyoCreatePulsarType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &PulsarType_spec, NULL);
+}
 
 /**************/
 /* TableRead object */
@@ -5881,50 +5329,50 @@ TableRead_setProcMode(TableRead *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = TableRead_readframes_i;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(TableRead_readframes_i);
             break;
 
         case 1:
-            self->proc_func_ptr = TableRead_readframes_a;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(TableRead_readframes_a);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = TableRead_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableRead_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = TableRead_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableRead_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = TableRead_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableRead_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = TableRead_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableRead_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = TableRead_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableRead_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = TableRead_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableRead_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = TableRead_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableRead_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = TableRead_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableRead_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = TableRead_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableRead_postprocessing_revareva);
             break;
     }
 }
@@ -5959,7 +5407,7 @@ TableRead_dealloc(TableRead* self)
     PyMem_RawFree(self->trigsBuffer);
     TableRead_clear(self);
     Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -5986,8 +5434,8 @@ TableRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->interp = 2;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, TableRead_compute_next_data_frame);
-    self->mode_func_ptr = TableRead_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(TableRead_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(TableRead_setProcMode);
 
     static char *kwlist[] = {"table", "freq", "loop", "interp", "mul", "add", NULL};
 
@@ -6213,85 +5661,39 @@ static PyMethodDef TableRead_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods TableRead_as_number =
-{
-    (binaryfunc)TableRead_add,                      /*nb_add*/
-    (binaryfunc)TableRead_sub,                 /*nb_subtract*/
-    (binaryfunc)TableRead_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)TableRead_inplace_add,              /*inplace_add*/
-    (binaryfunc)TableRead_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)TableRead_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)TableRead_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)TableRead_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot TableReadType_slots[] = {
+    {Py_tp_dealloc, TableRead_dealloc},
+    {Py_tp_doc, "TableRead objects. Generates an oscillatory waveform."},
+    {Py_tp_traverse, TableRead_traverse},
+    {Py_tp_clear, TableRead_clear},
+    {Py_tp_methods, TableRead_methods},
+    {Py_tp_members, TableRead_members},
+    {Py_tp_new, TableRead_new},
+    {Py_nb_add, TableRead_add},
+    {Py_nb_subtract, TableRead_sub},
+    {Py_nb_multiply, TableRead_multiply},
+    {Py_nb_true_divide, TableRead_div},
+    {Py_nb_inplace_add, TableRead_inplace_add},
+    {Py_nb_inplace_subtract, TableRead_inplace_sub},
+    {Py_nb_inplace_multiply, TableRead_inplace_multiply},
+    {Py_nb_inplace_true_divide, TableRead_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject TableReadType =
+static PyType_Spec TableReadType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.TableRead_base",         /*tp_name*/
-    sizeof(TableRead),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)TableRead_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &TableRead_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "TableRead objects. Generates an oscillatory waveform.",           /* tp_doc */
-    (traverseproc)TableRead_traverse,   /* tp_traverse */
-    (inquiry)TableRead_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    TableRead_methods,             /* tp_methods */
-    TableRead_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    TableRead_new,                 /* tp_new */
+    "_pyo.TableRead_base",
+    sizeof(TableRead),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    TableReadType_slots
 };
+
+PyTypeObject *
+PyoCreateTableReadType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &TableReadType_spec, NULL);
+}
 
 /*************/
 /* Fm object */
@@ -6581,74 +5983,74 @@ Fm_setProcMode(Fm *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Fm_readframes_iii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Fm_readframes_iii);
             break;
 
         case 1:
-            self->proc_func_ptr = Fm_readframes_aii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Fm_readframes_aii);
             break;
 
         case 10:
-            self->proc_func_ptr = Fm_readframes_iai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Fm_readframes_iai);
             break;
 
         case 11:
-            self->proc_func_ptr = Fm_readframes_aai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Fm_readframes_aai);
             break;
 
         case 100:
-            self->proc_func_ptr = Fm_readframes_iia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Fm_readframes_iia);
             break;
 
         case 101:
-            self->proc_func_ptr = Fm_readframes_aia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Fm_readframes_aia);
             break;
 
         case 110:
-            self->proc_func_ptr = Fm_readframes_iaa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Fm_readframes_iaa);
             break;
 
         case 111:
-            self->proc_func_ptr = Fm_readframes_aaa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Fm_readframes_aaa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Fm_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Fm_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Fm_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Fm_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Fm_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Fm_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Fm_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Fm_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Fm_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Fm_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Fm_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Fm_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Fm_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Fm_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Fm_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Fm_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Fm_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Fm_postprocessing_revareva);
             break;
     }
 }
@@ -6685,7 +6087,7 @@ Fm_dealloc(Fm* self)
 {
     pyo_DEALLOC
     Fm_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -6710,8 +6112,8 @@ Fm_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->pointerPos_car = self->pointerPos_mod = 0.;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Fm_compute_next_data_frame);
-    self->mode_func_ptr = Fm_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Fm_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Fm_setProcMode);
 
     self->scaleFactor = 512.0 / self->sr;
 
@@ -6807,85 +6209,39 @@ static PyMethodDef Fm_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Fm_as_number =
-{
-    (binaryfunc)Fm_add,                      /*nb_add*/
-    (binaryfunc)Fm_sub,                 /*nb_subtract*/
-    (binaryfunc)Fm_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Fm_inplace_add,              /*inplace_add*/
-    (binaryfunc)Fm_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Fm_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Fm_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Fm_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot FmType_slots[] = {
+    {Py_tp_dealloc, Fm_dealloc},
+    {Py_tp_doc, "Fm objects. Generates a frequency modulation synthesis."},
+    {Py_tp_traverse, Fm_traverse},
+    {Py_tp_clear, Fm_clear},
+    {Py_tp_methods, Fm_methods},
+    {Py_tp_members, Fm_members},
+    {Py_tp_new, Fm_new},
+    {Py_nb_add, Fm_add},
+    {Py_nb_subtract, Fm_sub},
+    {Py_nb_multiply, Fm_multiply},
+    {Py_nb_true_divide, Fm_div},
+    {Py_nb_inplace_add, Fm_inplace_add},
+    {Py_nb_inplace_subtract, Fm_inplace_sub},
+    {Py_nb_inplace_multiply, Fm_inplace_multiply},
+    {Py_nb_inplace_true_divide, Fm_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject FmType =
+static PyType_Spec FmType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Fm_base",         /*tp_name*/
-    sizeof(Fm),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Fm_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Fm_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "Fm objects. Generates a frequency modulation synthesis.",           /* tp_doc */
-    (traverseproc)Fm_traverse,   /* tp_traverse */
-    (inquiry)Fm_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Fm_methods,             /* tp_methods */
-    Fm_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Fm_new,                 /* tp_new */
+    "_pyo.Fm_base",
+    sizeof(Fm),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    FmType_slots
 };
+
+PyTypeObject *
+PyoCreateFmType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &FmType_spec, NULL);
+}
 
 /*************/
 /* CrossFm object */
@@ -7033,44 +6389,44 @@ CrossFm_setProcMode(CrossFm *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = CrossFm_readframes;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(CrossFm_readframes);
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = CrossFm_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(CrossFm_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = CrossFm_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(CrossFm_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = CrossFm_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(CrossFm_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = CrossFm_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(CrossFm_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = CrossFm_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(CrossFm_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = CrossFm_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(CrossFm_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = CrossFm_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(CrossFm_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = CrossFm_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(CrossFm_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = CrossFm_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(CrossFm_postprocessing_revareva);
             break;
     }
 }
@@ -7109,7 +6465,7 @@ CrossFm_dealloc(CrossFm* self)
 {
     pyo_DEALLOC
     CrossFm_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -7137,8 +6493,8 @@ CrossFm_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->car_val = 0.;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, CrossFm_compute_next_data_frame);
-    self->mode_func_ptr = CrossFm_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(CrossFm_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(CrossFm_setProcMode);
 
     self->scaleFactor = 512.0 / self->sr;
 
@@ -7242,85 +6598,39 @@ static PyMethodDef CrossFm_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods CrossFm_as_number =
-{
-    (binaryfunc)CrossFm_add,                      /*nb_add*/
-    (binaryfunc)CrossFm_sub,                 /*nb_subtract*/
-    (binaryfunc)CrossFm_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)CrossFm_inplace_add,              /*inplace_add*/
-    (binaryfunc)CrossFm_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)CrossFm_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)CrossFm_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)CrossFm_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_ind1 */
+static PyType_Slot CrossFmType_slots[] = {
+    {Py_tp_dealloc, CrossFm_dealloc},
+    {Py_tp_doc, "CrossFm objects. Generates a cross frequency modulation synthesis."},
+    {Py_tp_traverse, CrossFm_traverse},
+    {Py_tp_clear, CrossFm_clear},
+    {Py_tp_methods, CrossFm_methods},
+    {Py_tp_members, CrossFm_members},
+    {Py_tp_new, CrossFm_new},
+    {Py_nb_add, CrossFm_add},
+    {Py_nb_subtract, CrossFm_sub},
+    {Py_nb_multiply, CrossFm_multiply},
+    {Py_nb_true_divide, CrossFm_div},
+    {Py_nb_inplace_add, CrossFm_inplace_add},
+    {Py_nb_inplace_subtract, CrossFm_inplace_sub},
+    {Py_nb_inplace_multiply, CrossFm_inplace_multiply},
+    {Py_nb_inplace_true_divide, CrossFm_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject CrossFmType =
+static PyType_Spec CrossFmType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.CrossFm_base",         /*tp_name*/
-    sizeof(CrossFm),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)CrossFm_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &CrossFm_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "CrossFm objects. Generates a cross frequency modulation synthesis.",           /* tp_doc */
-    (traverseproc)CrossFm_traverse,   /* tp_traverse */
-    (inquiry)CrossFm_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    CrossFm_methods,             /* tp_methods */
-    CrossFm_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    CrossFm_new,                 /* tp_new */
+    "_pyo.CrossFm_base",
+    sizeof(CrossFm),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    CrossFmType_slots
 };
+
+PyTypeObject *
+PyoCreateCrossFmType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &CrossFmType_spec, NULL);
+}
 
 /*************/
 /* Blit object */
@@ -7491,58 +6801,58 @@ Blit_setProcMode(Blit *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Blit_readframes_ii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Blit_readframes_ii);
             break;
 
         case 1:
-            self->proc_func_ptr = Blit_readframes_ai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Blit_readframes_ai);
             break;
 
         case 10:
-            self->proc_func_ptr = Blit_readframes_ia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Blit_readframes_ia);
             break;
 
         case 11:
-            self->proc_func_ptr = Blit_readframes_aa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Blit_readframes_aa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Blit_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Blit_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Blit_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Blit_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Blit_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Blit_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Blit_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Blit_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Blit_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Blit_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Blit_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Blit_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Blit_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Blit_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Blit_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Blit_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Blit_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Blit_postprocessing_revareva);
             break;
     }
 }
@@ -7577,7 +6887,7 @@ Blit_dealloc(Blit* self)
 {
     pyo_DEALLOC
     Blit_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -7600,8 +6910,8 @@ Blit_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->phase = 0.0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Blit_compute_next_data_frame);
-    self->mode_func_ptr = Blit_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Blit_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Blit_setProcMode);
 
     static char *kwlist[] = {"freq", "harms", "mul", "add", NULL};
 
@@ -7687,85 +6997,39 @@ static PyMethodDef Blit_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Blit_as_number =
-{
-    (binaryfunc)Blit_add,                      /*nb_add*/
-    (binaryfunc)Blit_sub,                 /*nb_subtract*/
-    (binaryfunc)Blit_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Blit_inplace_add,              /*inplace_add*/
-    (binaryfunc)Blit_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Blit_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Blit_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Blit_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_cutoff */
+static PyType_Slot BlitType_slots[] = {
+    {Py_tp_dealloc, Blit_dealloc},
+    {Py_tp_doc, "Blit objects. Generates a band limited impulse train."},
+    {Py_tp_traverse, Blit_traverse},
+    {Py_tp_clear, Blit_clear},
+    {Py_tp_methods, Blit_methods},
+    {Py_tp_members, Blit_members},
+    {Py_tp_new, Blit_new},
+    {Py_nb_add, Blit_add},
+    {Py_nb_subtract, Blit_sub},
+    {Py_nb_multiply, Blit_multiply},
+    {Py_nb_true_divide, Blit_div},
+    {Py_nb_inplace_add, Blit_inplace_add},
+    {Py_nb_inplace_subtract, Blit_inplace_sub},
+    {Py_nb_inplace_multiply, Blit_inplace_multiply},
+    {Py_nb_inplace_true_divide, Blit_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject BlitType =
+static PyType_Spec BlitType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Blit_base",         /*tp_name*/
-    sizeof(Blit),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Blit_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Blit_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "Blit objects. Generates a band limited impulse train.",           /* tp_doc */
-    (traverseproc)Blit_traverse,   /* tp_traverse */
-    (inquiry)Blit_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Blit_methods,             /* tp_methods */
-    Blit_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Blit_new,                 /* tp_new */
+    "_pyo.Blit_base",
+    sizeof(Blit),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    BlitType_slots
 };
+
+PyTypeObject *
+PyoCreateBlitType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &BlitType_spec, NULL);
+}
 
 /* Rossler object */
 typedef struct
@@ -7975,58 +7239,58 @@ Rossler_setProcMode(Rossler *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Rossler_readframes_ii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Rossler_readframes_ii);
             break;
 
         case 1:
-            self->proc_func_ptr = Rossler_readframes_ai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Rossler_readframes_ai);
             break;
 
         case 10:
-            self->proc_func_ptr = Rossler_readframes_ia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Rossler_readframes_ia);
             break;
 
         case 11:
-            self->proc_func_ptr = Rossler_readframes_aa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Rossler_readframes_aa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Rossler_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Rossler_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Rossler_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Rossler_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Rossler_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Rossler_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Rossler_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Rossler_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Rossler_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Rossler_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Rossler_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Rossler_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Rossler_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Rossler_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Rossler_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Rossler_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Rossler_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Rossler_postprocessing_revareva);
             break;
     }
 }
@@ -8062,7 +7326,7 @@ Rossler_dealloc(Rossler* self)
     pyo_DEALLOC
     PyMem_RawFree(self->altBuffer);
     Rossler_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -8088,8 +7352,8 @@ Rossler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[3] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Rossler_compute_next_data_frame);
-    self->mode_func_ptr = Rossler_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Rossler_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Rossler_setProcMode);
 
     self->scalePitch = 2.91 / self->sr;
 
@@ -8190,85 +7454,39 @@ static PyMethodDef Rossler_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Rossler_as_number =
-{
-    (binaryfunc)Rossler_add,                      /*nb_add*/
-    (binaryfunc)Rossler_sub,                 /*nb_subtract*/
-    (binaryfunc)Rossler_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Rossler_inplace_add,              /*inplace_add*/
-    (binaryfunc)Rossler_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Rossler_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Rossler_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Rossler_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot RosslerType_slots[] = {
+    {Py_tp_dealloc, Rossler_dealloc},
+    {Py_tp_doc, "Rossler objects. Rossler attractor."},
+    {Py_tp_traverse, Rossler_traverse},
+    {Py_tp_clear, Rossler_clear},
+    {Py_tp_methods, Rossler_methods},
+    {Py_tp_members, Rossler_members},
+    {Py_tp_new, Rossler_new},
+    {Py_nb_add, Rossler_add},
+    {Py_nb_subtract, Rossler_sub},
+    {Py_nb_multiply, Rossler_multiply},
+    {Py_nb_true_divide, Rossler_div},
+    {Py_nb_inplace_add, Rossler_inplace_add},
+    {Py_nb_inplace_subtract, Rossler_inplace_sub},
+    {Py_nb_inplace_multiply, Rossler_inplace_multiply},
+    {Py_nb_inplace_true_divide, Rossler_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject RosslerType =
+static PyType_Spec RosslerType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Rossler_base",         /*tp_name*/
-    sizeof(Rossler),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Rossler_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Rossler_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "Rossler objects. Rossler attractor.",           /* tp_doc */
-    (traverseproc)Rossler_traverse,   /* tp_traverse */
-    (inquiry)Rossler_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Rossler_methods,             /* tp_methods */
-    Rossler_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Rossler_new,                 /* tp_new */
+    "_pyo.Rossler_base",
+    sizeof(Rossler),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    RosslerType_slots
 };
+
+PyTypeObject *
+PyoCreateRosslerType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &RosslerType_spec, NULL);
+}
 
 typedef struct
 {
@@ -8296,39 +7514,39 @@ RosslerAlt_setProcMode(RosslerAlt *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = RosslerAlt_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RosslerAlt_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = RosslerAlt_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RosslerAlt_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = RosslerAlt_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RosslerAlt_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = RosslerAlt_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RosslerAlt_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = RosslerAlt_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RosslerAlt_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = RosslerAlt_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RosslerAlt_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = RosslerAlt_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RosslerAlt_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = RosslerAlt_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RosslerAlt_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = RosslerAlt_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RosslerAlt_postprocessing_revareva);
             break;
     }
 }
@@ -8369,7 +7587,7 @@ RosslerAlt_dealloc(RosslerAlt* self)
 {
     pyo_DEALLOC
     RosslerAlt_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -8387,8 +7605,8 @@ RosslerAlt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, RosslerAlt_compute_next_data_frame);
-    self->mode_func_ptr = RosslerAlt_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(RosslerAlt_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(RosslerAlt_setProcMode);
 
     static char *kwlist[] = {"mainRossler", "mul", "alt", NULL};
 
@@ -8459,85 +7677,39 @@ static PyMethodDef RosslerAlt_methods[] =
     {"setDiv", (PyCFunction)RosslerAlt_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
-static PyNumberMethods RosslerAlt_as_number =
-{
-    (binaryfunc)RosslerAlt_add,                         /*nb_add*/
-    (binaryfunc)RosslerAlt_sub,                         /*nb_subtract*/
-    (binaryfunc)RosslerAlt_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)RosslerAlt_inplace_add,                 /*inplace_add*/
-    (binaryfunc)RosslerAlt_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)RosslerAlt_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)RosslerAlt_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)RosslerAlt_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot RosslerAltType_slots[] = {
+    {Py_tp_dealloc, RosslerAlt_dealloc},
+    {Py_tp_doc, "RosslerAlt objects. Sends the alternate signal of a Rossler attractor."},
+    {Py_tp_traverse, RosslerAlt_traverse},
+    {Py_tp_clear, RosslerAlt_clear},
+    {Py_tp_methods, RosslerAlt_methods},
+    {Py_tp_members, RosslerAlt_members},
+    {Py_tp_new, RosslerAlt_new},
+    {Py_nb_add, RosslerAlt_add},
+    {Py_nb_subtract, RosslerAlt_sub},
+    {Py_nb_multiply, RosslerAlt_multiply},
+    {Py_nb_true_divide, RosslerAlt_div},
+    {Py_nb_inplace_add, RosslerAlt_inplace_add},
+    {Py_nb_inplace_subtract, RosslerAlt_inplace_sub},
+    {Py_nb_inplace_multiply, RosslerAlt_inplace_multiply},
+    {Py_nb_inplace_true_divide, RosslerAlt_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject RosslerAltType =
+static PyType_Spec RosslerAltType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.RosslerAlt_base",         /*tp_name*/
-    sizeof(RosslerAlt),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)RosslerAlt_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &RosslerAlt_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "RosslerAlt objects. Sends the alternate signal of a Rossler attractor.",           /* tp_doc */
-    (traverseproc)RosslerAlt_traverse,   /* tp_traverse */
-    (inquiry)RosslerAlt_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    RosslerAlt_methods,             /* tp_methods */
-    RosslerAlt_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    RosslerAlt_new,                 /* tp_new */
+    "_pyo.RosslerAlt_base",
+    sizeof(RosslerAlt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    RosslerAltType_slots
 };
+
+PyTypeObject *
+PyoCreateRosslerAltType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &RosslerAltType_spec, NULL);
+}
 
 /* Lorenz object */
 typedef struct
@@ -8747,58 +7919,58 @@ Lorenz_setProcMode(Lorenz *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Lorenz_readframes_ii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Lorenz_readframes_ii);
             break;
 
         case 1:
-            self->proc_func_ptr = Lorenz_readframes_ai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Lorenz_readframes_ai);
             break;
 
         case 10:
-            self->proc_func_ptr = Lorenz_readframes_ia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Lorenz_readframes_ia);
             break;
 
         case 11:
-            self->proc_func_ptr = Lorenz_readframes_aa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Lorenz_readframes_aa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Lorenz_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Lorenz_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Lorenz_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Lorenz_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Lorenz_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Lorenz_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Lorenz_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Lorenz_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Lorenz_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Lorenz_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Lorenz_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Lorenz_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Lorenz_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Lorenz_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Lorenz_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Lorenz_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Lorenz_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Lorenz_postprocessing_revareva);
             break;
     }
 }
@@ -8834,7 +8006,7 @@ Lorenz_dealloc(Lorenz* self)
     pyo_DEALLOC
     PyMem_RawFree(self->altBuffer);
     Lorenz_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -8860,8 +8032,8 @@ Lorenz_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[3] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Lorenz_compute_next_data_frame);
-    self->mode_func_ptr = Lorenz_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Lorenz_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Lorenz_setProcMode);
 
     self->oneOnSr = 1.0 / self->sr;
 
@@ -8962,85 +8134,39 @@ static PyMethodDef Lorenz_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Lorenz_as_number =
-{
-    (binaryfunc)Lorenz_add,                      /*nb_add*/
-    (binaryfunc)Lorenz_sub,                 /*nb_subtract*/
-    (binaryfunc)Lorenz_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Lorenz_inplace_add,              /*inplace_add*/
-    (binaryfunc)Lorenz_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Lorenz_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Lorenz_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Lorenz_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot LorenzType_slots[] = {
+    {Py_tp_dealloc, Lorenz_dealloc},
+    {Py_tp_doc, "Lorenz objects. Lorenz attractor."},
+    {Py_tp_traverse, Lorenz_traverse},
+    {Py_tp_clear, Lorenz_clear},
+    {Py_tp_methods, Lorenz_methods},
+    {Py_tp_members, Lorenz_members},
+    {Py_tp_new, Lorenz_new},
+    {Py_nb_add, Lorenz_add},
+    {Py_nb_subtract, Lorenz_sub},
+    {Py_nb_multiply, Lorenz_multiply},
+    {Py_nb_true_divide, Lorenz_div},
+    {Py_nb_inplace_add, Lorenz_inplace_add},
+    {Py_nb_inplace_subtract, Lorenz_inplace_sub},
+    {Py_nb_inplace_multiply, Lorenz_inplace_multiply},
+    {Py_nb_inplace_true_divide, Lorenz_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject LorenzType =
+static PyType_Spec LorenzType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Lorenz_base",         /*tp_name*/
-    sizeof(Lorenz),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Lorenz_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Lorenz_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "Lorenz objects. Lorenz attractor.",           /* tp_doc */
-    (traverseproc)Lorenz_traverse,   /* tp_traverse */
-    (inquiry)Lorenz_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Lorenz_methods,             /* tp_methods */
-    Lorenz_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Lorenz_new,                 /* tp_new */
+    "_pyo.Lorenz_base",
+    sizeof(Lorenz),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    LorenzType_slots
 };
+
+PyTypeObject *
+PyoCreateLorenzType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &LorenzType_spec, NULL);
+}
 
 typedef struct
 {
@@ -9068,39 +8194,39 @@ LorenzAlt_setProcMode(LorenzAlt *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = LorenzAlt_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LorenzAlt_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = LorenzAlt_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LorenzAlt_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = LorenzAlt_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LorenzAlt_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = LorenzAlt_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LorenzAlt_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = LorenzAlt_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LorenzAlt_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = LorenzAlt_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LorenzAlt_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = LorenzAlt_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LorenzAlt_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = LorenzAlt_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LorenzAlt_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = LorenzAlt_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LorenzAlt_postprocessing_revareva);
             break;
     }
 }
@@ -9141,7 +8267,7 @@ LorenzAlt_dealloc(LorenzAlt* self)
 {
     pyo_DEALLOC
     LorenzAlt_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -9159,8 +8285,8 @@ LorenzAlt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, LorenzAlt_compute_next_data_frame);
-    self->mode_func_ptr = LorenzAlt_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(LorenzAlt_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(LorenzAlt_setProcMode);
 
     static char *kwlist[] = {"mainLorenz", "mul", "alt", NULL};
 
@@ -9231,85 +8357,39 @@ static PyMethodDef LorenzAlt_methods[] =
     {"setDiv", (PyCFunction)LorenzAlt_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
-static PyNumberMethods LorenzAlt_as_number =
-{
-    (binaryfunc)LorenzAlt_add,                         /*nb_add*/
-    (binaryfunc)LorenzAlt_sub,                         /*nb_subtract*/
-    (binaryfunc)LorenzAlt_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)LorenzAlt_inplace_add,                 /*inplace_add*/
-    (binaryfunc)LorenzAlt_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)LorenzAlt_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)LorenzAlt_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)LorenzAlt_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot LorenzAltType_slots[] = {
+    {Py_tp_dealloc, LorenzAlt_dealloc},
+    {Py_tp_doc, "LorenzAlt objects. Sends the alternate signal of a Lorenz attractor."},
+    {Py_tp_traverse, LorenzAlt_traverse},
+    {Py_tp_clear, LorenzAlt_clear},
+    {Py_tp_methods, LorenzAlt_methods},
+    {Py_tp_members, LorenzAlt_members},
+    {Py_tp_new, LorenzAlt_new},
+    {Py_nb_add, LorenzAlt_add},
+    {Py_nb_subtract, LorenzAlt_sub},
+    {Py_nb_multiply, LorenzAlt_multiply},
+    {Py_nb_true_divide, LorenzAlt_div},
+    {Py_nb_inplace_add, LorenzAlt_inplace_add},
+    {Py_nb_inplace_subtract, LorenzAlt_inplace_sub},
+    {Py_nb_inplace_multiply, LorenzAlt_inplace_multiply},
+    {Py_nb_inplace_true_divide, LorenzAlt_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject LorenzAltType =
+static PyType_Spec LorenzAltType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.LorenzAlt_base",         /*tp_name*/
-    sizeof(LorenzAlt),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)LorenzAlt_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &LorenzAlt_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "LorenzAlt objects. Sends the alternate signal of a Lorenz attractor.",           /* tp_doc */
-    (traverseproc)LorenzAlt_traverse,   /* tp_traverse */
-    (inquiry)LorenzAlt_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    LorenzAlt_methods,             /* tp_methods */
-    LorenzAlt_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    LorenzAlt_new,                 /* tp_new */
+    "_pyo.LorenzAlt_base",
+    sizeof(LorenzAlt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    LorenzAltType_slots
 };
+
+PyTypeObject *
+PyoCreateLorenzAltType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &LorenzAltType_spec, NULL);
+}
 
 /* ChenLee object */
 typedef struct
@@ -9527,58 +8607,58 @@ ChenLee_setProcMode(ChenLee *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = ChenLee_readframes_ii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(ChenLee_readframes_ii);
             break;
 
         case 1:
-            self->proc_func_ptr = ChenLee_readframes_ai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(ChenLee_readframes_ai);
             break;
 
         case 10:
-            self->proc_func_ptr = ChenLee_readframes_ia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(ChenLee_readframes_ia);
             break;
 
         case 11:
-            self->proc_func_ptr = ChenLee_readframes_aa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(ChenLee_readframes_aa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = ChenLee_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(ChenLee_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = ChenLee_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(ChenLee_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = ChenLee_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(ChenLee_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = ChenLee_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(ChenLee_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = ChenLee_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(ChenLee_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = ChenLee_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(ChenLee_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = ChenLee_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(ChenLee_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = ChenLee_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(ChenLee_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = ChenLee_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(ChenLee_postprocessing_revareva);
             break;
     }
 }
@@ -9614,7 +8694,7 @@ ChenLee_dealloc(ChenLee* self)
     pyo_DEALLOC
     PyMem_RawFree(self->altBuffer);
     ChenLee_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -9640,8 +8720,8 @@ ChenLee_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[3] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, ChenLee_compute_next_data_frame);
-    self->mode_func_ptr = ChenLee_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(ChenLee_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(ChenLee_setProcMode);
 
     self->oneOnSr = 1.0 / self->sr;
 
@@ -9742,85 +8822,39 @@ static PyMethodDef ChenLee_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods ChenLee_as_number =
-{
-    (binaryfunc)ChenLee_add,                      /*nb_add*/
-    (binaryfunc)ChenLee_sub,                 /*nb_subtract*/
-    (binaryfunc)ChenLee_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)ChenLee_inplace_add,              /*inplace_add*/
-    (binaryfunc)ChenLee_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)ChenLee_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)ChenLee_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)ChenLee_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot ChenLeeType_slots[] = {
+    {Py_tp_dealloc, ChenLee_dealloc},
+    {Py_tp_doc, "ChenLee objects. ChenLee attractor."},
+    {Py_tp_traverse, ChenLee_traverse},
+    {Py_tp_clear, ChenLee_clear},
+    {Py_tp_methods, ChenLee_methods},
+    {Py_tp_members, ChenLee_members},
+    {Py_tp_new, ChenLee_new},
+    {Py_nb_add, ChenLee_add},
+    {Py_nb_subtract, ChenLee_sub},
+    {Py_nb_multiply, ChenLee_multiply},
+    {Py_nb_true_divide, ChenLee_div},
+    {Py_nb_inplace_add, ChenLee_inplace_add},
+    {Py_nb_inplace_subtract, ChenLee_inplace_sub},
+    {Py_nb_inplace_multiply, ChenLee_inplace_multiply},
+    {Py_nb_inplace_true_divide, ChenLee_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject ChenLeeType =
+static PyType_Spec ChenLeeType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.ChenLee_base",         /*tp_name*/
-    sizeof(ChenLee),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)ChenLee_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &ChenLee_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "ChenLee objects. ChenLee attractor.",           /* tp_doc */
-    (traverseproc)ChenLee_traverse,   /* tp_traverse */
-    (inquiry)ChenLee_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    ChenLee_methods,             /* tp_methods */
-    ChenLee_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    ChenLee_new,                 /* tp_new */
+    "_pyo.ChenLee_base",
+    sizeof(ChenLee),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    ChenLeeType_slots
 };
+
+PyTypeObject *
+PyoCreateChenLeeType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &ChenLeeType_spec, NULL);
+}
 
 typedef struct
 {
@@ -9848,39 +8882,39 @@ ChenLeeAlt_setProcMode(ChenLeeAlt *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = ChenLeeAlt_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(ChenLeeAlt_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = ChenLeeAlt_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(ChenLeeAlt_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = ChenLeeAlt_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(ChenLeeAlt_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = ChenLeeAlt_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(ChenLeeAlt_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = ChenLeeAlt_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(ChenLeeAlt_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = ChenLeeAlt_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(ChenLeeAlt_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = ChenLeeAlt_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(ChenLeeAlt_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = ChenLeeAlt_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(ChenLeeAlt_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = ChenLeeAlt_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(ChenLeeAlt_postprocessing_revareva);
             break;
     }
 }
@@ -9921,7 +8955,7 @@ ChenLeeAlt_dealloc(ChenLeeAlt* self)
 {
     pyo_DEALLOC
     ChenLeeAlt_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -9939,8 +8973,8 @@ ChenLeeAlt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, ChenLeeAlt_compute_next_data_frame);
-    self->mode_func_ptr = ChenLeeAlt_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(ChenLeeAlt_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(ChenLeeAlt_setProcMode);
 
     static char *kwlist[] = {"mainChenLee", "mul", "alt", NULL};
 
@@ -10011,85 +9045,39 @@ static PyMethodDef ChenLeeAlt_methods[] =
     {"setDiv", (PyCFunction)ChenLeeAlt_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
-static PyNumberMethods ChenLeeAlt_as_number =
-{
-    (binaryfunc)ChenLeeAlt_add,                         /*nb_add*/
-    (binaryfunc)ChenLeeAlt_sub,                         /*nb_subtract*/
-    (binaryfunc)ChenLeeAlt_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)ChenLeeAlt_inplace_add,                 /*inplace_add*/
-    (binaryfunc)ChenLeeAlt_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)ChenLeeAlt_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)ChenLeeAlt_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)ChenLeeAlt_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot ChenLeeAltType_slots[] = {
+    {Py_tp_dealloc, ChenLeeAlt_dealloc},
+    {Py_tp_doc, "ChenLeeAlt objects. Sends the alternate signal of a ChenLee attractor."},
+    {Py_tp_traverse, ChenLeeAlt_traverse},
+    {Py_tp_clear, ChenLeeAlt_clear},
+    {Py_tp_methods, ChenLeeAlt_methods},
+    {Py_tp_members, ChenLeeAlt_members},
+    {Py_tp_new, ChenLeeAlt_new},
+    {Py_nb_add, ChenLeeAlt_add},
+    {Py_nb_subtract, ChenLeeAlt_sub},
+    {Py_nb_multiply, ChenLeeAlt_multiply},
+    {Py_nb_true_divide, ChenLeeAlt_div},
+    {Py_nb_inplace_add, ChenLeeAlt_inplace_add},
+    {Py_nb_inplace_subtract, ChenLeeAlt_inplace_sub},
+    {Py_nb_inplace_multiply, ChenLeeAlt_inplace_multiply},
+    {Py_nb_inplace_true_divide, ChenLeeAlt_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject ChenLeeAltType =
+static PyType_Spec ChenLeeAltType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.ChenLeeAlt_base",         /*tp_name*/
-    sizeof(ChenLeeAlt),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)ChenLeeAlt_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &ChenLeeAlt_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "ChenLeeAlt objects. Sends the alternate signal of a ChenLee attractor.",           /* tp_doc */
-    (traverseproc)ChenLeeAlt_traverse,   /* tp_traverse */
-    (inquiry)ChenLeeAlt_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    ChenLeeAlt_methods,             /* tp_methods */
-    ChenLeeAlt_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    ChenLeeAlt_new,                 /* tp_new */
+    "_pyo.ChenLeeAlt_base",
+    sizeof(ChenLeeAlt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    ChenLeeAltType_slots
 };
+
+PyTypeObject *
+PyoCreateChenLeeAltType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &ChenLeeAltType_spec, NULL);
+}
 
 /*************/
 /* SumOsc object */
@@ -10492,74 +9480,74 @@ SumOsc_setProcMode(SumOsc *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = SumOsc_readframes_iii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(SumOsc_readframes_iii);
             break;
 
         case 1:
-            self->proc_func_ptr = SumOsc_readframes_aii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(SumOsc_readframes_aii);
             break;
 
         case 10:
-            self->proc_func_ptr = SumOsc_readframes_iai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(SumOsc_readframes_iai);
             break;
 
         case 11:
-            self->proc_func_ptr = SumOsc_readframes_aai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(SumOsc_readframes_aai);
             break;
 
         case 100:
-            self->proc_func_ptr = SumOsc_readframes_iia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(SumOsc_readframes_iia);
             break;
 
         case 101:
-            self->proc_func_ptr = SumOsc_readframes_aia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(SumOsc_readframes_aia);
             break;
 
         case 110:
-            self->proc_func_ptr = SumOsc_readframes_iaa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(SumOsc_readframes_iaa);
             break;
 
         case 111:
-            self->proc_func_ptr = SumOsc_readframes_aaa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(SumOsc_readframes_aaa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = SumOsc_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SumOsc_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = SumOsc_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SumOsc_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = SumOsc_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SumOsc_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = SumOsc_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SumOsc_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = SumOsc_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SumOsc_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = SumOsc_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SumOsc_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = SumOsc_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SumOsc_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = SumOsc_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SumOsc_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = SumOsc_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SumOsc_postprocessing_revareva);
             break;
     }
 }
@@ -10596,7 +9584,7 @@ SumOsc_dealloc(SumOsc* self)
 {
     pyo_DEALLOC
     SumOsc_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -10622,8 +9610,8 @@ SumOsc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->xn1 = self->yn1 = 0.0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, SumOsc_compute_next_data_frame);
-    self->mode_func_ptr = SumOsc_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(SumOsc_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(SumOsc_setProcMode);
 
     self->scaleFactor = 512.0 / self->sr;
 
@@ -10719,85 +9707,39 @@ static PyMethodDef SumOsc_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods SumOsc_as_number =
-{
-    (binaryfunc)SumOsc_add,                      /*nb_add*/
-    (binaryfunc)SumOsc_sub,                 /*nb_subtract*/
-    (binaryfunc)SumOsc_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)SumOsc_inplace_add,              /*inplace_add*/
-    (binaryfunc)SumOsc_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)SumOsc_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)SumOsc_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)SumOsc_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot SumOscType_slots[] = {
+    {Py_tp_dealloc, SumOsc_dealloc},
+    {Py_tp_doc, "SumOsc objects. Infite summation oscillator."},
+    {Py_tp_traverse, SumOsc_traverse},
+    {Py_tp_clear, SumOsc_clear},
+    {Py_tp_methods, SumOsc_methods},
+    {Py_tp_members, SumOsc_members},
+    {Py_tp_new, SumOsc_new},
+    {Py_nb_add, SumOsc_add},
+    {Py_nb_subtract, SumOsc_sub},
+    {Py_nb_multiply, SumOsc_multiply},
+    {Py_nb_true_divide, SumOsc_div},
+    {Py_nb_inplace_add, SumOsc_inplace_add},
+    {Py_nb_inplace_subtract, SumOsc_inplace_sub},
+    {Py_nb_inplace_multiply, SumOsc_inplace_multiply},
+    {Py_nb_inplace_true_divide, SumOsc_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject SumOscType =
+static PyType_Spec SumOscType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.SumOsc_base",         /*tp_name*/
-    sizeof(SumOsc),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)SumOsc_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &SumOsc_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "SumOsc objects. Infite summation oscillator.",           /* tp_doc */
-    (traverseproc)SumOsc_traverse,   /* tp_traverse */
-    (inquiry)SumOsc_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    SumOsc_methods,             /* tp_methods */
-    SumOsc_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    SumOsc_new,                 /* tp_new */
+    "_pyo.SumOsc_base",
+    sizeof(SumOsc),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    SumOscType_slots
 };
+
+PyTypeObject *
+PyoCreateSumOscType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &SumOscType_spec, NULL);
+}
 
 static MYFLT SUPERSAW_DETUNES[7][128] = {{1.0, 0.9999999999999738, 0.9999999999983218, 0.9999999999808844, 0.9999999998925958, 0.9999999995902856, 0.9999999987765995, 0.999999996915041, 0.9999999931261337, 0.9999999860647035, 0.9999999737782811, 0.9999999535466255, 0.999999921702367, 0.9999998734327713, 0.9999998025626238, 0.9999997013182335, 0.9999995600725585, 0.9999993670714514, 0.999999108141024, 0.9999987663761343, 0.999998321809992, 0.9999977510648862, 0.9999970269840314, 0.9999961182445354, 0.9999949889514873, 0.9999935982131656, 0.999991899697366, 0.9999898411688514, 0.9999873640079204, 0.999984402710097, 0.9999808843669409, 0.9999767281279772, 0.9999718446437478, 0.9999661354899821, 0.9999594925728883, 0.9999517975155655, 0.9999429210255355, 0.9999327222433956, 0.9999210480725913, 0.9999077324903094, 0.9998925958394921, 0.9998754441019703, 0.9998560681527183, 0.9998342429952286, 0.9998097269780065, 0.9997822609921857, 0.9997515676502643, 0.9997173504459607, 0.99967929289519, 0.9996370576581611, 0.9995902856425938, 0.9995385950880562, 0.999481580631423, 0.9994188123534535, 0.9993498348064905, 0.9992741660232791, 0.999191296506906, 0.9991006882018598, 0.9990017734462106, 0.9988939539049104, 0.9987765994842147, 0.9986490472272227, 0.9985106001905395, 0.9983605263020577, 0.9981980571998603, 0.9980223870522424, 0.9978326713588549, 0.9976280257329677, 0.9974075246648535, 0.9971702002662917, 0.996915040996193, 0.9966409903673441, 0.9963469456342734, 0.9960317564622357, 0.995694223577319, 0.9953330973976697, 0.9949470766458405, 0.9945348069422566, 0.994094879379803, 0.9936258290795327, 0.9931261337274945, 0.9925942120926815, 0.9920284225260998, 0.9914270614409579, 0.9907883617739762, 0.9901104914278165, 0.9893915516946329, 0.988629575660742, 0.9878225265924139, 0.9869682963027838, 0.9860647034998833, 0.985109492115793, 0.9841003296169146, 0.9830348052953636, 0.9819104285414826, 0.9807246270974751, 0.9794747452921589, 0.9781580422568408, 0.9767716901223106, 0.9753127721969568, 0.9737782811260014, 0.9721651170318559, 0.9704700856355972, 0.9686898963595642, 0.9668211604110741, 0.9648603888472602, 0.9628039906210292, 0.9606482706081385, 0.9583894276153956, 0.9560235523699754, 0.9535466254898602, 0.9509545154353983, 0.9482429764419842, 0.9454076464338582, 0.9424440449190272, 0.9393475708653054, 0.9361135005574749, 0.9327369854355683, 0.9292130499142693, 0.9255365891834358, 0.9217023669897422, 0.9177050133994422, 0.9135390225422524, 0.9091987503363557, 0.9046784121945255, 0.8999720807113701, 0.8950736833316975, 0.889977},
     {1.0, 0.999999999999985, 0.9999999999990408, 0.9999999999890743, 0.9999999999386124, 0.999999999765825, 0.999999999300757, 0.9999999982367705, 0.9999999960711946, 0.9999999920351857, 0.9999999850127967, 0.9999999734492553, 0.999999955248451, 0.9999999276596326, 0.9999998871533139, 0.9999998292863885, 0.9999997485564546, 0.9999996382453485, 0.9999994902518874, 0.9999992949138214, 0.9999990408189948, 0.9999987146057163, 0.9999983007523392, 0.9999977813560498, 0.9999971359008654, 0.9999963410148422, 0.9999953702164914, 0.9999941936504051, 0.9999927778120908, 0.9999910852620164, 0.9999890743288626, 0.9999866988019865, 0.9999839076130926, 0.9999806445071142, 0.9999768477023036, 0.9999724495395311, 0.9999673761207947, 0.9999615469369367, 0.999954874484572, 0.9999472638722232, 0.9999386124156673, 0.9999288092224893, 0.9999177347658472, 0.9999052604474442, 0.9998912481497119, 0.9998755497772012, 0.9998580067871834, 0.9998384497094605, 0.9998166976553837, 0.9997925578160827, 0.9997658249499025, 0.999736280859051, 0.9997036938554544, 0.9996678182158232, 0.9996283936259261, 0.9995851446140742, 0.9995377799738134, 0.9994859921758271, 0.9994294567690473, 0.9993678317709748, 0.9993007570472097, 0.9992278536801902, 0.9991487233271403, 0.9990629475672279, 0.9989700872379311, 0.998869681760614, 0.9987612484553119, 0.9986442818447255, 0.9985182529474248, 0.998382608560261, 0.9982367705299892, 0.998080135014099, 0.9979120717308554, 0.9977319231985478, 0.9975390039639489, 0.9973325998199832, 0.9971119670126036, 0.996876331436878, 0.9966248878222852, 0.9963567989072191, 0.9960711946027035, 0.9957671711453152, 0.9954437902393161, 0.9951000781879951, 0.9947350250142191, 0.9943475835701934, 0.9939366686364304, 0.9935011560099285, 0.9930398815815602, 0.9925516404026683, 0.9920351857408729, 0.9914892281250863, 0.9909124343797379, 0.9903034266482077, 0.9896607814054699, 0.9889830284599445, 0.9882686499445592, 0.9875160792970205, 0.9867237002292923, 0.9858898456862866, 0.9850127967937606, 0.984090781795425, 0.9831219749792602, 0.982104495593043, 0.9810364067490811, 0.9799157143181576, 0.978740365812685, 0.9775082492590679, 0.9762171920592747, 0.9748649598416194, 0.9734492553007513, 0.9719677170268558, 0.9704179183240623, 0.9687973660180627, 0.9671034992529387, 0.9653336882771985, 0.9634852332190221, 0.9615553628507172, 0.9595412333423818, 0.9574399270047795, 0.9552484510214205, 0.9529637361698543, 0.9505826355321707, 0.9481019231947095, 0.9455182929369806, 0.9428283569097924, 0.9400286443025894, 0.9371156},
@@ -11339,74 +10281,74 @@ SuperSaw_setProcMode(SuperSaw *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = SuperSaw_readframes_iii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(SuperSaw_readframes_iii);
             break;
 
         case 1:
-            self->proc_func_ptr = SuperSaw_readframes_aii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(SuperSaw_readframes_aii);
             break;
 
         case 10:
-            self->proc_func_ptr = SuperSaw_readframes_iai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(SuperSaw_readframes_iai);
             break;
 
         case 11:
-            self->proc_func_ptr = SuperSaw_readframes_aai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(SuperSaw_readframes_aai);
             break;
 
         case 100:
-            self->proc_func_ptr = SuperSaw_readframes_iia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(SuperSaw_readframes_iia);
             break;
 
         case 101:
-            self->proc_func_ptr = SuperSaw_readframes_aia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(SuperSaw_readframes_aia);
             break;
 
         case 110:
-            self->proc_func_ptr = SuperSaw_readframes_iaa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(SuperSaw_readframes_iaa);
             break;
 
         case 111:
-            self->proc_func_ptr = SuperSaw_readframes_aaa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(SuperSaw_readframes_aaa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = SuperSaw_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SuperSaw_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = SuperSaw_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SuperSaw_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = SuperSaw_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SuperSaw_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = SuperSaw_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SuperSaw_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = SuperSaw_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SuperSaw_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = SuperSaw_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SuperSaw_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = SuperSaw_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SuperSaw_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = SuperSaw_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SuperSaw_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = SuperSaw_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SuperSaw_postprocessing_revareva);
             break;
     }
 }
@@ -11443,7 +10385,7 @@ SuperSaw_dealloc(SuperSaw* self)
 {
     pyo_DEALLOC
     SuperSaw_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -11479,8 +10421,8 @@ SuperSaw_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->nyquist = (MYFLT)self->sr * 0.49;
 
-    Stream_setFunctionPtr(self->stream, SuperSaw_compute_next_data_frame);
-    self->mode_func_ptr = SuperSaw_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(SuperSaw_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(SuperSaw_setProcMode);
 
     static char *kwlist[] = {"freq", "detune", "bal", "mul", "add", NULL};
 
@@ -11574,85 +10516,39 @@ static PyMethodDef SuperSaw_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods SuperSaw_as_number =
-{
-    (binaryfunc)SuperSaw_add,                      /*nb_add*/
-    (binaryfunc)SuperSaw_sub,                 /*nb_subtract*/
-    (binaryfunc)SuperSaw_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)SuperSaw_inplace_add,              /*inplace_add*/
-    (binaryfunc)SuperSaw_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)SuperSaw_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)SuperSaw_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)SuperSaw_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot SuperSawType_slots[] = {
+    {Py_tp_dealloc, SuperSaw_dealloc},
+    {Py_tp_doc, "SuperSaw objects. detune incrementor from 0 to 1."},
+    {Py_tp_traverse, SuperSaw_traverse},
+    {Py_tp_clear, SuperSaw_clear},
+    {Py_tp_methods, SuperSaw_methods},
+    {Py_tp_members, SuperSaw_members},
+    {Py_tp_new, SuperSaw_new},
+    {Py_nb_add, SuperSaw_add},
+    {Py_nb_subtract, SuperSaw_sub},
+    {Py_nb_multiply, SuperSaw_multiply},
+    {Py_nb_true_divide, SuperSaw_div},
+    {Py_nb_inplace_add, SuperSaw_inplace_add},
+    {Py_nb_inplace_subtract, SuperSaw_inplace_sub},
+    {Py_nb_inplace_multiply, SuperSaw_inplace_multiply},
+    {Py_nb_inplace_true_divide, SuperSaw_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject SuperSawType =
+static PyType_Spec SuperSawType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.SuperSaw_base",         /*tp_name*/
-    sizeof(SuperSaw),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)SuperSaw_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &SuperSaw_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "SuperSaw objects. detune incrementor from 0 to 1.",           /* tp_doc */
-    (traverseproc)SuperSaw_traverse,   /* tp_traverse */
-    (inquiry)SuperSaw_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    SuperSaw_methods,             /* tp_methods */
-    SuperSaw_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    SuperSaw_new,                 /* tp_new */
+    "_pyo.SuperSaw_base",
+    sizeof(SuperSaw),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    SuperSawType_slots
 };
+
+PyTypeObject *
+PyoCreateSuperSawType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &SuperSawType_spec, NULL);
+}
 
 /**************/
 /* RCOsc object */
@@ -11830,58 +10726,58 @@ RCOsc_setProcMode(RCOsc *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = RCOsc_readframes_ii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(RCOsc_readframes_ii);
             break;
 
         case 1:
-            self->proc_func_ptr = RCOsc_readframes_ai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(RCOsc_readframes_ai);
             break;
 
         case 10:
-            self->proc_func_ptr = RCOsc_readframes_ia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(RCOsc_readframes_ia);
             break;
 
         case 11:
-            self->proc_func_ptr = RCOsc_readframes_aa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(RCOsc_readframes_aa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = RCOsc_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RCOsc_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = RCOsc_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RCOsc_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = RCOsc_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RCOsc_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = RCOsc_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RCOsc_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = RCOsc_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RCOsc_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = RCOsc_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RCOsc_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = RCOsc_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RCOsc_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = RCOsc_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RCOsc_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = RCOsc_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RCOsc_postprocessing_revareva);
             break;
     }
 }
@@ -11916,7 +10812,7 @@ RCOsc_dealloc(RCOsc* self)
 {
     pyo_DEALLOC
     RCOsc_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -11939,8 +10835,8 @@ RCOsc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->pointerPos = 0.;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, RCOsc_compute_next_data_frame);
-    self->mode_func_ptr = RCOsc_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(RCOsc_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(RCOsc_setProcMode);
 
     static char *kwlist[] = {"freq", "sharp", "mul", "add", NULL};
 
@@ -12034,85 +10930,39 @@ static PyMethodDef RCOsc_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods RCOsc_as_number =
-{
-    (binaryfunc)RCOsc_add,                      /*nb_add*/
-    (binaryfunc)RCOsc_sub,                 /*nb_subtract*/
-    (binaryfunc)RCOsc_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)RCOsc_inplace_add,              /*inplace_add*/
-    (binaryfunc)RCOsc_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)RCOsc_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)RCOsc_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)RCOsc_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot RCOscType_slots[] = {
+    {Py_tp_dealloc, RCOsc_dealloc},
+    {Py_tp_doc, "RCOsc objects. Waveform simulation of of a RC circuit."},
+    {Py_tp_traverse, RCOsc_traverse},
+    {Py_tp_clear, RCOsc_clear},
+    {Py_tp_methods, RCOsc_methods},
+    {Py_tp_members, RCOsc_members},
+    {Py_tp_new, RCOsc_new},
+    {Py_nb_add, RCOsc_add},
+    {Py_nb_subtract, RCOsc_sub},
+    {Py_nb_multiply, RCOsc_multiply},
+    {Py_nb_true_divide, RCOsc_div},
+    {Py_nb_inplace_add, RCOsc_inplace_add},
+    {Py_nb_inplace_subtract, RCOsc_inplace_sub},
+    {Py_nb_inplace_multiply, RCOsc_inplace_multiply},
+    {Py_nb_inplace_true_divide, RCOsc_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject RCOscType =
+static PyType_Spec RCOscType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.RCOsc_base",         /*tp_name*/
-    sizeof(RCOsc),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)RCOsc_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &RCOsc_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "RCOsc objects. Waveform simulation of of a RC circuit.",           /* tp_doc */
-    (traverseproc)RCOsc_traverse,   /* tp_traverse */
-    (inquiry)RCOsc_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    RCOsc_methods,             /* tp_methods */
-    RCOsc_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    RCOsc_new,                 /* tp_new */
+    "_pyo.RCOsc_base",
+    sizeof(RCOsc),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    RCOscType_slots
 };
+
+PyTypeObject *
+PyoCreateRCOscType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &RCOscType_spec, NULL);
+}
 
 /**************/
 /* TableScale object */
@@ -12217,19 +11067,19 @@ TableScale_setProcMode(TableScale *self)
     switch (muladdmode)
     {
         case 0:
-            self->proc_func_ptr = TableScale_readframes_ii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(TableScale_readframes_ii);
             break;
 
         case 1:
-            self->proc_func_ptr = TableScale_readframes_ai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(TableScale_readframes_ai);
             break;
 
         case 10:
-            self->proc_func_ptr = TableScale_readframes_ia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(TableScale_readframes_ia);
             break;
 
         case 11:
-            self->proc_func_ptr = TableScale_readframes_aa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(TableScale_readframes_aa);
             break;
     }
 }
@@ -12259,7 +11109,7 @@ TableScale_dealloc(TableScale* self)
 {
     pyo_DEALLOC
     TableScale_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -12277,8 +11127,8 @@ TableScale_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, TableScale_compute_next_data_frame);
-    self->mode_func_ptr = TableScale_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(TableScale_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(TableScale_setProcMode);
 
     static char *kwlist[] = {"table", "outtable", "mul", "add", NULL};
 
@@ -12405,85 +11255,39 @@ static PyMethodDef TableScale_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods TableScale_as_number =
-{
-    (binaryfunc)TableScale_add,                      /*nb_add*/
-    (binaryfunc)TableScale_sub,                 /*nb_subtract*/
-    (binaryfunc)TableScale_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)TableScale_inplace_add,              /*inplace_add*/
-    (binaryfunc)TableScale_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)TableScale_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)TableScale_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)TableScale_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot TableScaleType_slots[] = {
+    {Py_tp_dealloc, TableScale_dealloc},
+    {Py_tp_doc, "TableScale objects. Scale a PyoTable and save the result in another table."},
+    {Py_tp_traverse, TableScale_traverse},
+    {Py_tp_clear, TableScale_clear},
+    {Py_tp_methods, TableScale_methods},
+    {Py_tp_members, TableScale_members},
+    {Py_tp_new, TableScale_new},
+    {Py_nb_add, TableScale_add},
+    {Py_nb_subtract, TableScale_sub},
+    {Py_nb_multiply, TableScale_multiply},
+    {Py_nb_true_divide, TableScale_div},
+    {Py_nb_inplace_add, TableScale_inplace_add},
+    {Py_nb_inplace_subtract, TableScale_inplace_sub},
+    {Py_nb_inplace_multiply, TableScale_inplace_multiply},
+    {Py_nb_inplace_true_divide, TableScale_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject TableScaleType =
+static PyType_Spec TableScaleType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.TableScale_base",         /*tp_name*/
-    sizeof(TableScale),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)TableScale_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &TableScale_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "TableScale objects. Scale a PyoTable and save the result in another table.",           /* tp_doc */
-    (traverseproc)TableScale_traverse,   /* tp_traverse */
-    (inquiry)TableScale_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    TableScale_methods,             /* tp_methods */
-    TableScale_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    TableScale_new,                 /* tp_new */
+    "_pyo.TableScale_base",
+    sizeof(TableScale),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    TableScaleType_slots
 };
+
+PyTypeObject *
+PyoCreateTableScaleType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &TableScaleType_spec, NULL);
+}
 
 /******************************/
 /* TableFill object definition */
@@ -12535,7 +11339,7 @@ TableFill_dealloc(TableFill* self)
 {
     pyo_DEALLOC
     TableFill_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -12553,7 +11357,7 @@ TableFill_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
 
-    Stream_setFunctionPtr(self->stream, TableFill_compute_next_data_frame);
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(TableFill_compute_next_data_frame));
 
     static char *kwlist[] = {"input", "table", NULL};
 
@@ -12625,47 +11429,31 @@ static PyMethodDef TableFill_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject TableFillType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.TableFill_base",         /*tp_name*/
-    sizeof(TableFill),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)TableFill_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "TableFill objects. Fill a table object with values in input.",           /* tp_doc */
-    (traverseproc)TableFill_traverse,   /* tp_traverse */
-    (inquiry)TableFill_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    TableFill_methods,             /* tp_methods */
-    TableFill_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    TableFill_new,                 /* tp_new */
+static PyType_Slot TableFillType_slots[] = {
+    {Py_tp_dealloc, TableFill_dealloc},
+    {Py_tp_doc, "TableFill objects. Fill a table object with values in input."},
+    {Py_tp_traverse, TableFill_traverse},
+    {Py_tp_clear, TableFill_clear},
+    {Py_tp_methods, TableFill_methods},
+    {Py_tp_members, TableFill_members},
+    {Py_tp_new, TableFill_new},
+    {0, NULL}
 };
+
+static PyType_Spec TableFillType_spec =
+{
+    "_pyo.TableFill_base",
+    sizeof(TableFill),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    TableFillType_slots
+};
+
+PyTypeObject *
+PyoCreateTableFillType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &TableFillType_spec, NULL);
+}
 
 /**************/
 /* TableScan object */
@@ -12710,44 +11498,44 @@ TableScan_setProcMode(TableScan *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = TableScan_readframes;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(TableScan_readframes);
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = TableScan_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableScan_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = TableScan_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableScan_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = TableScan_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableScan_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = TableScan_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableScan_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = TableScan_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableScan_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = TableScan_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableScan_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = TableScan_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableScan_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = TableScan_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableScan_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = TableScan_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableScan_postprocessing_revareva);
             break;
     }
 }
@@ -12778,7 +11566,7 @@ TableScan_dealloc(TableScan* self)
 {
     pyo_DEALLOC
     TableScan_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -12797,8 +11585,8 @@ TableScan_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->pointerPos = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, TableScan_compute_next_data_frame);
-    self->mode_func_ptr = TableScan_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(TableScan_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(TableScan_setProcMode);
 
     static char *kwlist[] = {"table", "mul", "add", NULL};
 
@@ -12913,82 +11701,36 @@ static PyMethodDef TableScan_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods TableScan_as_number =
-{
-    (binaryfunc)TableScan_add,                      /*nb_add*/
-    (binaryfunc)TableScan_sub,                 /*nb_subtract*/
-    (binaryfunc)TableScan_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)TableScan_inplace_add,              /*inplace_add*/
-    (binaryfunc)TableScan_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)TableScan_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)TableScan_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)TableScan_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot TableScanType_slots[] = {
+    {Py_tp_dealloc, TableScan_dealloc},
+    {Py_tp_doc, "TableScan objects. Scan the content of a table in loop."},
+    {Py_tp_traverse, TableScan_traverse},
+    {Py_tp_clear, TableScan_clear},
+    {Py_tp_methods, TableScan_methods},
+    {Py_tp_members, TableScan_members},
+    {Py_tp_new, TableScan_new},
+    {Py_nb_add, TableScan_add},
+    {Py_nb_subtract, TableScan_sub},
+    {Py_nb_multiply, TableScan_multiply},
+    {Py_nb_true_divide, TableScan_div},
+    {Py_nb_inplace_add, TableScan_inplace_add},
+    {Py_nb_inplace_subtract, TableScan_inplace_sub},
+    {Py_nb_inplace_multiply, TableScan_inplace_multiply},
+    {Py_nb_inplace_true_divide, TableScan_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject TableScanType =
+static PyType_Spec TableScanType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.TableScan_base",         /*tp_name*/
-    sizeof(TableScan),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)TableScan_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &TableScan_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "TableScan objects. Scan the content of a table in loop.",           /* tp_doc */
-    (traverseproc)TableScan_traverse,   /* tp_traverse */
-    (inquiry)TableScan_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    TableScan_methods,             /* tp_methods */
-    TableScan_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    TableScan_new,                 /* tp_new */
+    "_pyo.TableScan_base",
+    sizeof(TableScan),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    TableScanType_slots
 };
+
+PyTypeObject *
+PyoCreateTableScanType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &TableScanType_spec, NULL);
+}

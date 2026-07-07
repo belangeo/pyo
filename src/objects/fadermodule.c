@@ -181,46 +181,46 @@ Fader_setProcMode(Fader *self)
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
     if (self->duration == 0.0)
-        self->proc_func_ptr = Fader_generate_wait;
+        self->proc_func_ptr = PYO_AUDIO_CALLBACK(Fader_generate_wait);
     else
-        self->proc_func_ptr = Fader_generate_auto;
+        self->proc_func_ptr = PYO_AUDIO_CALLBACK(Fader_generate_auto);
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Fader_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Fader_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Fader_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Fader_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Fader_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Fader_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Fader_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Fader_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Fader_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Fader_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Fader_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Fader_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Fader_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Fader_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Fader_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Fader_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Fader_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Fader_postprocessing_revareva);
             break;
     }
 }
@@ -252,7 +252,7 @@ Fader_dealloc(Fader* self)
     pyo_DEALLOC
     PyMem_RawFree(self->trigsBuffer);
     Fader_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -281,8 +281,8 @@ Fader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->currentVal = 0.0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Fader_compute_next_data_frame);
-    self->mode_func_ptr = Fader_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Fader_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Fader_setProcMode);
 
     self->sampleToSec = 1. / self->sr;
 
@@ -421,85 +421,39 @@ static PyMethodDef Fader_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Fader_as_number =
-{
-    (binaryfunc)Fader_add,                      /*nb_add*/
-    (binaryfunc)Fader_sub,                 /*nb_subtract*/
-    (binaryfunc)Fader_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Fader_inplace_add,              /*inplace_add*/
-    (binaryfunc)Fader_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Fader_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Fader_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Fader_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot FaderType_slots[] = {
+    {Py_tp_dealloc, Fader_dealloc},
+    {Py_tp_doc, "Fader objects. Generates fadin and fadeout signal."},
+    {Py_tp_traverse, Fader_traverse},
+    {Py_tp_clear, Fader_clear},
+    {Py_tp_methods, Fader_methods},
+    {Py_tp_members, Fader_members},
+    {Py_nb_add, Fader_add},
+    {Py_nb_subtract, Fader_sub},
+    {Py_nb_multiply, Fader_multiply},
+    {Py_nb_true_divide, Fader_div},
+    {Py_nb_inplace_add, Fader_inplace_add},
+    {Py_nb_inplace_subtract, Fader_inplace_sub},
+    {Py_nb_inplace_multiply, Fader_inplace_multiply},
+    {Py_nb_inplace_true_divide, Fader_inplace_div},
+    {Py_tp_new, Fader_new},
+    {0, NULL}
 };
 
-PyTypeObject FaderType =
+static PyType_Spec FaderType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Fader_base",         /*tp_name*/
-    sizeof(Fader),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Fader_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Fader_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Fader objects. Generates fadin and fadeout signal.",           /* tp_doc */
-    (traverseproc)Fader_traverse,   /* tp_traverse */
-    (inquiry)Fader_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Fader_methods,             /* tp_methods */
-    Fader_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Fader_new,                 /* tp_new */
+    "_pyo.Fader_base",
+    sizeof(Fader),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    FaderType_slots
 };
+
+PyTypeObject *
+PyoCreateFaderType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &FaderType_spec, NULL);
+}
 
 typedef struct
 {
@@ -661,46 +615,46 @@ Adsr_setProcMode(Adsr *self)
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
     if (self->duration == 0.0)
-        self->proc_func_ptr = Adsr_generate_wait;
+        self->proc_func_ptr = PYO_AUDIO_CALLBACK(Adsr_generate_wait);
     else
-        self->proc_func_ptr = Adsr_generate_auto;
+        self->proc_func_ptr = PYO_AUDIO_CALLBACK(Adsr_generate_auto);
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Adsr_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Adsr_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Adsr_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Adsr_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Adsr_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Adsr_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Adsr_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Adsr_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Adsr_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Adsr_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Adsr_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Adsr_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Adsr_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Adsr_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Adsr_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Adsr_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Adsr_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Adsr_postprocessing_revareva);
             break;
     }
 }
@@ -732,7 +686,7 @@ Adsr_dealloc(Adsr* self)
     pyo_DEALLOC
     PyMem_RawFree(self->trigsBuffer);
     Adsr_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -763,8 +717,8 @@ Adsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->ended = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Adsr_compute_next_data_frame);
-    self->mode_func_ptr = Adsr_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Adsr_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Adsr_setProcMode);
 
     self->sampleToSec = 1. / self->sr;
 
@@ -968,85 +922,39 @@ static PyMethodDef Adsr_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Adsr_as_number =
-{
-    (binaryfunc)Adsr_add,                      /*nb_add*/
-    (binaryfunc)Adsr_sub,                 /*nb_subtract*/
-    (binaryfunc)Adsr_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Adsr_inplace_add,              /*inplace_add*/
-    (binaryfunc)Adsr_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Adsr_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Adsr_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Adsr_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot AdsrType_slots[] = {
+    {Py_tp_dealloc, Adsr_dealloc},
+    {Py_tp_doc, "Adsr objects. Generates Adsr envelope signal."},
+    {Py_tp_traverse, Adsr_traverse},
+    {Py_tp_clear, Adsr_clear},
+    {Py_tp_methods, Adsr_methods},
+    {Py_tp_members, Adsr_members},
+    {Py_nb_add, Adsr_add},
+    {Py_nb_subtract, Adsr_sub},
+    {Py_nb_multiply, Adsr_multiply},
+    {Py_nb_true_divide, Adsr_div},
+    {Py_nb_inplace_add, Adsr_inplace_add},
+    {Py_nb_inplace_subtract, Adsr_inplace_sub},
+    {Py_nb_inplace_multiply, Adsr_inplace_multiply},
+    {Py_nb_inplace_true_divide, Adsr_inplace_div},
+    {Py_tp_new, Adsr_new},
+    {0, NULL}
 };
 
-PyTypeObject AdsrType =
+static PyType_Spec AdsrType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Adsr_base",         /*tp_name*/
-    sizeof(Adsr),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Adsr_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Adsr_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Adsr objects. Generates Adsr envelope signal.",           /* tp_doc */
-    (traverseproc)Adsr_traverse,   /* tp_traverse */
-    (inquiry)Adsr_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Adsr_methods,             /* tp_methods */
-    Adsr_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Adsr_new,                 /* tp_new */
+    "_pyo.Adsr_base",
+    sizeof(Adsr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    AdsrType_slots
 };
+
+PyTypeObject *
+PyoCreateAdsrType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &AdsrType_spec, NULL);
+}
 
 typedef struct
 {
@@ -1172,44 +1080,44 @@ Linseg_setProcMode(Linseg *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = Linseg_generate;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(Linseg_generate);
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Linseg_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Linseg_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Linseg_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Linseg_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Linseg_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Linseg_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Linseg_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Linseg_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Linseg_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Linseg_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Linseg_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Linseg_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Linseg_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Linseg_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Linseg_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Linseg_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Linseg_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Linseg_postprocessing_revareva);
             break;
     }
 }
@@ -1244,7 +1152,7 @@ Linseg_dealloc(Linseg* self)
     PyMem_RawFree(self->targets);
     PyMem_RawFree(self->times);
     Linseg_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1265,8 +1173,8 @@ Linseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Linseg_compute_next_data_frame);
-    self->mode_func_ptr = Linseg_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Linseg_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Linseg_setProcMode);
 
     self->sampleToSec = 1. / self->sr;
 
@@ -1417,85 +1325,39 @@ static PyMethodDef Linseg_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Linseg_as_number =
-{
-    (binaryfunc)Linseg_add,                      /*nb_add*/
-    (binaryfunc)Linseg_sub,                 /*nb_subtract*/
-    (binaryfunc)Linseg_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Linseg_inplace_add,              /*inplace_add*/
-    (binaryfunc)Linseg_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Linseg_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Linseg_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Linseg_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot LinsegType_slots[] = {
+    {Py_tp_dealloc, Linseg_dealloc},
+    {Py_tp_doc, "Linseg objects. Generates a linear segments break-points line."},
+    {Py_tp_traverse, Linseg_traverse},
+    {Py_tp_clear, Linseg_clear},
+    {Py_tp_methods, Linseg_methods},
+    {Py_tp_members, Linseg_members},
+    {Py_nb_add, Linseg_add},
+    {Py_nb_subtract, Linseg_sub},
+    {Py_nb_multiply, Linseg_multiply},
+    {Py_nb_true_divide, Linseg_div},
+    {Py_nb_inplace_add, Linseg_inplace_add},
+    {Py_nb_inplace_subtract, Linseg_inplace_sub},
+    {Py_nb_inplace_multiply, Linseg_inplace_multiply},
+    {Py_nb_inplace_true_divide, Linseg_inplace_div},
+    {Py_tp_new, Linseg_new},
+    {0, NULL}
 };
 
-PyTypeObject LinsegType =
+static PyType_Spec LinsegType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Linseg_base",         /*tp_name*/
-    sizeof(Linseg),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Linseg_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Linseg_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Linseg objects. Generates a linear segments break-points line.",           /* tp_doc */
-    (traverseproc)Linseg_traverse,   /* tp_traverse */
-    (inquiry)Linseg_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Linseg_methods,             /* tp_methods */
-    Linseg_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Linseg_new,                 /* tp_new */
+    "_pyo.Linseg_base",
+    sizeof(Linseg),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    LinsegType_slots
 };
+
+PyTypeObject *
+PyoCreateLinsegType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &LinsegType_spec, NULL);
+}
 
 typedef struct
 {
@@ -1640,44 +1502,44 @@ Expseg_setProcMode(Expseg *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = Expseg_generate;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(Expseg_generate);
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Expseg_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Expseg_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Expseg_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Expseg_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Expseg_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Expseg_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Expseg_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Expseg_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Expseg_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Expseg_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Expseg_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Expseg_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Expseg_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Expseg_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Expseg_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Expseg_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Expseg_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Expseg_postprocessing_revareva);
             break;
     }
 }
@@ -1712,7 +1574,7 @@ Expseg_dealloc(Expseg* self)
     PyMem_RawFree(self->targets);
     PyMem_RawFree(self->times);
     Expseg_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1735,8 +1597,8 @@ Expseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Expseg_compute_next_data_frame);
-    self->mode_func_ptr = Expseg_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Expseg_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Expseg_setProcMode);
 
     self->sampleToSec = 1. / self->sr;
 
@@ -1911,82 +1773,36 @@ static PyMethodDef Expseg_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Expseg_as_number =
-{
-    (binaryfunc)Expseg_add,                      /*nb_add*/
-    (binaryfunc)Expseg_sub,                 /*nb_subtract*/
-    (binaryfunc)Expseg_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Expseg_inplace_add,              /*inplace_add*/
-    (binaryfunc)Expseg_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Expseg_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Expseg_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Expseg_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot ExpsegType_slots[] = {
+    {Py_tp_dealloc, Expseg_dealloc},
+    {Py_tp_doc, "Expseg objects. Generates a linear segments break-points line."},
+    {Py_tp_traverse, Expseg_traverse},
+    {Py_tp_clear, Expseg_clear},
+    {Py_tp_methods, Expseg_methods},
+    {Py_tp_members, Expseg_members},
+    {Py_nb_add, Expseg_add},
+    {Py_nb_subtract, Expseg_sub},
+    {Py_nb_multiply, Expseg_multiply},
+    {Py_nb_true_divide, Expseg_div},
+    {Py_nb_inplace_add, Expseg_inplace_add},
+    {Py_nb_inplace_subtract, Expseg_inplace_sub},
+    {Py_nb_inplace_multiply, Expseg_inplace_multiply},
+    {Py_nb_inplace_true_divide, Expseg_inplace_div},
+    {Py_tp_new, Expseg_new},
+    {0, NULL}
 };
 
-PyTypeObject ExpsegType =
+static PyType_Spec ExpsegType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Expseg_base",         /*tp_name*/
-    sizeof(Expseg),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Expseg_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Expseg_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Expseg objects. Generates a linear segments break-points line.",           /* tp_doc */
-    (traverseproc)Expseg_traverse,   /* tp_traverse */
-    (inquiry)Expseg_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Expseg_methods,             /* tp_methods */
-    Expseg_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Expseg_new,                 /* tp_new */
+    "_pyo.Expseg_base",
+    sizeof(Expseg),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    ExpsegType_slots
 };
+
+PyTypeObject *
+PyoCreateExpsegType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &ExpsegType_spec, NULL);
+}

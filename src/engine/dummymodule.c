@@ -130,7 +130,7 @@ Dummy_dealloc(Dummy* self)
 {
     pyo_DEALLOC
     Dummy_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -151,7 +151,7 @@ Dummy_initialize(Dummy *self)
     self->modebuffer[2] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Dummy_compute_next_data_frame);
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Dummy_compute_next_data_frame));
     self->mode_func_ptr = PYO_AUDIO_CALLBACK(Dummy_setProcMode);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -236,85 +236,40 @@ static PyMethodDef Dummy_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Dummy_as_number =
+static PyType_Slot DummyType_slots[] =
 {
-    (binaryfunc)Dummy_add,                         /*nb_add*/
-    (binaryfunc)Dummy_sub,                         /*nb_subtract*/
-    (binaryfunc)Dummy_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)Dummy_inplace_add,                 /*inplace_add*/
-    (binaryfunc)Dummy_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)Dummy_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)Dummy_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)Dummy_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+    {Py_tp_dealloc, Dummy_dealloc},
+    {Py_tp_doc, "Dummy objects."},
+    {Py_tp_traverse, Dummy_traverse},
+    {Py_tp_clear, Dummy_clear},
+    {Py_tp_methods, Dummy_methods},
+    {Py_tp_members, Dummy_members},
+    {Py_nb_add, Dummy_add},
+    {Py_nb_subtract, Dummy_sub},
+    {Py_nb_multiply, Dummy_multiply},
+    {Py_nb_true_divide, Dummy_div},
+    {Py_nb_inplace_add, Dummy_inplace_add},
+    {Py_nb_inplace_subtract, Dummy_inplace_sub},
+    {Py_nb_inplace_multiply, Dummy_inplace_multiply},
+    {Py_nb_inplace_true_divide, Dummy_inplace_div},
+    {Py_tp_new, PyType_GenericNew},
+    {0, NULL}
 };
 
-PyTypeObject DummyType =
+static PyType_Spec DummyType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Dummy_base",                                   /*tp_name*/
-    sizeof(Dummy),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)Dummy_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    &Dummy_as_number,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Dummy objects.",                               /* tp_doc */
-    (traverseproc)Dummy_traverse,                  /* tp_traverse */
-    (inquiry)Dummy_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    Dummy_methods,                                 /* tp_methods */
-    Dummy_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    0,                                     /* tp_new */
+    "_pyo.Dummy_base",
+    sizeof(Dummy),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    DummyType_slots
 };
+
+PyTypeObject *
+PyoCreateDummyType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &DummyType_spec, NULL);
+}
 
 /************************************************************************************************/
 /* TriggerDummy streamer */
@@ -418,7 +373,7 @@ TriggerDummy_dealloc(TriggerDummy* self)
 {
     pyo_DEALLOC
     TriggerDummy_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -436,7 +391,7 @@ TriggerDummy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, TriggerDummy_compute_next_data_frame);
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(TriggerDummy_compute_next_data_frame));
     self->mode_func_ptr = PYO_AUDIO_CALLBACK(TriggerDummy_setProcMode);
 
     static char *kwlist[] = {"input", NULL};
@@ -495,82 +450,37 @@ static PyMethodDef TriggerDummy_methods[] =
     {"setDiv", (PyCFunction)TriggerDummy_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
-static PyNumberMethods TriggerDummy_as_number =
+static PyType_Slot TriggerDummyType_slots[] =
 {
-    (binaryfunc)TriggerDummy_add,                         /*nb_add*/
-    (binaryfunc)TriggerDummy_sub,                         /*nb_subtract*/
-    (binaryfunc)TriggerDummy_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)TriggerDummy_inplace_add,                 /*inplace_add*/
-    (binaryfunc)TriggerDummy_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)TriggerDummy_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)TriggerDummy_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)TriggerDummy_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+    {Py_tp_dealloc, TriggerDummy_dealloc},
+    {Py_tp_doc, "TriggerDummy objects. Sends trigger at the end of playback."},
+    {Py_tp_traverse, TriggerDummy_traverse},
+    {Py_tp_clear, TriggerDummy_clear},
+    {Py_tp_methods, TriggerDummy_methods},
+    {Py_tp_members, TriggerDummy_members},
+    {Py_nb_add, TriggerDummy_add},
+    {Py_nb_subtract, TriggerDummy_sub},
+    {Py_nb_multiply, TriggerDummy_multiply},
+    {Py_nb_true_divide, TriggerDummy_div},
+    {Py_nb_inplace_add, TriggerDummy_inplace_add},
+    {Py_nb_inplace_subtract, TriggerDummy_inplace_sub},
+    {Py_nb_inplace_multiply, TriggerDummy_inplace_multiply},
+    {Py_nb_inplace_true_divide, TriggerDummy_inplace_div},
+    {Py_tp_new, TriggerDummy_new},
+    {0, NULL}
 };
 
-PyTypeObject TriggerDummyType =
+static PyType_Spec TriggerDummyType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.TriggerDummy_base",         /*tp_name*/
-    sizeof(TriggerDummy),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)TriggerDummy_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &TriggerDummy_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "TriggerDummy objects. Sends trigger at the end of playback.",           /* tp_doc */
-    (traverseproc)TriggerDummy_traverse,   /* tp_traverse */
-    (inquiry)TriggerDummy_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    TriggerDummy_methods,             /* tp_methods */
-    TriggerDummy_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    TriggerDummy_new,                 /* tp_new */
+    "_pyo.TriggerDummy_base",
+    sizeof(TriggerDummy),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    TriggerDummyType_slots
 };
+
+PyTypeObject *
+PyoCreateTriggerDummyType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &TriggerDummyType_spec, NULL);
+}

@@ -196,7 +196,6 @@ extern unsigned long Server_getElapsedTime(Server *self);
 extern int Server_getCurrentResamplingFactor(Server *self);
 extern int Server_getLastResamplingFactor(Server *self);
 extern int Server_generateSeed(Server *self, int oid);
-extern PyTypeObject ServerType;
 void pyoGetMidiEvents(Server *self);
 void Server_process_buffers(Server *server);
 void Server_error(Server *self, char * format, ...);

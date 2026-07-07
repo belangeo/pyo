@@ -375,19 +375,19 @@ Chorus_setProcMode(Chorus *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Chorus_process_ii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Chorus_process_ii);
             break;
 
         case 1:
-            self->proc_func_ptr = Chorus_process_ai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Chorus_process_ai);
             break;
 
         case 10:
-            self->proc_func_ptr = Chorus_process_ia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Chorus_process_ia);
             break;
 
         case 11:
-            self->proc_func_ptr = Chorus_process_aa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Chorus_process_aa);
             break;
     }
 
@@ -405,39 +405,39 @@ Chorus_setProcMode(Chorus *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Chorus_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Chorus_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Chorus_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Chorus_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Chorus_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Chorus_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Chorus_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Chorus_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Chorus_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Chorus_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Chorus_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Chorus_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Chorus_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Chorus_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Chorus_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Chorus_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Chorus_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Chorus_postprocessing_revareva);
             break;
     }
 }
@@ -484,7 +484,7 @@ Chorus_dealloc(Chorus* self)
     }
 
     Chorus_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -512,8 +512,8 @@ Chorus_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[4] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Chorus_compute_next_data_frame);
-    self->mode_func_ptr = Chorus_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Chorus_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Chorus_setProcMode);
 
     srfac = self->sr / 44100.0;
 
@@ -648,82 +648,37 @@ static PyMethodDef Chorus_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Chorus_as_number =
+static PyType_Slot ChorusType_slots[] =
 {
-    (binaryfunc)Chorus_add,                      /*nb_add*/
-    (binaryfunc)Chorus_sub,                 /*nb_subtract*/
-    (binaryfunc)Chorus_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Chorus_inplace_add,              /*inplace_add*/
-    (binaryfunc)Chorus_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Chorus_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Chorus_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Chorus_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+    {Py_tp_dealloc, Chorus_dealloc},
+    {Py_tp_doc, "Chorus objects. 8 delay lines chorus."},
+    {Py_tp_traverse, Chorus_traverse},
+    {Py_tp_clear, Chorus_clear},
+    {Py_tp_methods, Chorus_methods},
+    {Py_tp_members, Chorus_members},
+    {Py_nb_add, Chorus_add},
+    {Py_nb_subtract, Chorus_sub},
+    {Py_nb_multiply, Chorus_multiply},
+    {Py_nb_true_divide, Chorus_div},
+    {Py_nb_inplace_add, Chorus_inplace_add},
+    {Py_nb_inplace_subtract, Chorus_inplace_sub},
+    {Py_nb_inplace_multiply, Chorus_inplace_multiply},
+    {Py_nb_inplace_true_divide, Chorus_inplace_div},
+    {Py_tp_new, Chorus_new},
+    {0, NULL}
 };
 
-PyTypeObject ChorusType =
+static PyType_Spec ChorusType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Chorus_base",         /*tp_name*/
-    sizeof(Chorus),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Chorus_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Chorus_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Chorus objects. 8 delay lines chorus.",           /* tp_doc */
-    (traverseproc)Chorus_traverse,   /* tp_traverse */
-    (inquiry)Chorus_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Chorus_methods,             /* tp_methods */
-    Chorus_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Chorus_new,                 /* tp_new */
+    "_pyo.Chorus_base",
+    sizeof(Chorus),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    ChorusType_slots
 };
+
+PyTypeObject *
+PyoCreateChorusType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &ChorusType_spec, NULL);
+}

@@ -55,7 +55,8 @@ extern void Stream_setFunctionPtr(Stream *self, void (*ptr)(void *));
 extern void Stream_callFunction(Stream *self);
 extern void Stream_IncrementBufferCount(Stream *self);
 extern void Stream_IncrementDurationCount(Stream *self);
-extern PyTypeObject StreamType;
+PyTypeObject * PyoCreateStreamType(PyObject *module);
+#define StreamType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_STREAM))
 
 #define MAKE_NEW_STREAM(self, type, rt_error) \
   (self) = (Stream *)(type)->tp_alloc((type), 0); \
@@ -72,7 +73,8 @@ typedef struct
 
 extern MYFLT * TriggerStream_getData(TriggerStream *self);
 extern void TriggerStream_setData(TriggerStream * self, MYFLT *data);
-extern PyTypeObject TriggerStreamType;
+PyTypeObject * PyoCreateTriggerStreamType(PyObject *module);
+#define TriggerStreamType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGGER_STREAM))
 
 #define MAKE_NEW_TRIGGER_STREAM(self, type, rt_error) \
     (self) = (TriggerStream *)(type)->tp_alloc((type), 0); \

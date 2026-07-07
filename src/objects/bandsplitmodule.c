@@ -173,11 +173,11 @@ BandSplitter_setProcMode(BandSplitter *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = BandSplitter_filters_i;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(BandSplitter_filters_i);
             break;
 
         case 1:
-            self->proc_func_ptr = BandSplitter_filters_a;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(BandSplitter_filters_a);
             break;
     }
 }
@@ -222,7 +222,7 @@ BandSplitter_dealloc(BandSplitter* self)
     PyMem_RawFree(self->a2);
     PyMem_RawFree(self->buffer_streams);
     BandSplitter_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -242,8 +242,8 @@ BandSplitter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->init = 1;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, BandSplitter_compute_next_data_frame);
-    self->mode_func_ptr = BandSplitter_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(BandSplitter_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(BandSplitter_setProcMode);
 
     self->halfSr = self->sr / 2.01;
     self->TwoPiOnSr = TWOPI / self->sr;
@@ -314,47 +314,32 @@ static PyMethodDef BandSplitter_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject BandSplitterType =
+static PyType_Slot BandSplitterType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.BandSplitter_base",                                   /*tp_name*/
-    sizeof(BandSplitter),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)BandSplitter_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "BandSplitter objects. Split audio stream in multiple frequency bands.",           /* tp_doc */
-    (traverseproc)BandSplitter_traverse,                  /* tp_traverse */
-    (inquiry)BandSplitter_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    BandSplitter_methods,                                 /* tp_methods */
-    BandSplitter_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    BandSplitter_new,                                     /* tp_new */
+    {Py_tp_dealloc, BandSplitter_dealloc},
+    {Py_tp_doc, "BandSplitter objects. Split audio stream in multiple frequency bands."},
+    {Py_tp_traverse, BandSplitter_traverse},
+    {Py_tp_clear, BandSplitter_clear},
+    {Py_tp_methods, BandSplitter_methods},
+    {Py_tp_members, BandSplitter_members},
+    {Py_tp_new, BandSplitter_new},
+    {0, NULL}
 };
+
+static PyType_Spec BandSplitterType_spec =
+{
+    "_pyo.BandSplitter_base",
+    sizeof(BandSplitter),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    BandSplitterType_slots
+};
+
+PyTypeObject *
+PyoCreateBandSplitterType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &BandSplitterType_spec, NULL);
+}
 
 /************************************************************************************************/
 /* BandSplit streamer object */
@@ -386,39 +371,39 @@ BandSplit_setProcMode(BandSplit *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = BandSplit_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(BandSplit_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = BandSplit_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(BandSplit_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = BandSplit_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(BandSplit_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = BandSplit_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(BandSplit_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = BandSplit_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(BandSplit_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = BandSplit_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(BandSplit_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = BandSplit_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(BandSplit_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = BandSplit_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(BandSplit_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = BandSplit_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(BandSplit_postprocessing_revareva);
             break;
     }
 }
@@ -460,7 +445,7 @@ BandSplit_dealloc(BandSplit* self)
 {
     pyo_DEALLOC
     BandSplit_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -479,8 +464,8 @@ BandSplit_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, BandSplit_compute_next_data_frame);
-    self->mode_func_ptr = BandSplit_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(BandSplit_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(BandSplit_setProcMode);
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
@@ -552,85 +537,40 @@ static PyMethodDef BandSplit_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods BandSplit_as_number =
+static PyType_Slot BandSplitType_slots[] =
 {
-    (binaryfunc)BandSplit_add,                      /*nb_add*/
-    (binaryfunc)BandSplit_sub,                 /*nb_subtract*/
-    (binaryfunc)BandSplit_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)BandSplit_inplace_add,              /*inplace_add*/
-    (binaryfunc)BandSplit_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)BandSplit_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)BandSplit_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)BandSplit_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+    {Py_tp_dealloc, BandSplit_dealloc},
+    {Py_tp_doc, "BandSplit objects. Reads one band from a BandSplitter process."},
+    {Py_tp_traverse, BandSplit_traverse},
+    {Py_tp_clear, BandSplit_clear},
+    {Py_tp_methods, BandSplit_methods},
+    {Py_tp_members, BandSplit_members},
+    {Py_nb_add, BandSplit_add},
+    {Py_nb_subtract, BandSplit_sub},
+    {Py_nb_multiply, BandSplit_multiply},
+    {Py_nb_true_divide, BandSplit_div},
+    {Py_nb_inplace_add, BandSplit_inplace_add},
+    {Py_nb_inplace_subtract, BandSplit_inplace_sub},
+    {Py_nb_inplace_multiply, BandSplit_inplace_multiply},
+    {Py_nb_inplace_true_divide, BandSplit_inplace_div},
+    {Py_tp_new, BandSplit_new},
+    {0, NULL}
 };
 
-PyTypeObject BandSplitType =
+static PyType_Spec BandSplitType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.BandSplit_base",         /*tp_name*/
-    sizeof(BandSplit),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)BandSplit_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &BandSplit_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "BandSplit objects. Reads one band from a BandSplitter process.",           /* tp_doc */
-    (traverseproc)BandSplit_traverse,   /* tp_traverse */
-    (inquiry)BandSplit_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    BandSplit_methods,             /* tp_methods */
-    BandSplit_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    BandSplit_new,                 /* tp_new */
+    "_pyo.BandSplit_base",
+    sizeof(BandSplit),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    BandSplitType_slots
 };
+
+PyTypeObject *
+PyoCreateBandSplitType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &BandSplitType_spec, NULL);
+}
 
 /*****************/
 /* FourBand main */
@@ -874,7 +814,7 @@ FourBandMain_getSamplesBuffer(FourBandMain *self)
 static void
 FourBandMain_setProcMode(FourBandMain *self)
 {
-    self->proc_func_ptr = FourBandMain_filters;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(FourBandMain_filters);
 }
 
 static void
@@ -911,7 +851,7 @@ FourBandMain_dealloc(FourBandMain* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer_streams);
     FourBandMain_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -935,8 +875,8 @@ FourBandMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[2] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, FourBandMain_compute_next_data_frame);
-    self->mode_func_ptr = FourBandMain_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(FourBandMain_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(FourBandMain_setProcMode);
 
     static char *kwlist[] = {"input", "freq1", "freq2", "freq3", NULL};
 
@@ -1014,47 +954,32 @@ static PyMethodDef FourBandMain_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject FourBandMainType =
+static PyType_Slot FourBandMainType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.FourBandMain_base",                                   /*tp_name*/
-    sizeof(FourBandMain),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)FourBandMain_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "FourBandMain objects. Split audio stream in four flat frequency and phase bands.",           /* tp_doc */
-    (traverseproc)FourBandMain_traverse,                  /* tp_traverse */
-    (inquiry)FourBandMain_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    FourBandMain_methods,                                 /* tp_methods */
-    FourBandMain_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    FourBandMain_new,                                     /* tp_new */
+    {Py_tp_dealloc, FourBandMain_dealloc},
+    {Py_tp_doc, "FourBandMain objects. Split audio stream in four flat frequency and phase bands."},
+    {Py_tp_traverse, FourBandMain_traverse},
+    {Py_tp_clear, FourBandMain_clear},
+    {Py_tp_methods, FourBandMain_methods},
+    {Py_tp_members, FourBandMain_members},
+    {Py_tp_new, FourBandMain_new},
+    {0, NULL}
 };
+
+static PyType_Spec FourBandMainType_spec =
+{
+    "_pyo.FourBandMain_base",
+    sizeof(FourBandMain),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    FourBandMainType_slots
+};
+
+PyTypeObject *
+PyoCreateFourBandMainType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &FourBandMainType_spec, NULL);
+}
 
 /************************************************************************************************/
 /* FourBand streamer object */
@@ -1086,39 +1011,39 @@ FourBand_setProcMode(FourBand *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = FourBand_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(FourBand_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = FourBand_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(FourBand_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = FourBand_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(FourBand_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = FourBand_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(FourBand_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = FourBand_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(FourBand_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = FourBand_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(FourBand_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = FourBand_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(FourBand_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = FourBand_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(FourBand_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = FourBand_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(FourBand_postprocessing_revareva);
             break;
     }
 }
@@ -1160,7 +1085,7 @@ FourBand_dealloc(FourBand* self)
 {
     pyo_DEALLOC
     FourBand_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1179,8 +1104,8 @@ FourBand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, FourBand_compute_next_data_frame);
-    self->mode_func_ptr = FourBand_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(FourBand_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(FourBand_setProcMode);
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
@@ -1252,85 +1177,40 @@ static PyMethodDef FourBand_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods FourBand_as_number =
+static PyType_Slot FourBandType_slots[] =
 {
-    (binaryfunc)FourBand_add,                      /*nb_add*/
-    (binaryfunc)FourBand_sub,                 /*nb_subtract*/
-    (binaryfunc)FourBand_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)FourBand_inplace_add,              /*inplace_add*/
-    (binaryfunc)FourBand_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)FourBand_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)FourBand_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)FourBand_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+    {Py_tp_dealloc, FourBand_dealloc},
+    {Py_tp_doc, "FourBand objects. Reads one band from a FourBandMain process."},
+    {Py_tp_traverse, FourBand_traverse},
+    {Py_tp_clear, FourBand_clear},
+    {Py_tp_methods, FourBand_methods},
+    {Py_tp_members, FourBand_members},
+    {Py_nb_add, FourBand_add},
+    {Py_nb_subtract, FourBand_sub},
+    {Py_nb_multiply, FourBand_multiply},
+    {Py_nb_true_divide, FourBand_div},
+    {Py_nb_inplace_add, FourBand_inplace_add},
+    {Py_nb_inplace_subtract, FourBand_inplace_sub},
+    {Py_nb_inplace_multiply, FourBand_inplace_multiply},
+    {Py_nb_inplace_true_divide, FourBand_inplace_div},
+    {Py_tp_new, FourBand_new},
+    {0, NULL}
 };
 
-PyTypeObject FourBandType =
+static PyType_Spec FourBandType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.FourBand_base",         /*tp_name*/
-    sizeof(FourBand),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)FourBand_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &FourBand_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "FourBand objects. Reads one band from a FourBandMain process.",           /* tp_doc */
-    (traverseproc)FourBand_traverse,   /* tp_traverse */
-    (inquiry)FourBand_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    FourBand_methods,             /* tp_methods */
-    FourBand_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    FourBand_new,                 /* tp_new */
+    "_pyo.FourBand_base",
+    sizeof(FourBand),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    FourBandType_slots
 };
+
+PyTypeObject *
+PyoCreateFourBandType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &FourBandType_spec, NULL);
+}
 
 /*****************/
 /* MultiBand main */
@@ -1546,7 +1426,7 @@ MultiBandMain_getSamplesBuffer(MultiBandMain *self)
 static void
 MultiBandMain_setProcMode(MultiBandMain *self)
 {
-    self->proc_func_ptr = MultiBandMain_filters;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(MultiBandMain_filters);
 }
 
 static void
@@ -1577,7 +1457,7 @@ MultiBandMain_dealloc(MultiBandMain* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer_streams);
     MultiBandMain_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1592,8 +1472,8 @@ MultiBandMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, MultiBandMain_compute_next_data_frame);
-    self->mode_func_ptr = MultiBandMain_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(MultiBandMain_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(MultiBandMain_setProcMode);
 
     static char *kwlist[] = {"input", "num", NULL};
 
@@ -1680,47 +1560,32 @@ static PyMethodDef MultiBandMain_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject MultiBandMainType =
+static PyType_Slot MultiBandMainType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.MultiBandMain_base",                                   /*tp_name*/
-    sizeof(MultiBandMain),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)MultiBandMain_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "MultiBandMain objects. Split audio stream in four flat frequency and phase bands.",           /* tp_doc */
-    (traverseproc)MultiBandMain_traverse,                  /* tp_traverse */
-    (inquiry)MultiBandMain_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    MultiBandMain_methods,                                 /* tp_methods */
-    MultiBandMain_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    MultiBandMain_new,                                     /* tp_new */
+    {Py_tp_dealloc, MultiBandMain_dealloc},
+    {Py_tp_doc, "MultiBandMain objects. Split audio stream in four flat frequency and phase bands."},
+    {Py_tp_traverse, MultiBandMain_traverse},
+    {Py_tp_clear, MultiBandMain_clear},
+    {Py_tp_methods, MultiBandMain_methods},
+    {Py_tp_members, MultiBandMain_members},
+    {Py_tp_new, MultiBandMain_new},
+    {0, NULL}
 };
+
+static PyType_Spec MultiBandMainType_spec =
+{
+    "_pyo.MultiBandMain_base",
+    sizeof(MultiBandMain),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MultiBandMainType_slots
+};
+
+PyTypeObject *
+PyoCreateMultiBandMainType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MultiBandMainType_spec, NULL);
+}
 
 /************************************************************************************************/
 /* MultiBand streamer object */
@@ -1752,39 +1617,39 @@ MultiBand_setProcMode(MultiBand *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = MultiBand_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MultiBand_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = MultiBand_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MultiBand_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = MultiBand_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MultiBand_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = MultiBand_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MultiBand_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = MultiBand_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MultiBand_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = MultiBand_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MultiBand_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = MultiBand_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MultiBand_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = MultiBand_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MultiBand_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = MultiBand_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MultiBand_postprocessing_revareva);
             break;
     }
 }
@@ -1826,7 +1691,7 @@ MultiBand_dealloc(MultiBand* self)
 {
     pyo_DEALLOC
     MultiBand_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1845,8 +1710,8 @@ MultiBand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, MultiBand_compute_next_data_frame);
-    self->mode_func_ptr = MultiBand_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(MultiBand_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(MultiBand_setProcMode);
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
@@ -1918,82 +1783,37 @@ static PyMethodDef MultiBand_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods MultiBand_as_number =
+static PyType_Slot MultiBandType_slots[] =
 {
-    (binaryfunc)MultiBand_add,                      /*nb_add*/
-    (binaryfunc)MultiBand_sub,                 /*nb_subtract*/
-    (binaryfunc)MultiBand_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)MultiBand_inplace_add,              /*inplace_add*/
-    (binaryfunc)MultiBand_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)MultiBand_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)MultiBand_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)MultiBand_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+    {Py_tp_dealloc, MultiBand_dealloc},
+    {Py_tp_doc, "MultiBand objects. Reads one band from a MultiBandMain process."},
+    {Py_tp_traverse, MultiBand_traverse},
+    {Py_tp_clear, MultiBand_clear},
+    {Py_tp_methods, MultiBand_methods},
+    {Py_tp_members, MultiBand_members},
+    {Py_nb_add, MultiBand_add},
+    {Py_nb_subtract, MultiBand_sub},
+    {Py_nb_multiply, MultiBand_multiply},
+    {Py_nb_true_divide, MultiBand_div},
+    {Py_nb_inplace_add, MultiBand_inplace_add},
+    {Py_nb_inplace_subtract, MultiBand_inplace_sub},
+    {Py_nb_inplace_multiply, MultiBand_inplace_multiply},
+    {Py_nb_inplace_true_divide, MultiBand_inplace_div},
+    {Py_tp_new, MultiBand_new},
+    {0, NULL}
 };
 
-PyTypeObject MultiBandType =
+static PyType_Spec MultiBandType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.MultiBand_base",         /*tp_name*/
-    sizeof(MultiBand),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)MultiBand_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &MultiBand_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "MultiBand objects. Reads one band from a MultiBandMain process.",           /* tp_doc */
-    (traverseproc)MultiBand_traverse,   /* tp_traverse */
-    (inquiry)MultiBand_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    MultiBand_methods,             /* tp_methods */
-    MultiBand_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    MultiBand_new,                 /* tp_new */
+    "_pyo.MultiBand_base",
+    sizeof(MultiBand),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MultiBandType_slots
 };
+
+PyTypeObject *
+PyoCreateMultiBandType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MultiBandType_spec, NULL);
+}

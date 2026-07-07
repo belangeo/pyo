@@ -1249,58 +1249,58 @@ LFO_setProcMode(LFO *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = LFO_generates_ii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(LFO_generates_ii);
             break;
 
         case 1:
-            self->proc_func_ptr = LFO_generates_ai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(LFO_generates_ai);
             break;
 
         case 10:
-            self->proc_func_ptr = LFO_generates_ia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(LFO_generates_ia);
             break;
 
         case 11:
-            self->proc_func_ptr = LFO_generates_aa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(LFO_generates_aa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = LFO_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LFO_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = LFO_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LFO_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = LFO_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LFO_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = LFO_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LFO_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = LFO_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LFO_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = LFO_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LFO_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = LFO_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LFO_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = LFO_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LFO_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = LFO_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LFO_postprocessing_revareva);
             break;
     }
 }
@@ -1335,7 +1335,7 @@ LFO_dealloc(LFO* self)
 {
     pyo_DEALLOC
     LFO_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1366,8 +1366,8 @@ LFO_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->oneOverSr = 1.0 / (MYFLT)self->sr;
     self->srOverFour = (MYFLT)self->sr * 0.25;
     self->srOverEight = (MYFLT)self->sr * 0.125;
-    Stream_setFunctionPtr(self->stream, LFO_compute_next_data_frame);
-    self->mode_func_ptr = LFO_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(LFO_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(LFO_setProcMode);
 
     static char *kwlist[] = {"freq", "sharp", "type", "mul", "add", NULL};
 
@@ -1488,82 +1488,36 @@ static PyMethodDef LFO_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods LFO_as_number =
-{
-    (binaryfunc)LFO_add,                         /*nb_add*/
-    (binaryfunc)LFO_sub,                         /*nb_subtract*/
-    (binaryfunc)LFO_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)LFO_inplace_add,                 /*inplace_add*/
-    (binaryfunc)LFO_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)LFO_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)LFO_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)LFO_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot LFOType_slots[] = {
+    {Py_tp_dealloc, LFO_dealloc},
+    {Py_tp_doc, "LFO objects. Generates a Low Frequency Oscillator with different waveshapes."},
+    {Py_tp_traverse, LFO_traverse},
+    {Py_tp_clear, LFO_clear},
+    {Py_tp_methods, LFO_methods},
+    {Py_tp_members, LFO_members},
+    {Py_tp_new, LFO_new},
+    {Py_nb_add, LFO_add},
+    {Py_nb_subtract, LFO_sub},
+    {Py_nb_multiply, LFO_multiply},
+    {Py_nb_true_divide, LFO_div},
+    {Py_nb_inplace_add, LFO_inplace_add},
+    {Py_nb_inplace_subtract, LFO_inplace_sub},
+    {Py_nb_inplace_multiply, LFO_inplace_multiply},
+    {Py_nb_inplace_true_divide, LFO_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject LFOType =
+static PyType_Spec LFOType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.LFO_base",                                   /*tp_name*/
-    sizeof(LFO),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)LFO_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    &LFO_as_number,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "LFO objects. Generates a Low Frequency Oscillator with different waveshapes.",           /* tp_doc */
-    (traverseproc)LFO_traverse,                  /* tp_traverse */
-    (inquiry)LFO_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    LFO_methods,                                 /* tp_methods */
-    LFO_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    LFO_new,                                     /* tp_new */
+    "_pyo.LFO_base",
+    sizeof(LFO),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    LFOType_slots
 };
+
+PyTypeObject *
+PyoCreateLFOType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &LFOType_spec, NULL);
+}

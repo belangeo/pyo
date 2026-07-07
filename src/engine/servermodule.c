@@ -2810,44 +2810,30 @@ static PyMemberDef Server_members[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject ServerType =
+static PyType_Slot ServerType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Server",         /*tp_name*/
-    sizeof(Server),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Server_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT, /*tp_flags*/
-    "Pyo Server object. Handles communication with Portaudio and processing callback loop.",           /* tp_doc */
-    (traverseproc)Server_traverse,   /* tp_traverse */
-    (inquiry)Server_clear,           /* tp_clear */
-    0,                       /* tp_richcompare */
-    0,                       /* tp_weaklistoffset */
-    0,                       /* tp_iter */
-    0,                       /* tp_iternext */
-    Server_methods,             /* tp_methods */
-    Server_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    (initproc)Server_init,      /* tp_init */
-    0,                         /* tp_alloc */
-    Server_new,                 /* tp_new */
+    {Py_tp_dealloc, Server_dealloc},
+    {Py_tp_doc, "Pyo Server object. Handles communication with Portaudio and processing callback loop."},
+    {Py_tp_traverse, Server_traverse},
+    {Py_tp_clear, Server_clear},
+    {Py_tp_methods, Server_methods},
+    {Py_tp_members, Server_members},
+    {Py_tp_init, Server_init},
+    {Py_tp_new, Server_new},
+    {0, NULL}
 };
+
+static PyType_Spec ServerType_spec =
+{
+    "_pyo.Server",
+    sizeof(Server),
+    0,
+    Py_TPFLAGS_DEFAULT,
+    ServerType_slots
+};
+
+PyTypeObject *
+PyoCreateServerType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &ServerType_spec, NULL);
+}

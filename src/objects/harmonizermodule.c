@@ -410,58 +410,58 @@ Harmonizer_setProcMode(Harmonizer *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Harmonizer_transform_ii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Harmonizer_transform_ii);
             break;
 
         case 1:
-            self->proc_func_ptr = Harmonizer_transform_ai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Harmonizer_transform_ai);
             break;
 
         case 10:
-            self->proc_func_ptr = Harmonizer_transform_ia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Harmonizer_transform_ia);
             break;
 
         case 11:
-            self->proc_func_ptr = Harmonizer_transform_aa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Harmonizer_transform_aa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Harmonizer_feedbacktprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Harmonizer_feedbacktprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Harmonizer_feedbacktprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Harmonizer_feedbacktprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Harmonizer_feedbacktprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Harmonizer_feedbacktprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Harmonizer_feedbacktprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Harmonizer_feedbacktprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Harmonizer_feedbacktprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Harmonizer_feedbacktprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Harmonizer_feedbacktprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Harmonizer_feedbacktprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Harmonizer_feedbacktprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Harmonizer_feedbacktprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Harmonizer_feedbacktprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Harmonizer_feedbacktprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Harmonizer_feedbacktprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Harmonizer_feedbacktprocessing_revareva);
             break;
     }
 }
@@ -499,7 +499,7 @@ Harmonizer_dealloc(Harmonizer* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer);
     Harmonizer_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -526,8 +526,8 @@ Harmonizer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[3] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Harmonizer_compute_next_data_frame);
-    self->mode_func_ptr = Harmonizer_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Harmonizer_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Harmonizer_setProcMode);
 
     static char *kwlist[] = {"input", "transpo", "feedback", "winsize", "mul", "add", NULL};
 
@@ -663,82 +663,36 @@ static PyMethodDef Harmonizer_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Harmonizer_as_number =
-{
-    (binaryfunc)Harmonizer_add,                      /*nb_add*/
-    (binaryfunc)Harmonizer_sub,                 /*nb_subtract*/
-    (binaryfunc)Harmonizer_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_feedback*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Harmonizer_inplace_add,              /*inplace_add*/
-    (binaryfunc)Harmonizer_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Harmonizer_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Harmonizer_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Harmonizer_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot HarmonizerType_slots[] = {
+    {Py_tp_dealloc, Harmonizer_dealloc},
+    {Py_tp_doc, "Harmonizer objects. Harmonize an input sound."},
+    {Py_tp_traverse, Harmonizer_traverse},
+    {Py_tp_clear, Harmonizer_clear},
+    {Py_tp_methods, Harmonizer_methods},
+    {Py_tp_members, Harmonizer_members},
+    {Py_tp_new, Harmonizer_new},
+    {Py_nb_add, Harmonizer_add},
+    {Py_nb_subtract, Harmonizer_sub},
+    {Py_nb_multiply, Harmonizer_multiply},
+    {Py_nb_true_divide, Harmonizer_div},
+    {Py_nb_inplace_add, Harmonizer_inplace_add},
+    {Py_nb_inplace_subtract, Harmonizer_inplace_sub},
+    {Py_nb_inplace_multiply, Harmonizer_inplace_multiply},
+    {Py_nb_inplace_true_divide, Harmonizer_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject HarmonizerType =
+static PyType_Spec HarmonizerType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Harmonizer_base",         /*tp_name*/
-    sizeof(Harmonizer),         /*tp_basictranspo*/
-    0,                         /*tp_itemtranspo*/
-    (destructor)Harmonizer_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Harmonizer_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Harmonizer objects. Harmonize an input sound.",           /* tp_doc */
-    (traverseproc)Harmonizer_traverse,   /* tp_traverse */
-    (inquiry)Harmonizer_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Harmonizer_methods,             /* tp_methods */
-    Harmonizer_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Harmonizer_new,                 /* tp_new */
+    "_pyo.Harmonizer_base",
+    sizeof(Harmonizer),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    HarmonizerType_slots
 };
+
+PyTypeObject *
+PyoCreateHarmonizerType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &HarmonizerType_spec, NULL);
+}

@@ -94,7 +94,7 @@ CtlScan_dealloc(CtlScan* self)
 {
     pyo_DEALLOC
     CtlScan_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -112,8 +112,8 @@ CtlScan_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->toprint = 1;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, CtlScan_compute_next_data_frame);
-    self->mode_func_ptr = CtlScan_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(CtlScan_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(CtlScan_setProcMode);
 
     static char *kwlist[] = {"callable", "toprint", NULL};
 
@@ -190,47 +190,31 @@ static PyMethodDef CtlScan_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject CtlScanType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.CtlScan_base",         /*tp_name*/
-    sizeof(CtlScan),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)CtlScan_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "CtlScan objects. Retreive controller numbers from a Midi input.",           /* tp_doc */
-    (traverseproc)CtlScan_traverse,   /* tp_traverse */
-    (inquiry)CtlScan_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    CtlScan_methods,             /* tp_methods */
-    CtlScan_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    CtlScan_new,                 /* tp_new */
+static PyType_Slot CtlScanType_slots[] = {
+    {Py_tp_dealloc, CtlScan_dealloc},
+    {Py_tp_doc, "CtlScan objects. Retreive controller numbers from a Midi input."},
+    {Py_tp_traverse, CtlScan_traverse},
+    {Py_tp_clear, CtlScan_clear},
+    {Py_tp_methods, CtlScan_methods},
+    {Py_tp_members, CtlScan_members},
+    {Py_tp_new, CtlScan_new},
+    {0, NULL}
 };
+
+static PyType_Spec CtlScanType_spec =
+{
+    "_pyo.CtlScan_base",
+    sizeof(CtlScan),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    CtlScanType_slots
+};
+
+PyTypeObject *
+PyoCreateCtlScanType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &CtlScanType_spec, NULL);
+}
 
 typedef struct
 {
@@ -305,7 +289,7 @@ CtlScan2_dealloc(CtlScan2* self)
 {
     pyo_DEALLOC
     CtlScan2_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -323,8 +307,8 @@ CtlScan2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->toprint = 1;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, CtlScan2_compute_next_data_frame);
-    self->mode_func_ptr = CtlScan2_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(CtlScan2_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(CtlScan2_setProcMode);
 
     static char *kwlist[] = {"callable", "toprint", NULL};
 
@@ -401,47 +385,31 @@ static PyMethodDef CtlScan2_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject CtlScan2Type =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.CtlScan2_base",         /*tp_name*/
-    sizeof(CtlScan2),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)CtlScan2_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "CtlScan2 objects. Retreive midi channel and controller numbers from a midi input.",           /* tp_doc */
-    (traverseproc)CtlScan2_traverse,   /* tp_traverse */
-    (inquiry)CtlScan2_clear,           /* tp_clear */
-    0,                       /* tp_richcompare */
-    0,                       /* tp_weaklistoffset */
-    0,                       /* tp_iter */
-    0,                       /* tp_iternext */
-    CtlScan2_methods,             /* tp_methods */
-    CtlScan2_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    CtlScan2_new,                 /* tp_new */
+static PyType_Slot CtlScan2Type_slots[] = {
+    {Py_tp_dealloc, CtlScan2_dealloc},
+    {Py_tp_doc, "CtlScan2 objects. Retreive midi channel and controller numbers from a midi input."},
+    {Py_tp_traverse, CtlScan2_traverse},
+    {Py_tp_clear, CtlScan2_clear},
+    {Py_tp_methods, CtlScan2_methods},
+    {Py_tp_members, CtlScan2_members},
+    {Py_tp_new, CtlScan2_new},
+    {0, NULL}
 };
+
+static PyType_Spec CtlScan2Type_spec =
+{
+    "_pyo.CtlScan2_base",
+    sizeof(CtlScan2),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    CtlScan2Type_slots
+};
+
+PyTypeObject *
+PyoCreateCtlScan2Type(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &CtlScan2Type_spec, NULL);
+}
 
 int
 getPosToWrite(long timestamp, Server *server, double sr, int bufsize)
@@ -503,39 +471,39 @@ Midictl_setProcMode(Midictl *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Midictl_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Midictl_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Midictl_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Midictl_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Midictl_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Midictl_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Midictl_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Midictl_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Midictl_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Midictl_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Midictl_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Midictl_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Midictl_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Midictl_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Midictl_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Midictl_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Midictl_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Midictl_postprocessing_revareva);
             break;
     }
 }
@@ -635,7 +603,7 @@ Midictl_dealloc(Midictl* self)
 {
     pyo_DEALLOC
     Midictl_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -657,8 +625,8 @@ Midictl_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Midictl_compute_next_data_frame);
-    self->mode_func_ptr = Midictl_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Midictl_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Midictl_setProcMode);
 
     static char *kwlist[] = {"ctlnumber", "minscale", "maxscale", "init", "channel", "mul", "add", NULL};
 
@@ -805,85 +773,39 @@ static PyMethodDef Midictl_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Midictl_as_number =
-{
-    (binaryfunc)Midictl_add,                      /*nb_add*/
-    (binaryfunc)Midictl_sub,                 /*nb_subtract*/
-    (binaryfunc)Midictl_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Midictl_inplace_add,              /*inplace_add*/
-    (binaryfunc)Midictl_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Midictl_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Midictl_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Midictl_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot MidictlType_slots[] = {
+    {Py_tp_dealloc, Midictl_dealloc},
+    {Py_tp_doc, "Midictl objects. Retreive audio from an input channel."},
+    {Py_tp_traverse, Midictl_traverse},
+    {Py_tp_clear, Midictl_clear},
+    {Py_tp_methods, Midictl_methods},
+    {Py_tp_members, Midictl_members},
+    {Py_tp_new, Midictl_new},
+    {Py_nb_add, Midictl_add},
+    {Py_nb_subtract, Midictl_sub},
+    {Py_nb_multiply, Midictl_multiply},
+    {Py_nb_true_divide, Midictl_div},
+    {Py_nb_inplace_add, Midictl_inplace_add},
+    {Py_nb_inplace_subtract, Midictl_inplace_sub},
+    {Py_nb_inplace_multiply, Midictl_inplace_multiply},
+    {Py_nb_inplace_true_divide, Midictl_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject MidictlType =
+static PyType_Spec MidictlType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Midictl_base",         /*tp_name*/
-    sizeof(Midictl),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Midictl_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Midictl_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Midictl objects. Retreive audio from an input channel.",           /* tp_doc */
-    (traverseproc)Midictl_traverse,   /* tp_traverse */
-    (inquiry)Midictl_clear,           /* tp_clear */
-    0,                       /* tp_richcompare */
-    0,                       /* tp_weaklistoffset */
-    0,                       /* tp_iter */
-    0,                       /* tp_iternext */
-    Midictl_methods,             /* tp_methods */
-    Midictl_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Midictl_new,                 /* tp_new */
+    "_pyo.Midictl_base",
+    sizeof(Midictl),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MidictlType_slots
 };
+
+PyTypeObject *
+PyoCreateMidictlType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MidictlType_spec, NULL);
+}
 
 typedef struct
 {
@@ -914,39 +836,39 @@ Bendin_setProcMode(Bendin *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Bendin_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Bendin_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Bendin_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Bendin_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Bendin_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Bendin_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Bendin_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Bendin_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Bendin_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Bendin_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Bendin_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Bendin_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Bendin_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Bendin_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Bendin_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Bendin_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Bendin_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Bendin_postprocessing_revareva);
             break;
     }
 }
@@ -1054,7 +976,7 @@ Bendin_dealloc(Bendin* self)
 {
     pyo_DEALLOC
     Bendin_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1076,8 +998,8 @@ Bendin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Bendin_compute_next_data_frame);
-    self->mode_func_ptr = Bendin_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Bendin_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Bendin_setProcMode);
 
     static char *kwlist[] = {"brange", "scale", "channel", "mul", "add", NULL};
 
@@ -1206,85 +1128,39 @@ static PyMethodDef Bendin_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Bendin_as_number =
-{
-    (binaryfunc)Bendin_add,                      /*nb_add*/
-    (binaryfunc)Bendin_sub,                 /*nb_subtract*/
-    (binaryfunc)Bendin_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Bendin_inplace_add,              /*inplace_add*/
-    (binaryfunc)Bendin_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Bendin_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Bendin_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Bendin_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot BendinType_slots[] = {
+    {Py_tp_dealloc, Bendin_dealloc},
+    {Py_tp_doc, "Bendin objects. Retreive audio from an input channel."},
+    {Py_tp_traverse, Bendin_traverse},
+    {Py_tp_clear, Bendin_clear},
+    {Py_tp_methods, Bendin_methods},
+    {Py_tp_members, Bendin_members},
+    {Py_tp_new, Bendin_new},
+    {Py_nb_add, Bendin_add},
+    {Py_nb_subtract, Bendin_sub},
+    {Py_nb_multiply, Bendin_multiply},
+    {Py_nb_true_divide, Bendin_div},
+    {Py_nb_inplace_add, Bendin_inplace_add},
+    {Py_nb_inplace_subtract, Bendin_inplace_sub},
+    {Py_nb_inplace_multiply, Bendin_inplace_multiply},
+    {Py_nb_inplace_true_divide, Bendin_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject BendinType =
+static PyType_Spec BendinType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Bendin_base",         /*tp_name*/
-    sizeof(Bendin),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Bendin_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Bendin_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Bendin objects. Retreive audio from an input channel.",           /* tp_doc */
-    (traverseproc)Bendin_traverse,   /* tp_traverse */
-    (inquiry)Bendin_clear,           /* tp_clear */
-    0,                       /* tp_richcompare */
-    0,                       /* tp_weaklistoffset */
-    0,                       /* tp_iter */
-    0,                       /* tp_iternext */
-    Bendin_methods,             /* tp_methods */
-    Bendin_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Bendin_new,                 /* tp_new */
+    "_pyo.Bendin_base",
+    sizeof(Bendin),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    BendinType_slots
 };
+
+PyTypeObject *
+PyoCreateBendinType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &BendinType_spec, NULL);
+}
 
 typedef struct
 {
@@ -1315,39 +1191,39 @@ Touchin_setProcMode(Touchin *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Touchin_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Touchin_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Touchin_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Touchin_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Touchin_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Touchin_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Touchin_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Touchin_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Touchin_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Touchin_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Touchin_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Touchin_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Touchin_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Touchin_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Touchin_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Touchin_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Touchin_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Touchin_postprocessing_revareva);
             break;
     }
 }
@@ -1446,7 +1322,7 @@ Touchin_dealloc(Touchin* self)
 {
     pyo_DEALLOC
     Touchin_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1468,8 +1344,8 @@ Touchin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Touchin_compute_next_data_frame);
-    self->mode_func_ptr = Touchin_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Touchin_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Touchin_setProcMode);
 
     static char *kwlist[] = {"minscale", "maxscale", "init", "channel", "mul", "add", NULL};
 
@@ -1583,85 +1459,39 @@ static PyMethodDef Touchin_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Touchin_as_number =
-{
-    (binaryfunc)Touchin_add,                      /*nb_add*/
-    (binaryfunc)Touchin_sub,                 /*nb_subtract*/
-    (binaryfunc)Touchin_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Touchin_inplace_add,              /*inplace_add*/
-    (binaryfunc)Touchin_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Touchin_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Touchin_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Touchin_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot TouchinType_slots[] = {
+    {Py_tp_dealloc, Touchin_dealloc},
+    {Py_tp_doc, "Touchin objects. Retrieve the signal of an aftertouch midi controller."},
+    {Py_tp_traverse, Touchin_traverse},
+    {Py_tp_clear, Touchin_clear},
+    {Py_tp_methods, Touchin_methods},
+    {Py_tp_members, Touchin_members},
+    {Py_tp_new, Touchin_new},
+    {Py_nb_add, Touchin_add},
+    {Py_nb_subtract, Touchin_sub},
+    {Py_nb_multiply, Touchin_multiply},
+    {Py_nb_true_divide, Touchin_div},
+    {Py_nb_inplace_add, Touchin_inplace_add},
+    {Py_nb_inplace_subtract, Touchin_inplace_sub},
+    {Py_nb_inplace_multiply, Touchin_inplace_multiply},
+    {Py_nb_inplace_true_divide, Touchin_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject TouchinType =
+static PyType_Spec TouchinType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Touchin_base",         /*tp_name*/
-    sizeof(Touchin),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Touchin_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Touchin_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Touchin objects. Retrieve the signal of an aftertouch midi controller.",           /* tp_doc */
-    (traverseproc)Touchin_traverse,   /* tp_traverse */
-    (inquiry)Touchin_clear,           /* tp_clear */
-    0,                       /* tp_richcompare */
-    0,                       /* tp_weaklistoffset */
-    0,                       /* tp_iter */
-    0,                       /* tp_iternext */
-    Touchin_methods,             /* tp_methods */
-    Touchin_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Touchin_new,                 /* tp_new */
+    "_pyo.Touchin_base",
+    sizeof(Touchin),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    TouchinType_slots
 };
+
+PyTypeObject *
+PyoCreateTouchinType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &TouchinType_spec, NULL);
+}
 
 typedef struct
 {
@@ -1690,39 +1520,39 @@ Programin_setProcMode(Programin *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Programin_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Programin_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Programin_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Programin_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Programin_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Programin_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Programin_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Programin_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Programin_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Programin_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Programin_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Programin_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Programin_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Programin_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Programin_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Programin_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Programin_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Programin_postprocessing_revareva);
             break;
     }
 }
@@ -1799,7 +1629,7 @@ Programin_dealloc(Programin* self)
 {
     pyo_DEALLOC
     Programin_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1819,8 +1649,8 @@ Programin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Programin_compute_next_data_frame);
-    self->mode_func_ptr = Programin_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Programin_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Programin_setProcMode);
 
     static char *kwlist[] = {"channel", "mul", "add", NULL};
 
@@ -1906,85 +1736,39 @@ static PyMethodDef Programin_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Programin_as_number =
-{
-    (binaryfunc)Programin_add,                      /*nb_add*/
-    (binaryfunc)Programin_sub,                 /*nb_subtract*/
-    (binaryfunc)Programin_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Programin_inplace_add,              /*inplace_add*/
-    (binaryfunc)Programin_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Programin_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Programin_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Programin_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot PrograminType_slots[] = {
+    {Py_tp_dealloc, Programin_dealloc},
+    {Py_tp_doc, "Programin objects. Retrieve the signal of a program change midi controller."},
+    {Py_tp_traverse, Programin_traverse},
+    {Py_tp_clear, Programin_clear},
+    {Py_tp_methods, Programin_methods},
+    {Py_tp_members, Programin_members},
+    {Py_tp_new, Programin_new},
+    {Py_nb_add, Programin_add},
+    {Py_nb_subtract, Programin_sub},
+    {Py_nb_multiply, Programin_multiply},
+    {Py_nb_true_divide, Programin_div},
+    {Py_nb_inplace_add, Programin_inplace_add},
+    {Py_nb_inplace_subtract, Programin_inplace_sub},
+    {Py_nb_inplace_multiply, Programin_inplace_multiply},
+    {Py_nb_inplace_true_divide, Programin_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject PrograminType =
+static PyType_Spec PrograminType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Programin_base",         /*tp_name*/
-    sizeof(Programin),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Programin_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Programin_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Programin objects. Retrieve the signal of a program change midi controller.",           /* tp_doc */
-    (traverseproc)Programin_traverse,   /* tp_traverse */
-    (inquiry)Programin_clear,           /* tp_clear */
-    0,                       /* tp_richcompare */
-    0,                       /* tp_weaklistoffset */
-    0,                       /* tp_iter */
-    0,                       /* tp_iternext */
-    Programin_methods,             /* tp_methods */
-    Programin_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Programin_new,                 /* tp_new */
+    "_pyo.Programin_base",
+    sizeof(Programin),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    PrograminType_slots
 };
+
+PyTypeObject *
+PyoCreatePrograminType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &PrograminType_spec, NULL);
+}
 
 typedef struct
 {
@@ -2240,7 +2024,7 @@ MidiNote_dealloc(MidiNote* self)
     PyMem_RawFree(self->notebuf);
     PyMem_RawFree(self->trigger_streams);
     MidiNote_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2273,8 +2057,8 @@ MidiNote_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->eventcount = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, MidiNote_compute_next_data_frame);
-    self->mode_func_ptr = MidiNote_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(MidiNote_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(MidiNote_setProcMode);
 
     static char *kwlist[] = {"voices", "scale", "first", "last", "channel", NULL};
 
@@ -2565,47 +2349,31 @@ static PyMethodDef MidiNote_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject MidiNoteType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.MidiNote_base",         /*tp_name*/
-    sizeof(MidiNote),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)MidiNote_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "MidiNote objects. Retreive midi note from a midi input.",           /* tp_doc */
-    (traverseproc)MidiNote_traverse,   /* tp_traverse */
-    (inquiry)MidiNote_clear,           /* tp_clear */
-    0,                       /* tp_richcompare */
-    0,                       /* tp_weaklistoffset */
-    0,                       /* tp_iter */
-    0,                       /* tp_iternext */
-    MidiNote_methods,             /* tp_methods */
-    MidiNote_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    MidiNote_new,                 /* tp_new */
+static PyType_Slot MidiNoteType_slots[] = {
+    {Py_tp_dealloc, MidiNote_dealloc},
+    {Py_tp_doc, "MidiNote objects. Retreive midi note from a midi input."},
+    {Py_tp_traverse, MidiNote_traverse},
+    {Py_tp_clear, MidiNote_clear},
+    {Py_tp_methods, MidiNote_methods},
+    {Py_tp_members, MidiNote_members},
+    {Py_tp_new, MidiNote_new},
+    {0, NULL}
 };
+
+static PyType_Spec MidiNoteType_spec =
+{
+    "_pyo.MidiNote_base",
+    sizeof(MidiNote),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MidiNoteType_slots
+};
+
+PyTypeObject *
+PyoCreateMidiNoteType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MidiNoteType_spec, NULL);
+}
 
 
 /* Notein streamer */
@@ -2639,39 +2407,39 @@ Notein_setProcMode(Notein *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Notein_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Notein_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Notein_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Notein_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Notein_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Notein_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Notein_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Notein_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Notein_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Notein_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Notein_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Notein_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Notein_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Notein_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Notein_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Notein_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Notein_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Notein_postprocessing_revareva);
             break;
     }
 }
@@ -2754,7 +2522,7 @@ Notein_dealloc(Notein* self)
 {
     pyo_DEALLOC
     Notein_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2776,8 +2544,8 @@ Notein_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Notein_compute_next_data_frame);
-    self->mode_func_ptr = Notein_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Notein_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Notein_setProcMode);
 
     static char *kwlist[] = {"handler", "voice", "mode", "mul", "add", NULL};
 
@@ -2848,85 +2616,39 @@ static PyMethodDef Notein_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Notein_as_number =
-{
-    (binaryfunc)Notein_add,                      /*nb_add*/
-    (binaryfunc)Notein_sub,                 /*nb_subtract*/
-    (binaryfunc)Notein_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Notein_inplace_add,              /*inplace_add*/
-    (binaryfunc)Notein_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Notein_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Notein_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Notein_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot NoteinType_slots[] = {
+    {Py_tp_dealloc, Notein_dealloc},
+    {Py_tp_doc, "Notein objects. Stream pitch or velocity from a Notein voice."},
+    {Py_tp_traverse, Notein_traverse},
+    {Py_tp_clear, Notein_clear},
+    {Py_tp_methods, Notein_methods},
+    {Py_tp_members, Notein_members},
+    {Py_tp_new, Notein_new},
+    {Py_nb_add, Notein_add},
+    {Py_nb_subtract, Notein_sub},
+    {Py_nb_multiply, Notein_multiply},
+    {Py_nb_true_divide, Notein_div},
+    {Py_nb_inplace_add, Notein_inplace_add},
+    {Py_nb_inplace_subtract, Notein_inplace_sub},
+    {Py_nb_inplace_multiply, Notein_inplace_multiply},
+    {Py_nb_inplace_true_divide, Notein_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject NoteinType =
+static PyType_Spec NoteinType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Notein_base",         /*tp_name*/
-    sizeof(Notein),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Notein_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Notein_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "Notein objects. Stream pitch or velocity from a Notein voice.",           /* tp_doc */
-    (traverseproc)Notein_traverse,   /* tp_traverse */
-    (inquiry)Notein_clear,           /* tp_clear */
-    0,                       /* tp_richcompare */
-    0,                       /* tp_weaklistoffset */
-    0,                       /* tp_iter */
-    0,                       /* tp_iternext */
-    Notein_methods,             /* tp_methods */
-    Notein_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Notein_new,                 /* tp_new */
+    "_pyo.Notein_base",
+    sizeof(Notein),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    NoteinType_slots
 };
+
+PyTypeObject *
+PyoCreateNoteinType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &NoteinType_spec, NULL);
+}
 
 /* NoteinTrig trig streamer */
 typedef struct
@@ -2957,39 +2679,39 @@ NoteinTrig_setProcMode(NoteinTrig *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = NoteinTrig_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(NoteinTrig_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = NoteinTrig_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(NoteinTrig_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = NoteinTrig_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(NoteinTrig_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = NoteinTrig_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(NoteinTrig_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = NoteinTrig_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(NoteinTrig_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = NoteinTrig_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(NoteinTrig_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = NoteinTrig_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(NoteinTrig_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = NoteinTrig_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(NoteinTrig_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = NoteinTrig_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(NoteinTrig_postprocessing_revareva);
             break;
     }
 }
@@ -3029,7 +2751,7 @@ NoteinTrig_dealloc(NoteinTrig* self)
 {
     pyo_DEALLOC
     NoteinTrig_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3049,8 +2771,8 @@ NoteinTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, NoteinTrig_compute_next_data_frame);
-    self->mode_func_ptr = NoteinTrig_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(NoteinTrig_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(NoteinTrig_setProcMode);
 
     static char *kwlist[] = {"handler", "voice", "mode", "mul", "add", NULL};
 
@@ -3121,85 +2843,39 @@ static PyMethodDef NoteinTrig_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods NoteinTrig_as_number =
-{
-    (binaryfunc)NoteinTrig_add,                      /*nb_add*/
-    (binaryfunc)NoteinTrig_sub,                 /*nb_subtract*/
-    (binaryfunc)NoteinTrig_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)NoteinTrig_inplace_add,              /*inplace_add*/
-    (binaryfunc)NoteinTrig_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)NoteinTrig_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)NoteinTrig_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)NoteinTrig_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot NoteinTrigType_slots[] = {
+    {Py_tp_dealloc, NoteinTrig_dealloc},
+    {Py_tp_doc, "NoteinTrig objects. Stream noteon or noteoff trigger from a Notein voice."},
+    {Py_tp_traverse, NoteinTrig_traverse},
+    {Py_tp_clear, NoteinTrig_clear},
+    {Py_tp_methods, NoteinTrig_methods},
+    {Py_tp_members, NoteinTrig_members},
+    {Py_tp_new, NoteinTrig_new},
+    {Py_nb_add, NoteinTrig_add},
+    {Py_nb_subtract, NoteinTrig_sub},
+    {Py_nb_multiply, NoteinTrig_multiply},
+    {Py_nb_true_divide, NoteinTrig_div},
+    {Py_nb_inplace_add, NoteinTrig_inplace_add},
+    {Py_nb_inplace_subtract, NoteinTrig_inplace_sub},
+    {Py_nb_inplace_multiply, NoteinTrig_inplace_multiply},
+    {Py_nb_inplace_true_divide, NoteinTrig_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject NoteinTrigType =
+static PyType_Spec NoteinTrigType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.NoteinTrig_base",         /*tp_name*/
-    sizeof(NoteinTrig),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)NoteinTrig_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &NoteinTrig_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "NoteinTrig objects. Stream noteon or noteoff trigger from a Notein voice.",           /* tp_doc */
-    (traverseproc)NoteinTrig_traverse,   /* tp_traverse */
-    (inquiry)NoteinTrig_clear,           /* tp_clear */
-    0,                       /* tp_richcompare */
-    0,                       /* tp_weaklistoffset */
-    0,                       /* tp_iter */
-    0,                       /* tp_iternext */
-    NoteinTrig_methods,             /* tp_methods */
-    NoteinTrig_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    NoteinTrig_new,                 /* tp_new */
+    "_pyo.NoteinTrig_base",
+    sizeof(NoteinTrig),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    NoteinTrigType_slots
 };
+
+PyTypeObject *
+PyoCreateNoteinTrigType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &NoteinTrigType_spec, NULL);
+}
 
 typedef struct
 {
@@ -3316,44 +2992,44 @@ MidiAdsr_setProcMode(MidiAdsr *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = MidiAdsr_generates;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(MidiAdsr_generates);
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = MidiAdsr_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MidiAdsr_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = MidiAdsr_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MidiAdsr_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = MidiAdsr_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MidiAdsr_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = MidiAdsr_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MidiAdsr_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = MidiAdsr_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MidiAdsr_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = MidiAdsr_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MidiAdsr_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = MidiAdsr_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MidiAdsr_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = MidiAdsr_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MidiAdsr_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = MidiAdsr_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MidiAdsr_postprocessing_revareva);
             break;
     }
 }
@@ -3387,7 +3063,7 @@ MidiAdsr_dealloc(MidiAdsr* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buf);
     MidiAdsr_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3414,8 +3090,8 @@ MidiAdsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->exp = self->expscl = 1.0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, MidiAdsr_compute_next_data_frame);
-    self->mode_func_ptr = MidiAdsr_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(MidiAdsr_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(MidiAdsr_setProcMode);
 
     self->sampleToSec = 1. / self->sr;
 
@@ -3593,85 +3269,39 @@ static PyMethodDef MidiAdsr_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods MidiAdsr_as_number =
-{
-    (binaryfunc)MidiAdsr_add,                      /*nb_add*/
-    (binaryfunc)MidiAdsr_sub,                 /*nb_subtract*/
-    (binaryfunc)MidiAdsr_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)MidiAdsr_inplace_add,              /*inplace_add*/
-    (binaryfunc)MidiAdsr_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)MidiAdsr_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)MidiAdsr_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)MidiAdsr_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot MidiAdsrType_slots[] = {
+    {Py_tp_dealloc, MidiAdsr_dealloc},
+    {Py_tp_doc, "MidiAdsr objects. Generates MidiAdsr envelope signal."},
+    {Py_tp_traverse, MidiAdsr_traverse},
+    {Py_tp_clear, MidiAdsr_clear},
+    {Py_tp_methods, MidiAdsr_methods},
+    {Py_tp_members, MidiAdsr_members},
+    {Py_tp_new, MidiAdsr_new},
+    {Py_nb_add, MidiAdsr_add},
+    {Py_nb_subtract, MidiAdsr_sub},
+    {Py_nb_multiply, MidiAdsr_multiply},
+    {Py_nb_true_divide, MidiAdsr_div},
+    {Py_nb_inplace_add, MidiAdsr_inplace_add},
+    {Py_nb_inplace_subtract, MidiAdsr_inplace_sub},
+    {Py_nb_inplace_multiply, MidiAdsr_inplace_multiply},
+    {Py_nb_inplace_true_divide, MidiAdsr_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject MidiAdsrType =
+static PyType_Spec MidiAdsrType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.MidiAdsr_base",         /*tp_name*/
-    sizeof(MidiAdsr),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)MidiAdsr_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &MidiAdsr_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "MidiAdsr objects. Generates MidiAdsr envelope signal.",           /* tp_doc */
-    (traverseproc)MidiAdsr_traverse,   /* tp_traverse */
-    (inquiry)MidiAdsr_clear,           /* tp_clear */
-    0,                       /* tp_richcompare */
-    0,                       /* tp_weaklistoffset */
-    0,                       /* tp_iter */
-    0,                       /* tp_iternext */
-    MidiAdsr_methods,             /* tp_methods */
-    MidiAdsr_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    MidiAdsr_new,                 /* tp_new */
+    "_pyo.MidiAdsr_base",
+    sizeof(MidiAdsr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MidiAdsrType_slots
 };
+
+PyTypeObject *
+PyoCreateMidiAdsrType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MidiAdsrType_spec, NULL);
+}
 
 typedef struct
 {
@@ -3793,44 +3423,44 @@ MidiDelAdsr_setProcMode(MidiDelAdsr *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = MidiDelAdsr_generates;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(MidiDelAdsr_generates);
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = MidiDelAdsr_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MidiDelAdsr_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = MidiDelAdsr_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MidiDelAdsr_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = MidiDelAdsr_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MidiDelAdsr_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = MidiDelAdsr_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MidiDelAdsr_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = MidiDelAdsr_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MidiDelAdsr_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = MidiDelAdsr_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MidiDelAdsr_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = MidiDelAdsr_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MidiDelAdsr_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = MidiDelAdsr_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MidiDelAdsr_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = MidiDelAdsr_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MidiDelAdsr_postprocessing_revareva);
             break;
     }
 }
@@ -3864,7 +3494,7 @@ MidiDelAdsr_dealloc(MidiDelAdsr* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buf);
     MidiDelAdsr_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3892,8 +3522,8 @@ MidiDelAdsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->exp = self->expscl = 1.0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, MidiDelAdsr_compute_next_data_frame);
-    self->mode_func_ptr = MidiDelAdsr_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(MidiDelAdsr_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(MidiDelAdsr_setProcMode);
 
     self->sampleToSec = 1. / self->sr;
 
@@ -4086,85 +3716,39 @@ static PyMethodDef MidiDelAdsr_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods MidiDelAdsr_as_number =
-{
-    (binaryfunc)MidiDelAdsr_add,                      /*nb_add*/
-    (binaryfunc)MidiDelAdsr_sub,                 /*nb_subtract*/
-    (binaryfunc)MidiDelAdsr_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)MidiDelAdsr_inplace_add,              /*inplace_add*/
-    (binaryfunc)MidiDelAdsr_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)MidiDelAdsr_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)MidiDelAdsr_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)MidiDelAdsr_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot MidiDelAdsrType_slots[] = {
+    {Py_tp_dealloc, MidiDelAdsr_dealloc},
+    {Py_tp_doc, "MidiDelAdsr objects. Generates MidiDelAdsr envelope signal."},
+    {Py_tp_traverse, MidiDelAdsr_traverse},
+    {Py_tp_clear, MidiDelAdsr_clear},
+    {Py_tp_methods, MidiDelAdsr_methods},
+    {Py_tp_members, MidiDelAdsr_members},
+    {Py_tp_new, MidiDelAdsr_new},
+    {Py_nb_add, MidiDelAdsr_add},
+    {Py_nb_subtract, MidiDelAdsr_sub},
+    {Py_nb_multiply, MidiDelAdsr_multiply},
+    {Py_nb_true_divide, MidiDelAdsr_div},
+    {Py_nb_inplace_add, MidiDelAdsr_inplace_add},
+    {Py_nb_inplace_subtract, MidiDelAdsr_inplace_sub},
+    {Py_nb_inplace_multiply, MidiDelAdsr_inplace_multiply},
+    {Py_nb_inplace_true_divide, MidiDelAdsr_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject MidiDelAdsrType =
+static PyType_Spec MidiDelAdsrType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.MidiDelAdsr_base",         /*tp_name*/
-    sizeof(MidiDelAdsr),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)MidiDelAdsr_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &MidiDelAdsr_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "MidiDelAdsr objects. Generates MidiDelAdsr envelope signal.",           /* tp_doc */
-    (traverseproc)MidiDelAdsr_traverse,   /* tp_traverse */
-    (inquiry)MidiDelAdsr_clear,           /* tp_clear */
-    0,                       /* tp_richcompare */
-    0,                       /* tp_weaklistoffset */
-    0,                       /* tp_iter */
-    0,                       /* tp_iternext */
-    MidiDelAdsr_methods,             /* tp_methods */
-    MidiDelAdsr_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    MidiDelAdsr_new,                 /* tp_new */
+    "_pyo.MidiDelAdsr_base",
+    sizeof(MidiDelAdsr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MidiDelAdsrType_slots
 };
+
+PyTypeObject *
+PyoCreateMidiDelAdsrType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MidiDelAdsrType_spec, NULL);
+}
 
 typedef struct
 {
@@ -4223,7 +3807,7 @@ RawMidi_dealloc(RawMidi* self)
 {
     pyo_DEALLOC
     RawMidi_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -4238,8 +3822,8 @@ RawMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, RawMidi_compute_next_data_frame);
-    self->mode_func_ptr = RawMidi_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(RawMidi_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(RawMidi_setProcMode);
 
     static char *kwlist[] = {"callable", NULL};
 
@@ -4297,47 +3881,31 @@ static PyMethodDef RawMidi_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject RawMidiType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.RawMidi_base",         /*tp_name*/
-    sizeof(RawMidi),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)RawMidi_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "RawMidi objects. Calls a function with midi data as arguments.",           /* tp_doc */
-    (traverseproc)RawMidi_traverse,   /* tp_traverse */
-    (inquiry)RawMidi_clear,           /* tp_clear */
-    0,                       /* tp_richcompare */
-    0,                       /* tp_weaklistoffset */
-    0,                       /* tp_iter */
-    0,                       /* tp_iternext */
-    RawMidi_methods,             /* tp_methods */
-    RawMidi_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    RawMidi_new,                 /* tp_new */
+static PyType_Slot RawMidiType_slots[] = {
+    {Py_tp_dealloc, RawMidi_dealloc},
+    {Py_tp_doc, "RawMidi objects. Calls a function with midi data as arguments."},
+    {Py_tp_traverse, RawMidi_traverse},
+    {Py_tp_clear, RawMidi_clear},
+    {Py_tp_methods, RawMidi_methods},
+    {Py_tp_members, RawMidi_members},
+    {Py_tp_new, RawMidi_new},
+    {0, NULL}
 };
+
+static PyType_Spec RawMidiType_spec =
+{
+    "_pyo.RawMidi_base",
+    sizeof(RawMidi),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    RawMidiType_slots
+};
+
+PyTypeObject *
+PyoCreateRawMidiType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &RawMidiType_spec, NULL);
+}
 
 /*********************************************************************************************/
 /* MidiLinseg *********************************************************************************/
@@ -4520,44 +4088,44 @@ MidiLinseg_setProcMode(MidiLinseg *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = MidiLinseg_generate;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(MidiLinseg_generate);
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = MidiLinseg_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MidiLinseg_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = MidiLinseg_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MidiLinseg_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = MidiLinseg_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MidiLinseg_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = MidiLinseg_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MidiLinseg_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = MidiLinseg_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MidiLinseg_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = MidiLinseg_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MidiLinseg_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = MidiLinseg_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MidiLinseg_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = MidiLinseg_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MidiLinseg_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = MidiLinseg_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MidiLinseg_postprocessing_revareva);
             break;
     }
 }
@@ -4596,7 +4164,7 @@ MidiLinseg_dealloc(MidiLinseg* self)
     PyMem_RawFree(self->trigsBuffer);
     MidiLinseg_clear(self);
     Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -4618,8 +4186,8 @@ MidiLinseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, MidiLinseg_compute_next_data_frame);
-    self->mode_func_ptr = MidiLinseg_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(MidiLinseg_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(MidiLinseg_setProcMode);
 
     self->sampleToSec = 1. / self->sr;
 
@@ -4747,82 +4315,36 @@ static PyMethodDef MidiLinseg_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods MidiLinseg_as_number =
-{
-    (binaryfunc)MidiLinseg_add,                      /*nb_add*/
-    (binaryfunc)MidiLinseg_sub,                 /*nb_subtract*/
-    (binaryfunc)MidiLinseg_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)MidiLinseg_inplace_add,              /*inplace_add*/
-    (binaryfunc)MidiLinseg_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)MidiLinseg_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)MidiLinseg_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)MidiLinseg_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot MidiLinsegType_slots[] = {
+    {Py_tp_dealloc, MidiLinseg_dealloc},
+    {Py_tp_doc, "MidiLinseg objects. Generates a linear segments break-points line."},
+    {Py_tp_traverse, MidiLinseg_traverse},
+    {Py_tp_clear, MidiLinseg_clear},
+    {Py_tp_methods, MidiLinseg_methods},
+    {Py_tp_members, MidiLinseg_members},
+    {Py_tp_new, MidiLinseg_new},
+    {Py_nb_add, MidiLinseg_add},
+    {Py_nb_subtract, MidiLinseg_sub},
+    {Py_nb_multiply, MidiLinseg_multiply},
+    {Py_nb_true_divide, MidiLinseg_div},
+    {Py_nb_inplace_add, MidiLinseg_inplace_add},
+    {Py_nb_inplace_subtract, MidiLinseg_inplace_sub},
+    {Py_nb_inplace_multiply, MidiLinseg_inplace_multiply},
+    {Py_nb_inplace_true_divide, MidiLinseg_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject MidiLinsegType =
+static PyType_Spec MidiLinsegType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.MidiLinseg_base",         /*tp_name*/
-    sizeof(MidiLinseg),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)MidiLinseg_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &MidiLinseg_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "MidiLinseg objects. Generates a linear segments break-points line.",           /* tp_doc */
-    (traverseproc)MidiLinseg_traverse,   /* tp_traverse */
-    (inquiry)MidiLinseg_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    MidiLinseg_methods,             /* tp_methods */
-    MidiLinseg_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    MidiLinseg_new,                 /* tp_new */
+    "_pyo.MidiLinseg_base",
+    sizeof(MidiLinseg),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MidiLinsegType_slots
 };
+
+PyTypeObject *
+PyoCreateMidiLinsegType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MidiLinsegType_spec, NULL);
+}

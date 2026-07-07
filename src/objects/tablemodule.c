@@ -135,53 +135,29 @@ void TableStream_record(TableStream *self, int pos, MYFLT value)
     self->data[pos] = value;
 }
 
-static PyBufferProcs TableStream_as_buffer =
+static PyType_Slot TableStreamType_slots[] =
 {
-    (getbufferproc)TableStream_getBuffer,
-    (releasebufferproc)NULL,
+    {Py_tp_dealloc, TableStream_dealloc},
+    {Py_tp_doc, "TableStream objects. For internal use only. Must never be instantiated by the user."},
+    {Py_bf_getbuffer, TableStream_getBuffer},
+    {Py_tp_new, TableStream_new},
+    {0, NULL}
 };
 
-PyTypeObject TableStreamType =
+static PyType_Spec TableStreamType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.TableStream", /*tp_name*/
-    sizeof(TableStream), /*tp_basicsize*/
-    0, /*tp_itemsize*/
-    (destructor)TableStream_dealloc, /*tp_dealloc*/
-    0, /*tp_print*/
-    0, /*tp_getattr*/
-    0, /*tp_setattr*/
-    0, /*tp_as_async (tp_compare in Python 2)*/
-    0, /*tp_repr*/
-    0, /*tp_as_number*/
-    0, /*tp_as_sequence*/
-    0, /*tp_as_mapping*/
-    0, /*tp_hash */
-    0, /*tp_call*/
-    0, /*tp_str*/
-    0, /*tp_getattro*/
-    0, /*tp_setattro*/
-    &TableStream_as_buffer,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
-    "TableStream objects. For internal use only. Must never be instantiated by the user.", /* tp_doc */
-    0, /* tp_traverse */
-    0, /* tp_clear */
-    0, /* tp_richcompare */
-    0, /* tp_weaklistoffset */
-    0, /* tp_iter */
-    0, /* tp_iternext */
-    0, /* tp_methods */
-    0, /* tp_members */
-    0, /* tp_getset */
-    0, /* tp_base */
-    0, /* tp_dict */
-    0, /* tp_descr_get */
-    0, /* tp_descr_set */
-    0, /* tp_dictoffset */
-    0, /* tp_init */
-    0, /* tp_alloc */
-    TableStream_new, /* tp_new */
+    "_pyo.TableStream",
+    sizeof(TableStream),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    TableStreamType_slots
 };
+
+PyTypeObject *
+PyoCreateTableStreamType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &TableStreamType_spec, NULL);
+}
 
 /***********************/
 /* HarmTable structure */
@@ -249,7 +225,7 @@ HarmTable_clear(HarmTable *self)
 static void
 HarmTable_dealloc(HarmTable* self)
 {
-    PyObject_GC_UnTrack(self);
+    pyo_GC_UNTRACK(self);
     PyMem_RawFree(self->data);
     HarmTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -415,47 +391,32 @@ static PyMethodDef HarmTable_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject HarmTableType =
+static PyType_Slot HarmTableType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.HarmTable_base",         /*tp_name*/
-    sizeof(HarmTable),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)HarmTable_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "HarmTable objects. Generates a table filled with a waveform whose harmonic content correspond to a given amplitude list values.",  /* tp_doc */
-    (traverseproc)HarmTable_traverse,   /* tp_traverse */
-    (inquiry)HarmTable_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    HarmTable_methods,             /* tp_methods */
-    HarmTable_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    HarmTable_new,                 /* tp_new */
+    {Py_tp_dealloc, HarmTable_dealloc},
+    {Py_tp_doc, "HarmTable objects. Generates a table filled with a waveform whose harmonic content correspond to a given amplitude list values."},
+    {Py_tp_traverse, HarmTable_traverse},
+    {Py_tp_clear, HarmTable_clear},
+    {Py_tp_methods, HarmTable_methods},
+    {Py_tp_members, HarmTable_members},
+    {Py_tp_new, HarmTable_new},
+    {0, NULL}
 };
+
+static PyType_Spec HarmTableType_spec =
+{
+    "_pyo.HarmTable_base",
+    sizeof(HarmTable),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    HarmTableType_slots
+};
+
+PyTypeObject *
+PyoCreateHarmTableType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &HarmTableType_spec, NULL);
+}
 
 /***********************/
 /* ChebyTable structure */
@@ -579,7 +540,7 @@ ChebyTable_clear(ChebyTable *self)
 static void
 ChebyTable_dealloc(ChebyTable* self)
 {
-    PyObject_GC_UnTrack(self);
+    pyo_GC_UNTRACK(self);
     PyMem_RawFree(self->data);
     ChebyTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -843,47 +804,32 @@ static PyMethodDef ChebyTable_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject ChebyTableType =
+static PyType_Slot ChebyTableType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.ChebyTable_base",         /*tp_name*/
-    sizeof(ChebyTable),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)ChebyTable_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "ChebyTable objects. Generates a table filled with a waveform whose harmonic content correspond to a given amplitude list values.",  /* tp_doc */
-    (traverseproc)ChebyTable_traverse,   /* tp_traverse */
-    (inquiry)ChebyTable_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    ChebyTable_methods,             /* tp_methods */
-    ChebyTable_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    ChebyTable_new,                 /* tp_new */
+    {Py_tp_dealloc, ChebyTable_dealloc},
+    {Py_tp_doc, "ChebyTable objects. Generates a table filled with a waveform whose harmonic content correspond to a given amplitude list values."},
+    {Py_tp_traverse, ChebyTable_traverse},
+    {Py_tp_clear, ChebyTable_clear},
+    {Py_tp_methods, ChebyTable_methods},
+    {Py_tp_members, ChebyTable_members},
+    {Py_tp_new, ChebyTable_new},
+    {0, NULL}
 };
+
+static PyType_Spec ChebyTableType_spec =
+{
+    "_pyo.ChebyTable_base",
+    sizeof(ChebyTable),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    ChebyTableType_slots
+};
+
+PyTypeObject *
+PyoCreateChebyTableType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &ChebyTableType_spec, NULL);
+}
 
 /***********************/
 /* HannTable structure */
@@ -928,7 +874,7 @@ HannTable_clear(HannTable *self)
 static void
 HannTable_dealloc(HannTable* self)
 {
-    PyObject_GC_UnTrack(self);
+    pyo_GC_UNTRACK(self);
     PyMem_RawFree(self->data);
     HannTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -1056,47 +1002,32 @@ static PyMethodDef HannTable_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject HannTableType =
+static PyType_Slot HannTableType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.HannTable_base",         /*tp_name*/
-    sizeof(HannTable),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)HannTable_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "HannTable objects. Generates a table filled with a hanning function.",  /* tp_doc */
-    (traverseproc)HannTable_traverse,   /* tp_traverse */
-    (inquiry)HannTable_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    HannTable_methods,             /* tp_methods */
-    HannTable_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    HannTable_new,                 /* tp_new */
+    {Py_tp_dealloc, HannTable_dealloc},
+    {Py_tp_doc, "HannTable objects. Generates a table filled with a hanning function."},
+    {Py_tp_traverse, HannTable_traverse},
+    {Py_tp_clear, HannTable_clear},
+    {Py_tp_methods, HannTable_methods},
+    {Py_tp_members, HannTable_members},
+    {Py_tp_new, HannTable_new},
+    {0, NULL}
 };
+
+static PyType_Spec HannTableType_spec =
+{
+    "_pyo.HannTable_base",
+    sizeof(HannTable),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    HannTableType_slots
+};
+
+PyTypeObject *
+PyoCreateHannTableType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &HannTableType_spec, NULL);
+}
 
 /***********************/
 /* SincTable structure */
@@ -1168,7 +1099,7 @@ SincTable_clear(SincTable *self)
 static void
 SincTable_dealloc(SincTable* self)
 {
-    PyObject_GC_UnTrack(self);
+    pyo_GC_UNTRACK(self);
     PyMem_RawFree(self->data);
     SincTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -1334,47 +1265,32 @@ static PyMethodDef SincTable_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject SincTableType =
+static PyType_Slot SincTableType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.SincTable_base",         /*tp_name*/
-    sizeof(SincTable),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)SincTable_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "SincTable objects. Generates a table filled with a sinc function.",  /* tp_doc */
-    (traverseproc)SincTable_traverse,   /* tp_traverse */
-    (inquiry)SincTable_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    SincTable_methods,             /* tp_methods */
-    SincTable_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    SincTable_new,                 /* tp_new */
+    {Py_tp_dealloc, SincTable_dealloc},
+    {Py_tp_doc, "SincTable objects. Generates a table filled with a sinc function."},
+    {Py_tp_traverse, SincTable_traverse},
+    {Py_tp_clear, SincTable_clear},
+    {Py_tp_methods, SincTable_methods},
+    {Py_tp_members, SincTable_members},
+    {Py_tp_new, SincTable_new},
+    {0, NULL}
 };
+
+static PyType_Spec SincTableType_spec =
+{
+    "_pyo.SincTable_base",
+    sizeof(SincTable),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    SincTableType_slots
+};
+
+PyTypeObject *
+PyoCreateSincTableType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &SincTableType_spec, NULL);
+}
 
 /***********************/
 /* WinTable structure  */
@@ -1409,7 +1325,7 @@ WinTable_clear(WinTable *self)
 static void
 WinTable_dealloc(WinTable* self)
 {
-    PyObject_GC_UnTrack(self);
+    pyo_GC_UNTRACK(self);
     PyMem_RawFree(self->data);
     WinTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -1561,47 +1477,32 @@ static PyMethodDef WinTable_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject WinTableType =
+static PyType_Slot WinTableType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.WinTable_base",         /*tp_name*/
-    sizeof(WinTable),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)WinTable_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "WinTable objects. Generates a table filled with a hanning function.",  /* tp_doc */
-    (traverseproc)WinTable_traverse,   /* tp_traverse */
-    (inquiry)WinTable_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    WinTable_methods,             /* tp_methods */
-    WinTable_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    WinTable_new,                 /* tp_new */
+    {Py_tp_dealloc, WinTable_dealloc},
+    {Py_tp_doc, "WinTable objects. Generates a table filled with a hanning function."},
+    {Py_tp_traverse, WinTable_traverse},
+    {Py_tp_clear, WinTable_clear},
+    {Py_tp_methods, WinTable_methods},
+    {Py_tp_members, WinTable_members},
+    {Py_tp_new, WinTable_new},
+    {0, NULL}
 };
+
+static PyType_Spec WinTableType_spec =
+{
+    "_pyo.WinTable_base",
+    sizeof(WinTable),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    WinTableType_slots
+};
+
+PyTypeObject *
+PyoCreateWinTableType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &WinTableType_spec, NULL);
+}
 
 /***********************/
 /* ParaTable structure */
@@ -1652,7 +1553,7 @@ ParaTable_clear(ParaTable *self)
 static void
 ParaTable_dealloc(ParaTable* self)
 {
-    PyObject_GC_UnTrack(self);
+    pyo_GC_UNTRACK(self);
     PyMem_RawFree(self->data);
     ParaTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -1780,47 +1681,32 @@ static PyMethodDef ParaTable_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject ParaTableType =
+static PyType_Slot ParaTableType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.ParaTable_base",         /*tp_name*/
-    sizeof(ParaTable),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)ParaTable_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "ParaTable objects. Generates a parabola table.",  /* tp_doc */
-    (traverseproc)ParaTable_traverse,   /* tp_traverse */
-    (inquiry)ParaTable_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    ParaTable_methods,             /* tp_methods */
-    ParaTable_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    ParaTable_new,                 /* tp_new */
+    {Py_tp_dealloc, ParaTable_dealloc},
+    {Py_tp_doc, "ParaTable objects. Generates a parabola table."},
+    {Py_tp_traverse, ParaTable_traverse},
+    {Py_tp_clear, ParaTable_clear},
+    {Py_tp_methods, ParaTable_methods},
+    {Py_tp_members, ParaTable_members},
+    {Py_tp_new, ParaTable_new},
+    {0, NULL}
 };
+
+static PyType_Spec ParaTableType_spec =
+{
+    "_pyo.ParaTable_base",
+    sizeof(ParaTable),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    ParaTableType_slots
+};
+
+PyTypeObject *
+PyoCreateParaTableType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &ParaTableType_spec, NULL);
+}
 
 /***********************/
 /* LinTable structure */
@@ -1918,7 +1804,7 @@ LinTable_clear(LinTable *self)
 static void
 LinTable_dealloc(LinTable* self)
 {
-    PyObject_GC_UnTrack(self);
+    pyo_GC_UNTRACK(self);
     PyMem_RawFree(self->data);
     LinTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -2094,47 +1980,32 @@ static PyMethodDef LinTable_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject LinTableType =
+static PyType_Slot LinTableType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.LinTable_base",         /*tp_name*/
-    sizeof(LinTable),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)LinTable_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "LinTable objects. Generates a table filled with one or more straight lines.",  /* tp_doc */
-    (traverseproc)LinTable_traverse,   /* tp_traverse */
-    (inquiry)LinTable_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    LinTable_methods,             /* tp_methods */
-    LinTable_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    LinTable_new,                 /* tp_new */
+    {Py_tp_dealloc, LinTable_dealloc},
+    {Py_tp_doc, "LinTable objects. Generates a table filled with one or more straight lines."},
+    {Py_tp_traverse, LinTable_traverse},
+    {Py_tp_clear, LinTable_clear},
+    {Py_tp_methods, LinTable_methods},
+    {Py_tp_members, LinTable_members},
+    {Py_tp_new, LinTable_new},
+    {0, NULL}
 };
+
+static PyType_Spec LinTableType_spec =
+{
+    "_pyo.LinTable_base",
+    sizeof(LinTable),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    LinTableType_slots
+};
+
+PyTypeObject *
+PyoCreateLinTableType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &LinTableType_spec, NULL);
+}
 
 /***********************/
 /* LogTable structure */
@@ -2264,7 +2135,7 @@ LogTable_clear(LogTable *self)
 static void
 LogTable_dealloc(LogTable* self)
 {
-    PyObject_GC_UnTrack(self);
+    pyo_GC_UNTRACK(self);
     PyMem_RawFree(self->data);
     LogTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -2440,47 +2311,32 @@ static PyMethodDef LogTable_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject LogTableType =
+static PyType_Slot LogTableType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.LogTable_base",         /*tp_name*/
-    sizeof(LogTable),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)LogTable_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "LogTable objects. Generates a table filled with one or more logarothmic lines.",  /* tp_doc */
-    (traverseproc)LogTable_traverse,   /* tp_traverse */
-    (inquiry)LogTable_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    LogTable_methods,             /* tp_methods */
-    LogTable_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    LogTable_new,                 /* tp_new */
+    {Py_tp_dealloc, LogTable_dealloc},
+    {Py_tp_doc, "LogTable objects. Generates a table filled with one or more logarothmic lines."},
+    {Py_tp_traverse, LogTable_traverse},
+    {Py_tp_clear, LogTable_clear},
+    {Py_tp_methods, LogTable_methods},
+    {Py_tp_members, LogTable_members},
+    {Py_tp_new, LogTable_new},
+    {0, NULL}
 };
+
+static PyType_Spec LogTableType_spec =
+{
+    "_pyo.LogTable_base",
+    sizeof(LogTable),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    LogTableType_slots
+};
+
+PyTypeObject *
+PyoCreateLogTableType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &LogTableType_spec, NULL);
+}
 
 /***********************/
 /* CosTable structure */
@@ -2578,7 +2434,7 @@ CosTable_clear(CosTable *self)
 static void
 CosTable_dealloc(CosTable* self)
 {
-    PyObject_GC_UnTrack(self);
+    pyo_GC_UNTRACK(self);
     PyMem_RawFree(self->data);
     CosTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -2754,47 +2610,32 @@ static PyMethodDef CosTable_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject CosTableType =
+static PyType_Slot CosTableType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.CosTable_base",         /*tp_name*/
-    sizeof(CosTable),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)CosTable_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "CosTable objects. Generates a table filled with one or more straight lines.",  /* tp_doc */
-    (traverseproc)CosTable_traverse,   /* tp_traverse */
-    (inquiry)CosTable_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    CosTable_methods,             /* tp_methods */
-    CosTable_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    CosTable_new,                 /* tp_new */
+    {Py_tp_dealloc, CosTable_dealloc},
+    {Py_tp_doc, "CosTable objects. Generates a table filled with one or more straight lines."},
+    {Py_tp_traverse, CosTable_traverse},
+    {Py_tp_clear, CosTable_clear},
+    {Py_tp_methods, CosTable_methods},
+    {Py_tp_members, CosTable_members},
+    {Py_tp_new, CosTable_new},
+    {0, NULL}
 };
+
+static PyType_Spec CosTableType_spec =
+{
+    "_pyo.CosTable_base",
+    sizeof(CosTable),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    CosTableType_slots
+};
+
+PyTypeObject *
+PyoCreateCosTableType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &CosTableType_spec, NULL);
+}
 
 /***********************/
 /* CosLogTable structure */
@@ -2925,7 +2766,7 @@ CosLogTable_clear(CosLogTable *self)
 static void
 CosLogTable_dealloc(CosLogTable* self)
 {
-    PyObject_GC_UnTrack(self);
+    pyo_GC_UNTRACK(self);
     PyMem_RawFree(self->data);
     CosLogTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -3101,47 +2942,32 @@ static PyMethodDef CosLogTable_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject CosLogTableType =
+static PyType_Slot CosLogTableType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.CosLogTable_base",         /*tp_name*/
-    sizeof(CosLogTable),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)CosLogTable_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "CosLogTable objects. Generates a table filled with one or more Cosine-logarithmic lines.",  /* tp_doc */
-    (traverseproc)CosLogTable_traverse,   /* tp_traverse */
-    (inquiry)CosLogTable_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    CosLogTable_methods,             /* tp_methods */
-    CosLogTable_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    CosLogTable_new,                 /* tp_new */
+    {Py_tp_dealloc, CosLogTable_dealloc},
+    {Py_tp_doc, "CosLogTable objects. Generates a table filled with one or more Cosine-logarithmic lines."},
+    {Py_tp_traverse, CosLogTable_traverse},
+    {Py_tp_clear, CosLogTable_clear},
+    {Py_tp_methods, CosLogTable_methods},
+    {Py_tp_members, CosLogTable_members},
+    {Py_tp_new, CosLogTable_new},
+    {0, NULL}
 };
+
+static PyType_Spec CosLogTableType_spec =
+{
+    "_pyo.CosLogTable_base",
+    sizeof(CosLogTable),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    CosLogTableType_slots
+};
+
+PyTypeObject *
+PyoCreateCosLogTableType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &CosLogTableType_spec, NULL);
+}
 
 /***********************/
 /* CurveTable structure */
@@ -3263,7 +3089,7 @@ CurveTable_clear(CurveTable *self)
 static void
 CurveTable_dealloc(CurveTable* self)
 {
-    PyObject_GC_UnTrack(self);
+    pyo_GC_UNTRACK(self);
     PyMem_RawFree(self->data);
     CurveTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -3487,47 +3313,32 @@ static PyMethodDef CurveTable_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject CurveTableType =
+static PyType_Slot CurveTableType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.CurveTable_base",         /*tp_name*/
-    sizeof(CurveTable),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)CurveTable_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "CurveTable objects. Generates a table filled with one or more straight lines.",  /* tp_doc */
-    (traverseproc)CurveTable_traverse,   /* tp_traverse */
-    (inquiry)CurveTable_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    CurveTable_methods,             /* tp_methods */
-    CurveTable_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    CurveTable_new,                 /* tp_new */
+    {Py_tp_dealloc, CurveTable_dealloc},
+    {Py_tp_doc, "CurveTable objects. Generates a table filled with one or more straight lines."},
+    {Py_tp_traverse, CurveTable_traverse},
+    {Py_tp_clear, CurveTable_clear},
+    {Py_tp_methods, CurveTable_methods},
+    {Py_tp_members, CurveTable_members},
+    {Py_tp_new, CurveTable_new},
+    {0, NULL}
 };
+
+static PyType_Spec CurveTableType_spec =
+{
+    "_pyo.CurveTable_base",
+    sizeof(CurveTable),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    CurveTableType_slots
+};
+
+PyTypeObject *
+PyoCreateCurveTableType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &CurveTableType_spec, NULL);
+}
 
 /***********************/
 /* ExpTable structure */
@@ -3649,7 +3460,7 @@ ExpTable_clear(ExpTable *self)
 static void
 ExpTable_dealloc(ExpTable* self)
 {
-    PyObject_GC_UnTrack(self);
+    pyo_GC_UNTRACK(self);
     PyMem_RawFree(self->data);
     ExpTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -3872,47 +3683,32 @@ static PyMethodDef ExpTable_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject ExpTableType =
+static PyType_Slot ExpTableType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.ExpTable_base",         /*tp_name*/
-    sizeof(ExpTable),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)ExpTable_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "ExpTable objects. Generates a table filled with one or more straight lines.",  /* tp_doc */
-    (traverseproc)ExpTable_traverse,   /* tp_traverse */
-    (inquiry)ExpTable_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    ExpTable_methods,             /* tp_methods */
-    ExpTable_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    ExpTable_new,                 /* tp_new */
+    {Py_tp_dealloc, ExpTable_dealloc},
+    {Py_tp_doc, "ExpTable objects. Generates a table filled with one or more straight lines."},
+    {Py_tp_traverse, ExpTable_traverse},
+    {Py_tp_clear, ExpTable_clear},
+    {Py_tp_methods, ExpTable_methods},
+    {Py_tp_members, ExpTable_members},
+    {Py_tp_new, ExpTable_new},
+    {0, NULL}
 };
+
+static PyType_Spec ExpTableType_spec =
+{
+    "_pyo.ExpTable_base",
+    sizeof(ExpTable),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    ExpTableType_slots
+};
+
+PyTypeObject *
+PyoCreateExpTableType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &ExpTableType_spec, NULL);
+}
 
 /***********************/
 /* SndTable structure */
@@ -4401,7 +4197,7 @@ SndTable_clear(SndTable *self)
 static void
 SndTable_dealloc(SndTable* self)
 {
-    PyObject_GC_UnTrack(self);
+    pyo_GC_UNTRACK(self);
     PyMem_RawFree(self->data);
     SndTable_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
@@ -4799,55 +4595,32 @@ static PyMethodDef SndTable_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject SndTableType =
+static PyType_Slot SndTableType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.SndTable_base",         /*tp_name*/
-    sizeof(SndTable),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)SndTable_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "SndTable objects. Generates a table filled with a soundfile.",  /* tp_doc */
-    (traverseproc)SndTable_traverse,   /* tp_traverse */
-    (inquiry)SndTable_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    SndTable_methods,             /* tp_methods */
-    SndTable_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    SndTable_new,                 /* tp_new */
-    0,               /* tp_free */
-    0,               /* tp_is_gc */
-    0,               /* tp_bases */
-    0,               /* tp_mro */
-    0,               /* tp_cache */
-    0,               /* tp_subclasses */
-    0,               /* tp_weaklist */
-    0,               /* tp_del */
+    {Py_tp_dealloc, SndTable_dealloc},
+    {Py_tp_doc, "SndTable objects. Generates a table filled with a soundfile."},
+    {Py_tp_traverse, SndTable_traverse},
+    {Py_tp_clear, SndTable_clear},
+    {Py_tp_methods, SndTable_methods},
+    {Py_tp_members, SndTable_members},
+    {Py_tp_new, SndTable_new},
+    {0, NULL}
 };
+
+static PyType_Spec SndTableType_spec =
+{
+    "_pyo.SndTable_base",
+    sizeof(SndTable),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    SndTableType_slots
+};
+
+PyTypeObject *
+PyoCreateSndTableType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &SndTableType_spec, NULL);
+}
 
 /***********************/
 /* NewTable structure */
@@ -4877,7 +4650,7 @@ NewTable_clear(NewTable *self)
 static void
 NewTable_dealloc(NewTable* self)
 {
-    PyObject_GC_UnTrack(self);
+    pyo_GC_UNTRACK(self);
     PyMem_RawFree(self->data);
     NewTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -5252,47 +5025,32 @@ static PyMethodDef NewTable_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject NewTableType =
+static PyType_Slot NewTableType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.NewTable_base",         /*tp_name*/
-    sizeof(NewTable),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)NewTable_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "NewTable objects. Generates an empty table.",  /* tp_doc */
-    (traverseproc)NewTable_traverse,   /* tp_traverse */
-    (inquiry)NewTable_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    NewTable_methods,             /* tp_methods */
-    NewTable_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    NewTable_new,                 /* tp_new */
+    {Py_tp_dealloc, NewTable_dealloc},
+    {Py_tp_doc, "NewTable objects. Generates an empty table."},
+    {Py_tp_traverse, NewTable_traverse},
+    {Py_tp_clear, NewTable_clear},
+    {Py_tp_methods, NewTable_methods},
+    {Py_tp_members, NewTable_members},
+    {Py_tp_new, NewTable_new},
+    {0, NULL}
 };
+
+static PyType_Spec NewTableType_spec =
+{
+    "_pyo.NewTable_base",
+    sizeof(NewTable),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    NewTableType_slots
+};
+
+PyTypeObject *
+PyoCreateNewTableType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &NewTableType_spec, NULL);
+}
 
 /***********************/
 /* DataTable structure */
@@ -5320,7 +5078,7 @@ DataTable_clear(DataTable *self)
 static void
 DataTable_dealloc(DataTable* self)
 {
-    PyObject_GC_UnTrack(self);
+    pyo_GC_UNTRACK(self);
     PyMem_RawFree(self->data);
     DataTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -5448,47 +5206,32 @@ static PyMethodDef DataTable_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject DataTableType =
+static PyType_Slot DataTableType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.DataTable_base",         /*tp_name*/
-    sizeof(DataTable),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)DataTable_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "DataTable objects. Generates an empty table.",  /* tp_doc */
-    (traverseproc)DataTable_traverse,   /* tp_traverse */
-    (inquiry)DataTable_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    DataTable_methods,             /* tp_methods */
-    DataTable_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    DataTable_new,                 /* tp_new */
+    {Py_tp_dealloc, DataTable_dealloc},
+    {Py_tp_doc, "DataTable objects. Generates an empty table."},
+    {Py_tp_traverse, DataTable_traverse},
+    {Py_tp_clear, DataTable_clear},
+    {Py_tp_methods, DataTable_methods},
+    {Py_tp_members, DataTable_members},
+    {Py_tp_new, DataTable_new},
+    {0, NULL}
 };
+
+static PyType_Spec DataTableType_spec =
+{
+    "_pyo.DataTable_base",
+    sizeof(DataTable),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    DataTableType_slots
+};
+
+PyTypeObject *
+PyoCreateDataTableType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &DataTableType_spec, NULL);
+}
 
 /***********************/
 /* AtanTable structure */
@@ -5542,7 +5285,7 @@ AtanTable_clear(AtanTable *self)
 static void
 AtanTable_dealloc(AtanTable* self)
 {
-    PyObject_GC_UnTrack(self);
+    pyo_GC_UNTRACK(self);
     PyMem_RawFree(self->data);
     AtanTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -5694,47 +5437,32 @@ static PyMethodDef AtanTable_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject AtanTableType =
+static PyType_Slot AtanTableType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.AtanTable_base",         /*tp_name*/
-    sizeof(AtanTable),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)AtanTable_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "AtanTable objects. Generates a table filled with a sinc function.",  /* tp_doc */
-    (traverseproc)AtanTable_traverse,   /* tp_traverse */
-    (inquiry)AtanTable_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    AtanTable_methods,             /* tp_methods */
-    AtanTable_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    AtanTable_new,                 /* tp_new */
+    {Py_tp_dealloc, AtanTable_dealloc},
+    {Py_tp_doc, "AtanTable objects. Generates a table filled with a sinc function."},
+    {Py_tp_traverse, AtanTable_traverse},
+    {Py_tp_clear, AtanTable_clear},
+    {Py_tp_methods, AtanTable_methods},
+    {Py_tp_members, AtanTable_members},
+    {Py_tp_new, AtanTable_new},
+    {0, NULL}
 };
+
+static PyType_Spec AtanTableType_spec =
+{
+    "_pyo.AtanTable_base",
+    sizeof(AtanTable),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    AtanTableType_slots
+};
+
+PyTypeObject *
+PyoCreateAtanTableType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &AtanTableType_spec, NULL);
+}
 
 static int
 isPowerOfTwo(int x)
@@ -5877,7 +5605,7 @@ PadSynthTable_dealloc(PadSynthTable* self)
 {
     int i;
 
-    PyObject_GC_UnTrack(self);
+    pyo_GC_UNTRACK(self);
 
     for (i = 0; i < 4; i++)
     {
@@ -6165,47 +5893,32 @@ static PyMethodDef PadSynthTable_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject PadSynthTableType =
+static PyType_Slot PadSynthTableType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.PadSynthTable_base",         /*tp_name*/
-    sizeof(PadSynthTable),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)PadSynthTable_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PadSynthTable objects. Generates a table filled with a sinc function.",  /* tp_doc */
-    (traverseproc)PadSynthTable_traverse,   /* tp_traverse */
-    (inquiry)PadSynthTable_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    PadSynthTable_methods,             /* tp_methods */
-    PadSynthTable_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    PadSynthTable_new,                 /* tp_new */
+    {Py_tp_dealloc, PadSynthTable_dealloc},
+    {Py_tp_doc, "PadSynthTable objects. Generates a table filled with a sinc function."},
+    {Py_tp_traverse, PadSynthTable_traverse},
+    {Py_tp_clear, PadSynthTable_clear},
+    {Py_tp_methods, PadSynthTable_methods},
+    {Py_tp_members, PadSynthTable_members},
+    {Py_tp_new, PadSynthTable_new},
+    {0, NULL}
 };
+
+static PyType_Spec PadSynthTableType_spec =
+{
+    "_pyo.PadSynthTable_base",
+    sizeof(PadSynthTable),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    PadSynthTableType_slots
+};
+
+PyTypeObject *
+PyoCreatePadSynthTableType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &PadSynthTableType_spec, NULL);
+}
 
 /******************************/
 /* TableRec object definition */
@@ -6331,7 +6044,7 @@ TableRec_dealloc(TableRec* self)
     PyMem_RawFree(self->time_buffer_streams);
     TableRec_clear(self);
     Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -6351,7 +6064,7 @@ TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
 
-    Stream_setFunctionPtr(self->stream, TableRec_compute_next_data_frame);
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(TableRec_compute_next_data_frame));
 
     static char *kwlist[] = {"input", "table", "fadetime", NULL};
 
@@ -6480,47 +6193,32 @@ static PyMethodDef TableRec_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject TableRecType =
+static PyType_Slot TableRecType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.TableRec_base",         /*tp_name*/
-    sizeof(TableRec),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)TableRec_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "TableRec objects. Record audio input in a table object.",           /* tp_doc */
-    (traverseproc)TableRec_traverse,   /* tp_traverse */
-    (inquiry)TableRec_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    TableRec_methods,             /* tp_methods */
-    TableRec_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    TableRec_new,                 /* tp_new */
+    {Py_tp_dealloc, TableRec_dealloc},
+    {Py_tp_doc, "TableRec objects. Record audio input in a table object."},
+    {Py_tp_traverse, TableRec_traverse},
+    {Py_tp_clear, TableRec_clear},
+    {Py_tp_methods, TableRec_methods},
+    {Py_tp_members, TableRec_members},
+    {Py_tp_new, TableRec_new},
+    {0, NULL}
 };
+
+static PyType_Spec TableRecType_spec =
+{
+    "_pyo.TableRec_base",
+    sizeof(TableRec),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    TableRecType_slots
+};
+
+PyTypeObject *
+PyoCreateTableRecType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &TableRecType_spec, NULL);
+}
 
 typedef struct
 {
@@ -6548,39 +6246,39 @@ TableRecTimeStream_setProcMode(TableRecTimeStream *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = TableRecTimeStream_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableRecTimeStream_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = TableRecTimeStream_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableRecTimeStream_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = TableRecTimeStream_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableRecTimeStream_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = TableRecTimeStream_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableRecTimeStream_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = TableRecTimeStream_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableRecTimeStream_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = TableRecTimeStream_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableRecTimeStream_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = TableRecTimeStream_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableRecTimeStream_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = TableRecTimeStream_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableRecTimeStream_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = TableRecTimeStream_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TableRecTimeStream_postprocessing_revareva);
             break;
     }
 }
@@ -6621,7 +6319,7 @@ TableRecTimeStream_dealloc(TableRecTimeStream* self)
 {
     pyo_DEALLOC
     TableRecTimeStream_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -6639,8 +6337,8 @@ TableRecTimeStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, TableRecTimeStream_compute_next_data_frame);
-    self->mode_func_ptr = TableRecTimeStream_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(TableRecTimeStream_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(TableRecTimeStream_setProcMode);
 
     static char *kwlist[] = {"mainPlayer", NULL};
 
@@ -6702,85 +6400,40 @@ static PyMethodDef TableRecTimeStream_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods TableRecTimeStream_as_number =
+static PyType_Slot TableRecTimeStreamType_slots[] =
 {
-    (binaryfunc)TableRecTimeStream_add,                         /*nb_add*/
-    (binaryfunc)TableRecTimeStream_sub,                         /*nb_subtract*/
-    (binaryfunc)TableRecTimeStream_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)TableRecTimeStream_inplace_add,                 /*inplace_add*/
-    (binaryfunc)TableRecTimeStream_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)TableRecTimeStream_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)TableRecTimeStream_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)TableRecTimeStream_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+    {Py_tp_dealloc, TableRecTimeStream_dealloc},
+    {Py_tp_doc, "TableRecTimeStream objects. Returns the current recording time, in samples, of a TableRec object."},
+    {Py_tp_traverse, TableRecTimeStream_traverse},
+    {Py_tp_clear, TableRecTimeStream_clear},
+    {Py_tp_methods, TableRecTimeStream_methods},
+    {Py_tp_members, TableRecTimeStream_members},
+    {Py_nb_add, TableRecTimeStream_add},
+    {Py_nb_subtract, TableRecTimeStream_sub},
+    {Py_nb_multiply, TableRecTimeStream_multiply},
+    {Py_nb_true_divide, TableRecTimeStream_div},
+    {Py_nb_inplace_add, TableRecTimeStream_inplace_add},
+    {Py_nb_inplace_subtract, TableRecTimeStream_inplace_sub},
+    {Py_nb_inplace_multiply, TableRecTimeStream_inplace_multiply},
+    {Py_nb_inplace_true_divide, TableRecTimeStream_inplace_div},
+    {Py_tp_new, TableRecTimeStream_new},
+    {0, NULL}
 };
 
-PyTypeObject TableRecTimeStreamType =
+static PyType_Spec TableRecTimeStreamType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.TableRecTimeStream_base",         /*tp_name*/
-    sizeof(TableRecTimeStream),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)TableRecTimeStream_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &TableRecTimeStream_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "TableRecTimeStream objects. Returns the current recording time, in samples, of a TableRec object.",           /* tp_doc */
-    (traverseproc)TableRecTimeStream_traverse,   /* tp_traverse */
-    (inquiry)TableRecTimeStream_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    TableRecTimeStream_methods,             /* tp_methods */
-    TableRecTimeStream_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    TableRecTimeStream_new,                 /* tp_new */
+    "_pyo.TableRecTimeStream_base",
+    sizeof(TableRecTimeStream),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    TableRecTimeStreamType_slots
 };
+
+PyTypeObject *
+PyoCreateTableRecTimeStreamType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &TableRecTimeStreamType_spec, NULL);
+}
 
 /******************************/
 /* TableMorph object definition */
@@ -6885,7 +6538,7 @@ TableMorph_dealloc(TableMorph* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer);
     TableMorph_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -6901,7 +6554,7 @@ TableMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
 
-    Stream_setFunctionPtr(self->stream, TableMorph_compute_next_data_frame);
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(TableMorph_compute_next_data_frame));
 
     static char *kwlist[] = {"input", "table", "sources", NULL};
 
@@ -6986,47 +6639,32 @@ static PyMethodDef TableMorph_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject TableMorphType =
+static PyType_Slot TableMorphType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.TableMorph_base",         /*tp_name*/
-    sizeof(TableMorph),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)TableMorph_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "TableMorph objects. Interpolation contents of different table objects.",           /* tp_doc */
-    (traverseproc)TableMorph_traverse,   /* tp_traverse */
-    (inquiry)TableMorph_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    TableMorph_methods,             /* tp_methods */
-    TableMorph_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    TableMorph_new,                 /* tp_new */
+    {Py_tp_dealloc, TableMorph_dealloc},
+    {Py_tp_doc, "TableMorph objects. Interpolation contents of different table objects."},
+    {Py_tp_traverse, TableMorph_traverse},
+    {Py_tp_clear, TableMorph_clear},
+    {Py_tp_methods, TableMorph_methods},
+    {Py_tp_members, TableMorph_members},
+    {Py_tp_new, TableMorph_new},
+    {0, NULL}
 };
+
+static PyType_Spec TableMorphType_spec =
+{
+    "_pyo.TableMorph_base",
+    sizeof(TableMorph),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    TableMorphType_slots
+};
+
+PyTypeObject *
+PyoCreateTableMorphType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &TableMorphType_spec, NULL);
+}
 
 /******************************/
 /* TrigTableRec object definition */
@@ -7211,7 +6849,7 @@ TrigTableRec_dealloc(TrigTableRec* self)
     PyMem_RawFree(self->time_buffer_streams);
     TrigTableRec_clear(self);
     Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -7231,7 +6869,7 @@ TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
 
-    Stream_setFunctionPtr(self->stream, TrigTableRec_compute_next_data_frame);
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(TrigTableRec_compute_next_data_frame));
 
     static char *kwlist[] = {"input", "trig", "table", "fadetime", NULL};
 
@@ -7321,47 +6959,32 @@ static PyMethodDef TrigTableRec_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject TrigTableRecType =
+static PyType_Slot TrigTableRecType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.TrigTableRec_base",         /*tp_name*/
-    sizeof(TrigTableRec),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)TrigTableRec_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "TrigTableRec objects. Record audio input in a table object.",           /* tp_doc */
-    (traverseproc)TrigTableRec_traverse,   /* tp_traverse */
-    (inquiry)TrigTableRec_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    TrigTableRec_methods,             /* tp_methods */
-    TrigTableRec_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    TrigTableRec_new,                 /* tp_new */
+    {Py_tp_dealloc, TrigTableRec_dealloc},
+    {Py_tp_doc, "TrigTableRec objects. Record audio input in a table object."},
+    {Py_tp_traverse, TrigTableRec_traverse},
+    {Py_tp_clear, TrigTableRec_clear},
+    {Py_tp_methods, TrigTableRec_methods},
+    {Py_tp_members, TrigTableRec_members},
+    {Py_tp_new, TrigTableRec_new},
+    {0, NULL}
 };
+
+static PyType_Spec TrigTableRecType_spec =
+{
+    "_pyo.TrigTableRec_base",
+    sizeof(TrigTableRec),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    TrigTableRecType_slots
+};
+
+PyTypeObject *
+PyoCreateTrigTableRecType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &TrigTableRecType_spec, NULL);
+}
 
 typedef struct
 {
@@ -7389,39 +7012,39 @@ TrigTableRecTimeStream_setProcMode(TrigTableRecTimeStream *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TrigTableRecTimeStream_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TrigTableRecTimeStream_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TrigTableRecTimeStream_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TrigTableRecTimeStream_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TrigTableRecTimeStream_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TrigTableRecTimeStream_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TrigTableRecTimeStream_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TrigTableRecTimeStream_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(TrigTableRecTimeStream_postprocessing_revareva);
             break;
     }
 }
@@ -7462,7 +7085,7 @@ TrigTableRecTimeStream_dealloc(TrigTableRecTimeStream* self)
 {
     pyo_DEALLOC
     TrigTableRecTimeStream_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -7480,8 +7103,8 @@ TrigTableRecTimeStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, TrigTableRecTimeStream_compute_next_data_frame);
-    self->mode_func_ptr = TrigTableRecTimeStream_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(TrigTableRecTimeStream_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(TrigTableRecTimeStream_setProcMode);
 
     static char *kwlist[] = {"mainPlayer", NULL};
 
@@ -7543,85 +7166,40 @@ static PyMethodDef TrigTableRecTimeStream_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods TrigTableRecTimeStream_as_number =
+static PyType_Slot TrigTableRecTimeStreamType_slots[] =
 {
-    (binaryfunc)TrigTableRecTimeStream_add,                         /*nb_add*/
-    (binaryfunc)TrigTableRecTimeStream_sub,                         /*nb_subtract*/
-    (binaryfunc)TrigTableRecTimeStream_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)TrigTableRecTimeStream_inplace_add,                 /*inplace_add*/
-    (binaryfunc)TrigTableRecTimeStream_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)TrigTableRecTimeStream_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)TrigTableRecTimeStream_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)TrigTableRecTimeStream_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+    {Py_tp_dealloc, TrigTableRecTimeStream_dealloc},
+    {Py_tp_doc, "TrigTableRecTimeStream objects. Returns the current recording time, in samples, of a TableRec object."},
+    {Py_tp_traverse, TrigTableRecTimeStream_traverse},
+    {Py_tp_clear, TrigTableRecTimeStream_clear},
+    {Py_tp_methods, TrigTableRecTimeStream_methods},
+    {Py_tp_members, TrigTableRecTimeStream_members},
+    {Py_nb_add, TrigTableRecTimeStream_add},
+    {Py_nb_subtract, TrigTableRecTimeStream_sub},
+    {Py_nb_multiply, TrigTableRecTimeStream_multiply},
+    {Py_nb_true_divide, TrigTableRecTimeStream_div},
+    {Py_nb_inplace_add, TrigTableRecTimeStream_inplace_add},
+    {Py_nb_inplace_subtract, TrigTableRecTimeStream_inplace_sub},
+    {Py_nb_inplace_multiply, TrigTableRecTimeStream_inplace_multiply},
+    {Py_nb_inplace_true_divide, TrigTableRecTimeStream_inplace_div},
+    {Py_tp_new, TrigTableRecTimeStream_new},
+    {0, NULL}
 };
 
-PyTypeObject TrigTableRecTimeStreamType =
+static PyType_Spec TrigTableRecTimeStreamType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.TrigTableRecTimeStream_base",         /*tp_name*/
-    sizeof(TrigTableRecTimeStream),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)TrigTableRecTimeStream_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &TrigTableRecTimeStream_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "TrigTableRecTimeStream objects. Returns the current recording time, in samples, of a TableRec object.",           /* tp_doc */
-    (traverseproc)TrigTableRecTimeStream_traverse,   /* tp_traverse */
-    (inquiry)TrigTableRecTimeStream_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    TrigTableRecTimeStream_methods,             /* tp_methods */
-    TrigTableRecTimeStream_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    TrigTableRecTimeStream_new,                 /* tp_new */
+    "_pyo.TrigTableRecTimeStream_base",
+    sizeof(TrigTableRecTimeStream),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    TrigTableRecTimeStreamType_slots
 };
+
+PyTypeObject *
+PyoCreateTrigTableRecTimeStreamType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &TrigTableRecTimeStreamType_spec, NULL);
+}
 
 /******************************/
 /* TablePut object definition */
@@ -7694,7 +7272,7 @@ TablePut_dealloc(TablePut* self)
     PyMem_RawFree(self->trigsBuffer);
     TablePut_clear(self);
     Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -7714,7 +7292,7 @@ TablePut_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
 
-    Stream_setFunctionPtr(self->stream, TablePut_compute_next_data_frame);
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(TablePut_compute_next_data_frame));
 
     static char *kwlist[] = {"input", "table", NULL};
 
@@ -7793,47 +7371,32 @@ static PyMethodDef TablePut_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject TablePutType =
+static PyType_Slot TablePutType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.TablePut_base",         /*tp_name*/
-    sizeof(TablePut),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)TablePut_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "TablePut objects. Record new value in input in a data table object.",           /* tp_doc */
-    (traverseproc)TablePut_traverse,   /* tp_traverse */
-    (inquiry)TablePut_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    TablePut_methods,             /* tp_methods */
-    TablePut_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    TablePut_new,                 /* tp_new */
+    {Py_tp_dealloc, TablePut_dealloc},
+    {Py_tp_doc, "TablePut objects. Record new value in input in a data table object."},
+    {Py_tp_traverse, TablePut_traverse},
+    {Py_tp_clear, TablePut_clear},
+    {Py_tp_methods, TablePut_methods},
+    {Py_tp_members, TablePut_members},
+    {Py_tp_new, TablePut_new},
+    {0, NULL}
 };
+
+static PyType_Spec TablePutType_spec =
+{
+    "_pyo.TablePut_base",
+    sizeof(TablePut),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    TablePutType_slots
+};
+
+PyTypeObject *
+PyoCreateTablePutType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &TablePutType_spec, NULL);
+}
 
 /******************************/
 /* TableWrite object definition */
@@ -7961,7 +7524,7 @@ TableWrite_dealloc(TableWrite* self)
 {
     pyo_DEALLOC
     TableWrite_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -7987,7 +7550,7 @@ TableWrite_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
 
-    Stream_setFunctionPtr(self->stream, TableWrite_compute_next_data_frame);
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(TableWrite_compute_next_data_frame));
 
     static char *kwlist[] = {"input", "pos", "table", "mode", "maxwindow", NULL};
 
@@ -8076,47 +7639,32 @@ static PyMethodDef TableWrite_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject TableWriteType =
+static PyType_Slot TableWriteType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.TableWrite_base",         /*tp_name*/
-    sizeof(TableWrite),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)TableWrite_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "TableWrite objects. Record audio input in a table object.",           /* tp_doc */
-    (traverseproc)TableWrite_traverse,   /* tp_traverse */
-    (inquiry)TableWrite_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    TableWrite_methods,             /* tp_methods */
-    TableWrite_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    TableWrite_new,                 /* tp_new */
+    {Py_tp_dealloc, TableWrite_dealloc},
+    {Py_tp_doc, "TableWrite objects. Record audio input in a table object."},
+    {Py_tp_traverse, TableWrite_traverse},
+    {Py_tp_clear, TableWrite_clear},
+    {Py_tp_methods, TableWrite_methods},
+    {Py_tp_members, TableWrite_members},
+    {Py_tp_new, TableWrite_new},
+    {0, NULL}
 };
+
+static PyType_Spec TableWriteType_spec =
+{
+    "_pyo.TableWrite_base",
+    sizeof(TableWrite),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    TableWriteType_slots
+};
+
+PyTypeObject *
+PyoCreateTableWriteType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &TableWriteType_spec, NULL);
+}
 
 /*************************/
 /* SharedTable structure */
@@ -8147,7 +7695,7 @@ SharedTable_clear(SharedTable *self)
 static void
 SharedTable_dealloc(SharedTable* self)
 {
-    PyObject_GC_UnTrack(self);
+    pyo_GC_UNTRACK(self);
 #if !defined(_WIN32) && !defined(_WIN64)
     close(self->fd);
 
@@ -8325,44 +7873,29 @@ static PyMethodDef SharedTable_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject SharedTableType =
+static PyType_Slot SharedTableType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.SharedTable_base",         /*tp_name*/
-    sizeof(SharedTable),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)SharedTable_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "SharedTable objects. Generates an empty table.",  /* tp_doc */
-    (traverseproc)SharedTable_traverse,   /* tp_traverse */
-    (inquiry)SharedTable_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    SharedTable_methods,             /* tp_methods */
-    SharedTable_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    SharedTable_new,                 /* tp_new */
+    {Py_tp_dealloc, SharedTable_dealloc},
+    {Py_tp_doc, "SharedTable objects. Generates an empty table."},
+    {Py_tp_traverse, SharedTable_traverse},
+    {Py_tp_clear, SharedTable_clear},
+    {Py_tp_methods, SharedTable_methods},
+    {Py_tp_members, SharedTable_members},
+    {Py_tp_new, SharedTable_new},
+    {0, NULL}
 };
+
+static PyType_Spec SharedTableType_spec =
+{
+    "_pyo.SharedTable_base",
+    sizeof(SharedTable),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    SharedTableType_slots
+};
+
+PyTypeObject *
+PyoCreateSharedTableType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &SharedTableType_spec, NULL);
+}

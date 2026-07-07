@@ -64,7 +64,7 @@ HRTFData_dealloc(HRTFData* self)
 {
     int i, j;
 
-    PyObject_GC_UnTrack(self);
+    pyo_GC_UNTRACK(self);
 
     for (i = 0; i < 14; i++)
     {
@@ -324,47 +324,31 @@ static PyMethodDef HRTFData_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject HRTFDataType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.HRTFData_base",         /*tp_name*/
-    sizeof(HRTFData),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)HRTFData_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "HRTFData objects. Store the HRIRs for a given set.",           /* tp_doc */
-    (traverseproc)HRTFData_traverse,   /* tp_traverse */
-    (inquiry)HRTFData_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    HRTFData_methods,             /* tp_methods */
-    HRTFData_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    HRTFData_new,                 /* tp_new */
+static PyType_Slot HRTFDataType_slots[] = {
+    {Py_tp_dealloc, HRTFData_dealloc},
+    {Py_tp_doc, "HRTFData objects. Store the HRIRs for a given set."},
+    {Py_tp_traverse, HRTFData_traverse},
+    {Py_tp_clear, HRTFData_clear},
+    {Py_tp_methods, HRTFData_methods},
+    {Py_tp_members, HRTFData_members},
+    {Py_tp_new, HRTFData_new},
+    {0, NULL}
 };
+
+static PyType_Spec HRTFDataType_spec =
+{
+    "_pyo.HRTFData_base",
+    sizeof(HRTFData),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    HRTFDataType_slots
+};
+
+PyTypeObject *
+PyoCreateHRTFDataType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &HRTFDataType_spec, NULL);
+}
 
 
 /************************************************************************************************/
@@ -602,7 +586,7 @@ HRTFSpatter_getSamplesBuffer(HRTFSpatter *self)
 static void
 HRTFSpatter_setProcMode(HRTFSpatter *self)
 {
-    self->proc_func_ptr = HRTFSpatter_splitter;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(HRTFSpatter_splitter);
 }
 
 static void
@@ -657,7 +641,7 @@ HRTFSpatter_dealloc(HRTFSpatter* self)
 
     PyMem_RawFree(self->twiddle);
     HRTFSpatter_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -672,8 +656,8 @@ HRTFSpatter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, HRTFSpatter_compute_next_data_frame);
-    self->mode_func_ptr = HRTFSpatter_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(HRTFSpatter_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(HRTFSpatter_setProcMode);
 
     self->azi = PyFloat_FromDouble(0.0);
     self->ele = PyFloat_FromDouble(0.0);
@@ -781,47 +765,31 @@ static PyMethodDef HRTFSpatter_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject HRTFSpatterType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.HRTFSpatter_base",                                   /*tp_name*/
-    sizeof(HRTFSpatter),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)HRTFSpatter_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "HRTFSpatter main objects.",           /* tp_doc */
-    (traverseproc)HRTFSpatter_traverse,                  /* tp_traverse */
-    (inquiry)HRTFSpatter_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    HRTFSpatter_methods,                                 /* tp_methods */
-    HRTFSpatter_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    HRTFSpatter_new,                                     /* tp_new */
+static PyType_Slot HRTFSpatterType_slots[] = {
+    {Py_tp_dealloc, HRTFSpatter_dealloc},
+    {Py_tp_doc, "HRTFSpatter main objects."},
+    {Py_tp_traverse, HRTFSpatter_traverse},
+    {Py_tp_clear, HRTFSpatter_clear},
+    {Py_tp_methods, HRTFSpatter_methods},
+    {Py_tp_members, HRTFSpatter_members},
+    {Py_tp_new, HRTFSpatter_new},
+    {0, NULL}
 };
+
+static PyType_Spec HRTFSpatterType_spec =
+{
+    "_pyo.HRTFSpatter_base",
+    sizeof(HRTFSpatter),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    HRTFSpatterType_slots
+};
+
+PyTypeObject *
+PyoCreateHRTFSpatterType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &HRTFSpatterType_spec, NULL);
+}
 
 /************************************************************************************************/
 /* HRTFSpat streamer object */
@@ -853,39 +821,39 @@ HRTF_setProcMode(HRTF *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = HRTF_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(HRTF_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = HRTF_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(HRTF_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = HRTF_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(HRTF_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = HRTF_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(HRTF_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = HRTF_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(HRTF_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = HRTF_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(HRTF_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = HRTF_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(HRTF_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = HRTF_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(HRTF_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = HRTF_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(HRTF_postprocessing_revareva);
             break;
     }
 }
@@ -927,7 +895,7 @@ HRTF_dealloc(HRTF* self)
 {
     pyo_DEALLOC
     HRTF_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -945,8 +913,8 @@ HRTF_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, HRTF_compute_next_data_frame);
-    self->mode_func_ptr = HRTF_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(HRTF_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(HRTF_setProcMode);
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
@@ -1018,85 +986,39 @@ static PyMethodDef HRTF_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods HRTF_as_number =
-{
-    (binaryfunc)HRTF_add,                      /*nb_add*/
-    (binaryfunc)HRTF_sub,                 /*nb_subtract*/
-    (binaryfunc)HRTF_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)HRTF_inplace_add,              /*inplace_add*/
-    (binaryfunc)HRTF_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)HRTF_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)HRTF_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)HRTF_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot HRTFType_slots[] = {
+    {Py_tp_dealloc, HRTF_dealloc},
+    {Py_tp_doc, "HRTF objects. Reads one channel from a HRTFter."},
+    {Py_tp_traverse, HRTF_traverse},
+    {Py_tp_clear, HRTF_clear},
+    {Py_tp_methods, HRTF_methods},
+    {Py_tp_members, HRTF_members},
+    {Py_tp_new, HRTF_new},
+    {Py_nb_add, HRTF_add},
+    {Py_nb_subtract, HRTF_sub},
+    {Py_nb_multiply, HRTF_multiply},
+    {Py_nb_true_divide, HRTF_div},
+    {Py_nb_inplace_add, HRTF_inplace_add},
+    {Py_nb_inplace_subtract, HRTF_inplace_sub},
+    {Py_nb_inplace_multiply, HRTF_inplace_multiply},
+    {Py_nb_inplace_true_divide, HRTF_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject HRTFType =
+static PyType_Spec HRTFType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.HRTF_base",         /*tp_name*/
-    sizeof(HRTF),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)HRTF_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &HRTF_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "HRTF objects. Reads one channel from a HRTFter.",           /* tp_doc */
-    (traverseproc)HRTF_traverse,   /* tp_traverse */
-    (inquiry)HRTF_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    HRTF_methods,             /* tp_methods */
-    HRTF_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    HRTF_new,                 /* tp_new */
+    "_pyo.HRTF_base",
+    sizeof(HRTF),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    HRTFType_slots
 };
+
+PyTypeObject *
+PyoCreateHRTFType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &HRTFType_spec, NULL);
+}
 
 static const MYFLT BINAURAL_LEFT_HRTF_0[128] = {0.001495361328125, -0.00274658203125, 0.00384521484375, -0.005645751953125, 0.0067138671875, -0.00762939453125, 0.0091552734375, -0.00244140625, 0.25164794921875, 0.286895751953125, -0.32781982421875, -0.11444091796875, -0.044036865234375, -0.064453125, 0.348297119140625, 0.128021240234375, 0.244354248046875, 0.615478515625, 0.18951416015625, -0.406768798828125, -0.086944580078125, 0.039093017578125, -0.44964599609375, -0.373809814453125, -0.05902099609375, -0.112274169921875, -0.2093505859375, 0.0279541015625, 0.085418701171875, -0.010833740234375, 0.065460205078125, 0.149932861328125, 0.128326416015625, 0.08551025390625, 0.074798583984375, 0.000213623046875, -0.03741455078125, -0.003814697265625, 0.0484619140625, 0.002716064453125, -0.04498291015625, -0.040802001953125, -0.05401611328125, -0.08758544921875, -0.1322021484375, -0.15673828125, -0.12567138671875, -0.037139892578125, 0.0189208984375, 0.012725830078125, 0.027099609375, 0.061798095703125, 0.08172607421875, 0.06927490234375, 0.039825439453125, 0.02777099609375, 0.022369384765625, 0.00775146484375, -0.007568359375, -0.01116943359375, -0.022674560546875, -0.02850341796875, -0.024261474609375, -0.032989501953125, -0.035125732421875, -0.02197265625, -0.020355224609375, -0.024566650390625, -0.0133056640625, 0.000152587890625, -0.001190185546875, 0.003173828125, 0.015838623046875, 0.023162841796875, 0.016754150390625, 0.004302978515625, -0.00067138671875, 0.0006103515625, 0.000518798828125, -0.00396728515625, -0.0050048828125, -0.01373291015625, -0.0205078125, -0.01605224609375, -0.011871337890625, -0.010650634765625, -0.005462646484375, -0.000396728515625, -0.002685546875, -0.00579833984375, 0.00146484375, 0.01007080078125, 0.01043701171875, 0.0076904296875, 0.00341796875, -0.0009765625, -0.002838134765625, -0.003448486328125, -0.007049560546875, -0.00885009765625, -0.01025390625, -0.014923095703125, -0.015106201171875, -0.00787353515625, -0.000732421875, 0.002532958984375, 6.103515625e-05, -0.002777099609375, -0.002899169921875, -0.003326416015625, -0.00408935546875, -0.002899169921875, -0.003021240234375, -0.0045166015625, -0.00299072265625, -0.0018310546875, -0.001220703125, -0.000244140625, -0.000244140625, -0.0023193359375, -0.004180908203125, -0.003448486328125, -0.001556396484375, 0.000701904296875, 0.00189208984375, 0.000762939453125, 0.000274658203125, -0.00067138671875};
 static const MYFLT BINAURAL_RIGHT_HRTF_0[128] = {-9.1552734375e-05, 3.0517578125e-05, 0.0, -9.1552734375e-05, 6.103515625e-05, 0.0, 6.103515625e-05, 0.000152587890625, -9.1552734375e-05, 0.0003662109375, -0.000579833984375, 0.00091552734375, -0.00115966796875, 0.00128173828125, -0.001251220703125, 0.002288818359375, 0.007598876953125, 0.104827880859375, 0.082183837890625, -0.091400146484375, 0.0135498046875, -0.01043701171875, -0.06341552734375, 0.109832763671875, 0.106414794921875, 0.074554443359375, 0.20806884765625, 0.2091064453125, -0.054840087890625, -0.069061279296875, 0.0552978515625, -0.111175537109375, -0.21051025390625, -0.06414794921875, -0.045440673828125, -0.1259765625, -0.04718017578125, 0.016204833984375, -0.008697509765625, 0.00592041015625, 0.058074951171875, 0.05810546875, 0.037506103515625, 0.05841064453125, 0.04876708984375, 0.0037841796875, 0.00311279296875, 0.024078369140625, 0.00262451171875, -0.019561767578125, -0.022857666015625, -0.03192138671875, -0.048431396484375, -0.05194091796875, -0.04083251953125, -0.03619384765625, -0.028961181640625, -0.01556396484375, -0.005462646484375, 0.0013427734375, 0.004486083984375, 0.00335693359375, -0.001434326171875, -0.00390625, -0.001312255859375, 0.003326416015625, -0.000518798828125, -0.006072998046875, -0.0037841796875, -0.0054931640625, -0.010833740234375, -0.010955810546875, -0.012359619140625, -0.013336181640625, -0.00750732421875, -0.00286865234375, -0.004302978515625, -0.00390625, 0.0008544921875, 0.001983642578125, 3.0517578125e-05, 0.0, 0.001129150390625, -0.000762939453125, -0.00408935546875, -0.005096435546875, -0.00439453125, -0.006011962890625, -0.007354736328125, -0.005340576171875, -0.004913330078125, -0.006256103515625, -0.004913330078125, -0.003509521484375, -0.004119873046875, -0.003387451171875, -0.000732421875, -0.00091552734375, -0.003509521484375, -0.002410888671875, -0.000274658203125, -0.001220703125, -0.002349853515625, -0.002105712890625, -0.003692626953125, -0.005279541015625, -0.005035400390625, -0.0045166015625, -0.00390625, -0.003204345703125, -0.003509521484375, -0.004150390625, -0.002838134765625, -0.000946044921875, -0.000457763671875, -0.001434326171875, -0.001953125, -0.00128173828125, -0.001861572265625, -0.003326416015625, -0.00341796875, -0.0035400390625, -0.004669189453125, -0.005035400390625, -0.004669189453125, -0.00445556640625, -0.0037841796875, -0.002471923828125};
@@ -1273,7 +1195,7 @@ Binauraler_getSamplesBuffer(Binauraler *self)
 static void
 Binauraler_setProcMode(Binauraler *self)
 {
-    self->proc_func_ptr = Binauraler_splitter;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(Binauraler_splitter);
 }
 
 static void
@@ -1321,7 +1243,7 @@ Binauraler_dealloc(Binauraler* self)
 
     PyMem_RawFree(self->vbap_buffer);
     Binauraler_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1336,8 +1258,8 @@ Binauraler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Binauraler_compute_next_data_frame);
-    self->mode_func_ptr = Binauraler_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Binauraler_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Binauraler_setProcMode);
 
     self->azi = PyFloat_FromDouble(0.0);
     self->ele = PyFloat_FromDouble(0.0);
@@ -1499,47 +1421,31 @@ static PyMethodDef Binauraler_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject BinauralerType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Binauraler_base",                                   /*tp_name*/
-    sizeof(Binauraler),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)Binauraler_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Binauraler main objects.",           /* tp_doc */
-    (traverseproc)Binauraler_traverse,                  /* tp_traverse */
-    (inquiry)Binauraler_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    Binauraler_methods,                                 /* tp_methods */
-    Binauraler_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    Binauraler_new,                                     /* tp_new */
+static PyType_Slot BinauralerType_slots[] = {
+    {Py_tp_dealloc, Binauraler_dealloc},
+    {Py_tp_doc, "Binauraler main objects."},
+    {Py_tp_traverse, Binauraler_traverse},
+    {Py_tp_clear, Binauraler_clear},
+    {Py_tp_methods, Binauraler_methods},
+    {Py_tp_members, Binauraler_members},
+    {Py_tp_new, Binauraler_new},
+    {0, NULL}
 };
+
+static PyType_Spec BinauralerType_spec =
+{
+    "_pyo.Binauraler_base",
+    sizeof(Binauraler),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    BinauralerType_slots
+};
+
+PyTypeObject *
+PyoCreateBinauralerType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &BinauralerType_spec, NULL);
+}
 
 /************************************************************************************************/
 /* BinauralSpat streamer object */
@@ -1571,39 +1477,39 @@ Binaural_setProcMode(Binaural *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Binaural_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Binaural_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Binaural_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Binaural_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Binaural_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Binaural_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Binaural_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Binaural_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Binaural_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Binaural_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Binaural_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Binaural_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Binaural_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Binaural_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Binaural_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Binaural_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Binaural_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Binaural_postprocessing_revareva);
             break;
     }
 }
@@ -1645,7 +1551,7 @@ Binaural_dealloc(Binaural* self)
 {
     pyo_DEALLOC
     Binaural_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1663,8 +1569,8 @@ Binaural_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Binaural_compute_next_data_frame);
-    self->mode_func_ptr = Binaural_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Binaural_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Binaural_setProcMode);
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
@@ -1736,82 +1642,36 @@ static PyMethodDef Binaural_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Binaural_as_number =
-{
-    (binaryfunc)Binaural_add,                      /*nb_add*/
-    (binaryfunc)Binaural_sub,                 /*nb_subtract*/
-    (binaryfunc)Binaural_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Binaural_inplace_add,              /*inplace_add*/
-    (binaryfunc)Binaural_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Binaural_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Binaural_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Binaural_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot BinauralType_slots[] = {
+    {Py_tp_dealloc, Binaural_dealloc},
+    {Py_tp_doc, "Binaural objects. Reads one channel from a Binauralter."},
+    {Py_tp_traverse, Binaural_traverse},
+    {Py_tp_clear, Binaural_clear},
+    {Py_tp_methods, Binaural_methods},
+    {Py_tp_members, Binaural_members},
+    {Py_tp_new, Binaural_new},
+    {Py_nb_add, Binaural_add},
+    {Py_nb_subtract, Binaural_sub},
+    {Py_nb_multiply, Binaural_multiply},
+    {Py_nb_true_divide, Binaural_div},
+    {Py_nb_inplace_add, Binaural_inplace_add},
+    {Py_nb_inplace_subtract, Binaural_inplace_sub},
+    {Py_nb_inplace_multiply, Binaural_inplace_multiply},
+    {Py_nb_inplace_true_divide, Binaural_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject BinauralType =
+static PyType_Spec BinauralType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Binaural_base",         /*tp_name*/
-    sizeof(Binaural),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Binaural_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Binaural_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "Binaural objects. Reads one channel from a Binauralter.",           /* tp_doc */
-    (traverseproc)Binaural_traverse,   /* tp_traverse */
-    (inquiry)Binaural_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Binaural_methods,             /* tp_methods */
-    Binaural_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Binaural_new,                 /* tp_new */
+    "_pyo.Binaural_base",
+    sizeof(Binaural),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    BinauralType_slots
 };
+
+PyTypeObject *
+PyoCreateBinauralType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &BinauralType_spec, NULL);
+}

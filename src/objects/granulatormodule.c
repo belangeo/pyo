@@ -668,74 +668,74 @@ Granulator_setProcMode(Granulator *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Granulator_transform_iii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Granulator_transform_iii);
             break;
 
         case 1:
-            self->proc_func_ptr = Granulator_transform_aii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Granulator_transform_aii);
             break;
 
         case 10:
-            self->proc_func_ptr = Granulator_transform_iai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Granulator_transform_iai);
             break;
 
         case 11:
-            self->proc_func_ptr = Granulator_transform_aai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Granulator_transform_aai);
             break;
 
         case 100:
-            self->proc_func_ptr = Granulator_transform_iia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Granulator_transform_iia);
             break;
 
         case 101:
-            self->proc_func_ptr = Granulator_transform_aia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Granulator_transform_aia);
             break;
 
         case 110:
-            self->proc_func_ptr = Granulator_transform_iaa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Granulator_transform_iaa);
             break;
 
         case 111:
-            self->proc_func_ptr = Granulator_transform_aaa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Granulator_transform_aaa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Granulator_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Granulator_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Granulator_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Granulator_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Granulator_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Granulator_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Granulator_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Granulator_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Granulator_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Granulator_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Granulator_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Granulator_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Granulator_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Granulator_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Granulator_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Granulator_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Granulator_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Granulator_postprocessing_revareva);
             break;
     }
 }
@@ -776,7 +776,7 @@ Granulator_dealloc(Granulator* self)
     PyMem_RawFree(self->gsize);
     PyMem_RawFree(self->lastppos);
     Granulator_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -805,8 +805,8 @@ Granulator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[4] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Granulator_compute_next_data_frame);
-    self->mode_func_ptr = Granulator_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Granulator_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Granulator_setProcMode);
 
     static char *kwlist[] = {"table", "env", "pitch", "pos", "dur", "grains", "basedur", "mul", "add", NULL};
 
@@ -1023,85 +1023,39 @@ static PyMethodDef Granulator_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Granulator_as_number =
-{
-    (binaryfunc)Granulator_add,                      /*nb_add*/
-    (binaryfunc)Granulator_sub,                 /*nb_subtract*/
-    (binaryfunc)Granulator_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Granulator_inplace_add,              /*inplace_add*/
-    (binaryfunc)Granulator_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Granulator_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Granulator_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Granulator_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot GranulatorType_slots[] = {
+    {Py_tp_dealloc, Granulator_dealloc},
+    {Py_tp_doc, "Granulator objects. Accumulation of multiples grains of sound."},
+    {Py_tp_traverse, Granulator_traverse},
+    {Py_tp_clear, Granulator_clear},
+    {Py_tp_methods, Granulator_methods},
+    {Py_tp_members, Granulator_members},
+    {Py_nb_add, Granulator_add},
+    {Py_nb_subtract, Granulator_sub},
+    {Py_nb_multiply, Granulator_multiply},
+    {Py_nb_true_divide, Granulator_div},
+    {Py_nb_inplace_add, Granulator_inplace_add},
+    {Py_nb_inplace_subtract, Granulator_inplace_sub},
+    {Py_nb_inplace_multiply, Granulator_inplace_multiply},
+    {Py_nb_inplace_true_divide, Granulator_inplace_div},
+    {Py_tp_new, Granulator_new},
+    {0, NULL}
 };
 
-PyTypeObject GranulatorType =
+static PyType_Spec GranulatorType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Granulator_base",         /*tp_name*/
-    sizeof(Granulator),         /*tp_basicpitch*/
-    0,                         /*tp_itempitch*/
-    (destructor)Granulator_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Granulator_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Granulator objects. Accumulation of multiples grains of sound.",           /* tp_doc */
-    (traverseproc)Granulator_traverse,   /* tp_traverse */
-    (inquiry)Granulator_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Granulator_methods,             /* tp_methods */
-    Granulator_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Granulator_new,                 /* tp_new */
+    "_pyo.Granulator_base",
+    sizeof(Granulator),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    GranulatorType_slots
 };
+
+PyTypeObject *
+PyoCreateGranulatorType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &GranulatorType_spec, NULL);
+}
 
 typedef struct
 {
@@ -1970,50 +1924,50 @@ Looper_setProcMode(Looper *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Looper_transform_i;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Looper_transform_i);
             break;
 
         case 1:
-            self->proc_func_ptr = Looper_transform_a;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Looper_transform_a);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Looper_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Looper_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Looper_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Looper_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Looper_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Looper_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Looper_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Looper_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Looper_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Looper_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Looper_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Looper_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Looper_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Looper_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Looper_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Looper_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Looper_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Looper_postprocessing_revareva);
             break;
     }
 }
@@ -2061,7 +2015,7 @@ Looper_dealloc(Looper* self)
     PyMem_RawFree(self->time_buffer);
     Looper_clear(self);
     Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2099,8 +2053,8 @@ Looper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[4] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Looper_compute_next_data_frame);
-    self->mode_func_ptr = Looper_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Looper_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Looper_setProcMode);
 
     static char *kwlist[] = {"table", "pitch", "start", "dur", "xfade", "mode", "xfadeshape", "startfromloop", "interp", "autosmooth", "mul", "add", NULL};
 
@@ -2374,85 +2328,39 @@ static PyMethodDef Looper_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Looper_as_number =
-{
-    (binaryfunc)Looper_add,                      /*nb_add*/
-    (binaryfunc)Looper_sub,                 /*nb_subtract*/
-    (binaryfunc)Looper_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Looper_inplace_add,              /*inplace_add*/
-    (binaryfunc)Looper_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Looper_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Looper_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Looper_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot LooperType_slots[] = {
+    {Py_tp_dealloc, Looper_dealloc},
+    {Py_tp_doc, "Looper objects. Sound looper with crossfade."},
+    {Py_tp_traverse, Looper_traverse},
+    {Py_tp_clear, Looper_clear},
+    {Py_tp_methods, Looper_methods},
+    {Py_tp_members, Looper_members},
+    {Py_nb_add, Looper_add},
+    {Py_nb_subtract, Looper_sub},
+    {Py_nb_multiply, Looper_multiply},
+    {Py_nb_true_divide, Looper_div},
+    {Py_nb_inplace_add, Looper_inplace_add},
+    {Py_nb_inplace_subtract, Looper_inplace_sub},
+    {Py_nb_inplace_multiply, Looper_inplace_multiply},
+    {Py_nb_inplace_true_divide, Looper_inplace_div},
+    {Py_tp_new, Looper_new},
+    {0, NULL}
 };
 
-PyTypeObject LooperType =
+static PyType_Spec LooperType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Looper_base",         /*tp_name*/
-    sizeof(Looper),         /*tp_basicpitch*/
-    0,                         /*tp_itempitch*/
-    (destructor)Looper_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Looper_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Looper objects. Sound looper with crossfade.",           /* tp_doc */
-    (traverseproc)Looper_traverse,   /* tp_traverse */
-    (inquiry)Looper_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Looper_methods,             /* tp_methods */
-    Looper_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Looper_new,                 /* tp_new */
+    "_pyo.Looper_base",
+    sizeof(Looper),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    LooperType_slots
 };
+
+PyTypeObject *
+PyoCreateLooperType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &LooperType_spec, NULL);
+}
 
 typedef struct
 {
@@ -2480,39 +2388,39 @@ LooperTimeStream_setProcMode(LooperTimeStream *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = LooperTimeStream_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LooperTimeStream_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = LooperTimeStream_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LooperTimeStream_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = LooperTimeStream_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LooperTimeStream_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = LooperTimeStream_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LooperTimeStream_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = LooperTimeStream_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LooperTimeStream_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = LooperTimeStream_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LooperTimeStream_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = LooperTimeStream_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LooperTimeStream_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = LooperTimeStream_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LooperTimeStream_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = LooperTimeStream_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LooperTimeStream_postprocessing_revareva);
             break;
     }
 }
@@ -2553,7 +2461,7 @@ LooperTimeStream_dealloc(LooperTimeStream* self)
 {
     pyo_DEALLOC
     LooperTimeStream_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2571,8 +2479,8 @@ LooperTimeStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, LooperTimeStream_compute_next_data_frame);
-    self->mode_func_ptr = LooperTimeStream_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(LooperTimeStream_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(LooperTimeStream_setProcMode);
 
     static char *kwlist[] = {"mainPlayer", NULL};
 
@@ -2634,85 +2542,39 @@ static PyMethodDef LooperTimeStream_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods LooperTimeStream_as_number =
-{
-    (binaryfunc)LooperTimeStream_add,                         /*nb_add*/
-    (binaryfunc)LooperTimeStream_sub,                         /*nb_subtract*/
-    (binaryfunc)LooperTimeStream_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)LooperTimeStream_inplace_add,                 /*inplace_add*/
-    (binaryfunc)LooperTimeStream_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)LooperTimeStream_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)LooperTimeStream_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)LooperTimeStream_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot LooperTimeStreamType_slots[] = {
+    {Py_tp_dealloc, LooperTimeStream_dealloc},
+    {Py_tp_doc, "LooperTimeStream objects. Returns the current recording time, in samples, of a Looper object."},
+    {Py_tp_traverse, LooperTimeStream_traverse},
+    {Py_tp_clear, LooperTimeStream_clear},
+    {Py_tp_methods, LooperTimeStream_methods},
+    {Py_tp_members, LooperTimeStream_members},
+    {Py_nb_add, LooperTimeStream_add},
+    {Py_nb_subtract, LooperTimeStream_sub},
+    {Py_nb_multiply, LooperTimeStream_multiply},
+    {Py_nb_true_divide, LooperTimeStream_div},
+    {Py_nb_inplace_add, LooperTimeStream_inplace_add},
+    {Py_nb_inplace_subtract, LooperTimeStream_inplace_sub},
+    {Py_nb_inplace_multiply, LooperTimeStream_inplace_multiply},
+    {Py_nb_inplace_true_divide, LooperTimeStream_inplace_div},
+    {Py_tp_new, LooperTimeStream_new},
+    {0, NULL}
 };
 
-PyTypeObject LooperTimeStreamType =
+static PyType_Spec LooperTimeStreamType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.LooperTimeStream_base",         /*tp_name*/
-    sizeof(LooperTimeStream),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)LooperTimeStream_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &LooperTimeStream_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "LooperTimeStream objects. Returns the current recording time, in samples, of a Looper object.",           /* tp_doc */
-    (traverseproc)LooperTimeStream_traverse,   /* tp_traverse */
-    (inquiry)LooperTimeStream_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    LooperTimeStream_methods,             /* tp_methods */
-    LooperTimeStream_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    LooperTimeStream_new,                 /* tp_new */
+    "_pyo.LooperTimeStream_base",
+    sizeof(LooperTimeStream),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    LooperTimeStreamType_slots
 };
+
+PyTypeObject *
+PyoCreateLooperTimeStreamType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &LooperTimeStreamType_spec, NULL);
+}
 
 static const MYFLT Granule_MAX_GRAINS = 4096;
 typedef struct
@@ -2998,50 +2860,50 @@ Granule_setProcMode(Granule *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Granule_transform_i;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Granule_transform_i);
             break;
 
         case 1:
-            self->proc_func_ptr = Granule_transform_a;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Granule_transform_a);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Granule_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Granule_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Granule_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Granule_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Granule_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Granule_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Granule_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Granule_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Granule_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Granule_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Granule_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Granule_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Granule_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Granule_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Granule_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Granule_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Granule_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Granule_postprocessing_revareva);
             break;
     }
 }
@@ -3085,7 +2947,7 @@ Granule_dealloc(Granule* self)
     PyMem_RawFree(self->flags);
     PyMem_RawFree(self->phase);
     Granule_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3118,8 +2980,8 @@ Granule_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->oneOnSr = 1.0 / self->sr;
     self->srOnRandMax = self->sr / (MYFLT)PYO_RAND_MAX;
 
-    Stream_setFunctionPtr(self->stream, Granule_compute_next_data_frame);
-    self->mode_func_ptr = Granule_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Granule_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Granule_setProcMode);
 
     static char *kwlist[] = {"table", "env", "dens", "pitch", "pos", "dur", "mul", "add", NULL};
 
@@ -3310,85 +3172,39 @@ static PyMethodDef Granule_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Granule_as_number =
-{
-    (binaryfunc)Granule_add,                      /*nb_add*/
-    (binaryfunc)Granule_sub,                 /*nb_subtract*/
-    (binaryfunc)Granule_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Granule_inplace_add,              /*inplace_add*/
-    (binaryfunc)Granule_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Granule_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Granule_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Granule_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot GranuleType_slots[] = {
+    {Py_tp_dealloc, Granule_dealloc},
+    {Py_tp_doc, "Granule objects. Accumulation of multiples grains of sound."},
+    {Py_tp_traverse, Granule_traverse},
+    {Py_tp_clear, Granule_clear},
+    {Py_tp_methods, Granule_methods},
+    {Py_tp_members, Granule_members},
+    {Py_nb_add, Granule_add},
+    {Py_nb_subtract, Granule_sub},
+    {Py_nb_multiply, Granule_multiply},
+    {Py_nb_true_divide, Granule_div},
+    {Py_nb_inplace_add, Granule_inplace_add},
+    {Py_nb_inplace_subtract, Granule_inplace_sub},
+    {Py_nb_inplace_multiply, Granule_inplace_multiply},
+    {Py_nb_inplace_true_divide, Granule_inplace_div},
+    {Py_tp_new, Granule_new},
+    {0, NULL}
 };
 
-PyTypeObject GranuleType =
+static PyType_Spec GranuleType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Granule_base",         /*tp_name*/
-    sizeof(Granule),         /*tp_basicpitch*/
-    0,                         /*tp_itempitch*/
-    (destructor)Granule_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Granule_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Granule objects. Accumulation of multiples grains of sound.",           /* tp_doc */
-    (traverseproc)Granule_traverse,   /* tp_traverse */
-    (inquiry)Granule_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Granule_methods,             /* tp_methods */
-    Granule_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Granule_new,                 /* tp_new */
+    "_pyo.Granule_base",
+    sizeof(Granule),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    GranuleType_slots
 };
+
+PyTypeObject *
+PyoCreateGranuleType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &GranuleType_spec, NULL);
+}
 
 static const MYFLT MAINPARTICLE_MAX_GRAINS = 4096;
 typedef struct
@@ -4033,17 +3849,17 @@ MainParticle_setProcMode(MainParticle *self)
     {
         case 0:
             if (self->chnls == 1)
-                self->proc_func_ptr = MainParticle_transform_mono_i;
+                self->proc_func_ptr = PYO_AUDIO_CALLBACK(MainParticle_transform_mono_i);
             else
-                self->proc_func_ptr = MainParticle_transform_i;
+                self->proc_func_ptr = PYO_AUDIO_CALLBACK(MainParticle_transform_i);
 
             break;
 
         case 1:
             if (self->chnls == 1)
-                self->proc_func_ptr = MainParticle_transform_mono_a;
+                self->proc_func_ptr = PYO_AUDIO_CALLBACK(MainParticle_transform_mono_a);
             else
-                self->proc_func_ptr = MainParticle_transform_a;
+                self->proc_func_ptr = PYO_AUDIO_CALLBACK(MainParticle_transform_a);
 
             break;
     }
@@ -4096,7 +3912,7 @@ MainParticle_dealloc(MainParticle* self)
     PyMem_RawFree(self->amp2);
     PyMem_RawFree(self->buffer_streams);
     MainParticle_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -4138,8 +3954,8 @@ MainParticle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->oneOnSr = 1.0 / self->sr;
     self->srOnRandMax = self->sr / (MYFLT)PYO_RAND_MAX;
 
-    Stream_setFunctionPtr(self->stream, MainParticle_compute_next_data_frame);
-    self->mode_func_ptr = MainParticle_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(MainParticle_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(MainParticle_setProcMode);
 
     static char *kwlist[] = {"table", "env", "dens", "pitch", "pos", "dur", "dev", "pan", "chnls", NULL};
 
@@ -4314,47 +4130,31 @@ static PyMethodDef MainParticle_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject MainParticleType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.MainParticle_base",         /*tp_name*/
-    sizeof(MainParticle),         /*tp_basicpitch*/
-    0,                         /*tp_itempitch*/
-    (destructor)MainParticle_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "MainParticle objects. Accumulation of multiples grains of sound.",           /* tp_doc */
-    (traverseproc)MainParticle_traverse,   /* tp_traverse */
-    (inquiry)MainParticle_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    MainParticle_methods,             /* tp_methods */
-    MainParticle_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    MainParticle_new,                 /* tp_new */
+static PyType_Slot MainParticleType_slots[] = {
+    {Py_tp_dealloc, MainParticle_dealloc},
+    {Py_tp_doc, "MainParticle objects. Accumulation of multiples grains of sound."},
+    {Py_tp_traverse, MainParticle_traverse},
+    {Py_tp_clear, MainParticle_clear},
+    {Py_tp_methods, MainParticle_methods},
+    {Py_tp_members, MainParticle_members},
+    {Py_tp_new, MainParticle_new},
+    {0, NULL}
 };
+
+static PyType_Spec MainParticleType_spec =
+{
+    "_pyo.MainParticle_base",
+    sizeof(MainParticle),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MainParticleType_slots
+};
+
+PyTypeObject *
+PyoCreateMainParticleType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MainParticleType_spec, NULL);
+}
 
 typedef struct
 {
@@ -4383,39 +4183,39 @@ Particle_setProcMode(Particle *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Particle_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Particle_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Particle_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Particle_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Particle_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Particle_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Particle_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Particle_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Particle_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Particle_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Particle_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Particle_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Particle_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Particle_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Particle_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Particle_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Particle_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Particle_postprocessing_revareva);
             break;
     }
 }
@@ -4457,7 +4257,7 @@ Particle_dealloc(Particle* self)
 {
     pyo_DEALLOC
     Particle_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -4475,8 +4275,8 @@ Particle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Particle_compute_next_data_frame);
-    self->mode_func_ptr = Particle_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Particle_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Particle_setProcMode);
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
@@ -4548,85 +4348,39 @@ static PyMethodDef Particle_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Particle_as_number =
-{
-    (binaryfunc)Particle_add,                      /*nb_add*/
-    (binaryfunc)Particle_sub,                 /*nb_subtract*/
-    (binaryfunc)Particle_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Particle_inplace_add,              /*inplace_add*/
-    (binaryfunc)Particle_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Particle_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Particle_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Particle_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot ParticleType_slots[] = {
+    {Py_tp_dealloc, Particle_dealloc},
+    {Py_tp_doc, "Particle objects. Reads one band from a MainParticle object."},
+    {Py_tp_traverse, Particle_traverse},
+    {Py_tp_clear, Particle_clear},
+    {Py_tp_methods, Particle_methods},
+    {Py_tp_members, Particle_members},
+    {Py_nb_add, Particle_add},
+    {Py_nb_subtract, Particle_sub},
+    {Py_nb_multiply, Particle_multiply},
+    {Py_nb_true_divide, Particle_div},
+    {Py_nb_inplace_add, Particle_inplace_add},
+    {Py_nb_inplace_subtract, Particle_inplace_sub},
+    {Py_nb_inplace_multiply, Particle_inplace_multiply},
+    {Py_nb_inplace_true_divide, Particle_inplace_div},
+    {Py_tp_new, Particle_new},
+    {0, NULL}
 };
 
-PyTypeObject ParticleType =
+static PyType_Spec ParticleType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Particle_base",         /*tp_name*/
-    sizeof(Particle),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Particle_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Particle_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "Particle objects. Reads one band from a MainParticle object.",           /* tp_doc */
-    (traverseproc)Particle_traverse,   /* tp_traverse */
-    (inquiry)Particle_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Particle_methods,             /* tp_methods */
-    Particle_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Particle_new,                 /* tp_new */
+    "_pyo.Particle_base",
+    sizeof(Particle),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    ParticleType_slots
 };
+
+PyTypeObject *
+PyoCreateParticleType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &ParticleType_spec, NULL);
+}
 
 typedef struct
 {
@@ -5612,17 +5366,17 @@ MainParticle2_setProcMode(MainParticle2 *self)
     {
         case 0:
             if (self->chnls == 1)
-                self->proc_func_ptr = MainParticle2_transform_mono_i;
+                self->proc_func_ptr = PYO_AUDIO_CALLBACK(MainParticle2_transform_mono_i);
             else
-                self->proc_func_ptr = MainParticle2_transform_i;
+                self->proc_func_ptr = PYO_AUDIO_CALLBACK(MainParticle2_transform_i);
 
             break;
 
         case 1:
             if (self->chnls == 1)
-                self->proc_func_ptr = MainParticle2_transform_mono_a;
+                self->proc_func_ptr = PYO_AUDIO_CALLBACK(MainParticle2_transform_mono_a);
             else
-                self->proc_func_ptr = MainParticle2_transform_a;
+                self->proc_func_ptr = PYO_AUDIO_CALLBACK(MainParticle2_transform_a);
 
             break;
     }
@@ -5698,7 +5452,7 @@ MainParticle2_dealloc(MainParticle2* self)
     PyMem_RawFree(self->a2);
     PyMem_RawFree(self->buffer_streams);
     MainParticle2_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -5750,8 +5504,8 @@ MainParticle2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->filterfreq = PyFloat_FromDouble(self->nyquist);
 
-    Stream_setFunctionPtr(self->stream, MainParticle2_compute_next_data_frame);
-    self->mode_func_ptr = MainParticle2_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(MainParticle2_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(MainParticle2_setProcMode);
 
     static char *kwlist[] = {"table", "env", "dens", "pitch", "pos", "dur", "dev", "pan", "filterfreq", "filterq", "filtertype", "chnls", NULL};
 
@@ -5971,47 +5725,31 @@ static PyMethodDef MainParticle2_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject MainParticle2Type =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.MainParticle2_base",         /*tp_name*/
-    sizeof(MainParticle2),         /*tp_basicpitch*/
-    0,                         /*tp_itempitch*/
-    (destructor)MainParticle2_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "MainParticle2 objects. Accumulation of multiples bandpass filtered grains of sound.",           /* tp_doc */
-    (traverseproc)MainParticle2_traverse,   /* tp_traverse */
-    (inquiry)MainParticle2_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    MainParticle2_methods,             /* tp_methods */
-    MainParticle2_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    MainParticle2_new,                 /* tp_new */
+static PyType_Slot MainParticle2Type_slots[] = {
+    {Py_tp_dealloc, MainParticle2_dealloc},
+    {Py_tp_doc, "MainParticle2 objects. Accumulation of multiples bandpass filtered grains of sound."},
+    {Py_tp_traverse, MainParticle2_traverse},
+    {Py_tp_clear, MainParticle2_clear},
+    {Py_tp_methods, MainParticle2_methods},
+    {Py_tp_members, MainParticle2_members},
+    {Py_tp_new, MainParticle2_new},
+    {0, NULL}
 };
+
+static PyType_Spec MainParticle2Type_spec =
+{
+    "_pyo.MainParticle2_base",
+    sizeof(MainParticle2),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MainParticle2Type_slots
+};
+
+PyTypeObject *
+PyoCreateMainParticle2Type(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MainParticle2Type_spec, NULL);
+}
 
 typedef struct
 {
@@ -6040,39 +5778,39 @@ Particle2_setProcMode(Particle2 *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Particle2_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Particle2_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Particle2_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Particle2_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Particle2_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Particle2_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Particle2_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Particle2_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Particle2_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Particle2_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Particle2_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Particle2_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Particle2_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Particle2_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Particle2_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Particle2_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Particle2_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Particle2_postprocessing_revareva);
             break;
     }
 }
@@ -6114,7 +5852,7 @@ Particle2_dealloc(Particle2* self)
 {
     pyo_DEALLOC
     Particle2_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -6132,8 +5870,8 @@ Particle2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Particle2_compute_next_data_frame);
-    self->mode_func_ptr = Particle2_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Particle2_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Particle2_setProcMode);
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
@@ -6205,82 +5943,36 @@ static PyMethodDef Particle2_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Particle2_as_number =
-{
-    (binaryfunc)Particle2_add,                      /*nb_add*/
-    (binaryfunc)Particle2_sub,                 /*nb_subtract*/
-    (binaryfunc)Particle2_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Particle2_inplace_add,              /*inplace_add*/
-    (binaryfunc)Particle2_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Particle2_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Particle2_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Particle2_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot Particle2Type_slots[] = {
+    {Py_tp_dealloc, Particle2_dealloc},
+    {Py_tp_doc, "Particle2 objects. Reads one band from a MainParticle2 object."},
+    {Py_tp_traverse, Particle2_traverse},
+    {Py_tp_clear, Particle2_clear},
+    {Py_tp_methods, Particle2_methods},
+    {Py_tp_members, Particle2_members},
+    {Py_nb_add, Particle2_add},
+    {Py_nb_subtract, Particle2_sub},
+    {Py_nb_multiply, Particle2_multiply},
+    {Py_nb_true_divide, Particle2_div},
+    {Py_nb_inplace_add, Particle2_inplace_add},
+    {Py_nb_inplace_subtract, Particle2_inplace_sub},
+    {Py_nb_inplace_multiply, Particle2_inplace_multiply},
+    {Py_nb_inplace_true_divide, Particle2_inplace_div},
+    {Py_tp_new, Particle2_new},
+    {0, NULL}
 };
 
-PyTypeObject Particle2Type =
+static PyType_Spec Particle2Type_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Particle2_base",         /*tp_name*/
-    sizeof(Particle2),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Particle2_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Particle2_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "Particle2 objects. Reads one band from a MainParticle2 object.",           /* tp_doc */
-    (traverseproc)Particle2_traverse,   /* tp_traverse */
-    (inquiry)Particle2_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Particle2_methods,             /* tp_methods */
-    Particle2_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Particle2_new,                 /* tp_new */
+    "_pyo.Particle2_base",
+    sizeof(Particle2),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    Particle2Type_slots
 };
+
+PyTypeObject *
+PyoCreateParticle2Type(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &Particle2Type_spec, NULL);
+}

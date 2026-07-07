@@ -149,50 +149,50 @@ Gain_setProcMode(Gain *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Gain_process_i;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Gain_process_i);
             break;
 
         case 1:
-            self->proc_func_ptr = Gain_process_a;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Gain_process_a);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Gain_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Gain_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Gain_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Gain_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Gain_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Gain_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Gain_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Gain_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Gain_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Gain_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Gain_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Gain_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Gain_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Gain_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Gain_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Gain_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Gain_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Gain_postprocessing_revareva);
             break;
     }
 }
@@ -243,7 +243,7 @@ Gain_dealloc(Gain* self)
 {
     pyo_DEALLOC
     Gain_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -259,6 +259,8 @@ Gain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     /* Object's allocation */
     Gain *self;
     self = (Gain *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     /* Initialization of object's attributes */
     self->db = PyFloat_FromDouble(0.5);
@@ -273,9 +275,9 @@ Gain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     /* Assign the stream's pointer to the object's processing callback. */
     /* The stream struct is what is registered in the server. */
-    Stream_setFunctionPtr(self->stream, Gain_compute_next_data_frame);
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Gain_compute_next_data_frame));
     /* Assign setProcMode to the common mode_func_ptr pointer */
-    self->mode_func_ptr = Gain_setProcMode;
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Gain_setProcMode);
 
     /* Object's keyword list. These are arguments to the object's creation */
     static char *kwlist[] = {"input", "db", "mul", "add", NULL};
@@ -283,8 +285,10 @@ Gain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     /* Argument parsing. If there is float values in the type list ("O|OOO"),
     a macro must be given to handle float vs double argument. See pyomodule.h
     for the list of macros already available. */
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &dbtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &dbtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     /* This macro handles fx's audio input initialization */
     INIT_INPUT_STREAM
@@ -420,94 +424,42 @@ operations on the object. At the moment of the writing, only +, -, * and /,
 and the corresponding "inplace" operations (a *= 1) are implemented. More
 to comme in the future. Registered as "tp_as_number".
 **********************************************************************/
-static PyNumberMethods Gain_as_number =
-{
-    (binaryfunc)Gain_add,                           /*nb_add*/
-    (binaryfunc)Gain_sub,                           /*nb_subtract*/
-    (binaryfunc)Gain_multiply,                      /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)Gain_inplace_add,                   /*inplace_add*/
-    (binaryfunc)Gain_inplace_sub,                   /*inplace_subtract*/
-    (binaryfunc)Gain_inplace_multiply,              /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)Gain_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)Gain_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
-};
-
 /**************************************************************
 Object's type declaration. The type's name should be "XXXType",
 where XXX is replaced by the name of the object.
-Fields in PyTypeObject that are not used should be 0.
+Fields not used by the object should simply be omitted from the slot table.
 **************************************************************/
-PyTypeObject GainType =
+static PyType_Slot GainType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    /* How the object will be exposed to the
-    python interpreter. The name of the C component
-    of a PyoObject should be "XXX_base", where XXX
-    is replaced by the name of the object. These
-    objects are actually never directly created
-    by the user. They are used inside the object's
-    Python class to handle multi-channel expansion.*/
-    "_pyo.Gain_base",                      /*tp_name*/
-    sizeof(Gain),                                  /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)Gain_dealloc,                       /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_dbare*/
-    0,                                              /*tp_repr*/
-    &Gain_as_number,                                /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Gain objects. Adjusts the gain of an input signal according to a value in decibels.", /* tp_doc */
-    (traverseproc)Gain_traverse,                    /* tp_traverse */
-    (inquiry)Gain_clear,                            /* tp_clear */
-    0,                                              /* tp_richdbare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    Gain_methods,                                   /* tp_methods */
-    Gain_members,                                   /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                                              /* tp_init */
-    0,                                              /* tp_alloc */
-    Gain_new,                                       /* tp_new */
+    {Py_tp_dealloc, Gain_dealloc},
+    {Py_tp_doc, "Gain objects. Adjusts the gain of an input signal according to a value in decibels."},
+    {Py_tp_traverse, Gain_traverse},
+    {Py_tp_clear, Gain_clear},
+    {Py_tp_methods, Gain_methods},
+    {Py_tp_members, Gain_members},
+    {Py_nb_add, Gain_add},
+    {Py_nb_subtract, Gain_sub},
+    {Py_nb_multiply, Gain_multiply},
+    {Py_nb_true_divide, Gain_div},
+    {Py_nb_inplace_add, Gain_inplace_add},
+    {Py_nb_inplace_subtract, Gain_inplace_sub},
+    {Py_nb_inplace_multiply, Gain_inplace_multiply},
+    {Py_nb_inplace_true_divide, Gain_inplace_div},
+    {Py_tp_new, Gain_new},
+    {0, NULL}
 };
+
+static PyType_Spec GainType_spec =
+{
+    "_pyo.Gain_base",
+    sizeof(Gain),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    GainType_slots
+};
+
+PyTypeObject *
+PyoCreateGainType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &GainType_spec, NULL);
+}

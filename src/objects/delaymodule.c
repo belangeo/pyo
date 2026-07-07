@@ -261,58 +261,58 @@ Delay_setProcMode(Delay *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Delay_process_ii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Delay_process_ii);
             break;
 
         case 1:
-            self->proc_func_ptr = Delay_process_ai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Delay_process_ai);
             break;
 
         case 10:
-            self->proc_func_ptr = Delay_process_ia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Delay_process_ia);
             break;
 
         case 11:
-            self->proc_func_ptr = Delay_process_aa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Delay_process_aa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Delay_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Delay_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Delay_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Delay_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Delay_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Delay_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Delay_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Delay_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Delay_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Delay_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Delay_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Delay_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Delay_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Delay_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Delay_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Delay_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Delay_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Delay_postprocessing_revareva);
             break;
     }
 }
@@ -350,7 +350,7 @@ Delay_dealloc(Delay* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer);
     Delay_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -377,8 +377,8 @@ Delay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->oneOverSr = 1.0 / self->sr;
 
-    Stream_setFunctionPtr(self->stream, Delay_compute_next_data_frame);
-    self->mode_func_ptr = Delay_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Delay_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Delay_setProcMode);
 
     static char *kwlist[] = {"input", "delay", "feedback", "maxdelay", "mul", "add", NULL};
 
@@ -490,85 +490,40 @@ static PyMethodDef Delay_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Delay_as_number =
+static PyType_Slot DelayType_slots[] =
 {
-    (binaryfunc)Delay_add,                      /*nb_add*/
-    (binaryfunc)Delay_sub,                 /*nb_subtract*/
-    (binaryfunc)Delay_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Delay_inplace_add,              /*inplace_add*/
-    (binaryfunc)Delay_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Delay_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Delay_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Delay_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+    {Py_tp_dealloc, Delay_dealloc},
+    {Py_tp_doc, "Delay objects. Delay signal by x samples."},
+    {Py_tp_traverse, Delay_traverse},
+    {Py_tp_clear, Delay_clear},
+    {Py_tp_methods, Delay_methods},
+    {Py_tp_members, Delay_members},
+    {Py_nb_add, Delay_add},
+    {Py_nb_subtract, Delay_sub},
+    {Py_nb_multiply, Delay_multiply},
+    {Py_nb_true_divide, Delay_div},
+    {Py_nb_inplace_add, Delay_inplace_add},
+    {Py_nb_inplace_subtract, Delay_inplace_sub},
+    {Py_nb_inplace_multiply, Delay_inplace_multiply},
+    {Py_nb_inplace_true_divide, Delay_inplace_div},
+    {Py_tp_new, Delay_new},
+    {0, NULL}
 };
 
-PyTypeObject DelayType =
+static PyType_Spec DelayType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Delay_base",         /*tp_name*/
-    sizeof(Delay),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Delay_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Delay_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Delay objects. Delay signal by x samples.",           /* tp_doc */
-    (traverseproc)Delay_traverse,   /* tp_traverse */
-    (inquiry)Delay_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Delay_methods,             /* tp_methods */
-    Delay_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Delay_new,                 /* tp_new */
+    "_pyo.Delay_base",
+    sizeof(Delay),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    DelayType_slots
 };
+
+PyTypeObject *
+PyoCreateDelayType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &DelayType_spec, NULL);
+}
 
 typedef struct
 {
@@ -694,50 +649,50 @@ SDelay_setProcMode(SDelay *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = SDelay_process_i;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(SDelay_process_i);
             break;
 
         case 1:
-            self->proc_func_ptr = SDelay_process_a;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(SDelay_process_a);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = SDelay_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SDelay_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = SDelay_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SDelay_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = SDelay_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SDelay_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = SDelay_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SDelay_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = SDelay_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SDelay_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = SDelay_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SDelay_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = SDelay_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SDelay_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = SDelay_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SDelay_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = SDelay_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SDelay_postprocessing_revareva);
             break;
     }
 }
@@ -773,7 +728,7 @@ SDelay_dealloc(SDelay* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer);
     SDelay_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -795,8 +750,8 @@ SDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[2] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, SDelay_compute_next_data_frame);
-    self->mode_func_ptr = SDelay_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(SDelay_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(SDelay_setProcMode);
 
     static char *kwlist[] = {"input", "delay", "maxdelay", "mul", "add", NULL};
 
@@ -900,85 +855,40 @@ static PyMethodDef SDelay_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods SDelay_as_number =
+static PyType_Slot SDelayType_slots[] =
 {
-    (binaryfunc)SDelay_add,                      /*nb_add*/
-    (binaryfunc)SDelay_sub,                 /*nb_subtract*/
-    (binaryfunc)SDelay_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)SDelay_inplace_add,              /*inplace_add*/
-    (binaryfunc)SDelay_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)SDelay_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)SDelay_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)SDelay_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+    {Py_tp_dealloc, SDelay_dealloc},
+    {Py_tp_doc, "SDelay objects. Simple Delay with no interpolation and no feedback."},
+    {Py_tp_traverse, SDelay_traverse},
+    {Py_tp_clear, SDelay_clear},
+    {Py_tp_methods, SDelay_methods},
+    {Py_tp_members, SDelay_members},
+    {Py_nb_add, SDelay_add},
+    {Py_nb_subtract, SDelay_sub},
+    {Py_nb_multiply, SDelay_multiply},
+    {Py_nb_true_divide, SDelay_div},
+    {Py_nb_inplace_add, SDelay_inplace_add},
+    {Py_nb_inplace_subtract, SDelay_inplace_sub},
+    {Py_nb_inplace_multiply, SDelay_inplace_multiply},
+    {Py_nb_inplace_true_divide, SDelay_inplace_div},
+    {Py_tp_new, SDelay_new},
+    {0, NULL}
 };
 
-PyTypeObject SDelayType =
+static PyType_Spec SDelayType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.SDelay_base",         /*tp_name*/
-    sizeof(SDelay),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)SDelay_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &SDelay_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "SDelay objects. Simple Delay with no interpolation and no feedback.",           /* tp_doc */
-    (traverseproc)SDelay_traverse,   /* tp_traverse */
-    (inquiry)SDelay_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    SDelay_methods,             /* tp_methods */
-    SDelay_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    SDelay_new,                 /* tp_new */
+    "_pyo.SDelay_base",
+    sizeof(SDelay),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    SDelayType_slots
 };
+
+PyTypeObject *
+PyoCreateSDelayType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &SDelayType_spec, NULL);
+}
 
 /*********************/
 /***** Waveguide *****/
@@ -1405,58 +1315,58 @@ Waveguide_setProcMode(Waveguide *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Waveguide_process_ii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Waveguide_process_ii);
             break;
 
         case 1:
-            self->proc_func_ptr = Waveguide_process_ai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Waveguide_process_ai);
             break;
 
         case 10:
-            self->proc_func_ptr = Waveguide_process_ia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Waveguide_process_ia);
             break;
 
         case 11:
-            self->proc_func_ptr = Waveguide_process_aa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Waveguide_process_aa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Waveguide_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Waveguide_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Waveguide_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Waveguide_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Waveguide_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Waveguide_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Waveguide_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Waveguide_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Waveguide_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Waveguide_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Waveguide_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Waveguide_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Waveguide_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Waveguide_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Waveguide_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Waveguide_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Waveguide_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Waveguide_postprocessing_revareva);
             break;
     }
 }
@@ -1494,7 +1404,7 @@ Waveguide_dealloc(Waveguide* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer);
     Waveguide_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1534,8 +1444,8 @@ Waveguide_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->nyquist = (MYFLT)self->sr * 0.45;
 
-    Stream_setFunctionPtr(self->stream, Waveguide_compute_next_data_frame);
-    self->mode_func_ptr = Waveguide_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Waveguide_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Waveguide_setProcMode);
 
     static char *kwlist[] = {"input", "freq", "dur", "minfreq", "mul", "add", NULL};
 
@@ -1656,85 +1566,40 @@ static PyMethodDef Waveguide_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Waveguide_as_number =
+static PyType_Slot WaveguideType_slots[] =
 {
-    (binaryfunc)Waveguide_add,                      /*nb_add*/
-    (binaryfunc)Waveguide_sub,                 /*nb_subtract*/
-    (binaryfunc)Waveguide_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Waveguide_inplace_add,              /*inplace_add*/
-    (binaryfunc)Waveguide_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Waveguide_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Waveguide_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Waveguide_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+    {Py_tp_dealloc, Waveguide_dealloc},
+    {Py_tp_doc, "Waveguide objects. Waveguide signal by x samples."},
+    {Py_tp_traverse, Waveguide_traverse},
+    {Py_tp_clear, Waveguide_clear},
+    {Py_tp_methods, Waveguide_methods},
+    {Py_tp_members, Waveguide_members},
+    {Py_nb_add, Waveguide_add},
+    {Py_nb_subtract, Waveguide_sub},
+    {Py_nb_multiply, Waveguide_multiply},
+    {Py_nb_true_divide, Waveguide_div},
+    {Py_nb_inplace_add, Waveguide_inplace_add},
+    {Py_nb_inplace_subtract, Waveguide_inplace_sub},
+    {Py_nb_inplace_multiply, Waveguide_inplace_multiply},
+    {Py_nb_inplace_true_divide, Waveguide_inplace_div},
+    {Py_tp_new, Waveguide_new},
+    {0, NULL}
 };
 
-PyTypeObject WaveguideType =
+static PyType_Spec WaveguideType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Waveguide_base",         /*tp_name*/
-    sizeof(Waveguide),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Waveguide_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Waveguide_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Waveguide objects. Waveguide signal by x samples.",           /* tp_doc */
-    (traverseproc)Waveguide_traverse,   /* tp_traverse */
-    (inquiry)Waveguide_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Waveguide_methods,             /* tp_methods */
-    Waveguide_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Waveguide_new,                 /* tp_new */
+    "_pyo.Waveguide_base",
+    sizeof(Waveguide),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    WaveguideType_slots
 };
+
+PyTypeObject *
+PyoCreateWaveguideType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &WaveguideType_spec, NULL);
+}
 
 /*********************/
 /***** AllpassWG *****/
@@ -2522,74 +2387,74 @@ AllpassWG_setProcMode(AllpassWG *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = AllpassWG_process_iii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(AllpassWG_process_iii);
             break;
 
         case 1:
-            self->proc_func_ptr = AllpassWG_process_aii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(AllpassWG_process_aii);
             break;
 
         case 10:
-            self->proc_func_ptr = AllpassWG_process_iai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(AllpassWG_process_iai);
             break;
 
         case 11:
-            self->proc_func_ptr = AllpassWG_process_aai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(AllpassWG_process_aai);
             break;
 
         case 100:
-            self->proc_func_ptr = AllpassWG_process_iia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(AllpassWG_process_iia);
             break;
 
         case 101:
-            self->proc_func_ptr = AllpassWG_process_aia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(AllpassWG_process_aia);
             break;
 
         case 110:
-            self->proc_func_ptr = AllpassWG_process_iaa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(AllpassWG_process_iaa);
             break;
 
         case 111:
-            self->proc_func_ptr = AllpassWG_process_aaa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(AllpassWG_process_aaa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = AllpassWG_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(AllpassWG_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = AllpassWG_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(AllpassWG_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = AllpassWG_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(AllpassWG_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = AllpassWG_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(AllpassWG_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = AllpassWG_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(AllpassWG_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = AllpassWG_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(AllpassWG_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = AllpassWG_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(AllpassWG_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = AllpassWG_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(AllpassWG_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = AllpassWG_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(AllpassWG_postprocessing_revareva);
             break;
     }
 }
@@ -2636,7 +2501,7 @@ AllpassWG_dealloc(AllpassWG* self)
     }
 
     AllpassWG_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2667,8 +2532,8 @@ AllpassWG_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->nyquist = (MYFLT)self->sr * 0.45;
 
-    Stream_setFunctionPtr(self->stream, AllpassWG_compute_next_data_frame);
-    self->mode_func_ptr = AllpassWG_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(AllpassWG_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(AllpassWG_setProcMode);
 
     static char *kwlist[] = {"input", "freq", "feed", "detune", "minfreq", "mul", "add", NULL};
 
@@ -2810,85 +2675,40 @@ static PyMethodDef AllpassWG_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods AllpassWG_as_number =
+static PyType_Slot AllpassWGType_slots[] =
 {
-    (binaryfunc)AllpassWG_add,                      /*nb_add*/
-    (binaryfunc)AllpassWG_sub,                 /*nb_subtract*/
-    (binaryfunc)AllpassWG_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)AllpassWG_inplace_add,              /*inplace_add*/
-    (binaryfunc)AllpassWG_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)AllpassWG_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)AllpassWG_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)AllpassWG_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+    {Py_tp_dealloc, AllpassWG_dealloc},
+    {Py_tp_doc, "AllpassWG objects. Waveguide model with builtin allpass circuit to detune resonance frequencies."},
+    {Py_tp_traverse, AllpassWG_traverse},
+    {Py_tp_clear, AllpassWG_clear},
+    {Py_tp_methods, AllpassWG_methods},
+    {Py_tp_members, AllpassWG_members},
+    {Py_nb_add, AllpassWG_add},
+    {Py_nb_subtract, AllpassWG_sub},
+    {Py_nb_multiply, AllpassWG_multiply},
+    {Py_nb_true_divide, AllpassWG_div},
+    {Py_nb_inplace_add, AllpassWG_inplace_add},
+    {Py_nb_inplace_subtract, AllpassWG_inplace_sub},
+    {Py_nb_inplace_multiply, AllpassWG_inplace_multiply},
+    {Py_nb_inplace_true_divide, AllpassWG_inplace_div},
+    {Py_tp_new, AllpassWG_new},
+    {0, NULL}
 };
 
-PyTypeObject AllpassWGType =
+static PyType_Spec AllpassWGType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.AllpassWG_base",         /*tp_name*/
-    sizeof(AllpassWG),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)AllpassWG_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &AllpassWG_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "AllpassWG objects. Waveguide model with builtin allpass circuit to detune resonance frequencies.", /* tp_doc */
-    (traverseproc)AllpassWG_traverse,   /* tp_traverse */
-    (inquiry)AllpassWG_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    AllpassWG_methods,             /* tp_methods */
-    AllpassWG_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    AllpassWG_new,                 /* tp_new */
+    "_pyo.AllpassWG_base",
+    sizeof(AllpassWG),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    AllpassWGType_slots
 };
+
+PyTypeObject *
+PyoCreateAllpassWGType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &AllpassWGType_spec, NULL);
+}
 
 /************/
 /* Delay1 */
@@ -2931,44 +2751,44 @@ Delay1_setProcMode(Delay1 *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = Delay1_filters;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(Delay1_filters);
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Delay1_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Delay1_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Delay1_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Delay1_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Delay1_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Delay1_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Delay1_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Delay1_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Delay1_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Delay1_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Delay1_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Delay1_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Delay1_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Delay1_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Delay1_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Delay1_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Delay1_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Delay1_postprocessing_revareva);
             break;
     }
 }
@@ -3001,7 +2821,7 @@ Delay1_dealloc(Delay1* self)
 {
     pyo_DEALLOC
     Delay1_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3020,8 +2840,8 @@ Delay1_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Delay1_compute_next_data_frame);
-    self->mode_func_ptr = Delay1_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Delay1_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Delay1_setProcMode);
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
 
@@ -3093,85 +2913,40 @@ static PyMethodDef Delay1_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Delay1_as_number =
+static PyType_Slot Delay1Type_slots[] =
 {
-    (binaryfunc)Delay1_add,                         /*nb_add*/
-    (binaryfunc)Delay1_sub,                         /*nb_subtract*/
-    (binaryfunc)Delay1_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)Delay1_inplace_add,                 /*inplace_add*/
-    (binaryfunc)Delay1_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)Delay1_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)Delay1_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)Delay1_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+    {Py_tp_dealloc, Delay1_dealloc},
+    {Py_tp_doc, "Delay1 objects. Delays a signal by one sample."},
+    {Py_tp_traverse, Delay1_traverse},
+    {Py_tp_clear, Delay1_clear},
+    {Py_tp_methods, Delay1_methods},
+    {Py_tp_members, Delay1_members},
+    {Py_nb_add, Delay1_add},
+    {Py_nb_subtract, Delay1_sub},
+    {Py_nb_multiply, Delay1_multiply},
+    {Py_nb_true_divide, Delay1_div},
+    {Py_nb_inplace_add, Delay1_inplace_add},
+    {Py_nb_inplace_subtract, Delay1_inplace_sub},
+    {Py_nb_inplace_multiply, Delay1_inplace_multiply},
+    {Py_nb_inplace_true_divide, Delay1_inplace_div},
+    {Py_tp_new, Delay1_new},
+    {0, NULL}
 };
 
-PyTypeObject Delay1Type =
+static PyType_Spec Delay1Type_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Delay1_base",                                   /*tp_name*/
-    sizeof(Delay1),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)Delay1_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    &Delay1_as_number,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Delay1 objects. Delays a signal by one sample.",           /* tp_doc */
-    (traverseproc)Delay1_traverse,                  /* tp_traverse */
-    (inquiry)Delay1_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    Delay1_methods,                                 /* tp_methods */
-    Delay1_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    Delay1_new,                                     /* tp_new */
+    "_pyo.Delay1_base",
+    sizeof(Delay1),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    Delay1Type_slots
 };
+
+PyTypeObject *
+PyoCreateDelay1Type(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &Delay1Type_spec, NULL);
+}
 
 typedef struct
 {
@@ -3612,58 +3387,58 @@ SmoothDelay_setProcMode(SmoothDelay *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = SmoothDelay_process_ii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(SmoothDelay_process_ii);
             break;
 
         case 1:
-            self->proc_func_ptr = SmoothDelay_process_ai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(SmoothDelay_process_ai);
             break;
 
         case 10:
-            self->proc_func_ptr = SmoothDelay_process_ia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(SmoothDelay_process_ia);
             break;
 
         case 11:
-            self->proc_func_ptr = SmoothDelay_process_aa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(SmoothDelay_process_aa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = SmoothDelay_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SmoothDelay_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = SmoothDelay_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SmoothDelay_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = SmoothDelay_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SmoothDelay_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = SmoothDelay_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SmoothDelay_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = SmoothDelay_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SmoothDelay_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = SmoothDelay_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SmoothDelay_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = SmoothDelay_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SmoothDelay_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = SmoothDelay_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SmoothDelay_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = SmoothDelay_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SmoothDelay_postprocessing_revareva);
             break;
     }
 }
@@ -3701,7 +3476,7 @@ SmoothDelay_dealloc(SmoothDelay* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer);
     SmoothDelay_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3734,8 +3509,8 @@ SmoothDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->oneOverSr = self->sampdel1 = self->sampdel2 = 1.0 / self->sr;
 
-    Stream_setFunctionPtr(self->stream, SmoothDelay_compute_next_data_frame);
-    self->mode_func_ptr = SmoothDelay_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(SmoothDelay_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(SmoothDelay_setProcMode);
 
     static char *kwlist[] = {"input", "delay", "feedback", "crossfade", "maxdelay", "mul", "add", NULL};
 
@@ -3861,82 +3636,37 @@ static PyMethodDef SmoothDelay_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods SmoothDelay_as_number =
+static PyType_Slot SmoothDelayType_slots[] =
 {
-    (binaryfunc)SmoothDelay_add,                      /*nb_add*/
-    (binaryfunc)SmoothDelay_sub,                 /*nb_subtract*/
-    (binaryfunc)SmoothDelay_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)SmoothDelay_inplace_add,              /*inplace_add*/
-    (binaryfunc)SmoothDelay_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)SmoothDelay_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)SmoothDelay_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)SmoothDelay_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+    {Py_tp_dealloc, SmoothDelay_dealloc},
+    {Py_tp_doc, "SmoothDelay objects. Delay signal by x samples."},
+    {Py_tp_traverse, SmoothDelay_traverse},
+    {Py_tp_clear, SmoothDelay_clear},
+    {Py_tp_methods, SmoothDelay_methods},
+    {Py_tp_members, SmoothDelay_members},
+    {Py_nb_add, SmoothDelay_add},
+    {Py_nb_subtract, SmoothDelay_sub},
+    {Py_nb_multiply, SmoothDelay_multiply},
+    {Py_nb_true_divide, SmoothDelay_div},
+    {Py_nb_inplace_add, SmoothDelay_inplace_add},
+    {Py_nb_inplace_subtract, SmoothDelay_inplace_sub},
+    {Py_nb_inplace_multiply, SmoothDelay_inplace_multiply},
+    {Py_nb_inplace_true_divide, SmoothDelay_inplace_div},
+    {Py_tp_new, SmoothDelay_new},
+    {0, NULL}
 };
 
-PyTypeObject SmoothDelayType =
+static PyType_Spec SmoothDelayType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.SmoothDelay_base",         /*tp_name*/
-    sizeof(SmoothDelay),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)SmoothDelay_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &SmoothDelay_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "SmoothDelay objects. Delay signal by x samples.",           /* tp_doc */
-    (traverseproc)SmoothDelay_traverse,   /* tp_traverse */
-    (inquiry)SmoothDelay_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    SmoothDelay_methods,             /* tp_methods */
-    SmoothDelay_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    SmoothDelay_new,                 /* tp_new */
+    "_pyo.SmoothDelay_base",
+    sizeof(SmoothDelay),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    SmoothDelayType_slots
 };
+
+PyTypeObject *
+PyoCreateSmoothDelayType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &SmoothDelayType_spec, NULL);
+}
