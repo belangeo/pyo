@@ -61,13 +61,14 @@ Pattern_generate_i(Pattern *self)
 
             if (self->arg == Py_None)
             {
-                result = PyObject_Call((PyObject *)self->callable, PyTuple_New(0), NULL);
+                tuple = PyTuple_New(0);
+                result = PyObject_Call((PyObject *)self->callable, tuple, NULL);
+                Py_DECREF(tuple);
 
                 if (result == NULL)
-                {
                     PyErr_Print();
-                    return;
-                }
+                else
+                    Py_DECREF(result);
             }
             else
             {
@@ -78,10 +79,9 @@ Pattern_generate_i(Pattern *self)
                 Py_DECREF(tuple);
 
                 if (result == NULL)
-                {
                     PyErr_Print();
-                    return;
-                }
+                else
+                    Py_DECREF(result);
             }
         }
 
@@ -111,13 +111,14 @@ Pattern_generate_a(Pattern *self)
 
             if (self->arg == Py_None)
             {
-                result = PyObject_Call((PyObject *)self->callable, PyTuple_New(0), NULL);
+                tuple = PyTuple_New(0);
+                result = PyObject_Call((PyObject *)self->callable, tuple, NULL);
+                Py_DECREF(tuple);
 
                 if (result == NULL)
-                {
                     PyErr_Print();
-                    return;
-                }
+                else
+                    Py_DECREF(result);
             }
             else
             {
@@ -128,10 +129,9 @@ Pattern_generate_a(Pattern *self)
                 Py_DECREF(tuple);
 
                 if (result == NULL)
-                {
                     PyErr_Print();
-                    return;
-                }
+                else
+                    Py_DECREF(result);
             }
         }
 
@@ -517,7 +517,9 @@ CallAfter_generate(CallAfter *self)
 
             if (self->arg == Py_None)
             {
-                result = PyObject_Call(self->callable, PyTuple_New(0), NULL);
+                tuple = PyTuple_New(0);
+                result = PyObject_Call(self->callable, tuple, NULL);
+                Py_DECREF(tuple);
             }
             else
             {
@@ -526,11 +528,12 @@ CallAfter_generate(CallAfter *self)
                 PyTuple_SET_ITEM(tuple, 0, self->arg);
                 result = PyObject_Call(self->callable, tuple, NULL);
                 Py_DECREF(tuple);
-
             }
 
             if (result == NULL)
                 PyErr_Print();
+            else
+                Py_DECREF(result);
 
             break;
         }

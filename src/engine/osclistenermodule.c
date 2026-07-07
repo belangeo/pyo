@@ -135,7 +135,11 @@ int process_osc(const char *path, const char *types, lo_arg **argv, int argc,
         }
     }
 
-    PyObject_Call((PyObject *)server->osccallable, tup, NULL);
+    PyObject *result = PyObject_Call((PyObject *)server->osccallable, tup, NULL);
+    if (result == NULL)
+        PyErr_Print();
+    else
+        Py_DECREF(result);
     PyGILState_Release(s);
     Py_XDECREF(tup);
 

@@ -162,11 +162,12 @@ PVAnal_data_callback(PVAnal *self)
     PyTuple_SET_ITEM(tuple, 0, magnitudes);
     PyTuple_SET_ITEM(tuple, 1, frequencies);
     result = PyObject_Call(self->callback, tuple, NULL);
+    Py_DECREF(tuple);
 
     if (result == NULL)
-    {
         PyErr_Print();
-    }
+    else
+        Py_DECREF(result);
 }
 
 static void

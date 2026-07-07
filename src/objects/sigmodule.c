@@ -695,6 +695,7 @@ VarPort_generates_i(VarPort *self)
             if (self->arg != Py_None)
             {
                 tuple = PyTuple_New(1);
+                Py_INCREF(self->arg);
                 PyTuple_SET_ITEM(tuple, 0, self->arg);
             }
             else
@@ -703,12 +704,14 @@ VarPort_generates_i(VarPort *self)
             }
 
             result = PyObject_Call(self->callable, tuple, NULL);
+            Py_DECREF(tuple);
 
             if (result == NULL)
             {
                 PyErr_Print();
                 return;
             }
+            Py_DECREF(result);
         }
     }
 }

@@ -68,20 +68,32 @@ void process_midi(PtTimestamp timestamp, void *userData)
 
                 if (server->reportdevice)
                 {
+                    PyObject *pyresult;
                     tup = PyTuple_New(4);
                     PyTuple_SetItem(tup, 0, PyLong_FromLong(status));
                     PyTuple_SetItem(tup, 1, PyLong_FromLong(data1));
                     PyTuple_SetItem(tup, 2, PyLong_FromLong(data2));
                     PyTuple_SetItem(tup, 3, PyLong_FromLong(server->ids[i]));
-                    PyObject_Call((PyObject *)server->midicallable, tup, NULL);
+                    pyresult = PyObject_Call((PyObject *)server->midicallable, tup, NULL);
+                    Py_DECREF(tup);
+                    if (pyresult == NULL)
+                        PyErr_Print();
+                    else
+                        Py_DECREF(pyresult);
                 }
                 else
                 {
+                    PyObject *pyresult;
                     tup = PyTuple_New(3);
                     PyTuple_SetItem(tup, 0, PyLong_FromLong(status));
                     PyTuple_SetItem(tup, 1, PyLong_FromLong(data1));
                     PyTuple_SetItem(tup, 2, PyLong_FromLong(data2));
-                    PyObject_Call((PyObject *)server->midicallable, tup, NULL);
+                    pyresult = PyObject_Call((PyObject *)server->midicallable, tup, NULL);
+                    Py_DECREF(tup);
+                    if (pyresult == NULL)
+                        PyErr_Print();
+                    else
+                        Py_DECREF(pyresult);
                 }
             }
         }

@@ -1111,13 +1111,16 @@ TrigFunc_generate(TrigFunc *self)
         {
             if (self->arg == Py_None)
             {
-                result = PyObject_Call(self->func, PyTuple_New(0), NULL);
+                tuple = PyTuple_New(0);
+                result = PyObject_Call(self->func, tuple, NULL);
+                Py_DECREF(tuple);
 
                 if (result == NULL)
                 {
                     PyErr_Print();
                     return;
                 }
+                Py_DECREF(result);
             }
             else
             {
@@ -1132,6 +1135,7 @@ TrigFunc_generate(TrigFunc *self)
                     PyErr_Print();
                     return;
                 }
+                Py_DECREF(result);
             }
         }
     }

@@ -421,7 +421,15 @@ Server_process_buffers(Server *server)
         server->midi_time_offset = pm_get_current_time();
 
     if (server->CALLBACK != NULL)
-        PyObject_Call((PyObject *)server->CALLBACK, PyTuple_New(0), NULL);
+    {
+        PyObject *tuple = PyTuple_New(0);
+        PyObject *result = PyObject_Call((PyObject *)server->CALLBACK, tuple, NULL);
+        Py_DECREF(tuple);
+        if (result == NULL)
+            PyErr_Print();
+        else
+            Py_DECREF(result);
+    }
 
     for (i = 0; i < server->stream_count; i++)
     {

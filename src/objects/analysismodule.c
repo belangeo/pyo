@@ -2288,6 +2288,7 @@ static void
 Scope_generate(Scope *self)
 {
     int i;
+    PyObject *tuple, *result;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
     for (i = 0; i < self->bufsize; i++)
@@ -2296,7 +2297,13 @@ Scope_generate(Scope *self)
         {
             if (self->func != Py_None && self->poll)
             {
-                PyObject_Call(self->func, PyTuple_New(0), NULL);
+                tuple = PyTuple_New(0);
+                result = PyObject_Call(self->func, tuple, NULL);
+                Py_DECREF(tuple);
+                if (result == NULL)
+                    PyErr_Print();
+                else
+                    Py_DECREF(result);
             }
 
             self->pointer = 0;

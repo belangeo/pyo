@@ -60,10 +60,16 @@ CtlScan_compute_next_data_frame(CtlScan *self)
             {
                 if (number != self->ctlnumber)
                 {
+                    PyObject *result;
                     self->ctlnumber = number;
                     tup = PyTuple_New(1);
                     PyTuple_SetItem(tup, 0, PyLong_FromLong(self->ctlnumber));
-                    PyObject_Call((PyObject *)self->callable, tup, NULL);
+                    result = PyObject_Call((PyObject *)self->callable, tup, NULL);
+                    Py_DECREF(tup);
+                    if (result == NULL)
+                        PyErr_Print();
+                    else
+                        Py_DECREF(result);
                 }
 
                 if (self->toprint == 1)
@@ -253,12 +259,18 @@ CtlScan2_compute_next_data_frame(CtlScan2 *self)
 
                 if (number != self->ctlnumber || midichnl != self->midichnl)
                 {
+                    PyObject *result;
                     self->ctlnumber = number;
                     self->midichnl = midichnl;
                     tup = PyTuple_New(2);
                     PyTuple_SetItem(tup, 0, PyLong_FromLong(self->ctlnumber));
                     PyTuple_SetItem(tup, 1, PyLong_FromLong(self->midichnl));
-                    PyObject_Call((PyObject *)self->callable, tup, NULL);
+                    result = PyObject_Call((PyObject *)self->callable, tup, NULL);
+                    Py_DECREF(tup);
+                    if (result == NULL)
+                        PyErr_Print();
+                    else
+                        Py_DECREF(result);
                 }
 
                 if (self->toprint == 1)
@@ -3777,11 +3789,17 @@ RawMidi_compute_next_data_frame(RawMidi *self)
             status = PyoMidi_MessageStatus(buffer[i].message);    // Temp note event holders
             data1 = PyoMidi_MessageData1(buffer[i].message);
             data2 = PyoMidi_MessageData2(buffer[i].message);
+            PyObject *result;
             tup = PyTuple_New(3);
             PyTuple_SetItem(tup, 0, PyLong_FromLong(status));
             PyTuple_SetItem(tup, 1, PyLong_FromLong(data1));
             PyTuple_SetItem(tup, 2, PyLong_FromLong(data2));
-            PyObject_Call((PyObject *)self->callable, tup, NULL);
+            result = PyObject_Call((PyObject *)self->callable, tup, NULL);
+            Py_DECREF(tup);
+            if (result == NULL)
+                PyErr_Print();
+            else
+                Py_DECREF(result);
         }
     }
 }
