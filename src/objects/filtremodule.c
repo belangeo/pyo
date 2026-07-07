@@ -407,25 +407,25 @@ Biquad_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (qtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setQ", "O", qtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setQ", qtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -978,25 +978,25 @@ Biquadx_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (qtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setQ", "O", qtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setQ", qtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     Biquadx_allocate_memories(self);
 
@@ -1291,34 +1291,34 @@ Biquada_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_INPUT_STREAM
 
     if (b0tmp)
-        PyObject_CallMethod((PyObject *)self, "setB0", "O", b0tmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setB0", b0tmp);
 
     if (b1tmp)
-        PyObject_CallMethod((PyObject *)self, "setB1", "O", b1tmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setB1", b1tmp);
 
     if (b2tmp)
-        PyObject_CallMethod((PyObject *)self, "setB2", "O", b2tmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setB2", b2tmp);
 
     if (a0tmp)
-        PyObject_CallMethod((PyObject *)self, "setA0", "O", a0tmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setA0", a0tmp);
 
     if (a1tmp)
-        PyObject_CallMethod((PyObject *)self, "setA1", "O", a1tmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setA1", a1tmp);
 
     if (a2tmp)
-        PyObject_CallMethod((PyObject *)self, "setA2", "O", a2tmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setA2", a2tmp);
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -1350,7 +1350,7 @@ Biquada_setB0(Biquada *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    PyObject *streamtmp = PyObject_CallMethod((PyObject *)arg, "_getStream", NULL);
+    PyObject *streamtmp = PYO_CALL_METHOD_RET((PyObject *)arg, "_getStream", NULL);
     self->b0_stream = (Stream *)streamtmp;
     Py_INCREF(self->b0_stream);
 
@@ -1362,7 +1362,7 @@ Biquada_setB1(Biquada *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    PyObject *streamtmp = PyObject_CallMethod((PyObject *)arg, "_getStream", NULL);
+    PyObject *streamtmp = PYO_CALL_METHOD_RET((PyObject *)arg, "_getStream", NULL);
     self->b1_stream = (Stream *)streamtmp;
     Py_INCREF(self->b1_stream);
 
@@ -1374,7 +1374,7 @@ Biquada_setB2(Biquada *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    PyObject *streamtmp = PyObject_CallMethod((PyObject *)arg, "_getStream", NULL);
+    PyObject *streamtmp = PYO_CALL_METHOD_RET((PyObject *)arg, "_getStream", NULL);
     self->b2_stream = (Stream *)streamtmp;
     Py_INCREF(self->b2_stream);
 
@@ -1386,7 +1386,7 @@ Biquada_setA0(Biquada *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    PyObject *streamtmp = PyObject_CallMethod((PyObject *)arg, "_getStream", NULL);
+    PyObject *streamtmp = PYO_CALL_METHOD_RET((PyObject *)arg, "_getStream", NULL);
     self->a0_stream = (Stream *)streamtmp;
     Py_INCREF(self->a0_stream);
 
@@ -1398,7 +1398,7 @@ Biquada_setA1(Biquada *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    PyObject *streamtmp = PyObject_CallMethod((PyObject *)arg, "_getStream", NULL);
+    PyObject *streamtmp = PYO_CALL_METHOD_RET((PyObject *)arg, "_getStream", NULL);
     self->a1_stream = (Stream *)streamtmp;
     Py_INCREF(self->a1_stream);
 
@@ -1410,7 +1410,7 @@ Biquada_setA2(Biquada *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    PyObject *streamtmp = PyObject_CallMethod((PyObject *)arg, "_getStream", NULL);
+    PyObject *streamtmp = PYO_CALL_METHOD_RET((PyObject *)arg, "_getStream", NULL);
     self->a2_stream = (Stream *)streamtmp;
     Py_INCREF(self->a2_stream);
 
@@ -1981,30 +1981,30 @@ EQ_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (qtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setQ", "O", qtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setQ", qtmp);
     }
 
     if (boosttmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setBoost", "O", boosttmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setBoost", boosttmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -2412,28 +2412,28 @@ Port_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (risetimetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setRiseTime", "O", risetimetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setRiseTime", risetimetmp);
     }
 
     if (falltimetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFallTime", "O", falltimetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFallTime", falltimetmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
     if (inittmp != 0.0)
         self->x1 = self->y1 = inittmp;
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -2734,20 +2734,20 @@ Tone_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -3047,20 +3047,20 @@ Atone_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -3294,15 +3294,15 @@ DCBlock_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -3747,25 +3747,25 @@ Allpass_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (delaytmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDelay", "O", delaytmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDelay", delaytmp);
     }
 
     if (feedbacktmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFeedback", "O", feedbacktmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFeedback", feedbacktmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->size = self->maxDelay * self->sr + 0.5;
 
@@ -4156,25 +4156,25 @@ Allpass2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (bwtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setBw", "O", bwtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setBw", bwtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -4935,35 +4935,35 @@ Phaser_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (spreadtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setSpread", "O", spreadtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setSpread", spreadtmp);
     }
 
     if (qtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setQ", "O", qtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setQ", qtmp);
     }
 
     if (feedbacktmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFeedback", "O", feedbacktmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFeedback", feedbacktmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -6154,41 +6154,41 @@ Vocoder_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->input2 = input2tmp;
     Py_INCREF(self->input2);
-    input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
+    input2_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input2, "_getStream", NULL);
     self->input2_stream = (Stream *)input2_streamtmp;
     Py_INCREF(self->input2_stream);
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (spreadtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setSpread", "O", spreadtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setSpread", spreadtmp);
     }
 
     if (qtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setQ", "O", qtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setQ", qtmp);
     }
 
     if (slopetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setSlope", "O", slopetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setSlope", slopetmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     Vocoder_allocate_memories(self);
 
@@ -6927,30 +6927,30 @@ SVF_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (qtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setQ", "O", qtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setQ", qtmp);
     }
 
     if (typetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setType", "O", typetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setType", typetmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -7681,35 +7681,35 @@ SVF2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (qtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setQ", "O", qtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setQ", qtmp);
     }
 
     if (shelftmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setShelf", "O", shelftmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setShelf", shelftmp);
     }
 
     if (typetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setType", "O", typetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setType", typetmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -8027,15 +8027,15 @@ Average_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->halfSize = (int)(self->size / 2);
     self->oneOnSize = 1.0 / (double)self->size;
@@ -8464,25 +8464,25 @@ Reson_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (qtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setQ", "O", qtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setQ", qtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -8934,25 +8934,25 @@ Resonx_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (qtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setQ", "O", qtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setQ", qtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     Resonx_allocate_memories(self);
 
@@ -9298,20 +9298,20 @@ ButLP_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -9637,20 +9637,20 @@ ButHP_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -10053,25 +10053,25 @@ ButBP_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (qtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setQ", "O", qtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setQ", qtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -10477,25 +10477,25 @@ ButBR_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (qtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setQ", "O", qtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setQ", qtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -10910,25 +10910,25 @@ ComplexRes_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (decaytmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDecay", "O", decaytmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDecay", decaytmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -11360,25 +11360,25 @@ MoogLP_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (restmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setRes", "O", restmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setRes", restmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 

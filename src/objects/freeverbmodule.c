@@ -742,30 +742,30 @@ Freeverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (sizetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setSize", "O", sizetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setSize", sizetmp);
     }
 
     if (damptmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDamp", "O", damptmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDamp", damptmp);
     }
 
     if (mixtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMix", "O", mixtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMix", mixtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 

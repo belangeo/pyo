@@ -607,30 +607,30 @@ WGVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (feedbacktmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFeedback", "O", feedbacktmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFeedback", feedbacktmp);
     }
 
     if (cutofftmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setCutoff", "O", cutofftmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setCutoff", cutofftmp);
     }
 
     if (mixtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMix", "O", mixtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMix", mixtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     for (i = 0; i < 8; i++)
     {
@@ -1612,25 +1612,25 @@ STReverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (inpostmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setInpos", "O", inpostmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setInpos", inpostmp);
     }
 
     if (revtimetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setRevtime", "O", revtimetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setRevtime", revtimetmp);
     }
 
     if (cutofftmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setCutoff", "O", cutofftmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setCutoff", cutofftmp);
     }
 
     if (mixtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMix", "O", mixtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMix", mixtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->firstRefGain = MYPOW(10.0, firstRefTmp * 0.05);
 
@@ -2031,15 +2031,15 @@ STRev_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 

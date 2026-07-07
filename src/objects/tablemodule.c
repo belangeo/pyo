@@ -271,7 +271,7 @@ HarmTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setData(self->tablestream, self->data);
     HarmTable_generate(self);
 
-    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    PyObject *srobj = PYO_CALL_METHOD_RET(self->server, "getSamplingRate", NULL);
     double sr = PyFloat_AsDouble(srobj);
     Py_DECREF(srobj);
 
@@ -586,7 +586,7 @@ ChebyTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setData(self->tablestream, self->data);
     ChebyTable_generate(self);
 
-    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    PyObject *srobj = PYO_CALL_METHOD_RET(self->server, "getSamplingRate", NULL);
     double sr = PyFloat_AsDouble(srobj);
     Py_DECREF(srobj);
 
@@ -908,7 +908,7 @@ HannTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setData(self->tablestream, self->data);
     HannTable_generate(self);
 
-    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    PyObject *srobj = PYO_CALL_METHOD_RET(self->server, "getSamplingRate", NULL);
     double sr = PyFloat_AsDouble(srobj);
     Py_DECREF(srobj);
 
@@ -1135,7 +1135,7 @@ SincTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setData(self->tablestream, self->data);
     SincTable_generate(self);
 
-    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    PyObject *srobj = PYO_CALL_METHOD_RET(self->server, "getSamplingRate", NULL);
     double sr = PyFloat_AsDouble(srobj);
     Py_DECREF(srobj);
 
@@ -1360,7 +1360,7 @@ WinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setData(self->tablestream, self->data);
     WinTable_generate(self);
 
-    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    PyObject *srobj = PYO_CALL_METHOD_RET(self->server, "getSamplingRate", NULL);
     double sr = PyFloat_AsDouble(srobj);
     Py_DECREF(srobj);
 
@@ -1587,7 +1587,7 @@ ParaTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setData(self->tablestream, self->data);
     ParaTable_generate(self);
 
-    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    PyObject *srobj = PYO_CALL_METHOD_RET(self->server, "getSamplingRate", NULL);
     double sr = PyFloat_AsDouble(srobj);
     Py_DECREF(srobj);
 
@@ -1852,7 +1852,7 @@ LinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setData(self->tablestream, self->data);
     LinTable_generate(self);
 
-    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    PyObject *srobj = PYO_CALL_METHOD_RET(self->server, "getSamplingRate", NULL);
     double sr = PyFloat_AsDouble(srobj);
     Py_DECREF(srobj);
 
@@ -2183,7 +2183,7 @@ LogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setData(self->tablestream, self->data);
     LogTable_generate(self);
 
-    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    PyObject *srobj = PYO_CALL_METHOD_RET(self->server, "getSamplingRate", NULL);
     double sr = PyFloat_AsDouble(srobj);
     Py_DECREF(srobj);
 
@@ -2482,7 +2482,7 @@ CosTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setData(self->tablestream, self->data);
     CosTable_generate(self);
 
-    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    PyObject *srobj = PYO_CALL_METHOD_RET(self->server, "getSamplingRate", NULL);
     double sr = PyFloat_AsDouble(srobj);
     Py_DECREF(srobj);
 
@@ -2814,7 +2814,7 @@ CosLogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setData(self->tablestream, self->data);
     CosLogTable_generate(self);
 
-    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    PyObject *srobj = PYO_CALL_METHOD_RET(self->server, "getSamplingRate", NULL);
     double sr = PyFloat_AsDouble(srobj);
     Py_DECREF(srobj);
 
@@ -3139,7 +3139,7 @@ CurveTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setData(self->tablestream, self->data);
     CurveTable_generate(self);
 
-    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    PyObject *srobj = PYO_CALL_METHOD_RET(self->server, "getSamplingRate", NULL);
     double sr = PyFloat_AsDouble(srobj);
     Py_DECREF(srobj);
 
@@ -3510,7 +3510,7 @@ ExpTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setData(self->tablestream, self->data);
     ExpTable_generate(self);
 
-    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    PyObject *srobj = PYO_CALL_METHOD_RET(self->server, "getSamplingRate", NULL);
     double sr = PyFloat_AsDouble(srobj);
     Py_DECREF(srobj);
 
@@ -4216,7 +4216,7 @@ SndTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->server = PyServer_get_server();
     Py_INCREF(self->server);
 
-    self->sr = (MYFLT)PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    self->sr = (MYFLT)Pyo_CallMethod_AsDouble(self->server, "getSamplingRate");
 
     self->chnl = 0;
     self->stop = -1.0;
@@ -4545,7 +4545,7 @@ SndTable_getSize(SndTable *self)
 static PyObject *
 SndTable_getRate(SndTable *self)
 {
-    MYFLT sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    MYFLT sr = Pyo_CallMethod_AsDouble(self->server, "getSamplingRate");
     \
     return PyFloat_FromDouble(sr * (self->sndSr / sr) / self->size);
 };
@@ -4681,7 +4681,7 @@ NewTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
-    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    PyObject *srobj = PYO_CALL_METHOD_RET(self->server, "getSamplingRate", NULL);
     self->sr = (MYFLT)PyFloat_AsDouble(srobj);
     Py_DECREF(srobj);
 
@@ -4712,7 +4712,7 @@ NewTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
             inittmp = PyList_GetSlice(inittmp, 0, self->size);
             PySys_WriteStdout("Warning: NewTable data length > size... truncated to size.\n");
         }
-        PyObject_CallMethod((PyObject *)self, "setTable", "O", inittmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setTable", inittmp);
     }
 
     TableStream_setData(self->tablestream, self->data);
@@ -5118,12 +5118,12 @@ DataTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (inittmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setTable", "O", inittmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setTable", inittmp);
     }
 
     TableStream_setData(self->tablestream, self->data);
 
-    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    PyObject *srobj = PYO_CALL_METHOD_RET(self->server, "getSamplingRate", NULL);
     self->sr = (MYFLT)PyFloat_AsDouble(srobj);
     Py_DECREF(srobj);
 
@@ -5320,7 +5320,7 @@ AtanTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setData(self->tablestream, self->data);
     AtanTable_generate(self);
 
-    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    PyObject *srobj = PYO_CALL_METHOD_RET(self->server, "getSamplingRate", NULL);
     double sr = PyFloat_AsDouble(srobj);
     Py_DECREF(srobj);
 
@@ -5668,7 +5668,7 @@ PadSynthTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
 
-    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    PyObject *srobj = PYO_CALL_METHOD_RET(self->server, "getSamplingRate", NULL);
     self->sr = PyFloat_AsDouble(srobj);
     Py_DECREF(srobj);
 
@@ -6081,9 +6081,9 @@ TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)tabletmp, "getTableStream", "");
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->buffer = (MYFLT *)PyMem_RawRealloc(self->buffer, self->bufsize * sizeof(MYFLT));
     self->trigsBuffer = (MYFLT *)PyMem_RawRealloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
@@ -6167,7 +6167,7 @@ TableRec_setTable(TableRec *self, PyObject *arg)
     ASSERT_ARG_NOT_NULL
 
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -6350,7 +6350,7 @@ TableRecTimeStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mainPlayer = (TableRec *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -6494,10 +6494,12 @@ TableMorph_compute_next_data_frame(TableMorph *self)
     x = (int)(interp);
     y = x + 1;
 
-    MYFLT *tab1 = TableStream_getData((TableStream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->sources, x), "getTableStream", ""));
-    MYFLT *tab2 = TableStream_getData((TableStream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->sources, y), "getTableStream", ""));
-    T_SIZE_T size1 = TableStream_getSize((TableStream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->sources, x), "getTableStream", ""));
-    T_SIZE_T size2 = TableStream_getSize((TableStream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->sources, y), "getTableStream", ""));
+    PyObject *tabobj1 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->sources, x), "getTableStream", "");
+    PyObject *tabobj2 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->sources, y), "getTableStream", "");
+    MYFLT *tab1 = TableStream_getData((TableStream *)tabobj1);
+    MYFLT *tab2 = TableStream_getData((TableStream *)tabobj2);
+    T_SIZE_T size1 = TableStream_getSize((TableStream *)tabobj1);
+    T_SIZE_T size2 = TableStream_getSize((TableStream *)tabobj2);
 
     size = size < size1 ? size : size1;
     size = size < size2 ? size : size2;
@@ -6510,6 +6512,9 @@ TableMorph_compute_next_data_frame(TableMorph *self)
     {
         self->buffer[i] = tab1[i] * interp1 + tab2[i] * interp2;
     }
+
+    Py_DECREF(tabobj1);
+    Py_DECREF(tabobj2);
 
     TableStream_recordChunk((TableStream *)self->table, self->buffer, size);
 }
@@ -6571,14 +6576,14 @@ TableMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)tabletmp, "getTableStream", "");
 
     self->sources = (PyObject *)sourcestmp;
     Py_INCREF(self->sources);
 
     TableMorph_alloc_memories(self);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     return (PyObject *)self;
 }
@@ -6595,7 +6600,7 @@ TableMorph_setTable(TableMorph *self, PyObject *arg)
     ASSERT_ARG_NOT_NULL
 
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -6882,7 +6887,7 @@ TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->trigger = trigtmp;
     Py_INCREF(self->trigger);
-    trig_streamtmp = PyObject_CallMethod((PyObject *)self->trigger, "_getStream", NULL);
+    trig_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->trigger, "_getStream", NULL);
     self->trigger_stream = (Stream *)trig_streamtmp;
     Py_INCREF(self->trigger_stream);
 
@@ -6892,9 +6897,9 @@ TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)tabletmp, "getTableStream", "");
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->trigsBuffer = (MYFLT *)PyMem_RawRealloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
     self->time_buffer_streams = (MYFLT *)PyMem_RawRealloc(self->time_buffer_streams, self->bufsize * sizeof(MYFLT));
@@ -6932,7 +6937,7 @@ TrigTableRec_setTable(TrigTableRec *self, PyObject *arg)
     ASSERT_ARG_NOT_NULL
 
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -7116,7 +7121,7 @@ TrigTableRecTimeStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mainPlayer = (TrigTableRec *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -7309,9 +7314,9 @@ TablePut_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)tabletmp, "getTableStream", "");
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->trigsBuffer = (MYFLT *)PyMem_RawRealloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
@@ -7345,7 +7350,7 @@ TablePut_setTable(TablePut *self, PyObject *arg)
     ASSERT_ARG_NOT_NULL
 
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -7563,7 +7568,7 @@ TableWrite_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (postmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setPos", "O", postmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setPos", postmp);
     }
 
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
@@ -7572,9 +7577,9 @@ TableWrite_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)tabletmp, "getTableStream", "");
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     return (PyObject *)self;
 }
@@ -7600,7 +7605,7 @@ TableWrite_setPos(TableWrite *self, PyObject *arg)
 
     self->pos = arg;
     Py_INCREF(self->pos);
-    PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->pos, "_getStream", NULL);
+    PyObject *streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->pos, "_getStream", NULL);
     self->pos_stream = (Stream *)streamtmp;
     Py_INCREF(self->pos_stream);
 
@@ -7613,7 +7618,7 @@ TableWrite_setTable(TableWrite *self, PyObject *arg)
     ASSERT_ARG_NOT_NULL
 
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -7790,7 +7795,7 @@ SharedTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
 
-    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    PyObject *srobj = PYO_CALL_METHOD_RET(self->server, "getSamplingRate", NULL);
     self->sr = PyFloat_AsDouble(srobj);
     Py_DECREF(srobj);
 

@@ -154,7 +154,7 @@ Dummy_initialize(Dummy *self)
     Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Dummy_compute_next_data_frame));
     self->mode_func_ptr = PYO_AUDIO_CALLBACK(Dummy_setProcMode);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     Stream_setStreamActive(self->stream, 1);
 
@@ -177,7 +177,7 @@ Dummy_setInput(Dummy *self, PyObject *arg)
     {
         self->input = arg;
         Py_INCREF(self->input);
-        PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL);
+        PyObject *streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input, "_getStream", NULL);
         self->input_stream = (Stream *)streamtmp;
         Py_INCREF(self->input_stream);
         self->modebuffer[2] = 1;
@@ -403,7 +403,7 @@ TriggerDummy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_TRIGGER_STREAM
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 

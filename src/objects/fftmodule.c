@@ -239,7 +239,7 @@ FFTMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     FFTMain_realloc_memories(self);
 
@@ -472,15 +472,15 @@ FFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -805,27 +805,27 @@ IFFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->inimag = inimagtmp;
     Py_INCREF(self->inimag);
-    inimag_streamtmp = PyObject_CallMethod((PyObject *)self->inimag, "_getStream", NULL);
+    inimag_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->inimag, "_getStream", NULL);
     self->inimag_stream = (Stream *)inimag_streamtmp;
     Py_INCREF(self->inimag_stream);
 
     self->inreal = inrealtmp;
     Py_INCREF(self->inreal);
-    inreal_streamtmp = PyObject_CallMethod((PyObject *)self->inreal, "_getStream", NULL);
+    inreal_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->inreal, "_getStream", NULL);
     self->inreal_stream = (Stream *)inreal_streamtmp;
     Py_INCREF(self->inreal_stream);
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     IFFT_realloc_memories(self);
 
@@ -1105,21 +1105,21 @@ CarToPol_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->input2 = input2tmp;
     Py_INCREF(self->input2);
-    input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
+    input2_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input2, "_getStream", NULL);
     self->input2_stream = (Stream *)input2_streamtmp;
     Py_INCREF(self->input2_stream);
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -1357,21 +1357,21 @@ PolToCar_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->input2 = input2tmp;
     Py_INCREF(self->input2);
-    input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
+    input2_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input2, "_getStream", NULL);
     self->input2_stream = (Stream *)input2_streamtmp;
     Py_INCREF(self->input2_stream);
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -1479,7 +1479,9 @@ FrameDeltaMain_generate(FrameDeltaMain *self)
 
     for (j = 0; j < self->overlaps; j++)
     {
-        MYFLT *in = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->input, j), "_getStream", NULL));
+        PyObject *streamobj = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->input, j), "_getStream", NULL);
+        MYFLT *in = Stream_getData((Stream *)streamobj);
+        Py_DECREF(streamobj);
 
         for (i = 0; i < self->bufsize; i++)
         {
@@ -1604,10 +1606,10 @@ FrameDeltaMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (inputtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setInput", "O", inputtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setInput", inputtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->hopsize = self->frameSize / self->overlaps;
     self->frameBuffer = (MYFLT **)PyMem_RawRealloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
@@ -1876,15 +1878,15 @@ FrameDelta_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -1992,7 +1994,9 @@ FrameAccumMain_generate(FrameAccumMain *self)
 
     for (j = 0; j < self->overlaps; j++)
     {
-        MYFLT *in = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->input, j), "_getStream", NULL));
+        PyObject *streamobj = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->input, j), "_getStream", NULL);
+        MYFLT *in = Stream_getData((Stream *)streamobj);
+        Py_DECREF(streamobj);
 
         for (i = 0; i < self->bufsize; i++)
         {
@@ -2106,10 +2110,10 @@ FrameAccumMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (inputtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setInput", "O", inputtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setInput", inputtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->hopsize = self->frameSize / self->overlaps;
     self->frameBuffer = (MYFLT **)PyMem_RawRealloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
@@ -2378,15 +2382,15 @@ FrameAccum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -2538,7 +2542,9 @@ VectralMain_generate(VectralMain *self)
 
     for (j = 0; j < self->overlaps; j++)
     {
-        MYFLT *in = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->input, j), "_getStream", NULL));
+        PyObject *streamobj = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->input, j), "_getStream", NULL);
+        MYFLT *in = Stream_getData((Stream *)streamobj);
+        Py_DECREF(streamobj);
 
         for (i = 0; i < self->bufsize; i++)
         {
@@ -2678,25 +2684,25 @@ VectralMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (inputtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setInput", "O", inputtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setInput", inputtmp);
     }
 
     if (uptmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setUp", "O", uptmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setUp", uptmp);
     }
 
     if (downtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDown", "O", downtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDown", downtmp);
     }
 
     if (damptmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDamp", "O", damptmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDamp", damptmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->hopsize = self->frameSize / self->overlaps;
     self->frameBuffer = (MYFLT **)PyMem_RawRealloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
@@ -2972,15 +2978,15 @@ Vectral_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -3571,20 +3577,20 @@ CvlVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (baltmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setBal", "O", baltmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setBal", baltmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     CvlVerb_alloc_memories(self);
     CvlVerb_analyse_impulse(self);
@@ -3982,7 +3988,7 @@ Spectrum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     if (!isPowerOfTwo(self->size))
     {
@@ -4422,29 +4428,29 @@ IFFTMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    self->matrix = PyObject_CallMethod((PyObject *)matrixtmp, "getMatrixStream", "");
+    self->matrix = PYO_CALL_METHOD_RET((PyObject *)matrixtmp, "getMatrixStream", "");
 
     if (indextmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setIndex", "O", indextmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setIndex", indextmp);
     }
 
     if (phasetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setPhase", "O", phasetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setPhase", phasetmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     IFFTMatrix_realloc_memories(self);
 
@@ -4487,7 +4493,7 @@ static PyObject * IFFTMatrix_setIndex(IFFTMatrix *self, PyObject *arg)
 
     self->index = arg;
     Py_INCREF(self->index);
-    PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
+    PyObject *streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->index, "_getStream", NULL);
     self->index_stream = (Stream *)streamtmp;
     Py_INCREF(self->index_stream);
 
@@ -4509,7 +4515,7 @@ IFFTMatrix_setPhase(IFFTMatrix *self, PyObject *arg)
 
     self->phase = arg;
     Py_INCREF(self->phase);
-    PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->phase, "_getStream", NULL);
+    PyObject *streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->phase, "_getStream", NULL);
     self->phase_stream = (Stream *)streamtmp;
     Py_INCREF(self->phase_stream);
 

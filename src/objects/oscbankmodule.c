@@ -521,54 +521,54 @@ OscBank_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)tabletmp, "getTableStream", "");
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (spreadtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setSpread", "O", spreadtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setSpread", spreadtmp);
     }
 
     if (slopetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setSlope", "O", slopetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setSlope", slopetmp);
     }
 
     if (frndftmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFrndf", "O", frndftmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFrndf", frndftmp);
     }
 
     if (frndatmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFrnda", "O", frndatmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFrnda", frndatmp);
     }
 
     if (arndftmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setArndf", "O", arndftmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setArndf", arndftmp);
     }
 
     if (arndatmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setArnda", "O", arndatmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setArnda", arndatmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -626,7 +626,7 @@ OscBank_setTable(OscBank *self, PyObject *arg)
     ASSERT_ARG_NOT_NULL
 
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }

@@ -169,20 +169,20 @@ Sig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (valuetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setValue", "O", valuetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setValue", valuetmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -512,25 +512,25 @@ SigTo_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (valuetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setValue", "O", valuetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setValue", valuetmp);
     }
 
     if (timetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setTime", timetmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->lastValue = self->currentValue = inittmp;
 
@@ -841,22 +841,22 @@ VarPort_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (valuetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setValue", "O", valuetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setValue", valuetmp);
     }
 
     if (timetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setTime", timetmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
     if (calltmp)
@@ -873,7 +873,7 @@ VarPort_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->arg = argtmp;
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->lastValue = self->currentValue = inittmp;
 

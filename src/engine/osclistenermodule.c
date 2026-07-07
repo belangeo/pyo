@@ -184,7 +184,7 @@ OscListener_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (osccalltmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setOscFunction", "O", osccalltmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setOscFunction", osccalltmp);
     }
 
     sprintf(buf, "%i", self->oscport);

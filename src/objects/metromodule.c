@@ -238,10 +238,10 @@ Metro_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (timetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setTime", timetmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -385,7 +385,7 @@ Seqer_generate_ii(Seqer *self)
 
     if (self->to_stop)
     {
-        PyObject_CallMethod((PyObject *)self, "stop", NULL);
+        PYO_CALL_METHOD(self, "stop", NULL);
         self->to_stop = 0;
         return;
     }
@@ -439,7 +439,7 @@ Seqer_generate_ai(Seqer *self)
 
     if (self->to_stop)
     {
-        PyObject_CallMethod((PyObject *)self, "stop", NULL);
+        PYO_CALL_METHOD(self, "stop", NULL);
         self->to_stop = 0;
         return;
     }
@@ -493,7 +493,7 @@ Seqer_generate_ia(Seqer *self)
 
     if (self->to_stop)
     {
-        PyObject_CallMethod((PyObject *)self, "stop", NULL);
+        PYO_CALL_METHOD(self, "stop", NULL);
         self->to_stop = 0;
         return;
     }
@@ -546,7 +546,7 @@ Seqer_generate_aa(Seqer *self)
 
     if (self->to_stop)
     {
-        PyObject_CallMethod((PyObject *)self, "stop", NULL);
+        PYO_CALL_METHOD(self, "stop", NULL);
         self->to_stop = 0;
         return;
     }
@@ -694,22 +694,22 @@ Seqer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (timetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setTime", timetmp);
     }
 
     if (speedtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setSpeed", "O", speedtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setSpeed", speedtmp);
     }
 
     if (seqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setSeq", "O", seqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setSeq", seqtmp);
     }
 
     Seqer_reset(self);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->buffer_streams = (MYFLT *)PyMem_RawRealloc(self->buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
 
@@ -947,7 +947,7 @@ Seq_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mainPlayer = (Seqer *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -1200,10 +1200,10 @@ Clouder_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (densitytmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDensity", "O", densitytmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDensity", densitytmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -1402,7 +1402,7 @@ Cloud_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mainPlayer = (Clouder *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -1613,7 +1613,7 @@ Trig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -2020,7 +2020,7 @@ Beater_generate_i(Beater *self)
 
     if (self->to_stop)
     {
-        PyObject_CallMethod((PyObject *)self, "stop", NULL);
+        PYO_CALL_METHOD(self, "stop", NULL);
         self->to_stop = 0;
         return;
     }
@@ -2128,7 +2128,7 @@ Beater_generate_a(Beater *self)
 
     if (self->to_stop)
     {
-        PyObject_CallMethod((PyObject *)self, "stop", NULL);
+        PYO_CALL_METHOD(self, "stop", NULL);
         self->to_stop = 0;
         return;
     }
@@ -2352,10 +2352,10 @@ Beater_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (timetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setTime", timetmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -2769,7 +2769,7 @@ Beat_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mainPlayer = (Beater *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -2989,7 +2989,7 @@ BeatTapStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mainPlayer = (Beater *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -3209,7 +3209,7 @@ BeatAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mainPlayer = (Beater *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -3429,7 +3429,7 @@ BeatDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mainPlayer = (Beater *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -3649,7 +3649,7 @@ BeatEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mainPlayer = (Beater *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -3941,7 +3941,7 @@ TrigBurster_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -4206,7 +4206,7 @@ TrigBurst_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mainPlayer = (TrigBurster *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -4426,7 +4426,7 @@ TrigBurstTapStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mainPlayer = (TrigBurster *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -4646,7 +4646,7 @@ TrigBurstAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mainPlayer = (TrigBurster *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -4866,7 +4866,7 @@ TrigBurstDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mainPlayer = (TrigBurster *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -5086,7 +5086,7 @@ TrigBurstEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mainPlayer = (TrigBurster *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 

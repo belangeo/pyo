@@ -391,25 +391,25 @@ Delay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (delaytmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDelay", "O", delaytmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDelay", delaytmp);
     }
 
     if (feedbacktmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFeedback", "O", feedbacktmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFeedback", feedbacktmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->size = (long)(self->maxdelay * self->sr + 0.5);
 
@@ -764,20 +764,20 @@ SDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (delaytmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDelay", "O", delaytmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDelay", delaytmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->size = (long)(self->maxdelay * self->sr + 0.5);
 
@@ -1458,25 +1458,25 @@ Waveguide_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (durtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDur", "O", durtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDur", durtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->size = (long)(1.0 / self->minfreq * self->sr + 0.5);
 
@@ -2546,30 +2546,30 @@ AllpassWG_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (feedtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFeed", "O", feedtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFeed", feedtmp);
     }
 
     if (detunetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDetune", "O", detunetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDetune", detunetmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->size = (long)(1.0 / self->minfreq * self->sr + 0.5);
     self->buffer = (MYFLT *)PyMem_RawRealloc(self->buffer, (self->size + 1) * sizeof(MYFLT));
@@ -2854,15 +2854,15 @@ Delay1_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -3523,25 +3523,25 @@ SmoothDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (delaytmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDelay", "O", delaytmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDelay", delaytmp);
     }
 
     if (feedbacktmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFeedback", "O", feedbacktmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFeedback", feedbacktmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->size = (long)(self->maxdelay * self->sr + 0.5);
 

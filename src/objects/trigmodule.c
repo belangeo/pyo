@@ -204,20 +204,20 @@ TrigRandInt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (maxtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMax", maxtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     Server_generateSeed((Server *)self->server, TRIGRANDINT_ID);
 
@@ -634,25 +634,25 @@ TrigRand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (mintmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMin", mintmp);
     }
 
     if (maxtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMax", maxtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     Server_generateSeed((Server *)self->server, TRIGRAND_ID);
 
@@ -942,20 +942,20 @@ TrigChoice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (choicetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setChoice", "O", choicetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setChoice", choicetmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     Server_generateSeed((Server *)self->server, TRIGCHOICE_ID);
 
@@ -1198,7 +1198,7 @@ TrigFunc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (functmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFunction", "O", functmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFunction", functmp);
     }
 
     if (argtmp)
@@ -1207,15 +1207,15 @@ TrigFunc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         {
             PyObject *argument = PyTuple_New(1);
             PyTuple_SetItem(argument, 0, argtmp);
-            PyObject_CallMethod((PyObject *)self, "setArg", "O", argument);
+            PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setArg", argument);
         }
         else
         {
-            PyObject_CallMethod((PyObject *)self, "setArg", "O", argtmp);
+            PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setArg", argtmp);
         }
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     return (PyObject *)self;
 }
@@ -1569,24 +1569,24 @@ TrigEnv_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)tabletmp, "getTableStream", "");
 
     if (durtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDur", "O", durtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDur", durtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->trigsBuffer = (MYFLT *)PyMem_RawRealloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
@@ -1639,7 +1639,7 @@ TrigEnv_setTable(TrigEnv *self, PyObject *arg)
     ASSERT_ARG_NOT_NULL
 
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -1957,15 +1957,15 @@ TrigLinseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->trigsBuffer = (MYFLT *)PyMem_RawRealloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
@@ -2348,15 +2348,15 @@ TrigExpseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->trigsBuffer = (MYFLT *)PyMem_RawRealloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
@@ -3095,25 +3095,25 @@ TrigXnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (x1tmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setX1", "O", x1tmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setX1", x1tmp);
     }
 
     if (x2tmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setX2", "O", x2tmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setX2", x2tmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     TrigXnoise_setRandomType(self);
 
@@ -3857,30 +3857,30 @@ TrigXnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (x1tmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setX1", "O", x1tmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setX1", x1tmp);
     }
 
     if (x2tmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setX2", "O", x2tmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setX2", x2tmp);
     }
 
     if (rangetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setRange", "O", rangetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setRange", rangetmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     TrigXnoiseMidi_setRandomType(self);
 
@@ -4219,15 +4219,15 @@ Counter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     if (self->dir == 0 || self->dir == 2)
         self->tmp = self->min;
@@ -4654,20 +4654,20 @@ Thresh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (thresholdtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setThreshold", "O", thresholdtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setThreshold", thresholdtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -4959,20 +4959,20 @@ Percent_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (percenttmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setPercent", "O", percenttmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setPercent", percenttmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     Server_generateSeed((Server *)self->server, PERCENT_ID);
 
@@ -5230,21 +5230,21 @@ Timer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->input2 = input2tmp;
     Py_INCREF(self->input2);
-    input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
+    input2_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input2, "_getStream", NULL);
     self->input2_stream = (Stream *)input2_streamtmp;
     Py_INCREF(self->input2_stream);
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -5352,7 +5352,7 @@ static void
 Iter_get_stream(Iter *self, PyObject *obj)
 {
     PyObject *streamtmp;
-    streamtmp = PyObject_CallMethod((PyObject *)obj, "_getStream", NULL);
+    streamtmp = PYO_CALL_METHOD_RET((PyObject *)obj, "_getStream", NULL);
     Py_XDECREF(self->audioval);
     self->audioval = (Stream *)streamtmp;
     Py_INCREF(self->audioval);
@@ -5533,20 +5533,20 @@ Iter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (choicetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setChoice", "O", choicetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setChoice", choicetmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->value = inittmp;
 
@@ -5848,15 +5848,15 @@ Count_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -6118,21 +6118,21 @@ NextTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->input2 = input2tmp;
     Py_INCREF(self->input2);
-    input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
+    input2_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input2, "_getStream", NULL);
     self->input2_stream = (Stream *)input2_streamtmp;
     Py_INCREF(self->input2_stream);
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -6393,20 +6393,20 @@ TrigVal_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (valuetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setValue", "O", valuetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setValue", valuetmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 

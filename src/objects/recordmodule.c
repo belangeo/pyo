@@ -69,7 +69,9 @@ Record_process(Record *self)
     for (j = 0; j < self->listlen; j++)
     {
         chnl = j % self->chnls;
-        in = Stream_getData((Stream *)PyObject_CallMethod(PyList_GET_ITEM(self->input_list, j), "_getStream", NULL));
+        PyObject *streamobj = PYO_CALL_METHOD_RET(PyList_GET_ITEM(self->input_list, j), "_getStream", NULL);
+        in = Stream_getData((Stream *)streamobj);
+        Py_DECREF(streamobj);
 
         for (i = 0; i < self->bufsize; i++)
         {
@@ -115,7 +117,7 @@ static void
 Record_dealloc(Record* self)
 {
     if (Stream_getStreamActive(self->stream))
-        PyObject_CallMethod((PyObject *)self, "stop", NULL);
+        PYO_CALL_METHOD(self, "stop", NULL);
 
     pyo_DEALLOC
     PyMem_RawFree(self->buffer);
@@ -251,7 +253,7 @@ Record_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->buffer[i] = 0.;
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -375,7 +377,7 @@ ControlRec_process(ControlRec *self)
             self->time++;
 
             if (self->count >= self->size)
-                PyObject_CallMethod((PyObject *)self, "stop", NULL);
+                PYO_CALL_METHOD(self, "stop", NULL);
         }
     }
     else
@@ -463,7 +465,7 @@ ControlRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     if (self->dur > 0.0)
     {
@@ -518,7 +520,7 @@ ControlRec_getData(ControlRec *self)
     {
         if (Stream_getStreamActive(self->stream))
         {
-            PyObject_CallMethod((PyObject *)self, "stop", NULL);
+            PYO_CALL_METHOD(self, "stop", NULL);
         }
         Py_ssize_t size = PyList_Size(self->tmp_list);
         data = PyList_New(size);
@@ -609,7 +611,7 @@ ControlRead_readframes_i(ControlRead *self)
     MYFLT invmodulo = 1.0 / self->modulo;
 
     if (self->go == 0)
-        PyObject_CallMethod((PyObject *)self, "stop", NULL);
+        PYO_CALL_METHOD(self, "stop", NULL);
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -767,20 +769,20 @@ ControlRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (valuestmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setValues", "O", valuestmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setValues", valuestmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->trigsBuffer = (MYFLT *)PyMem_RawRealloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
@@ -1069,17 +1071,17 @@ NoteinRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->inputp = inputptmp;
     Py_INCREF(self->inputp);
-    inputp_streamtmp = PyObject_CallMethod((PyObject *)self->inputp, "_getStream", NULL);
+    inputp_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->inputp, "_getStream", NULL);
     self->inputp_stream = (Stream *)inputp_streamtmp;
     Py_INCREF(self->inputp_stream);
 
     self->inputv = inputvtmp;
     Py_INCREF(self->inputv);
-    inputv_streamtmp = PyObject_CallMethod((PyObject *)self->inputv, "_getStream", NULL);
+    inputv_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->inputv, "_getStream", NULL);
     self->inputv_stream = (Stream *)inputv_streamtmp;
     Py_INCREF(self->inputv_stream);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -1188,7 +1190,7 @@ NoteinRead_readframes_i(NoteinRead *self)
     long i;
 
     if (self->go == 0)
-        PyObject_CallMethod((PyObject *)self, "stop", NULL);
+        PYO_CALL_METHOD(self, "stop", NULL);
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -1342,25 +1344,25 @@ NoteinRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (valuestmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setValues", "O", valuestmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setValues", valuestmp);
     }
 
     if (timestampstmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setTimestamps", "O", timestampstmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setTimestamps", timestampstmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->trigsBuffer = (MYFLT *)PyMem_RawRealloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 

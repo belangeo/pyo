@@ -526,7 +526,7 @@ p_savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds)
 
     for (i = 0; i < channels; i++)
     {
-        PyList_SET_ITEM(tablestreamlist, i, PyObject_CallMethod(PyList_GetItem(base_objs, i), "getTableStream", NULL));
+        PyList_SET_ITEM(tablestreamlist, i, PYO_CALL_METHOD_RET(PyList_GetItem(base_objs, i), "getTableStream", NULL));
     }
 
     sr = (int)TableStream_getSamplingRate((TableStream *)PyList_GetItem(tablestreamlist, 0));
@@ -1847,7 +1847,7 @@ sampsToSec(PyObject *self, PyObject *arg)
         Py_RETURN_NONE;
     }
 
-    PyObject *srobj = PyObject_CallMethod(server, "getSamplingRate", NULL);
+    PyObject *srobj = PYO_CALL_METHOD_RET(server, "getSamplingRate", NULL);
     double sr = PyFloat_AsDouble(srobj);
     Py_DECREF(srobj);
 
@@ -1915,7 +1915,7 @@ secToSamps(PyObject *self, PyObject *arg)
         Py_RETURN_NONE;
     }
 
-    PyObject *srobj = PyObject_CallMethod(server, "getSamplingRate", NULL);
+    PyObject *srobj = PYO_CALL_METHOD_RET(server, "getSamplingRate", NULL);
     double sr = PyFloat_AsDouble(srobj);
     Py_DECREF(srobj);
 
@@ -1998,7 +1998,7 @@ serverBooted(PyObject *self)
     if (PyServer_get_server() != NULL)
     {
         server = PyServer_get_server();
-        boot = PyLong_AsLong(PyObject_CallMethod(server, "getIsBooted", NULL));
+        boot = Pyo_CallMethod_AsLong(server, "getIsBooted");
 
         if (boot == 0)
         {

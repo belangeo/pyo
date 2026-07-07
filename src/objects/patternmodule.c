@@ -222,12 +222,12 @@ Pattern_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (calltmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFunction", "O", calltmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFunction", calltmp);
     }
 
     if (timetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setTime", timetmp);
     }
 
     if (argtmp)
@@ -236,15 +236,15 @@ Pattern_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         {
             PyObject *argument = PyTuple_New(1);
             PyTuple_SetItem(argument, 0, argtmp);
-            PyObject_CallMethod((PyObject *)self, "setArg", "O", argument);
+            PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setArg", argument);
         }
         else
         {
-            PyObject_CallMethod((PyObject *)self, "setArg", "O", argtmp);
+            PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setArg", argtmp);
         }
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -433,7 +433,7 @@ Score_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -513,7 +513,7 @@ CallAfter_generate(CallAfter *self)
         if (self->currentTime >= self->time)
         {
             if (self->stream != NULL)
-                PyObject_CallMethod((PyObject *)self, "stop", NULL);
+                PYO_CALL_METHOD(self, "stop", NULL);
 
             if (self->arg == Py_None)
             {
@@ -619,7 +619,7 @@ CallAfter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->callable);
     self->callable = calltmp;
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 

@@ -326,15 +326,15 @@ Panner_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (pantmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setPan", "O", pantmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setPan", pantmp);
     }
 
     if (spreadtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setSpread", "O", spreadtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setSpread", spreadtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     if (self->chnls < 1)
         self->chnls = 1;
@@ -539,15 +539,15 @@ Pan_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -901,10 +901,10 @@ SPanner_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (pantmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setPan", "O", pantmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setPan", pantmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     if (self->chnls < 1)
         self->chnls = 1;
@@ -1113,15 +1113,15 @@ SPan_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -1398,10 +1398,10 @@ Switcher_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (voicetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setVoice", "O", voicetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setVoice", voicetmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->buffer_streams = (MYFLT *)PyMem_RawRealloc(self->buffer_streams, self->chnls * self->bufsize * sizeof(MYFLT));
 
@@ -1607,15 +1607,15 @@ Switch_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -1730,7 +1730,7 @@ VoiceManager_generate(VoiceManager *self)
         {
             for (j = 0; j < self->maxVoices; j++)
             {
-                trig_stream = (Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->trigger_streams, j), "_getStream", NULL);
+                trig_stream = (Stream *)PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->trigger_streams, j), "_getStream", NULL);
                 if (Stream_getData(trig_stream)[i] == 1.0)
                     self->voices[j] = 0;
             }
@@ -1877,20 +1877,20 @@ VoiceManager_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (triggerstmp && triggerstmp != Py_None)
     {
-        PyObject_CallMethod((PyObject *)self, "setTriggers", "O", triggerstmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setTriggers", triggerstmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -2039,7 +2039,9 @@ Mixer_generate(Mixer *self)
     for (j = 0; j < num; j++)
     {
         key = PyList_GetItem(keys, j);
-        MYFLT *st = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyDict_GetItem(self->inputs, key), "_getStream", NULL));
+        PyObject *streamobj = PYO_CALL_METHOD_RET((PyObject *)PyDict_GetItem(self->inputs, key), "_getStream", NULL);
+        MYFLT *st = Stream_getData((Stream *)streamobj);
+        Py_DECREF(streamobj);
         list_of_gains = PyDict_GetItem(self->gains, key);
         list_of_last_gains = PyDict_GetItem(self->lastGains, key);
         list_of_current_gains = PyDict_GetItem(self->currentGains, key);
@@ -2173,10 +2175,10 @@ Mixer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (timetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setTime", timetmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->buffer_streams = (MYFLT *)PyMem_RawRealloc(self->buffer_streams, self->num_outs * self->bufsize * sizeof(MYFLT));
 
@@ -2508,15 +2510,15 @@ MixerVoice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     return (PyObject *)self;
 }
@@ -2641,8 +2643,12 @@ Selector_generate_i(Selector *self)
         j--;
     }
 
-    MYFLT *st1 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j1), "_getStream", NULL));
-    MYFLT *st2 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j), "_getStream", NULL));
+    PyObject *streamobj1 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->inputs, j1), "_getStream", NULL);
+    PyObject *streamobj2 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->inputs, j), "_getStream", NULL);
+    MYFLT *st1 = Stream_getData((Stream *)streamobj1);
+    MYFLT *st2 = Stream_getData((Stream *)streamobj2);
+    Py_DECREF(streamobj1);
+    Py_DECREF(streamobj2);
 
     voice = P_clip(voice - j1);
     voice1 = MYSQRT(1.0 - voice);
@@ -2669,8 +2675,12 @@ Selector_generate_lin_i(Selector *self)
         j--;
     }
 
-    MYFLT *st1 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j1), "_getStream", NULL));
-    MYFLT *st2 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j), "_getStream", NULL));
+    PyObject *streamobj1 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->inputs, j1), "_getStream", NULL);
+    PyObject *streamobj2 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->inputs, j), "_getStream", NULL);
+    MYFLT *st1 = Stream_getData((Stream *)streamobj1);
+    MYFLT *st2 = Stream_getData((Stream *)streamobj2);
+    Py_DECREF(streamobj1);
+    Py_DECREF(streamobj2);
 
     voice = P_clip(voice - j1);
 
@@ -2690,8 +2700,12 @@ Selector_generate_a(Selector *self)
 
     old_j1 = 0;
     old_j = 1;
-    st1 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, old_j1), "_getStream", NULL));
-    st2 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, old_j), "_getStream", NULL));
+    PyObject *streamobj1 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->inputs, old_j1), "_getStream", NULL);
+    PyObject *streamobj2 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->inputs, old_j), "_getStream", NULL);
+    st1 = Stream_getData((Stream *)streamobj1);
+    st2 = Stream_getData((Stream *)streamobj2);
+    Py_DECREF(streamobj1);
+    Py_DECREF(streamobj2);
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -2708,13 +2722,17 @@ Selector_generate_a(Selector *self)
 
         if (j1 != old_j1)
         {
-            st1 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j1), "_getStream", NULL));
+            streamobj1 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->inputs, j1), "_getStream", NULL);
+            st1 = Stream_getData((Stream *)streamobj1);
+            Py_DECREF(streamobj1);
             old_j1 = j1;
         }
 
         if (j != old_j)
         {
-            st2 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j), "_getStream", NULL));
+            streamobj2 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->inputs, j), "_getStream", NULL);
+            st2 = Stream_getData((Stream *)streamobj2);
+            Py_DECREF(streamobj2);
             old_j = j;
         }
 
@@ -2734,8 +2752,12 @@ Selector_generate_lin_a(Selector *self)
 
     old_j1 = 0;
     old_j = 1;
-    st1 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, old_j1), "_getStream", NULL));
-    st2 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, old_j), "_getStream", NULL));
+    PyObject *streamobj1 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->inputs, old_j1), "_getStream", NULL);
+    PyObject *streamobj2 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->inputs, old_j), "_getStream", NULL);
+    st1 = Stream_getData((Stream *)streamobj1);
+    st2 = Stream_getData((Stream *)streamobj2);
+    Py_DECREF(streamobj1);
+    Py_DECREF(streamobj2);
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -2752,13 +2774,17 @@ Selector_generate_lin_a(Selector *self)
 
         if (j1 != old_j1)
         {
-            st1 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j1), "_getStream", NULL));
+            streamobj1 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->inputs, j1), "_getStream", NULL);
+            st1 = Stream_getData((Stream *)streamobj1);
+            Py_DECREF(streamobj1);
             old_j1 = j1;
         }
 
         if (j != old_j)
         {
-            st2 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j), "_getStream", NULL));
+            streamobj2 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->inputs, j), "_getStream", NULL);
+            st2 = Stream_getData((Stream *)streamobj2);
+            Py_DECREF(streamobj2);
             old_j = j;
         }
 
@@ -2907,25 +2933,25 @@ Selector_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (inputstmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setInputs", "O", inputstmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setInputs", inputstmp);
     }
 
     if (voicetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setVoice", "O", voicetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setVoice", voicetmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -3047,4 +3073,3 @@ PyoCreateSelectorType(PyObject *module)
 {
     return (PyTypeObject *)PyType_FromModuleAndSpec(module, &SelectorType_spec, NULL);
 }
-

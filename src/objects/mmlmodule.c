@@ -620,7 +620,7 @@ MMLMain_generate(MMLMain *self)
 
     if (self->to_stop)
     {
-        PyObject_CallMethod((PyObject *)self, "stop", NULL);
+        PYO_CALL_METHOD(self, "stop", NULL);
         self->to_stop = 0;
         return;
     }
@@ -821,7 +821,7 @@ MMLMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -1109,7 +1109,7 @@ MML_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mainPlayer = (MMLMain *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -1329,7 +1329,7 @@ MMLFreqStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mainPlayer = (MMLMain *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -1549,7 +1549,7 @@ MMLAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mainPlayer = (MMLMain *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -1769,7 +1769,7 @@ MMLDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mainPlayer = (MMLMain *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -1989,7 +1989,7 @@ MMLEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mainPlayer = (MMLMain *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -2209,7 +2209,7 @@ MMLXStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mainPlayer = (MMLMain *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -2429,7 +2429,7 @@ MMLYStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mainPlayer = (MMLMain *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -2649,7 +2649,7 @@ MMLZStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mainPlayer = (MMLMain *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 

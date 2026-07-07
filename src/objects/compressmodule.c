@@ -305,36 +305,36 @@ Compress_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (threshtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setThresh", "O", threshtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setThresh", threshtmp);
     }
 
     if (ratiotmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setRatio", "O", ratiotmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setRatio", ratiotmp);
     }
 
     if (risetimetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setRiseTime", "O", risetimetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setRiseTime", risetimetmp);
     }
 
     if (falltimetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFallTime", "O", falltimetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFallTime", falltimetmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod((PyObject *)self, "setLookAhead", "O", looktmp);
-    PyObject_CallMethod((PyObject *)self, "setKnee", "O", kneetmp);
+    PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setLookAhead", looktmp);
+    PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setKnee", kneetmp);
 
     self->lh_size = (long)(0.025 * self->sr + 0.5);
     self->lh_buffer = (MYFLT *)PyMem_RawRealloc(self->lh_buffer, (self->lh_size + 1) * sizeof(MYFLT));
@@ -346,7 +346,7 @@ Compress_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->proc_func_ptr = PYO_AUDIO_CALLBACK(Compress_compress_soft);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -1243,30 +1243,30 @@ Gate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (threshtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setThresh", "O", threshtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setThresh", threshtmp);
     }
 
     if (risetimetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setRiseTime", "O", risetimetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setRiseTime", risetimetmp);
     }
 
     if (falltimetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFallTime", "O", falltimetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFallTime", falltimetmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod((PyObject *)self, "setLookAhead", "O", looktmp);
+    PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setLookAhead", looktmp);
 
     self->lh_size = (long)(0.025 * self->sr + 0.5);
     self->lh_buffer = (MYFLT *)PyMem_RawRealloc(self->lh_buffer, (self->lh_size + 1) * sizeof(MYFLT));
@@ -1276,7 +1276,7 @@ Gate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->lh_buffer[i] = 0.;
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -1631,26 +1631,26 @@ Balance_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->input2 = input2tmp;
     Py_INCREF(self->input2);
-    input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
+    input2_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input2, "_getStream", NULL);
     self->input2_stream = (Stream *)input2_streamtmp;
     Py_INCREF(self->input2_stream);
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -2013,40 +2013,40 @@ Expand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (downthreshtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDownThresh", "O", downthreshtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDownThresh", downthreshtmp);
     }
 
     if (upthreshtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setUpThresh", "O", upthreshtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setUpThresh", upthreshtmp);
     }
 
     if (ratiotmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setRatio", "O", ratiotmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setRatio", ratiotmp);
     }
 
     if (risetimetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setRiseTime", "O", risetimetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setRiseTime", risetimetmp);
     }
 
     if (falltimetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFallTime", "O", falltimetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFallTime", falltimetmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod((PyObject *)self, "setLookAhead", "O", looktmp);
+    PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setLookAhead", looktmp);
 
     self->lh_size = (long)(0.025 * self->sr + 0.5);
     self->lh_buffer = (MYFLT *)PyMem_RawRealloc(self->lh_buffer, (self->lh_size + 1) * sizeof(MYFLT));
@@ -2058,7 +2058,7 @@ Expand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->proc_func_ptr = PYO_AUDIO_CALLBACK(Expand_compress_soft);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 

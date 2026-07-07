@@ -272,7 +272,7 @@ NewMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (inittmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMatrix", "O", inittmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMatrix", inittmp);
     }
 
     MatrixStream_setData(self->matrixstream, self->data);
@@ -311,7 +311,7 @@ NewMatrix_getHeight(NewMatrix *self)
 static PyObject *
 NewMatrix_getRate(NewMatrix *self)
 {
-    MYFLT sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    MYFLT sr = Pyo_CallMethod_AsDouble(self->server, "getSamplingRate");
     \
     return PyFloat_FromDouble(sr / self->width);
 };
@@ -654,7 +654,7 @@ MatrixRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->matrix = (NewMatrix *)matrixtmp;
     Py_INCREF(self->matrix);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->trigsBuffer = (MYFLT *)PyMem_RawRealloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
@@ -850,7 +850,7 @@ MatrixRecLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->matrix = (NewMatrix *)matrixtmp;
     Py_INCREF(self->matrix);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->trigsBuffer = (MYFLT *)PyMem_RawRealloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
@@ -975,8 +975,10 @@ MatrixMorph_compute_next_data_frame(MatrixMorph *self)
     x = (int)(interp);
     y = x + 1;
 
-    MatrixStream *tab1 = (MatrixStream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->sources, x), "getMatrixStream", "");
-    MatrixStream *tab2 = (MatrixStream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->sources, y), "getMatrixStream", "");
+    PyObject *tabobj1 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->sources, x), "getMatrixStream", "");
+    PyObject *tabobj2 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->sources, y), "getMatrixStream", "");
+    MatrixStream *tab1 = (MatrixStream *)tabobj1;
+    MatrixStream *tab2 = (MatrixStream *)tabobj2;
 
     interp = MYFMOD(interp, 1.0);
     interp1 = 1. - interp;
@@ -989,6 +991,9 @@ MatrixMorph_compute_next_data_frame(MatrixMorph *self)
             self->buffer[index] = MatrixStream_getPointFromPos(tab1, j, i) * interp1 + MatrixStream_getPointFromPos(tab2, j, i) * interp;
         }
     }
+
+    Py_DECREF(tabobj1);
+    Py_DECREF(tabobj2);
 
     NewMatrix_recordChunkAllRow((NewMatrix *)self->matrix, self->buffer, numsamps);
 }
@@ -1058,7 +1063,7 @@ MatrixMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->sources = (PyObject *)sourcestmp;
     Py_INCREF(self->sources);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     return (PyObject *)self;
 }

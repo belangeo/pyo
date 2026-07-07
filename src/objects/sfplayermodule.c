@@ -83,7 +83,7 @@ SfPlayer_readframes_i(SfPlayer *self)
 
             if (self->loop == 0)
             {
-                PyObject_CallMethod((PyObject *)self, "stop", NULL);
+                PYO_CALL_METHOD(self, "stop", NULL);
 
                 for (i = 0; i < (self->bufsize * self->sndChnls); i++)
                 {
@@ -173,7 +173,7 @@ SfPlayer_readframes_i(SfPlayer *self)
 
             if (self->loop == 0)
             {
-                PyObject_CallMethod((PyObject *)self, "stop", NULL);
+                PYO_CALL_METHOD(self, "stop", NULL);
 
                 for (i = 0; i < (self->bufsize * self->sndChnls); i++)
                 {
@@ -362,10 +362,10 @@ SfPlayer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (speedtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setSpeed", "O", speedtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setSpeed", speedtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -702,15 +702,15 @@ SfPlay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -1299,10 +1299,10 @@ SfMarkerShuffler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (speedtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setSpeed", "O", speedtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setSpeed", speedtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -1663,15 +1663,15 @@ SfMarkerShuffle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -2138,15 +2138,15 @@ SfMarkerLooper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (speedtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setSpeed", "O", speedtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setSpeed", speedtmp);
     }
 
     if (marktmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMark", "O", marktmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMark", marktmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -2430,15 +2430,15 @@ SfMarkerLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 

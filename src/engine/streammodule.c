@@ -128,11 +128,9 @@ void Stream_IncrementDurationCount(Stream *self)
 
     if (self->bufferCount >= self->duration)
     {
-        PyObject_CallMethod((PyObject *)Stream_getStreamObject(self), "stop", NULL);
-        if (PyErr_Occurred())
-        {
-            PyErr_Print();
-        }
+        PyObject *streamobj = Stream_getStreamObject(self);
+        PYO_CALL_METHOD(streamobj, "stop", NULL);
+        Py_DECREF(streamobj);
         self->duration = self->bufferCount = 0;
     }
 }

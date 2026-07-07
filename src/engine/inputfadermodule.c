@@ -191,11 +191,11 @@ InputFader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_DECREF(self->input1);
     self->input1 = inputtmp;
     Py_INCREF(self->input1);
-    PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->input1, "_getStream", NULL);
+    PyObject *streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input1, "_getStream", NULL);
     self->input1_stream = (Stream *)streamtmp;
     Py_INCREF(self->input1_stream);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     return (PyObject *)self;
 }
@@ -221,7 +221,7 @@ InputFader_setInput(InputFader *self, PyObject *args, PyObject *kwds)
         Py_DECREF(self->input1);
         self->input1 = tmp;
         Py_INCREF(self->input1);
-        streamtmp = PyObject_CallMethod((PyObject *)self->input1, "_getStream", NULL);
+        streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input1, "_getStream", NULL);
         self->input1_stream = (Stream *)streamtmp;
         Py_INCREF(self->input1_stream);
         self->proc_func_ptr = PYO_AUDIO_CALLBACK(InputFader_process_one);
@@ -231,7 +231,7 @@ InputFader_setInput(InputFader *self, PyObject *args, PyObject *kwds)
         Py_DECREF(self->input2);
         self->input2 = tmp;
         Py_INCREF(self->input2);
-        streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
+        streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input2, "_getStream", NULL);
         self->input2_stream = (Stream *)streamtmp;
         Py_INCREF(self->input2_stream);
         self->proc_func_ptr = PYO_AUDIO_CALLBACK(InputFader_process_two);

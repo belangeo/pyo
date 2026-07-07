@@ -257,7 +257,7 @@ BandSplitter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->band_freqs = (MYFLT *)PyMem_RawRealloc(self->band_freqs, self->bands * sizeof(MYFLT));
     self->x1 = (MYFLT *)PyMem_RawRealloc(self->x1, self->bands * sizeof(MYFLT));
@@ -275,7 +275,7 @@ BandSplitter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (qtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setQ", "O", qtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setQ", qtmp);
     }
     else
     {
@@ -479,15 +479,15 @@ BandSplit_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -887,7 +887,7 @@ FourBandMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     for (i = 0; i < 6; i++)
     {
@@ -903,17 +903,17 @@ FourBandMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (freq1tmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq1", "O", freq1tmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq1", freq1tmp);
     }
 
     if (freq2tmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq2", "O", freq2tmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq2", freq2tmp);
     }
 
     if (freq3tmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq3", "O", freq3tmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq3", freq3tmp);
     }
 
     (*self->mode_func_ptr)(self);
@@ -1119,15 +1119,15 @@ FourBand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -1484,7 +1484,7 @@ MultiBandMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     if (self->nbands < 2)
         self->nbands = 2;
@@ -1725,15 +1725,15 @@ MultiBand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 

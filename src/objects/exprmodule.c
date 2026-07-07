@@ -304,7 +304,7 @@ Exprer_process(Exprer *self)
         {
             for (l = 0; l < inputsize; l++)
             {
-                stream = PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->input, l), "_getStream", NULL);
+                stream = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->input, l), "_getStream", NULL);
                 in = Stream_getData((Stream *)stream);
                 self->input_buffer[l * self->bufsize + i] = in[i];
             }
@@ -799,10 +799,10 @@ Exprer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (exprtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setExpr", "O", exprtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setExpr", exprtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     if (self->chnls < 1)
         self->chnls = 1;
@@ -1376,15 +1376,15 @@ Expr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 

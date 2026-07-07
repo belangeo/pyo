@@ -33,6 +33,40 @@
 
 typedef struct Server Server;
 
+static inline long
+Pyo_CallMethod_AsLong(PyObject *obj, const char *method)
+{
+    PyObject *tmp = PyObject_CallMethod(obj, method, NULL);
+    long value = -1;
+
+    if (tmp == NULL)
+    {
+        PyErr_Print();
+        return value;
+    }
+
+    value = PyLong_AsLong(tmp);
+    Py_DECREF(tmp);
+    return value;
+}
+
+static inline double
+Pyo_CallMethod_AsDouble(PyObject *obj, const char *method)
+{
+    PyObject *tmp = PyObject_CallMethod(obj, method, NULL);
+    double value = 0.0;
+
+    if (tmp == NULL)
+    {
+        PyErr_Print();
+        return value;
+    }
+
+    value = PyFloat_AsDouble(tmp);
+    Py_DECREF(tmp);
+    return value;
+}
+
 typedef enum
 {
     PYO_RUNTIME_TYPE_SERVER = 0,
@@ -1377,6 +1411,36 @@ typedef Py_ssize_t T_SIZE_T;
         Server_removeStream((Server *)self->server, Stream_getStreamId(self->stream)); \
     PyMem_RawFree(self->data); \
 
+#define PYO_CALL_METHOD(obj, method, fmt, ...) \
+    do { \
+        PyObject *_tmp = PyObject_CallMethod((PyObject *)(obj), (method), (fmt), ##__VA_ARGS__); \
+        if (_tmp == NULL) { \
+            PyErr_Print(); \
+        } \
+        else { \
+            Py_DECREF(_tmp); \
+        } \
+    } while (0)
+
+#define PYO_CALL_METHOD_RET(obj, method, fmt, ...) \
+    PyObject_CallMethod((PyObject *)(obj), (method), (fmt), ##__VA_ARGS__)
+
+#define PYO_CALL_METHOD_OR_RETURN_NULL(self, obj, method, fmt, ...) \
+    do { \
+        PyObject *_tmp = PyObject_CallMethod((PyObject *)(obj), (method), (fmt), ##__VA_ARGS__); \
+        if (_tmp == NULL) { \
+            Py_DECREF(self); \
+            return NULL; \
+        } \
+        Py_DECREF(_tmp); \
+    } while (0)
+
+#define PYO_CALL_METHOD_O_OR_RETURN_NULL(self, method, arg) \
+    PYO_CALL_METHOD_OR_RETURN_NULL((self), (self), (method), "O", (arg))
+
+#define PYO_ADD_STREAM_OR_RETURN_NULL(self) \
+    PYO_CALL_METHOD_OR_RETURN_NULL((self), (self)->server, "addStream", "O", (self)->stream)
+
 #define ASSERT_ARG_NOT_NULL \
     if (arg == NULL) { \
         Py_RETURN_NONE; \
@@ -1390,38 +1454,52 @@ typedef Py_ssize_t T_SIZE_T;
 #define INIT_INPUT_STREAM \
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "server") == 0 ) { \
         PyErr_SetString(PyExc_TypeError, "\"input\" argument must be a PyoObject.\n"); \
-        Py_RETURN_NONE; \
+        Py_DECREF(self); \
+        return NULL; \
     } \
     self->input = inputtmp; \
     Py_INCREF(self->input); \
     input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL); \
-    self->input_stream = (Stream *)input_streamtmp; \
-    Py_INCREF(self->input_stream);
+    if (input_streamtmp == NULL) { \
+        Py_DECREF(self); \
+        return NULL; \
+    } \
+    self->input_stream = (Stream *)input_streamtmp;
 
 #define INIT_INPUT_TRIGGER_STREAM \
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "server") == 0 ) { \
         PyErr_SetString(PyExc_TypeError, "\"input\" argument must be a PyoObject.\n"); \
-        Py_RETURN_NONE; \
+        Py_DECREF(self); \
+        return NULL; \
     } \
     self->input = inputtmp; \
     Py_INCREF(self->input); \
     input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getTriggerStream", NULL); \
-    self->input_stream = (TriggerStream *)input_streamtmp; \
-    Py_INCREF(self->input_stream);
+    if (input_streamtmp == NULL) { \
+        Py_DECREF(self); \
+        return NULL; \
+    } \
+    self->input_stream = (TriggerStream *)input_streamtmp;
 
 #define INIT_INPUT_PV_STREAM \
     self->input = inputtmp; \
     Py_INCREF(self->input); \
     input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL); \
-    self->input_stream = (PVStream *)input_streamtmp; \
-    Py_INCREF(self->input_stream);
+    if (input_streamtmp == NULL) { \
+        Py_DECREF(self); \
+        return NULL; \
+    } \
+    self->input_stream = (PVStream *)input_streamtmp;
 
 #define INIT_INPUT2_PV_STREAM \
     self->input2 = input2tmp; \
     Py_INCREF(self->input2); \
     input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getPVStream", NULL); \
-    self->input2_stream = (PVStream *)input2_streamtmp; \
-    Py_INCREF(self->input2_stream);
+    if (input2_streamtmp == NULL) { \
+        Py_DECREF(self); \
+        return NULL; \
+    } \
+    self->input2_stream = (PVStream *)input2_streamtmp;
 
 /* Init Server & Stream */
 #define INIT_OBJECT_COMMON \
@@ -1865,6 +1943,7 @@ typedef Py_ssize_t T_SIZE_T;
  \
         if (srcpos < -tabsize || srcpos >= tabsize) { \
             PyErr_SetString(PyExc_IndexError, "PyoTableObject: Position outside of table boundaries!."); \
+            Py_DECREF(table); \
             return PyLong_FromLong(-1); \
         } \
     \
@@ -1874,6 +1953,7 @@ typedef Py_ssize_t T_SIZE_T;
  \
         if (destpos < -self->size || destpos >= self->size) { \
             PyErr_SetString(PyExc_IndexError, "PyoTableObject: Position outside of table boundaries!."); \
+            Py_DECREF(table); \
             return PyLong_FromLong(-1); \
         } \
     \
@@ -2405,8 +2485,10 @@ typedef Py_ssize_t T_SIZE_T;
             PyErr_Print(); \
         } \
         PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->mul, "_getStream", NULL); \
+        if (streamtmp == NULL) { \
+            return NULL; \
+        } \
         self->mul_stream = (Stream *)streamtmp; \
-        Py_INCREF(self->mul_stream); \
         self->modebuffer[0] = 1; \
     } \
  \
@@ -2433,8 +2515,10 @@ typedef Py_ssize_t T_SIZE_T;
             PyErr_Print(); \
         } \
         PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->add, "_getStream", NULL); \
+        if (streamtmp == NULL) { \
+            return NULL; \
+        } \
         self->add_stream = (Stream *)streamtmp; \
-        Py_INCREF(self->add_stream); \
         self->modebuffer[1] = 1; \
     } \
 \
@@ -2462,8 +2546,10 @@ typedef Py_ssize_t T_SIZE_T;
             PyErr_Print(); \
         } \
         PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->add, "_getStream", NULL); \
+        if (streamtmp == NULL) { \
+            return NULL; \
+        } \
         self->add_stream = (Stream *)streamtmp; \
-        Py_INCREF(self->add_stream); \
         self->modebuffer[1] = 2; \
     } \
  \
@@ -2492,8 +2578,10 @@ typedef Py_ssize_t T_SIZE_T;
             PyErr_Print(); \
         } \
         PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->mul, "_getStream", NULL); \
+        if (streamtmp == NULL) { \
+            return NULL; \
+        } \
         self->mul_stream = (Stream *)streamtmp; \
-        Py_INCREF(self->mul_stream); \
         self->modebuffer[0] = 2; \
     } \
  \
@@ -2516,8 +2604,10 @@ typedef Py_ssize_t T_SIZE_T;
         param = arg; \
         Py_INCREF(param); \
         PyObject *streamtmp = PyObject_CallMethod((PyObject *)param, "_getStream", NULL); \
+        if (streamtmp == NULL) { \
+            return NULL; \
+        } \
         paramstream = (Stream *)streamtmp; \
-        Py_INCREF(paramstream); \
         self->modebuffer[modebufpos] = 1; \
     } \
  \
@@ -2530,13 +2620,13 @@ typedef Py_ssize_t T_SIZE_T;
     Dummy *dummy; \
     MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
     Dummy_initialize(dummy); \
-    PyObject_CallMethod((PyObject *)dummy, "setMul", "O", arg); \
-    PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
+    PYO_CALL_METHOD((PyObject *)dummy, "setMul", "O", arg); \
+    PYO_CALL_METHOD((PyObject *)dummy, "setInput", "O", self); \
     Py_INCREF(dummy); \
     return (PyObject *)dummy;
 
 #define INPLACE_MULTIPLY \
-    PyObject_CallMethod((PyObject *)self, "setMul", "O", arg); \
+    PYO_CALL_METHOD((PyObject *)self, "setMul", "O", arg); \
     Py_INCREF(self); \
     return (PyObject *)self;
 
@@ -2544,13 +2634,13 @@ typedef Py_ssize_t T_SIZE_T;
     Dummy *dummy; \
     MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
     Dummy_initialize(dummy); \
-    PyObject_CallMethod((PyObject *)dummy, "setAdd", "O", arg); \
-    PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
+    PYO_CALL_METHOD((PyObject *)dummy, "setAdd", "O", arg); \
+    PYO_CALL_METHOD((PyObject *)dummy, "setInput", "O", self); \
     Py_INCREF(dummy); \
     return (PyObject *)dummy;
 
 #define INPLACE_ADD \
-    PyObject_CallMethod((PyObject *)self, "setAdd", "O", arg); \
+    PYO_CALL_METHOD((PyObject *)self, "setAdd", "O", arg); \
     Py_INCREF(self); \
     return (PyObject *)self;
 
@@ -2558,13 +2648,13 @@ typedef Py_ssize_t T_SIZE_T;
     Dummy *dummy; \
     MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
     Dummy_initialize(dummy); \
-    PyObject_CallMethod((PyObject *)dummy, "setSub", "O", arg); \
-    PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
+    PYO_CALL_METHOD((PyObject *)dummy, "setSub", "O", arg); \
+    PYO_CALL_METHOD((PyObject *)dummy, "setInput", "O", self); \
     Py_INCREF(dummy); \
     return (PyObject *)dummy;
 
 #define INPLACE_SUB \
-    PyObject_CallMethod((PyObject *)self, "setSub", "O", arg); \
+    PYO_CALL_METHOD((PyObject *)self, "setSub", "O", arg); \
     Py_INCREF(self); \
     return (PyObject *)self;
 
@@ -2572,13 +2662,13 @@ typedef Py_ssize_t T_SIZE_T;
     Dummy *dummy; \
     MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
     Dummy_initialize(dummy); \
-    PyObject_CallMethod((PyObject *)dummy, "setDiv", "O", arg); \
-    PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
+    PYO_CALL_METHOD((PyObject *)dummy, "setDiv", "O", arg); \
+    PYO_CALL_METHOD((PyObject *)dummy, "setInput", "O", self); \
     Py_INCREF(dummy); \
     return (PyObject *)dummy;
 
 #define INPLACE_DIV \
-    PyObject_CallMethod((PyObject *)self, "setDiv", "O", arg); \
+    PYO_CALL_METHOD((PyObject *)self, "setDiv", "O", arg); \
     Py_INCREF(self); \
     return (PyObject *)self;
 

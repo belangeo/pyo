@@ -540,25 +540,25 @@ Harmonizer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (transpotmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setTranspo", "O", transpotmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setTranspo", transpotmp);
     }
 
     if (feedbacktmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFeedback", "O", feedbacktmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFeedback", feedbacktmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->buffer = (MYFLT *)PyMem_RawRealloc(self->buffer, (self->sr + 1) * sizeof(MYFLT));
 

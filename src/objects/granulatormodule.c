@@ -821,7 +821,7 @@ Granulator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)tabletmp, "getTableStream", "");
     self->srScale = TableStream_getSamplingRate((TableStream *)self->table) / self->sr;
 
     if ( PyObject_HasAttrString((PyObject *)envtmp, "getTableStream") == 0 )
@@ -830,34 +830,34 @@ Granulator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    self->env = PyObject_CallMethod((PyObject *)envtmp, "getTableStream", "");
+    self->env = PYO_CALL_METHOD_RET((PyObject *)envtmp, "getTableStream", "");
 
     if (pitchtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setPitch", pitchtmp);
     }
 
     if (postmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setPos", "O", postmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setPos", postmp);
     }
 
     if (durtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDur", "O", durtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDur", durtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->startPos = (MYFLT *)PyMem_RawRealloc(self->startPos, self->ngrains * sizeof(MYFLT));
     self->gsize = (MYFLT *)PyMem_RawRealloc(self->gsize, self->ngrains * sizeof(MYFLT));
@@ -922,7 +922,7 @@ Granulator_setTable(Granulator *self, PyObject *arg)
     ASSERT_ARG_NOT_NULL
 
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -940,7 +940,7 @@ Granulator_setEnv(Granulator *self, PyObject *arg)
     ASSERT_ARG_NOT_NULL
 
     Py_DECREF(self->env);
-    self->env = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
+    self->env = PYO_CALL_METHOD_RET((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -1430,7 +1430,7 @@ Looper_transform_i(Looper *self)
                                 self->time_buffer[k] = 0.0;
                             }
 
-                            PyObject_CallMethod((PyObject *)self, "stop", NULL);
+                            PYO_CALL_METHOD(self, "stop", NULL);
                         }
                         else
                         {
@@ -1708,7 +1708,7 @@ Looper_transform_a(Looper *self)
                                 self->time_buffer[k] = 0.0;
                             }
 
-                            PyObject_CallMethod((PyObject *)self, "stop", NULL);
+                            PYO_CALL_METHOD(self, "stop", NULL);
                         }
 
                         break;
@@ -2069,39 +2069,39 @@ Looper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)tabletmp, "getTableStream", "");
 
     if (pitchtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setPitch", pitchtmp);
     }
 
     if (starttmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setStart", "O", starttmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setStart", starttmp);
     }
 
     if (durtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDur", "O", durtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDur", durtmp);
     }
 
     if (xfadetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setXfade", "O", xfadetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setXfade", xfadetmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -2165,7 +2165,7 @@ Looper_setTable(Looper *self, PyObject *arg)
     ASSERT_ARG_NOT_NULL
 
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -2492,7 +2492,7 @@ LooperTimeStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mainPlayer = (Looper *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -2996,7 +2996,7 @@ Granule_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)tabletmp, "getTableStream", "");
 
     if ( PyObject_HasAttrString((PyObject *)envtmp, "getTableStream") == 0 )
     {
@@ -3004,39 +3004,39 @@ Granule_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    self->env = PyObject_CallMethod((PyObject *)envtmp, "getTableStream", "");
+    self->env = PYO_CALL_METHOD_RET((PyObject *)envtmp, "getTableStream", "");
 
     if (denstmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDens", "O", denstmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDens", denstmp);
     }
 
     if (pitchtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setPitch", pitchtmp);
     }
 
     if (postmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setPos", "O", postmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setPos", postmp);
     }
 
     if (durtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDur", "O", durtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDur", durtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->gpos = (MYFLT *)PyMem_RawRealloc(self->gpos, Granule_MAX_GRAINS * sizeof(MYFLT));
     self->glen = (MYFLT *)PyMem_RawRealloc(self->glen, Granule_MAX_GRAINS * sizeof(MYFLT));
@@ -3095,7 +3095,7 @@ Granule_setTable(Granule *self, PyObject *arg)
     ASSERT_ARG_NOT_NULL
 
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -3113,7 +3113,7 @@ Granule_setEnv(Granule *self, PyObject *arg)
     ASSERT_ARG_NOT_NULL
 
     Py_DECREF(self->env);
-    self->env = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
+    self->env = PYO_CALL_METHOD_RET((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -3970,7 +3970,7 @@ MainParticle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)tabletmp, "getTableStream", "");
     self->srScale = TableStream_getSamplingRate((TableStream *)self->table) / self->sr;
 
     if ( PyObject_HasAttrString((PyObject *)envtmp, "getTableStream") == 0 )
@@ -3979,39 +3979,39 @@ MainParticle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    self->env = PyObject_CallMethod((PyObject *)envtmp, "getTableStream", "");
+    self->env = PYO_CALL_METHOD_RET((PyObject *)envtmp, "getTableStream", "");
 
     if (denstmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDens", "O", denstmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDens", denstmp);
     }
 
     if (pitchtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setPitch", pitchtmp);
     }
 
     if (postmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setPos", "O", postmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setPos", postmp);
     }
 
     if (durtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDur", "O", durtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDur", durtmp);
     }
 
     if (devtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDev", "O", devtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDev", devtmp);
     }
 
     if (pantmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setPan", "O", pantmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setPan", pantmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     if (self->chnls < 1)
         self->chnls = 1;
@@ -4072,7 +4072,7 @@ MainParticle_setTable(MainParticle *self, PyObject *arg)
     ASSERT_ARG_NOT_NULL
 
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)arg, "getTableStream", "");
     self->srScale = TableStream_getSamplingRate((TableStream *)self->table) / self->sr;
 
     Py_RETURN_NONE;
@@ -4091,7 +4091,7 @@ MainParticle_setEnv(MainParticle *self, PyObject *arg)
     ASSERT_ARG_NOT_NULL
 
     Py_DECREF(self->env);
-    self->env = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
+    self->env = PYO_CALL_METHOD_RET((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -4290,15 +4290,15 @@ Particle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -5520,7 +5520,7 @@ MainParticle2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)tabletmp, "getTableStream", "");
     self->srScale = TableStream_getSamplingRate((TableStream *)self->table) / self->sr;
 
     if ( PyObject_HasAttrString((PyObject *)envtmp, "getTableStream") == 0 )
@@ -5529,54 +5529,54 @@ MainParticle2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    self->env = PyObject_CallMethod((PyObject *)envtmp, "getTableStream", "");
+    self->env = PYO_CALL_METHOD_RET((PyObject *)envtmp, "getTableStream", "");
 
     if (denstmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDens", "O", denstmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDens", denstmp);
     }
 
     if (pitchtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setPitch", pitchtmp);
     }
 
     if (postmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setPos", "O", postmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setPos", postmp);
     }
 
     if (durtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDur", "O", durtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDur", durtmp);
     }
 
     if (devtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDev", "O", devtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDev", devtmp);
     }
 
     if (pantmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setPan", "O", pantmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setPan", pantmp);
     }
 
     if (filterfreqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFilterfreq", "O", filterfreqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFilterfreq", filterfreqtmp);
     }
 
     if (filterqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFilterq", "O", filterqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFilterq", filterqtmp);
     }
 
     if (filtertypetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFiltertype", "O", filtertypetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFiltertype", filtertypetmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     if (self->chnls < 1)
         self->chnls = 1;
@@ -5661,7 +5661,7 @@ MainParticle2_setTable(MainParticle2 *self, PyObject *arg)
     ASSERT_ARG_NOT_NULL
 
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)arg, "getTableStream", "");
     self->srScale = TableStream_getSamplingRate((TableStream *)self->table) / self->sr;
 
     Py_RETURN_NONE;
@@ -5680,7 +5680,7 @@ MainParticle2_setEnv(MainParticle2 *self, PyObject *arg)
     ASSERT_ARG_NOT_NULL
 
     Py_DECREF(self->env);
-    self->env = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
+    self->env = PYO_CALL_METHOD_RET((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -5885,15 +5885,15 @@ Particle2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 

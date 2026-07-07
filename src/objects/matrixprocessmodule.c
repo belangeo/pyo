@@ -181,29 +181,29 @@ MatrixPointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    self->matrix = PyObject_CallMethod((PyObject *)matrixtmp, "getMatrixStream", "");
+    self->matrix = PYO_CALL_METHOD_RET((PyObject *)matrixtmp, "getMatrixStream", "");
 
     if (xtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setX", "O", xtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setX", xtmp);
     }
 
     if (ytmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setY", "O", ytmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setY", ytmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     return (PyObject *)self;
 }
@@ -247,7 +247,7 @@ MatrixPointer_setMatrix(MatrixPointer *self, PyObject *arg)
     }
 
     Py_DECREF(self->matrix);
-    self->matrix = PyObject_CallMethod((PyObject *)arg, "getMatrixStream", "");
+    self->matrix = PYO_CALL_METHOD_RET((PyObject *)arg, "getMatrixStream", "");
 
     Py_RETURN_NONE;
 }
@@ -267,7 +267,7 @@ MatrixPointer_setX(MatrixPointer *self, PyObject *arg)
 
     self->x = arg;
     Py_INCREF(self->x);
-    PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->x, "_getStream", NULL);
+    PyObject *streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->x, "_getStream", NULL);
     self->x_stream = (Stream *)streamtmp;
     Py_INCREF(self->x_stream);
 
@@ -289,7 +289,7 @@ MatrixPointer_setY(MatrixPointer *self, PyObject *arg)
 
     self->y = arg;
     Py_INCREF(self->y);
-    PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->y, "_getStream", NULL);
+    PyObject *streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->y, "_getStream", NULL);
     self->y_stream = (Stream *)streamtmp;
     Py_INCREF(self->y_stream);
 

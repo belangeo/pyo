@@ -343,10 +343,10 @@ PVAnal_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (callbacktmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setCallback", "O", callbacktmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setCallback", callbacktmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
@@ -802,15 +802,15 @@ PVSynth_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     PVSynth_realloc_memories(self);
 
@@ -832,7 +832,7 @@ PVSynth_setInput(PVSynth *self, PyObject *arg)
 
     self->input = arg;
     Py_INCREF(self->input);
-    PyObject *input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    PyObject *input_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input, "_getPVStream", NULL);
     self->input_stream = (PVStream *)input_streamtmp;
     Py_INCREF(self->input_stream);
 
@@ -1274,20 +1274,20 @@ PVAddSynth_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (pitchtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setPitch", pitchtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->table = (MYFLT *)PyMem_RawRealloc(self->table, 8193 * sizeof(MYFLT));
 
@@ -1316,7 +1316,7 @@ PVAddSynth_setInput(PVAddSynth *self, PyObject *arg)
 
     self->input = arg;
     Py_INCREF(self->input);
-    PyObject *input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    PyObject *input_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input, "_getPVStream", NULL);
     self->input_stream = (PVStream *)input_streamtmp;
     Py_INCREF(self->input_stream);
 
@@ -1733,10 +1733,10 @@ PVTranspose_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (transpotmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setTranspo", "O", transpotmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setTranspo", transpotmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
@@ -1769,7 +1769,7 @@ PVTranspose_setInput(PVTranspose *self, PyObject *arg)
 
     self->input = arg;
     Py_INCREF(self->input);
-    PyObject *input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    PyObject *input_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input, "_getPVStream", NULL);
     self->input_stream = (PVStream *)input_streamtmp;
     Py_INCREF(self->input_stream);
 
@@ -2296,15 +2296,15 @@ PVVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (revtimetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setRevtime", "O", revtimetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setRevtime", revtimetmp);
     }
 
     if (damptmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDamp", "O", damptmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDamp", damptmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
@@ -2337,7 +2337,7 @@ PVVerb_setInput(PVVerb *self, PyObject *arg)
 
     self->input = arg;
     Py_INCREF(self->input);
-    PyObject *input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    PyObject *input_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input, "_getPVStream", NULL);
     self->input_stream = (PVStream *)input_streamtmp;
     Py_INCREF(self->input_stream);
 
@@ -2843,15 +2843,15 @@ PVGate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (threshtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setThresh", "O", threshtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setThresh", threshtmp);
     }
 
     if (damptmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDamp", "O", damptmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDamp", damptmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
@@ -2884,7 +2884,7 @@ PVGate_setInput(PVGate *self, PyObject *arg)
 
     self->input = arg;
     Py_INCREF(self->input);
-    PyObject *input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    PyObject *input_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input, "_getPVStream", NULL);
     self->input_stream = (PVStream *)input_streamtmp;
     Py_INCREF(self->input_stream);
 
@@ -3220,10 +3220,10 @@ PVCross_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (fadetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFade", "O", fadetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFade", fadetmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
@@ -3256,7 +3256,7 @@ PVCross_setInput(PVCross *self, PyObject *arg)
 
     self->input = arg;
     Py_INCREF(self->input);
-    PyObject *input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    PyObject *input_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input, "_getPVStream", NULL);
     self->input_stream = (PVStream *)input_streamtmp;
     Py_INCREF(self->input_stream);
 
@@ -3276,7 +3276,7 @@ PVCross_setInput2(PVCross *self, PyObject *arg)
 
     self->input2 = arg;
     Py_INCREF(self->input2);
-    PyObject *input_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getPVStream", NULL);
+    PyObject *input_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input2, "_getPVStream", NULL);
     self->input2_stream = (PVStream *)input_streamtmp;
     Py_INCREF(self->input2_stream);
 
@@ -3533,7 +3533,7 @@ PVMult_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->size = PVStream_getFFTsize(self->input_stream);
     self->olaps = PVStream_getOlaps(self->input_stream);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
@@ -3566,7 +3566,7 @@ PVMult_setInput(PVMult *self, PyObject *arg)
 
     self->input = arg;
     Py_INCREF(self->input);
-    PyObject *input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    PyObject *input_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input, "_getPVStream", NULL);
     self->input_stream = (PVStream *)input_streamtmp;
     Py_INCREF(self->input_stream);
 
@@ -3586,7 +3586,7 @@ PVMult_setInput2(PVMult *self, PyObject *arg)
 
     self->input2 = arg;
     Py_INCREF(self->input2);
-    PyObject *input_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getPVStream", NULL);
+    PyObject *input_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input2, "_getPVStream", NULL);
     self->input2_stream = (PVStream *)input_streamtmp;
     Py_INCREF(self->input2_stream);
 
@@ -3913,10 +3913,10 @@ PVMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (fadetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFade", "O", fadetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFade", fadetmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
@@ -3949,7 +3949,7 @@ PVMorph_setInput(PVMorph *self, PyObject *arg)
 
     self->input = arg;
     Py_INCREF(self->input);
-    PyObject *input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    PyObject *input_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input, "_getPVStream", NULL);
     self->input_stream = (PVStream *)input_streamtmp;
     Py_INCREF(self->input_stream);
 
@@ -3969,7 +3969,7 @@ PVMorph_setInput2(PVMorph *self, PyObject *arg)
 
     self->input2 = arg;
     Py_INCREF(self->input2);
-    PyObject *input_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getPVStream", NULL);
+    PyObject *input_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input2, "_getPVStream", NULL);
     self->input2_stream = (PVStream *)input_streamtmp;
     Py_INCREF(self->input2_stream);
 
@@ -4338,14 +4338,14 @@ PVFilter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->size = PVStream_getFFTsize(self->input_stream);
     self->olaps = PVStream_getOlaps(self->input_stream);
 
-    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)tabletmp, "getTableStream", "");
 
     if (gaintmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setGain", "O", gaintmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setGain", gaintmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
@@ -4378,7 +4378,7 @@ PVFilter_setInput(PVFilter *self, PyObject *arg)
 
     self->input = arg;
     Py_INCREF(self->input);
-    PyObject *input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    PyObject *input_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input, "_getPVStream", NULL);
     self->input_stream = (PVStream *)input_streamtmp;
     Py_INCREF(self->input_stream);
 
@@ -4400,7 +4400,7 @@ PVFilter_setTable(PVFilter *self, PyObject *arg)
     ASSERT_ARG_NOT_NULL
 
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -4837,12 +4837,12 @@ PVDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->olaps = PVStream_getOlaps(self->input_stream);
 
     Py_XDECREF(self->deltable);
-    self->deltable = PyObject_CallMethod((PyObject *)deltabletmp, "getTableStream", "");
+    self->deltable = PYO_CALL_METHOD_RET((PyObject *)deltabletmp, "getTableStream", "");
 
     Py_XDECREF(self->feedtable);
-    self->feedtable = PyObject_CallMethod((PyObject *)feedtabletmp, "getTableStream", "");
+    self->feedtable = PYO_CALL_METHOD_RET((PyObject *)feedtabletmp, "getTableStream", "");
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
@@ -4876,7 +4876,7 @@ PVDelay_setInput(PVDelay *self, PyObject *arg)
 
     self->input = arg;
     Py_INCREF(self->input);
-    PyObject *input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    PyObject *input_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input, "_getPVStream", NULL);
     self->input_stream = (PVStream *)input_streamtmp;
     Py_INCREF(self->input_stream);
 
@@ -4896,7 +4896,7 @@ PVDelay_setDeltable(PVDelay *self, PyObject *arg)
     ASSERT_ARG_NOT_NULL
 
     Py_DECREF(self->deltable);
-    self->deltable = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
+    self->deltable = PYO_CALL_METHOD_RET((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -4914,7 +4914,7 @@ PVDelay_setFeedtable(PVDelay *self, PyObject *arg)
     ASSERT_ARG_NOT_NULL
 
     Py_DECREF(self->feedtable);
-    self->feedtable = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
+    self->feedtable = PYO_CALL_METHOD_RET((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -5346,15 +5346,15 @@ PVBuffer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (indextmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setIndex", "O", indextmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setIndex", indextmp);
     }
 
     if (pitchtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setPitch", pitchtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
@@ -5392,7 +5392,7 @@ PVBuffer_setInput(PVBuffer *self, PyObject *arg)
 
     self->input = arg;
     Py_INCREF(self->input);
-    PyObject *input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    PyObject *input_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input, "_getPVStream", NULL);
     self->input_stream = (PVStream *)input_streamtmp;
     Py_INCREF(self->input_stream);
 
@@ -5414,7 +5414,7 @@ PVBuffer_setIndex(PVBuffer *self, PyObject *arg)
 
     self->index = arg;
     Py_INCREF(self->index);
-    PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
+    PyObject *streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->index, "_getStream", NULL);
     self->index_stream = (Stream *)streamtmp;
     Py_INCREF(self->index_stream);
 
@@ -5766,10 +5766,10 @@ PVShift_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (shifttmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setShift", "O", shifttmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setShift", shifttmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
@@ -5802,7 +5802,7 @@ PVShift_setInput(PVShift *self, PyObject *arg)
 
     self->input = arg;
     Py_INCREF(self->input);
-    PyObject *input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    PyObject *input_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input, "_getPVStream", NULL);
     self->input_stream = (PVStream *)input_streamtmp;
     Py_INCREF(self->input_stream);
 
@@ -6353,15 +6353,15 @@ PVAmpMod_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (basefreqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setBasefreq", "O", basefreqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setBasefreq", basefreqtmp);
     }
 
     if (spreadtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setSpread", "O", spreadtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setSpread", spreadtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
@@ -6397,7 +6397,7 @@ PVAmpMod_setInput(PVAmpMod *self, PyObject *arg)
 
     self->input = arg;
     Py_INCREF(self->input);
-    PyObject *input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    PyObject *input_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input, "_getPVStream", NULL);
     self->input_stream = (PVStream *)input_streamtmp;
     Py_INCREF(self->input_stream);
 
@@ -6988,20 +6988,20 @@ PVFreqMod_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (basefreqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setBasefreq", "O", basefreqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setBasefreq", basefreqtmp);
     }
 
     if (spreadtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setSpread", "O", spreadtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setSpread", spreadtmp);
     }
 
     if (depthtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDepth", "O", depthtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDepth", depthtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
@@ -7037,7 +7037,7 @@ PVFreqMod_setInput(PVFreqMod *self, PyObject *arg)
 
     self->input = arg;
     Py_INCREF(self->input);
-    PyObject *input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    PyObject *input_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input, "_getPVStream", NULL);
     self->input_stream = (PVStream *)input_streamtmp;
     Py_INCREF(self->input_stream);
 
@@ -7517,15 +7517,15 @@ PVBufLoops_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (lowtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setLow", "O", lowtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setLow", lowtmp);
     }
 
     if (hightmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setHigh", "O", hightmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setHigh", hightmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
@@ -7568,7 +7568,7 @@ PVBufLoops_setInput(PVBufLoops *self, PyObject *arg)
 
     self->input = arg;
     Py_INCREF(self->input);
-    PyObject *input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    PyObject *input_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input, "_getPVStream", NULL);
     self->input_stream = (PVStream *)input_streamtmp;
     Py_INCREF(self->input_stream);
 
@@ -7927,9 +7927,9 @@ PVBufTabLoops_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->olaps = PVStream_getOlaps(self->input_stream);
 
     Py_XDECREF(self->speed);
-    self->speed = PyObject_CallMethod((PyObject *)speedtmp, "getTableStream", "");
+    self->speed = PYO_CALL_METHOD_RET((PyObject *)speedtmp, "getTableStream", "");
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
@@ -7972,7 +7972,7 @@ PVBufTabLoops_setInput(PVBufTabLoops *self, PyObject *arg)
 
     self->input = arg;
     Py_INCREF(self->input);
-    PyObject *input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    PyObject *input_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input, "_getPVStream", NULL);
     self->input_stream = (PVStream *)input_streamtmp;
     Py_INCREF(self->input_stream);
 
@@ -7985,7 +7985,7 @@ PVBufTabLoops_setSpeed(PVBufTabLoops *self, PyObject *arg)
     ASSERT_ARG_NOT_NULL
 
     Py_DECREF(self->speed);
-    self->speed = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
+    self->speed = PYO_CALL_METHOD_RET((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -8257,7 +8257,7 @@ PVMix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->size = PVStream_getFFTsize(self->input_stream);
     self->olaps = PVStream_getOlaps(self->input_stream);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
@@ -8290,7 +8290,7 @@ PVMix_setInput(PVMix *self, PyObject *arg)
 
     self->input = arg;
     Py_INCREF(self->input);
-    PyObject *input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    PyObject *input_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input, "_getPVStream", NULL);
     self->input_stream = (PVStream *)input_streamtmp;
     Py_INCREF(self->input_stream);
 
@@ -8310,7 +8310,7 @@ PVMix_setInput2(PVMix *self, PyObject *arg)
 
     self->input2 = arg;
     Py_INCREF(self->input2);
-    PyObject *input_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getPVStream", NULL);
+    PyObject *input_streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input2, "_getPVStream", NULL);
     self->input2_stream = (PVStream *)input_streamtmp;
     Py_INCREF(self->input2_stream);
 

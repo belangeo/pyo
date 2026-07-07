@@ -536,30 +536,30 @@ Chorus_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (depthtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDepth", "O", depthtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDepth", depthtmp);
     }
 
     if (feedbacktmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFeedback", "O", feedbacktmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFeedback", feedbacktmp);
     }
 
     if (mixtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMix", "O", mixtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMix", mixtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     for (i = 0; i < 8; i++)
     {

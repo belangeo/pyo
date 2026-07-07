@@ -102,7 +102,7 @@ Mix_compute_next_data_frame(Mix *self)
 
     for (i = 0; i < lsize; i++)
     {
-        stream = PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->input, i), "_getStream", NULL);
+        stream = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->input, i), "_getStream", NULL);
         MYFLT *in = Stream_getData((Stream *)stream);
 
         for (j = 0; j < self->bufsize; j++)
@@ -174,15 +174,15 @@ Mix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 

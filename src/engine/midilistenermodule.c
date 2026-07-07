@@ -111,7 +111,7 @@ static void
 MidiListener_dealloc(MidiListener* self)
 {
     if (self->active == 1)
-        PyObject_CallMethod((PyObject *)self, "stop", NULL);
+        PYO_CALL_METHOD(self, "stop", NULL);
 
     MidiListener_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
@@ -138,7 +138,7 @@ MidiListener_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (midicalltmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMidiFunction", "O", midicalltmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMidiFunction", midicalltmp);
     }
 
     if (mididevtmp)
@@ -423,7 +423,7 @@ static void
 MidiDispatcher_dealloc(MidiDispatcher* self)
 {
     if (self->active == 1)
-        PyObject_CallMethod((PyObject *)self, "stop", NULL);
+        PYO_CALL_METHOD(self, "stop", NULL);
 
     MidiDispatcher_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);

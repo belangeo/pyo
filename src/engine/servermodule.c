@@ -536,67 +536,67 @@ Server_process_gui(Server *server)
         switch (server->nchnls)
         {
             case 1:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "f", server->lastRms[0]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "f", server->lastRms[0]);
                 break;
 
             case 2:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "ff", server->lastRms[0], server->lastRms[1]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "ff", server->lastRms[0], server->lastRms[1]);
                 break;
 
             case 3:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "fff", server->lastRms[0], server->lastRms[1], server->lastRms[2]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "fff", server->lastRms[0], server->lastRms[1], server->lastRms[2]);
                 break;
 
             case 4:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "ffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "ffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3]);
                 break;
 
             case 5:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "fffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "fffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4]);
                 break;
 
             case 6:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "ffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "ffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5]);
                 break;
 
             case 7:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "fffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "fffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6]);
                 break;
 
             case 8:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "ffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "ffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7]);
                 break;
 
             case 9:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "fffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "fffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8]);
                 break;
 
             case 10:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "ffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "ffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9]);
                 break;
 
             case 11:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "fffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "fffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10]);
                 break;
 
             case 12:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "ffffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10], server->lastRms[11]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "ffffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10], server->lastRms[11]);
                 break;
 
             case 13:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "fffffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10], server->lastRms[11], server->lastRms[12]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "fffffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10], server->lastRms[11], server->lastRms[12]);
                 break;
 
             case 14:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "ffffffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10], server->lastRms[11], server->lastRms[12], server->lastRms[13]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "ffffffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10], server->lastRms[11], server->lastRms[12], server->lastRms[13]);
                 break;
 
             case 15:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "fffffffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10], server->lastRms[11], server->lastRms[12], server->lastRms[13], server->lastRms[14]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "fffffffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10], server->lastRms[11], server->lastRms[12], server->lastRms[13], server->lastRms[14]);
                 break;
 
             case 16:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "ffffffffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10], server->lastRms[11], server->lastRms[12], server->lastRms[13], server->lastRms[14], server->lastRms[15]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "ffffffffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10], server->lastRms[11], server->lastRms[12], server->lastRms[13], server->lastRms[14], server->lastRms[15]);
                 break;
         }
 
@@ -624,7 +624,7 @@ Server_process_time(Server *server)
         hours = minutes / 60;
         minutes = minutes % 60;
         seconds = seconds % 60;
-        PyObject_CallMethod((PyObject *)server->TIME, "setTime", "iiii", hours, minutes, seconds, milliseconds);
+        PYO_CALL_METHOD(server->TIME, "setTime", "iiii", hours, minutes, seconds, milliseconds);
         server->tcount = 0;
     }
 }
@@ -1831,7 +1831,7 @@ Server_start(Server *self)
     }
 
     if (self->withGUI && PyObject_HasAttrString((PyObject *)self->GUI, "setStartButtonState"))
-        PyObject_CallMethod((PyObject *)self->GUI, "setStartButtonState", "i", 1);
+        PYO_CALL_METHOD(self->GUI, "setStartButtonState", "i", 1);
 
     Py_RETURN_NONE;
 }
@@ -1889,7 +1889,7 @@ Server_stop(Server *self)
     }
 
     if (self->withGUI && PyObject_HasAttrString((PyObject *)self->GUI, "setStartButtonState"))
-        PyObject_CallMethod((PyObject *)self->GUI, "setStartButtonState", "i", 0);
+        PYO_CALL_METHOD(self->GUI, "setStartButtonState", "i", 0);
 
     Py_RETURN_NONE;
 }

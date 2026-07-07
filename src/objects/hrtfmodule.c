@@ -684,15 +684,15 @@ HRTFSpatter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (azitmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAzimuth", "O", azitmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAzimuth", azitmp);
     }
 
     if (eletmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setElevation", "O", eletmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setElevation", eletmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->buffer_streams = (MYFLT *)PyMem_RawRealloc(self->buffer_streams, 2 * self->bufsize * sizeof(MYFLT));
     self->hrtf_input_tmp = (MYFLT *)PyMem_RawRealloc(self->hrtf_input_tmp, self->length * sizeof(MYFLT));
@@ -928,15 +928,15 @@ HRTF_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -1282,25 +1282,25 @@ Binauraler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (azitmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAzimuth", "O", azitmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAzimuth", azitmp);
     }
 
     if (eletmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setElevation", "O", eletmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setElevation", eletmp);
     }
 
     if (azispantmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAzispan", "O", azispantmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAzispan", azispantmp);
     }
 
     if (elespantmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setElespan", "O", elespantmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setElespan", elespantmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     /* Initialize VBAP data. */
     ls lss[16];
@@ -1584,15 +1584,15 @@ Binaural_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
