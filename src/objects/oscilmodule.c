@@ -5479,7 +5479,7 @@ TableRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->data[i] = tablelist[0];
     }
 
-    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
+    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGGER_STREAM), NULL);
     TriggerStream_setData(self->trig_stream, self->trigsBuffer);
 
     (*self->mode_func_ptr)(self);

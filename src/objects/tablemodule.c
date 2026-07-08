@@ -250,7 +250,7 @@ HarmTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_DECREF(init);
     self->size = 8192;
 
-    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+    MAKE_NEW_TABLESTREAM(self->tablestream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLE_STREAM), NULL);
 
     static char *kwlist[] = {"list", "size", NULL};
 
@@ -565,7 +565,7 @@ ChebyTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_DECREF(init);
     self->size = 8192;
 
-    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+    MAKE_NEW_TABLESTREAM(self->tablestream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLE_STREAM), NULL);
 
     static char *kwlist[] = {"list", "size", NULL};
 
@@ -894,7 +894,7 @@ HannTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->size = 8192;
 
-    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+    MAKE_NEW_TABLESTREAM(self->tablestream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLE_STREAM), NULL);
 
     static char *kwlist[] = {"size", NULL};
 
@@ -1121,7 +1121,7 @@ SincTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->freq = TWOPI;
     self->windowed = 0;
 
-    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+    MAKE_NEW_TABLESTREAM(self->tablestream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLE_STREAM), NULL);
 
     static char *kwlist[] = {"freq", "windowed", "size", NULL};
 
@@ -1346,7 +1346,7 @@ WinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->size = 8192;
     self->type = 2;
 
-    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+    MAKE_NEW_TABLESTREAM(self->tablestream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLE_STREAM), NULL);
 
     static char *kwlist[] = {"type", "size", NULL};
 
@@ -1573,7 +1573,7 @@ ParaTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->size = 8192;
 
-    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+    MAKE_NEW_TABLESTREAM(self->tablestream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLE_STREAM), NULL);
 
     static char *kwlist[] = {"size", NULL};
 
@@ -1826,7 +1826,7 @@ LinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->pointslist = PyList_New(0);
     self->size = 8192;
 
-    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+    MAKE_NEW_TABLESTREAM(self->tablestream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLE_STREAM), NULL);
 
     static char *kwlist[] = {"list", "size", NULL};
 
@@ -2157,7 +2157,7 @@ LogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->pointslist = PyList_New(0);
     self->size = 8192;
 
-    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+    MAKE_NEW_TABLESTREAM(self->tablestream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLE_STREAM), NULL);
 
     static char *kwlist[] = {"list", "size", NULL};
 
@@ -2456,7 +2456,7 @@ CosTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->pointslist = PyList_New(0);
     self->size = 8192;
 
-    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+    MAKE_NEW_TABLESTREAM(self->tablestream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLE_STREAM), NULL);
 
     static char *kwlist[] = {"list", "size", NULL};
 
@@ -2788,7 +2788,7 @@ CosLogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->pointslist = PyList_New(0);
     self->size = 8192;
 
-    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+    MAKE_NEW_TABLESTREAM(self->tablestream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLE_STREAM), NULL);
 
     static char *kwlist[] = {"list", "size", NULL};
 
@@ -3113,7 +3113,7 @@ CurveTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->tension = 0.0;
     self->bias = 0.0;
 
-    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+    MAKE_NEW_TABLESTREAM(self->tablestream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLE_STREAM), NULL);
 
     static char *kwlist[] = {"list", "tension", "bias", "size", NULL};
 
@@ -3484,7 +3484,7 @@ ExpTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->exp = 10.0;
     self->inverse = 1;
 
-    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+    MAKE_NEW_TABLESTREAM(self->tablestream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLE_STREAM), NULL);
 
     static char *kwlist[] = {"list", "exp", "inverse", "size", NULL};
 
@@ -4223,7 +4223,7 @@ SndTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->crossfade = 0.0;
     self->insertPos = 0.0;
 
-    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+    MAKE_NEW_TABLESTREAM(self->tablestream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLE_STREAM), NULL);
 
     static char *kwlist[] = {"path", "chnl", "start", "stop", NULL};
 
@@ -4672,7 +4672,7 @@ NewTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->feedback = 0.0;
 
-    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+    MAKE_NEW_TABLESTREAM(self->tablestream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLE_STREAM), NULL);
 
     static char *kwlist[] = {"length", "init", "feedback", NULL};
 
@@ -5098,7 +5098,7 @@ DataTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->server = PyServer_get_server();
     Py_INCREF(self->server);
 
-    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+    MAKE_NEW_TABLESTREAM(self->tablestream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLE_STREAM), NULL);
 
     static char *kwlist[] = {"size", "init", NULL};
 
@@ -5306,7 +5306,7 @@ AtanTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->size = 8192;
     self->slope = 0.5;
 
-    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+    MAKE_NEW_TABLESTREAM(self->tablestream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLE_STREAM), NULL);
 
     static char *kwlist[] = {"slope", "size", NULL};
 
@@ -5641,7 +5641,7 @@ PadSynthTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->damp = 0.7;
     self->allocated = 0;
 
-    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+    MAKE_NEW_TABLESTREAM(self->tablestream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLE_STREAM), NULL);
 
     static char *kwlist[] = {"basefreq", "spread", "bw", "bwscl", "nharms", "damp", "size", NULL};
 
@@ -6094,7 +6094,7 @@ TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->buffer[i] = self->trigsBuffer[i] = self->time_buffer_streams[i] = 0.0;
     }
 
-    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
+    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGGER_STREAM), NULL);
     TriggerStream_setData(self->trig_stream, self->trigsBuffer);
 
     T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
@@ -6909,7 +6909,7 @@ TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->trigsBuffer[i] = self->time_buffer_streams[i] = 0.0;
     }
 
-    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
+    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGGER_STREAM), NULL);
     TriggerStream_setData(self->trig_stream, self->trigsBuffer);
 
     T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
@@ -7325,7 +7325,7 @@ TablePut_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->trigsBuffer[i] = 0.0;
     }
 
-    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
+    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGGER_STREAM), NULL);
     TriggerStream_setData(self->trig_stream, self->trigsBuffer);
 
     return (PyObject *)self;
@@ -7724,7 +7724,7 @@ SharedTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->server = PyServer_get_server();
     Py_INCREF(self->server);
 
-    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+    MAKE_NEW_TABLESTREAM(self->tablestream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLE_STREAM), NULL);
 
     static char *kwlist[] = {"name", "create", "size", NULL};
 

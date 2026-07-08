@@ -243,7 +243,7 @@ NewMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->x_pointer = self->y_pointer = 0;
 
-    MAKE_NEW_MATRIXSTREAM(self->matrixstream, &MatrixStreamType, NULL);
+    MAKE_NEW_MATRIXSTREAM(self->matrixstream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_MATRIX_STREAM), NULL);
 
     static char *kwlist[] = {"width", "height", "init", NULL};
 
@@ -663,7 +663,7 @@ MatrixRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->trigsBuffer[i] = 0.0;
     }
 
-    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
+    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGGER_STREAM), NULL);
     TriggerStream_setData(self->trig_stream, self->trigsBuffer);
 
     int width = NewMatrix_getWidth((NewMatrix *)self->matrix);
@@ -859,7 +859,7 @@ MatrixRecLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->trigsBuffer[i] = 0.0;
     }
 
-    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
+    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGGER_STREAM), NULL);
     TriggerStream_setData(self->trig_stream, self->trigsBuffer);
 
     return (PyObject *)self;

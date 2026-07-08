@@ -44,7 +44,6 @@ extern void PVStream_setMagn(PVStream * self, MYFLT **data);
 extern void PVStream_setFreq(PVStream * self, MYFLT **data);
 extern void PVStream_setCount(PVStream * self, int *data);
 PyTypeObject * PyoCreatePVStreamType(PyObject *module);
-#define PVStreamType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_PV_STREAM))
 
 #define MAKE_NEW_PV_STREAM(self, type, rt_error) \
     (self) = (PVStream *)(type)->tp_alloc((type), 0); \

@@ -54,6 +54,5 @@ extern void TableStream_setFeedback(TableStream *self, MYFLT feedback);
 extern MYFLT TableStream_getFeedback(TableStream *self);
 extern void TableStream_record(TableStream *self, int pos, MYFLT value);
 PyTypeObject * PyoCreateTableStreamType(PyObject *module);
-#define TableStreamType (*PyoType_GetCurrent(PYO_RUNTIME_TYPE_TABLE_STREAM))
 
 #endif // _TABLEMODULE_H

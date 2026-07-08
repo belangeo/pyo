@@ -349,7 +349,7 @@ PVAnal_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
-    MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
+    MAKE_NEW_PV_STREAM(self->pv_stream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_PV_STREAM), NULL);
 
     if (!isPowerOfTwo(self->size))
     {
@@ -1739,7 +1739,7 @@ PVTranspose_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
-    MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
+    MAKE_NEW_PV_STREAM(self->pv_stream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_PV_STREAM), NULL);
 
     self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
@@ -2307,7 +2307,7 @@ PVVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
-    MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
+    MAKE_NEW_PV_STREAM(self->pv_stream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_PV_STREAM), NULL);
 
     self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
@@ -2854,7 +2854,7 @@ PVGate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
-    MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
+    MAKE_NEW_PV_STREAM(self->pv_stream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_PV_STREAM), NULL);
 
     self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
@@ -3226,7 +3226,7 @@ PVCross_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
-    MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
+    MAKE_NEW_PV_STREAM(self->pv_stream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_PV_STREAM), NULL);
 
     self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
@@ -3536,7 +3536,7 @@ PVMult_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
-    MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
+    MAKE_NEW_PV_STREAM(self->pv_stream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_PV_STREAM), NULL);
 
     self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
@@ -3919,7 +3919,7 @@ PVMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
-    MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
+    MAKE_NEW_PV_STREAM(self->pv_stream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_PV_STREAM), NULL);
 
     self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
@@ -4348,7 +4348,7 @@ PVFilter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
-    MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
+    MAKE_NEW_PV_STREAM(self->pv_stream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_PV_STREAM), NULL);
 
     self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
@@ -4845,7 +4845,7 @@ PVDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
-    MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
+    MAKE_NEW_PV_STREAM(self->pv_stream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_PV_STREAM), NULL);
 
     self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
@@ -5357,7 +5357,7 @@ PVBuffer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
-    MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
+    MAKE_NEW_PV_STREAM(self->pv_stream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_PV_STREAM), NULL);
 
     self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
@@ -5772,7 +5772,7 @@ PVShift_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
-    MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
+    MAKE_NEW_PV_STREAM(self->pv_stream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_PV_STREAM), NULL);
 
     self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
@@ -6364,7 +6364,7 @@ PVAmpMod_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
-    MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
+    MAKE_NEW_PV_STREAM(self->pv_stream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_PV_STREAM), NULL);
 
     self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
@@ -7004,7 +7004,7 @@ PVFreqMod_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
-    MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
+    MAKE_NEW_PV_STREAM(self->pv_stream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_PV_STREAM), NULL);
 
     self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
@@ -7528,7 +7528,7 @@ PVBufLoops_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
-    MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
+    MAKE_NEW_PV_STREAM(self->pv_stream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_PV_STREAM), NULL);
 
     self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
@@ -7932,7 +7932,7 @@ PVBufTabLoops_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
-    MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
+    MAKE_NEW_PV_STREAM(self->pv_stream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_PV_STREAM), NULL);
 
     self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
@@ -8260,7 +8260,7 @@ PVMix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
-    MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
+    MAKE_NEW_PV_STREAM(self->pv_stream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_PV_STREAM), NULL);
 
     self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
