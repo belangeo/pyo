@@ -294,74 +294,74 @@ Randi_setProcMode(Randi *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Randi_generate_iii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Randi_generate_iii);
             break;
 
         case 1:
-            self->proc_func_ptr = Randi_generate_aii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Randi_generate_aii);
             break;
 
         case 10:
-            self->proc_func_ptr = Randi_generate_iai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Randi_generate_iai);
             break;
 
         case 11:
-            self->proc_func_ptr = Randi_generate_aai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Randi_generate_aai);
             break;
 
         case 100:
-            self->proc_func_ptr = Randi_generate_iia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Randi_generate_iia);
             break;
 
         case 101:
-            self->proc_func_ptr = Randi_generate_aia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Randi_generate_aia);
             break;
 
         case 110:
-            self->proc_func_ptr = Randi_generate_iaa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Randi_generate_iaa);
             break;
 
         case 111:
-            self->proc_func_ptr = Randi_generate_aaa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Randi_generate_aaa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Randi_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Randi_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Randi_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Randi_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Randi_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Randi_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Randi_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Randi_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Randi_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Randi_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Randi_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Randi_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Randi_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Randi_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Randi_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Randi_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Randi_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Randi_postprocessing_revareva);
             break;
     }
 }
@@ -398,7 +398,7 @@ Randi_dealloc(Randi* self)
 {
     pyo_DEALLOC
     Randi_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -410,6 +410,8 @@ Randi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *mintmp = NULL, *maxtmp = NULL, *freqtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Randi *self;
     self = (Randi *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->min = PyFloat_FromDouble(0.);
     self->max = PyFloat_FromDouble(1.);
@@ -423,40 +425,42 @@ Randi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[4] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Randi_compute_next_data_frame);
-    self->mode_func_ptr = Randi_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Randi_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Randi_setProcMode);
 
     static char *kwlist[] = {"min", "max", "freq", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOOO", kwlist, &mintmp, &maxtmp, &freqtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOOO", kwlist, &mintmp, &maxtmp, &freqtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (mintmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMin", mintmp);
     }
 
     if (maxtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMax", maxtmp);
     }
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     Server_generateSeed((Server *)self->server, RANDI_ID);
 
@@ -530,85 +534,39 @@ static PyMethodDef Randi_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Randi_as_number =
-{
-    (binaryfunc)Randi_add,                         /*nb_add*/
-    (binaryfunc)Randi_sub,                         /*nb_subtract*/
-    (binaryfunc)Randi_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)Randi_inplace_add,                 /*inplace_add*/
-    (binaryfunc)Randi_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)Randi_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)Randi_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)Randi_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot RandiType_slots[] = {
+    {Py_tp_dealloc, Randi_dealloc},
+    {Py_tp_doc, "Randi objects. Periodically generates a new random value with interpolation."},
+    {Py_tp_traverse, Randi_traverse},
+    {Py_tp_clear, Randi_clear},
+    {Py_tp_methods, Randi_methods},
+    {Py_tp_members, Randi_members},
+    {Py_tp_new, Randi_new},
+    {Py_nb_add, Randi_add},
+    {Py_nb_subtract, Randi_sub},
+    {Py_nb_multiply, Randi_multiply},
+    {Py_nb_true_divide, Randi_div},
+    {Py_nb_inplace_add, Randi_inplace_add},
+    {Py_nb_inplace_subtract, Randi_inplace_sub},
+    {Py_nb_inplace_multiply, Randi_inplace_multiply},
+    {Py_nb_inplace_true_divide, Randi_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject RandiType =
+static PyType_Spec RandiType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Randi_base",                                   /*tp_name*/
-    sizeof(Randi),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)Randi_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    &Randi_as_number,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Randi objects. Periodically generates a new random value with interpolation.",           /* tp_doc */
-    (traverseproc)Randi_traverse,                  /* tp_traverse */
-    (inquiry)Randi_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    Randi_methods,                                 /* tp_methods */
-    Randi_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    Randi_new,                                     /* tp_new */
+    "_pyo.Randi_base",
+    sizeof(Randi),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    RandiType_slots
 };
+
+PyTypeObject *
+PyoCreateRandiType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &RandiType_spec, NULL);
+}
 
 /****************/
 /**** Randh *****/
@@ -863,74 +821,74 @@ Randh_setProcMode(Randh *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Randh_generate_iii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Randh_generate_iii);
             break;
 
         case 1:
-            self->proc_func_ptr = Randh_generate_aii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Randh_generate_aii);
             break;
 
         case 10:
-            self->proc_func_ptr = Randh_generate_iai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Randh_generate_iai);
             break;
 
         case 11:
-            self->proc_func_ptr = Randh_generate_aai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Randh_generate_aai);
             break;
 
         case 100:
-            self->proc_func_ptr = Randh_generate_iia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Randh_generate_iia);
             break;
 
         case 101:
-            self->proc_func_ptr = Randh_generate_aia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Randh_generate_aia);
             break;
 
         case 110:
-            self->proc_func_ptr = Randh_generate_iaa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Randh_generate_iaa);
             break;
 
         case 111:
-            self->proc_func_ptr = Randh_generate_aaa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Randh_generate_aaa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Randh_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Randh_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Randh_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Randh_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Randh_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Randh_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Randh_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Randh_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Randh_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Randh_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Randh_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Randh_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Randh_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Randh_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Randh_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Randh_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Randh_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Randh_postprocessing_revareva);
             break;
     }
 }
@@ -967,7 +925,7 @@ Randh_dealloc(Randh* self)
 {
     pyo_DEALLOC
     Randh_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -979,6 +937,8 @@ Randh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *mintmp = NULL, *maxtmp = NULL, *freqtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Randh *self;
     self = (Randh *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->min = PyFloat_FromDouble(0.);
     self->max = PyFloat_FromDouble(1.);
@@ -992,40 +952,42 @@ Randh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[4] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Randh_compute_next_data_frame);
-    self->mode_func_ptr = Randh_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Randh_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Randh_setProcMode);
 
     static char *kwlist[] = {"min", "max", "freq", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOOO", kwlist, &mintmp, &maxtmp, &freqtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOOO", kwlist, &mintmp, &maxtmp, &freqtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (mintmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMin", mintmp);
     }
 
     if (maxtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMax", maxtmp);
     }
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     Server_generateSeed((Server *)self->server, RANDH_ID);
 
@@ -1099,85 +1061,39 @@ static PyMethodDef Randh_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Randh_as_number =
-{
-    (binaryfunc)Randh_add,                         /*nb_add*/
-    (binaryfunc)Randh_sub,                         /*nb_subtract*/
-    (binaryfunc)Randh_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)Randh_inplace_add,                 /*inplace_add*/
-    (binaryfunc)Randh_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)Randh_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)Randh_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)Randh_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot RandhType_slots[] = {
+    {Py_tp_dealloc, Randh_dealloc},
+    {Py_tp_doc, "Randh objects. Periodically generates a new random value."},
+    {Py_tp_traverse, Randh_traverse},
+    {Py_tp_clear, Randh_clear},
+    {Py_tp_methods, Randh_methods},
+    {Py_tp_members, Randh_members},
+    {Py_tp_new, Randh_new},
+    {Py_nb_add, Randh_add},
+    {Py_nb_subtract, Randh_sub},
+    {Py_nb_multiply, Randh_multiply},
+    {Py_nb_true_divide, Randh_div},
+    {Py_nb_inplace_add, Randh_inplace_add},
+    {Py_nb_inplace_subtract, Randh_inplace_sub},
+    {Py_nb_inplace_multiply, Randh_inplace_multiply},
+    {Py_nb_inplace_true_divide, Randh_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject RandhType =
+static PyType_Spec RandhType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Randh_base",                                   /*tp_name*/
-    sizeof(Randh),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)Randh_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    &Randh_as_number,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Randh objects. Periodically generates a new random value.",           /* tp_doc */
-    (traverseproc)Randh_traverse,                  /* tp_traverse */
-    (inquiry)Randh_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    Randh_methods,                                 /* tp_methods */
-    Randh_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    Randh_new,                                     /* tp_new */
+    "_pyo.Randh_base",
+    sizeof(Randh),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    RandhType_slots
 };
+
+PyTypeObject *
+PyoCreateRandhType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &RandhType_spec, NULL);
+}
 
 /****************/
 /**** Choice *****/
@@ -1262,50 +1178,50 @@ Choice_setProcMode(Choice *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Choice_generate_i;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Choice_generate_i);
             break;
 
         case 1:
-            self->proc_func_ptr = Choice_generate_a;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Choice_generate_a);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Choice_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Choice_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Choice_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Choice_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Choice_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Choice_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Choice_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Choice_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Choice_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Choice_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Choice_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Choice_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Choice_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Choice_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Choice_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Choice_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Choice_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Choice_postprocessing_revareva);
             break;
     }
 }
@@ -1339,7 +1255,7 @@ Choice_dealloc(Choice* self)
     pyo_DEALLOC
     PyMem_RawFree(self->choice);
     Choice_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1350,6 +1266,8 @@ Choice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *choicetmp = NULL, *freqtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Choice *self;
     self = (Choice *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(1.);
     self->value = 0.0;
@@ -1359,35 +1277,37 @@ Choice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[2] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Choice_compute_next_data_frame);
-    self->mode_func_ptr = Choice_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Choice_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Choice_setProcMode);
 
     static char *kwlist[] = {"choice", "freq", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &choicetmp, &freqtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &choicetmp, &freqtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (choicetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setChoice", "O", choicetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setChoice", choicetmp);
     }
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     Server_generateSeed((Server *)self->server, CHOICE_ID);
 
@@ -1468,85 +1388,39 @@ static PyMethodDef Choice_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Choice_as_number =
-{
-    (binaryfunc)Choice_add,                         /*nb_add*/
-    (binaryfunc)Choice_sub,                         /*nb_subtract*/
-    (binaryfunc)Choice_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)Choice_inplace_add,                 /*inplace_add*/
-    (binaryfunc)Choice_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)Choice_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)Choice_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)Choice_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot ChoiceType_slots[] = {
+    {Py_tp_dealloc, Choice_dealloc},
+    {Py_tp_doc, "Choice objects. Periodically generates a new random value from a list."},
+    {Py_tp_traverse, Choice_traverse},
+    {Py_tp_clear, Choice_clear},
+    {Py_tp_methods, Choice_methods},
+    {Py_tp_members, Choice_members},
+    {Py_tp_new, Choice_new},
+    {Py_nb_add, Choice_add},
+    {Py_nb_subtract, Choice_sub},
+    {Py_nb_multiply, Choice_multiply},
+    {Py_nb_true_divide, Choice_div},
+    {Py_nb_inplace_add, Choice_inplace_add},
+    {Py_nb_inplace_subtract, Choice_inplace_sub},
+    {Py_nb_inplace_multiply, Choice_inplace_multiply},
+    {Py_nb_inplace_true_divide, Choice_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject ChoiceType =
+static PyType_Spec ChoiceType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Choice_base",                                   /*tp_name*/
-    sizeof(Choice),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)Choice_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    &Choice_as_number,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Choice objects. Periodically generates a new random value from a list.",           /* tp_doc */
-    (traverseproc)Choice_traverse,                  /* tp_traverse */
-    (inquiry)Choice_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    Choice_methods,                                 /* tp_methods */
-    Choice_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    Choice_new,                                     /* tp_new */
+    "_pyo.Choice_base",
+    sizeof(Choice),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    ChoiceType_slots
 };
+
+PyTypeObject *
+PyoCreateChoiceType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &ChoiceType_spec, NULL);
+}
 
 /****************/
 /**** RandInt ***/
@@ -1683,58 +1557,58 @@ RandInt_setProcMode(RandInt *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = RandInt_generate_ii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(RandInt_generate_ii);
             break;
 
         case 1:
-            self->proc_func_ptr = RandInt_generate_ai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(RandInt_generate_ai);
             break;
 
         case 10:
-            self->proc_func_ptr = RandInt_generate_ia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(RandInt_generate_ia);
             break;
 
         case 11:
-            self->proc_func_ptr = RandInt_generate_aa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(RandInt_generate_aa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = RandInt_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RandInt_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = RandInt_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RandInt_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = RandInt_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RandInt_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = RandInt_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RandInt_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = RandInt_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RandInt_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = RandInt_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RandInt_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = RandInt_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RandInt_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = RandInt_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RandInt_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = RandInt_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RandInt_postprocessing_revareva);
             break;
     }
 }
@@ -1769,7 +1643,7 @@ RandInt_dealloc(RandInt* self)
 {
     pyo_DEALLOC
     RandInt_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1780,6 +1654,8 @@ RandInt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maxtmp = NULL, *freqtmp = NULL, *multmp = NULL, *addtmp = NULL;
     RandInt *self;
     self = (RandInt *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->max = PyFloat_FromDouble(100.);
     self->freq = PyFloat_FromDouble(1.);
@@ -1791,35 +1667,37 @@ RandInt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[3] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, RandInt_compute_next_data_frame);
-    self->mode_func_ptr = RandInt_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(RandInt_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(RandInt_setProcMode);
 
     static char *kwlist[] = {"max", "freq", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &maxtmp, &freqtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &maxtmp, &freqtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (maxtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMax", maxtmp);
     }
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     Server_generateSeed((Server *)self->server, RANDINT_ID);
 
@@ -1878,85 +1756,39 @@ static PyMethodDef RandInt_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods RandInt_as_number =
-{
-    (binaryfunc)RandInt_add,                         /*nb_add*/
-    (binaryfunc)RandInt_sub,                         /*nb_subtract*/
-    (binaryfunc)RandInt_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)RandInt_inplace_add,                 /*inplace_add*/
-    (binaryfunc)RandInt_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)RandInt_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)RandInt_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)RandInt_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot RandIntType_slots[] = {
+    {Py_tp_dealloc, RandInt_dealloc},
+    {Py_tp_doc, "RandInt objects. Periodically generates a new integer random value."},
+    {Py_tp_traverse, RandInt_traverse},
+    {Py_tp_clear, RandInt_clear},
+    {Py_tp_methods, RandInt_methods},
+    {Py_tp_members, RandInt_members},
+    {Py_tp_new, RandInt_new},
+    {Py_nb_add, RandInt_add},
+    {Py_nb_subtract, RandInt_sub},
+    {Py_nb_multiply, RandInt_multiply},
+    {Py_nb_true_divide, RandInt_div},
+    {Py_nb_inplace_add, RandInt_inplace_add},
+    {Py_nb_inplace_subtract, RandInt_inplace_sub},
+    {Py_nb_inplace_multiply, RandInt_inplace_multiply},
+    {Py_nb_inplace_true_divide, RandInt_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject RandIntType =
+static PyType_Spec RandIntType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.RandInt_base",                                   /*tp_name*/
-    sizeof(RandInt),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)RandInt_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    &RandInt_as_number,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "RandInt objects. Periodically generates a new integer random value.",           /* tp_doc */
-    (traverseproc)RandInt_traverse,                  /* tp_traverse */
-    (inquiry)RandInt_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    RandInt_methods,                                 /* tp_methods */
-    RandInt_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    RandInt_new,                                     /* tp_new */
+    "_pyo.RandInt_base",
+    sizeof(RandInt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    RandIntType_slots
 };
+
+PyTypeObject *
+PyoCreateRandIntType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &RandIntType_spec, NULL);
+}
 
 /*****************/
 /**** RandDur ****/
@@ -2132,58 +1964,58 @@ RandDur_setProcMode(RandDur *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = RandDur_generate_ii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(RandDur_generate_ii);
             break;
 
         case 1:
-            self->proc_func_ptr = RandDur_generate_ai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(RandDur_generate_ai);
             break;
 
         case 10:
-            self->proc_func_ptr = RandDur_generate_ia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(RandDur_generate_ia);
             break;
 
         case 11:
-            self->proc_func_ptr = RandDur_generate_aa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(RandDur_generate_aa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = RandDur_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RandDur_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = RandDur_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RandDur_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = RandDur_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RandDur_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = RandDur_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RandDur_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = RandDur_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RandDur_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = RandDur_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RandDur_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = RandDur_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RandDur_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = RandDur_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RandDur_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = RandDur_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(RandDur_postprocessing_revareva);
             break;
     }
 }
@@ -2218,7 +2050,7 @@ RandDur_dealloc(RandDur* self)
 {
     pyo_DEALLOC
     RandDur_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2230,6 +2062,8 @@ RandDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *mintmp = NULL, *maxtmp = NULL, *multmp = NULL, *addtmp = NULL;
     RandDur *self;
     self = (RandDur *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->min = PyFloat_FromDouble(0.01);
     self->max = PyFloat_FromDouble(1.);
@@ -2241,35 +2075,37 @@ RandDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[3] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, RandDur_compute_next_data_frame);
-    self->mode_func_ptr = RandDur_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(RandDur_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(RandDur_setProcMode);
 
     static char *kwlist[] = {"min", "max", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &mintmp, &maxtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &mintmp, &maxtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (mintmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMin", mintmp);
     }
 
     if (maxtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMax", maxtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     Server_generateSeed((Server *)self->server, RANDDUR_ID);
 
@@ -2345,85 +2181,39 @@ static PyMethodDef RandDur_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods RandDur_as_number =
-{
-    (binaryfunc)RandDur_add,                         /*nb_add*/
-    (binaryfunc)RandDur_sub,                         /*nb_subtract*/
-    (binaryfunc)RandDur_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)RandDur_inplace_add,                 /*inplace_add*/
-    (binaryfunc)RandDur_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)RandDur_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)RandDur_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)RandDur_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot RandDurType_slots[] = {
+    {Py_tp_dealloc, RandDur_dealloc},
+    {Py_tp_doc, "RandDur objects. Recursive time varying generation of random values."},
+    {Py_tp_traverse, RandDur_traverse},
+    {Py_tp_clear, RandDur_clear},
+    {Py_tp_methods, RandDur_methods},
+    {Py_tp_members, RandDur_members},
+    {Py_tp_new, RandDur_new},
+    {Py_nb_add, RandDur_add},
+    {Py_nb_subtract, RandDur_sub},
+    {Py_nb_multiply, RandDur_multiply},
+    {Py_nb_true_divide, RandDur_div},
+    {Py_nb_inplace_add, RandDur_inplace_add},
+    {Py_nb_inplace_subtract, RandDur_inplace_sub},
+    {Py_nb_inplace_multiply, RandDur_inplace_multiply},
+    {Py_nb_inplace_true_divide, RandDur_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject RandDurType =
+static PyType_Spec RandDurType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.RandDur_base",                                   /*tp_name*/
-    sizeof(RandDur),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)RandDur_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    &RandDur_as_number,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "RandDur objects. Recursive time varying generation of random values.",           /* tp_doc */
-    (traverseproc)RandDur_traverse,                  /* tp_traverse */
-    (inquiry)RandDur_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    RandDur_methods,                                 /* tp_methods */
-    RandDur_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    RandDur_new,                                     /* tp_new */
+    "_pyo.RandDur_base",
+    sizeof(RandDur),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    RandDurType_slots
 };
+
+PyTypeObject *
+PyoCreateRandDurType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &RandDurType_spec, NULL);
+}
 
 /****************/
 /**** Xnoise *****/
@@ -3013,74 +2803,74 @@ Xnoise_setProcMode(Xnoise *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Xnoise_generate_iii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Xnoise_generate_iii);
             break;
 
         case 1:
-            self->proc_func_ptr = Xnoise_generate_aii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Xnoise_generate_aii);
             break;
 
         case 10:
-            self->proc_func_ptr = Xnoise_generate_iai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Xnoise_generate_iai);
             break;
 
         case 11:
-            self->proc_func_ptr = Xnoise_generate_aai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Xnoise_generate_aai);
             break;
 
         case 100:
-            self->proc_func_ptr = Xnoise_generate_iia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Xnoise_generate_iia);
             break;
 
         case 101:
-            self->proc_func_ptr = Xnoise_generate_aia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Xnoise_generate_aia);
             break;
 
         case 110:
-            self->proc_func_ptr = Xnoise_generate_iaa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Xnoise_generate_iaa);
             break;
 
         case 111:
-            self->proc_func_ptr = Xnoise_generate_aaa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Xnoise_generate_aaa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Xnoise_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Xnoise_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Xnoise_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Xnoise_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Xnoise_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Xnoise_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Xnoise_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Xnoise_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Xnoise_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Xnoise_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Xnoise_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Xnoise_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Xnoise_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Xnoise_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Xnoise_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Xnoise_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Xnoise_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Xnoise_postprocessing_revareva);
             break;
     }
 }
@@ -3117,7 +2907,7 @@ Xnoise_dealloc(Xnoise* self)
 {
     pyo_DEALLOC
     Xnoise_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3128,6 +2918,8 @@ Xnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *freqtmp = NULL, *x1tmp = NULL, *x2tmp = NULL, *multmp = NULL, *addtmp = NULL;
     Xnoise *self;
     self = (Xnoise *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->x1 = PyFloat_FromDouble(0.5);
     self->x2 = PyFloat_FromDouble(0.5);
@@ -3161,40 +2953,42 @@ Xnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;
     self->loopLen = (pyorand() % 10) + 3;
 
-    Stream_setFunctionPtr(self->stream, Xnoise_compute_next_data_frame);
-    self->mode_func_ptr = Xnoise_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Xnoise_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Xnoise_setProcMode);
 
     static char *kwlist[] = {"type", "freq", "x1", "x2", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOOOO", kwlist, &self->type, &freqtmp, &x1tmp, &x2tmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOOOO", kwlist, &self->type, &freqtmp, &x1tmp, &x2tmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (x1tmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setX1", "O", x1tmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setX1", x1tmp);
     }
 
     if (x2tmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setX2", "O", x2tmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setX2", x2tmp);
     }
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     Xnoise_setRandomType(self);
 
@@ -3271,85 +3065,39 @@ static PyMethodDef Xnoise_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Xnoise_as_number =
-{
-    (binaryfunc)Xnoise_add,                         /*nb_add*/
-    (binaryfunc)Xnoise_sub,                         /*nb_subtract*/
-    (binaryfunc)Xnoise_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)Xnoise_inplace_add,                 /*inplace_add*/
-    (binaryfunc)Xnoise_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)Xnoise_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)Xnoise_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)Xnoise_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot XnoiseType_slots[] = {
+    {Py_tp_dealloc, Xnoise_dealloc},
+    {Py_tp_doc, "Xnoise objects. Periodically generates a new random value."},
+    {Py_tp_traverse, Xnoise_traverse},
+    {Py_tp_clear, Xnoise_clear},
+    {Py_tp_methods, Xnoise_methods},
+    {Py_tp_members, Xnoise_members},
+    {Py_tp_new, Xnoise_new},
+    {Py_nb_add, Xnoise_add},
+    {Py_nb_subtract, Xnoise_sub},
+    {Py_nb_multiply, Xnoise_multiply},
+    {Py_nb_true_divide, Xnoise_div},
+    {Py_nb_inplace_add, Xnoise_inplace_add},
+    {Py_nb_inplace_subtract, Xnoise_inplace_sub},
+    {Py_nb_inplace_multiply, Xnoise_inplace_multiply},
+    {Py_nb_inplace_true_divide, Xnoise_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject XnoiseType =
+static PyType_Spec XnoiseType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Xnoise_base",                                   /*tp_name*/
-    sizeof(Xnoise),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)Xnoise_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    &Xnoise_as_number,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Xnoise objects. Periodically generates a new random value.",           /* tp_doc */
-    (traverseproc)Xnoise_traverse,                  /* tp_traverse */
-    (inquiry)Xnoise_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    Xnoise_methods,                                 /* tp_methods */
-    Xnoise_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    Xnoise_new,                                     /* tp_new */
+    "_pyo.Xnoise_base",
+    sizeof(Xnoise),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    XnoiseType_slots
 };
+
+PyTypeObject *
+PyoCreateXnoiseType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &XnoiseType_spec, NULL);
+}
 
 /****************/
 /**** XnoiseMidi *****/
@@ -3976,74 +3724,74 @@ XnoiseMidi_setProcMode(XnoiseMidi *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = XnoiseMidi_generate_iii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(XnoiseMidi_generate_iii);
             break;
 
         case 1:
-            self->proc_func_ptr = XnoiseMidi_generate_aii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(XnoiseMidi_generate_aii);
             break;
 
         case 10:
-            self->proc_func_ptr = XnoiseMidi_generate_iai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(XnoiseMidi_generate_iai);
             break;
 
         case 11:
-            self->proc_func_ptr = XnoiseMidi_generate_aai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(XnoiseMidi_generate_aai);
             break;
 
         case 100:
-            self->proc_func_ptr = XnoiseMidi_generate_iia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(XnoiseMidi_generate_iia);
             break;
 
         case 101:
-            self->proc_func_ptr = XnoiseMidi_generate_aia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(XnoiseMidi_generate_aia);
             break;
 
         case 110:
-            self->proc_func_ptr = XnoiseMidi_generate_iaa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(XnoiseMidi_generate_iaa);
             break;
 
         case 111:
-            self->proc_func_ptr = XnoiseMidi_generate_aaa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(XnoiseMidi_generate_aaa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = XnoiseMidi_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(XnoiseMidi_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = XnoiseMidi_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(XnoiseMidi_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = XnoiseMidi_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(XnoiseMidi_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = XnoiseMidi_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(XnoiseMidi_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = XnoiseMidi_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(XnoiseMidi_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = XnoiseMidi_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(XnoiseMidi_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = XnoiseMidi_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(XnoiseMidi_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = XnoiseMidi_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(XnoiseMidi_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = XnoiseMidi_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(XnoiseMidi_postprocessing_revareva);
             break;
     }
 }
@@ -4080,7 +3828,7 @@ XnoiseMidi_dealloc(XnoiseMidi* self)
 {
     pyo_DEALLOC
     XnoiseMidi_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -4091,6 +3839,8 @@ XnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *freqtmp = NULL, *x1tmp = NULL, *x2tmp = NULL, *rangetmp = NULL, *multmp = NULL, *addtmp = NULL;
     XnoiseMidi *self;
     self = (XnoiseMidi *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->x1 = PyFloat_FromDouble(0.5);
     self->x2 = PyFloat_FromDouble(0.5);
@@ -4128,45 +3878,47 @@ XnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;
     self->loopLen = (pyorand() % 10) + 3;
 
-    Stream_setFunctionPtr(self->stream, XnoiseMidi_compute_next_data_frame);
-    self->mode_func_ptr = XnoiseMidi_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(XnoiseMidi_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(XnoiseMidi_setProcMode);
 
     static char *kwlist[] = {"type", "freq", "x1", "x2", "scale", "range", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOOiOOO", kwlist, &self->type, &freqtmp, &x1tmp, &x2tmp, &self->scale, &rangetmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOOiOOO", kwlist, &self->type, &freqtmp, &x1tmp, &x2tmp, &self->scale, &rangetmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (x1tmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setX1", "O", x1tmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setX1", x1tmp);
     }
 
     if (x2tmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setX2", "O", x2tmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setX2", x2tmp);
     }
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (rangetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setRange", "O", rangetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setRange", rangetmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     XnoiseMidi_setRandomType(self);
 
@@ -4285,85 +4037,39 @@ static PyMethodDef XnoiseMidi_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods XnoiseMidi_as_number =
-{
-    (binaryfunc)XnoiseMidi_add,                         /*nb_add*/
-    (binaryfunc)XnoiseMidi_sub,                         /*nb_subtract*/
-    (binaryfunc)XnoiseMidi_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)XnoiseMidi_inplace_add,                 /*inplace_add*/
-    (binaryfunc)XnoiseMidi_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)XnoiseMidi_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)XnoiseMidi_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)XnoiseMidi_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot XnoiseMidiType_slots[] = {
+    {Py_tp_dealloc, XnoiseMidi_dealloc},
+    {Py_tp_doc, "XnoiseMidi objects. Periodically generates a new random value."},
+    {Py_tp_traverse, XnoiseMidi_traverse},
+    {Py_tp_clear, XnoiseMidi_clear},
+    {Py_tp_methods, XnoiseMidi_methods},
+    {Py_tp_members, XnoiseMidi_members},
+    {Py_tp_new, XnoiseMidi_new},
+    {Py_nb_add, XnoiseMidi_add},
+    {Py_nb_subtract, XnoiseMidi_sub},
+    {Py_nb_multiply, XnoiseMidi_multiply},
+    {Py_nb_true_divide, XnoiseMidi_div},
+    {Py_nb_inplace_add, XnoiseMidi_inplace_add},
+    {Py_nb_inplace_subtract, XnoiseMidi_inplace_sub},
+    {Py_nb_inplace_multiply, XnoiseMidi_inplace_multiply},
+    {Py_nb_inplace_true_divide, XnoiseMidi_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject XnoiseMidiType =
+static PyType_Spec XnoiseMidiType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.XnoiseMidi_base",                                   /*tp_name*/
-    sizeof(XnoiseMidi),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)XnoiseMidi_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    &XnoiseMidi_as_number,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "XnoiseMidi objects. Periodically generates a new random value.",           /* tp_doc */
-    (traverseproc)XnoiseMidi_traverse,                  /* tp_traverse */
-    (inquiry)XnoiseMidi_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    XnoiseMidi_methods,                                 /* tp_methods */
-    XnoiseMidi_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    XnoiseMidi_new,                                     /* tp_new */
+    "_pyo.XnoiseMidi_base",
+    sizeof(XnoiseMidi),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    XnoiseMidiType_slots
 };
+
+PyTypeObject *
+PyoCreateXnoiseMidiType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &XnoiseMidiType_spec, NULL);
+}
 
 /****************/
 /**** XnoiseDur *****/
@@ -4787,44 +4493,44 @@ XnoiseDur_setProcMode(XnoiseDur *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = XnoiseDur_generate;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(XnoiseDur_generate);
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = XnoiseDur_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(XnoiseDur_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = XnoiseDur_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(XnoiseDur_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = XnoiseDur_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(XnoiseDur_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = XnoiseDur_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(XnoiseDur_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = XnoiseDur_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(XnoiseDur_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = XnoiseDur_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(XnoiseDur_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = XnoiseDur_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(XnoiseDur_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = XnoiseDur_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(XnoiseDur_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = XnoiseDur_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(XnoiseDur_postprocessing_revareva);
             break;
     }
 }
@@ -4863,7 +4569,7 @@ XnoiseDur_dealloc(XnoiseDur* self)
 {
     pyo_DEALLOC
     XnoiseDur_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -4875,6 +4581,8 @@ XnoiseDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *mintmp = NULL, *maxtmp = NULL, *x1tmp = NULL, *x2tmp = NULL, *multmp = NULL, *addtmp = NULL;
     XnoiseDur *self;
     self = (XnoiseDur *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->x1 = PyFloat_FromDouble(0.5);
     self->x2 = PyFloat_FromDouble(0.5);
@@ -4909,45 +4617,47 @@ XnoiseDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;
     self->loopLen = (pyorand() % 10) + 3;
 
-    Stream_setFunctionPtr(self->stream, XnoiseDur_compute_next_data_frame);
-    self->mode_func_ptr = XnoiseDur_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(XnoiseDur_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(XnoiseDur_setProcMode);
 
     static char *kwlist[] = {"type", "min", "max", "x1", "x2", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOOOOO", kwlist, &self->type, &mintmp, &maxtmp, &x1tmp, &x2tmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOOOOO", kwlist, &self->type, &mintmp, &maxtmp, &x1tmp, &x2tmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (x1tmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setX1", "O", x1tmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setX1", x1tmp);
     }
 
     if (x2tmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setX2", "O", x2tmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setX2", x2tmp);
     }
 
     if (mintmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMin", mintmp);
     }
 
     if (maxtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMax", maxtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     if (self->modebuffer[2] == 0)
         mi = PyFloat_AS_DOUBLE(self->min);
@@ -5044,85 +4754,39 @@ static PyMethodDef XnoiseDur_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods XnoiseDur_as_number =
-{
-    (binaryfunc)XnoiseDur_add,                         /*nb_add*/
-    (binaryfunc)XnoiseDur_sub,                         /*nb_subtract*/
-    (binaryfunc)XnoiseDur_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)XnoiseDur_inplace_add,                 /*inplace_add*/
-    (binaryfunc)XnoiseDur_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)XnoiseDur_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)XnoiseDur_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)XnoiseDur_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot XnoiseDurType_slots[] = {
+    {Py_tp_dealloc, XnoiseDur_dealloc},
+    {Py_tp_doc, "XnoiseDur objects. Generates a random value and uses this value as time base for the next generation."},
+    {Py_tp_traverse, XnoiseDur_traverse},
+    {Py_tp_clear, XnoiseDur_clear},
+    {Py_tp_methods, XnoiseDur_methods},
+    {Py_tp_members, XnoiseDur_members},
+    {Py_tp_new, XnoiseDur_new},
+    {Py_nb_add, XnoiseDur_add},
+    {Py_nb_subtract, XnoiseDur_sub},
+    {Py_nb_multiply, XnoiseDur_multiply},
+    {Py_nb_true_divide, XnoiseDur_div},
+    {Py_nb_inplace_add, XnoiseDur_inplace_add},
+    {Py_nb_inplace_subtract, XnoiseDur_inplace_sub},
+    {Py_nb_inplace_multiply, XnoiseDur_inplace_multiply},
+    {Py_nb_inplace_true_divide, XnoiseDur_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject XnoiseDurType =
+static PyType_Spec XnoiseDurType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.XnoiseDur_base",                                   /*tp_name*/
-    sizeof(XnoiseDur),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)XnoiseDur_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    &XnoiseDur_as_number,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "XnoiseDur objects. Generates a random value and uses this value as time base for the next generation.",           /* tp_doc */
-    (traverseproc)XnoiseDur_traverse,                  /* tp_traverse */
-    (inquiry)XnoiseDur_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    XnoiseDur_methods,                                 /* tp_methods */
-    XnoiseDur_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    XnoiseDur_new,                                     /* tp_new */
+    "_pyo.XnoiseDur_base",
+    sizeof(XnoiseDur),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    XnoiseDurType_slots
 };
+
+PyTypeObject *
+PyoCreateXnoiseDurType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &XnoiseDurType_spec, NULL);
+}
 
 /****************/
 /****** Urn *****/
@@ -5264,50 +4928,50 @@ Urn_setProcMode(Urn *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Urn_generate_i;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Urn_generate_i);
             break;
 
         case 1:
-            self->proc_func_ptr = Urn_generate_a;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Urn_generate_a);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Urn_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Urn_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Urn_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Urn_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Urn_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Urn_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Urn_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Urn_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Urn_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Urn_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Urn_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Urn_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Urn_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Urn_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Urn_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Urn_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Urn_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Urn_postprocessing_revareva);
             break;
     }
 }
@@ -5343,7 +5007,7 @@ Urn_dealloc(Urn* self)
     PyMem_RawFree(self->trigsBuffer);
     Urn_clear(self);
     Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -5354,6 +5018,8 @@ Urn_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *freqtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Urn *self;
     self = (Urn *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(1.);
     self->max = 100;
@@ -5366,30 +5032,32 @@ Urn_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[2] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Urn_compute_next_data_frame);
-    self->mode_func_ptr = Urn_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Urn_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Urn_setProcMode);
 
     static char *kwlist[] = {"max", "freq", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOO", kwlist, &self->max, &freqtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOO", kwlist, &self->max, &freqtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->trigsBuffer = (MYFLT *)PyMem_RawRealloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
@@ -5398,7 +5066,7 @@ Urn_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->trigsBuffer[i] = 0.0;
     }
 
-    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
+    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGGER_STREAM), NULL);
     TriggerStream_setData(self->trig_stream, self->trigsBuffer);
 
     Urn_reset(self);
@@ -5472,85 +5140,39 @@ static PyMethodDef Urn_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Urn_as_number =
-{
-    (binaryfunc)Urn_add,                         /*nb_add*/
-    (binaryfunc)Urn_sub,                         /*nb_subtract*/
-    (binaryfunc)Urn_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)Urn_inplace_add,                 /*inplace_add*/
-    (binaryfunc)Urn_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)Urn_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)Urn_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)Urn_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot UrnType_slots[] = {
+    {Py_tp_dealloc, Urn_dealloc},
+    {Py_tp_doc, "Urn objects. Periodically generates a new integer random value without repetition."},
+    {Py_tp_traverse, Urn_traverse},
+    {Py_tp_clear, Urn_clear},
+    {Py_tp_methods, Urn_methods},
+    {Py_tp_members, Urn_members},
+    {Py_tp_new, Urn_new},
+    {Py_nb_add, Urn_add},
+    {Py_nb_subtract, Urn_sub},
+    {Py_nb_multiply, Urn_multiply},
+    {Py_nb_true_divide, Urn_div},
+    {Py_nb_inplace_add, Urn_inplace_add},
+    {Py_nb_inplace_subtract, Urn_inplace_sub},
+    {Py_nb_inplace_multiply, Urn_inplace_multiply},
+    {Py_nb_inplace_true_divide, Urn_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject UrnType =
+static PyType_Spec UrnType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Urn_base",                                   /*tp_name*/
-    sizeof(Urn),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)Urn_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    &Urn_as_number,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Urn objects. Periodically generates a new integer random value without repetition.",           /* tp_doc */
-    (traverseproc)Urn_traverse,                  /* tp_traverse */
-    (inquiry)Urn_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    Urn_methods,                                 /* tp_methods */
-    Urn_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    Urn_new,                                     /* tp_new */
+    "_pyo.Urn_base",
+    sizeof(Urn),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    UrnType_slots
 };
+
+PyTypeObject *
+PyoCreateUrnType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &UrnType_spec, NULL);
+}
 
 /****************/
 /**** LogiMap ***/
@@ -5704,58 +5326,58 @@ LogiMap_setProcMode(LogiMap *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = LogiMap_generate_ii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(LogiMap_generate_ii);
             break;
 
         case 1:
-            self->proc_func_ptr = LogiMap_generate_ai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(LogiMap_generate_ai);
             break;
 
         case 10:
-            self->proc_func_ptr = LogiMap_generate_ia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(LogiMap_generate_ia);
             break;
 
         case 11:
-            self->proc_func_ptr = LogiMap_generate_aa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(LogiMap_generate_aa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = LogiMap_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LogiMap_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = LogiMap_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LogiMap_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = LogiMap_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LogiMap_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = LogiMap_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LogiMap_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = LogiMap_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LogiMap_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = LogiMap_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LogiMap_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = LogiMap_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LogiMap_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = LogiMap_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LogiMap_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = LogiMap_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(LogiMap_postprocessing_revareva);
             break;
     }
 }
@@ -5790,7 +5412,7 @@ LogiMap_dealloc(LogiMap* self)
 {
     pyo_DEALLOC
     LogiMap_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -5802,6 +5424,8 @@ LogiMap_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *chaostmp = NULL, *freqtmp = NULL, *multmp = NULL, *addtmp = NULL;
     LogiMap *self;
     self = (LogiMap *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chaos = PyFloat_FromDouble(0.6);
     self->freq = PyFloat_FromDouble(1.);
@@ -5812,35 +5436,37 @@ LogiMap_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[3] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, LogiMap_compute_next_data_frame);
-    self->mode_func_ptr = LogiMap_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(LogiMap_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(LogiMap_setProcMode);
 
     static char *kwlist[] = {"chaos", "freq", "init", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OOFOO, kwlist, &chaostmp, &freqtmp, &init, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OOFOO, kwlist, &chaostmp, &freqtmp, &init, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (chaostmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setChaos", "O", chaostmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setChaos", chaostmp);
     }
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     if (init <= 0)
         init = 0.001;
@@ -5908,82 +5534,36 @@ static PyMethodDef LogiMap_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods LogiMap_as_number =
-{
-    (binaryfunc)LogiMap_add,                         /*nb_add*/
-    (binaryfunc)LogiMap_sub,                         /*nb_subtract*/
-    (binaryfunc)LogiMap_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)LogiMap_inplace_add,                 /*inplace_add*/
-    (binaryfunc)LogiMap_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)LogiMap_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)LogiMap_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)LogiMap_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot LogiMapType_slots[] = {
+    {Py_tp_dealloc, LogiMap_dealloc},
+    {Py_tp_doc, "LogiMap objects. Random generator based on the logistic equation."},
+    {Py_tp_traverse, LogiMap_traverse},
+    {Py_tp_clear, LogiMap_clear},
+    {Py_tp_methods, LogiMap_methods},
+    {Py_tp_members, LogiMap_members},
+    {Py_tp_new, LogiMap_new},
+    {Py_nb_add, LogiMap_add},
+    {Py_nb_subtract, LogiMap_sub},
+    {Py_nb_multiply, LogiMap_multiply},
+    {Py_nb_true_divide, LogiMap_div},
+    {Py_nb_inplace_add, LogiMap_inplace_add},
+    {Py_nb_inplace_subtract, LogiMap_inplace_sub},
+    {Py_nb_inplace_multiply, LogiMap_inplace_multiply},
+    {Py_nb_inplace_true_divide, LogiMap_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject LogiMapType =
+static PyType_Spec LogiMapType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.LogiMap_base",                                   /*tp_name*/
-    sizeof(LogiMap),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)LogiMap_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    &LogiMap_as_number,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "LogiMap objects. Random generator based on the logistic equation.",           /* tp_doc */
-    (traverseproc)LogiMap_traverse,                  /* tp_traverse */
-    (inquiry)LogiMap_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    LogiMap_methods,                                 /* tp_methods */
-    LogiMap_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    LogiMap_new,                                     /* tp_new */
+    "_pyo.LogiMap_base",
+    sizeof(LogiMap),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    LogiMapType_slots
 };
+
+PyTypeObject *
+PyoCreateLogiMapType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &LogiMapType_spec, NULL);
+}

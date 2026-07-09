@@ -224,19 +224,19 @@ Panner_setProcMode(Panner *self)
         switch (procmode)
         {
             case 0:
-                self->proc_func_ptr = Panner_splitter_ii;
+                self->proc_func_ptr = PYO_AUDIO_CALLBACK(Panner_splitter_ii);
                 break;
 
             case 1:
-                self->proc_func_ptr = Panner_splitter_ai;
+                self->proc_func_ptr = PYO_AUDIO_CALLBACK(Panner_splitter_ai);
                 break;
 
             case 10:
-                self->proc_func_ptr = Panner_splitter_ia;
+                self->proc_func_ptr = PYO_AUDIO_CALLBACK(Panner_splitter_ia);
                 break;
 
             case 11:
-                self->proc_func_ptr = Panner_splitter_aa;
+                self->proc_func_ptr = PYO_AUDIO_CALLBACK(Panner_splitter_aa);
                 break;
         }
     }
@@ -245,17 +245,17 @@ Panner_setProcMode(Panner *self)
         switch (self->modebuffer[0])
         {
             case 0:
-                self->proc_func_ptr = Panner_splitter_st_i;
+                self->proc_func_ptr = PYO_AUDIO_CALLBACK(Panner_splitter_st_i);
                 break;
 
             case 1:
-                self->proc_func_ptr = Panner_splitter_st_a;
+                self->proc_func_ptr = PYO_AUDIO_CALLBACK(Panner_splitter_st_a);
                 break;
         }
     }
     else if (self->chnls == 1)
     {
-        self->proc_func_ptr = Panner_splitter_thru;
+        self->proc_func_ptr = PYO_AUDIO_CALLBACK(Panner_splitter_thru);
     }
 }
 
@@ -291,7 +291,7 @@ Panner_dealloc(Panner* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer_streams);
     Panner_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -302,10 +302,12 @@ Panner_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *pantmp = NULL, *spreadtmp = NULL;
     Panner *self;
     self = (Panner *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Panner_compute_next_data_frame);
-    self->mode_func_ptr = Panner_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Panner_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Panner_setProcMode);
 
     self->pan = PyFloat_FromDouble(0.5);
     self->spread = PyFloat_FromDouble(0.5);
@@ -315,22 +317,24 @@ Panner_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "outs", "pan", "spread", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &inputtmp, &self->chnls, &pantmp, &spreadtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &inputtmp, &self->chnls, &pantmp, &spreadtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
     if (pantmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setPan", "O", pantmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setPan", pantmp);
     }
 
     if (spreadtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setSpread", "O", spreadtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setSpread", spreadtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     if (self->chnls < 1)
         self->chnls = 1;
@@ -372,47 +376,31 @@ static PyMethodDef Panner_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject PannerType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Panner_base",                                   /*tp_name*/
-    sizeof(Panner),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)Panner_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Panner main objects.",           /* tp_doc */
-    (traverseproc)Panner_traverse,                  /* tp_traverse */
-    (inquiry)Panner_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    Panner_methods,                                 /* tp_methods */
-    Panner_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    Panner_new,                                     /* tp_new */
+static PyType_Slot PannerType_slots[] = {
+    {Py_tp_dealloc, Panner_dealloc},
+    {Py_tp_doc, "Panner main objects."},
+    {Py_tp_traverse, Panner_traverse},
+    {Py_tp_clear, Panner_clear},
+    {Py_tp_methods, Panner_methods},
+    {Py_tp_members, Panner_members},
+    {Py_tp_new, Panner_new},
+    {0, NULL}
 };
+
+static PyType_Spec PannerType_spec =
+{
+    "_pyo.Panner_base",
+    sizeof(Panner),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    PannerType_slots
+};
+
+PyTypeObject *
+PyoCreatePannerType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &PannerType_spec, NULL);
+}
 
 /************************************************************************************************/
 /* Pan streamer object */
@@ -444,39 +432,39 @@ Pan_setProcMode(Pan *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Pan_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pan_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Pan_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pan_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Pan_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pan_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Pan_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pan_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Pan_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pan_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Pan_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pan_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Pan_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pan_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Pan_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pan_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Pan_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Pan_postprocessing_revareva);
             break;
     }
 }
@@ -518,7 +506,7 @@ Pan_dealloc(Pan* self)
 {
     pyo_DEALLOC
     Pan_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -529,33 +517,37 @@ Pan_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     Pan *self;
     self = (Pan *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Pan_compute_next_data_frame);
-    self->mode_func_ptr = Pan_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Pan_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Pan_setProcMode);
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainSplitter = (Panner *)maintmp;
     Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -605,85 +597,39 @@ static PyMethodDef Pan_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Pan_as_number =
-{
-    (binaryfunc)Pan_add,                      /*nb_add*/
-    (binaryfunc)Pan_sub,                 /*nb_subtract*/
-    (binaryfunc)Pan_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Pan_inplace_add,              /*inplace_add*/
-    (binaryfunc)Pan_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Pan_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Pan_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Pan_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot PanType_slots[] = {
+    {Py_tp_dealloc, Pan_dealloc},
+    {Py_tp_doc, "Pan objects. Reads one band from a Panner."},
+    {Py_tp_traverse, Pan_traverse},
+    {Py_tp_clear, Pan_clear},
+    {Py_tp_methods, Pan_methods},
+    {Py_tp_members, Pan_members},
+    {Py_tp_new, Pan_new},
+    {Py_nb_add, Pan_add},
+    {Py_nb_subtract, Pan_sub},
+    {Py_nb_multiply, Pan_multiply},
+    {Py_nb_true_divide, Pan_div},
+    {Py_nb_inplace_add, Pan_inplace_add},
+    {Py_nb_inplace_subtract, Pan_inplace_sub},
+    {Py_nb_inplace_multiply, Pan_inplace_multiply},
+    {Py_nb_inplace_true_divide, Pan_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject PanType =
+static PyType_Spec PanType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Pan_base",         /*tp_name*/
-    sizeof(Pan),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Pan_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Pan_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "Pan objects. Reads one band from a Panner.",           /* tp_doc */
-    (traverseproc)Pan_traverse,   /* tp_traverse */
-    (inquiry)Pan_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Pan_methods,             /* tp_methods */
-    Pan_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Pan_new,                 /* tp_new */
+    "_pyo.Pan_base",
+    sizeof(Pan),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    PanType_slots
 };
+
+PyTypeObject *
+PyoCreatePanType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &PanType_spec, NULL);
+}
 
 /*********************/
 /*** Simple panner ***/
@@ -863,11 +809,11 @@ SPanner_setProcMode(SPanner *self)
         switch (procmode)
         {
             case 0:
-                self->proc_func_ptr = SPanner_splitter_i;
+                self->proc_func_ptr = PYO_AUDIO_CALLBACK(SPanner_splitter_i);
                 break;
 
             case 1:
-                self->proc_func_ptr = SPanner_splitter_a;
+                self->proc_func_ptr = PYO_AUDIO_CALLBACK(SPanner_splitter_a);
                 break;
         }
     }
@@ -876,17 +822,17 @@ SPanner_setProcMode(SPanner *self)
         switch (self->modebuffer[0])
         {
             case 0:
-                self->proc_func_ptr = SPanner_splitter_st_i;
+                self->proc_func_ptr = PYO_AUDIO_CALLBACK(SPanner_splitter_st_i);
                 break;
 
             case 1:
-                self->proc_func_ptr = SPanner_splitter_st_a;
+                self->proc_func_ptr = PYO_AUDIO_CALLBACK(SPanner_splitter_st_a);
                 break;
         }
     }
     else if (self->chnls == 1)
     {
-        self->proc_func_ptr = SPanner_splitter_thru;
+        self->proc_func_ptr = PYO_AUDIO_CALLBACK(SPanner_splitter_thru);
     }
 }
 
@@ -920,7 +866,7 @@ SPanner_dealloc(SPanner* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer_streams);
     SPanner_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -931,10 +877,12 @@ SPanner_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *pantmp = NULL;
     SPanner *self;
     self = (SPanner *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, SPanner_compute_next_data_frame);
-    self->mode_func_ptr = SPanner_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(SPanner_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(SPanner_setProcMode);
 
     self->pan = PyFloat_FromDouble(0.5);
     self->chnls = 2;
@@ -944,17 +892,19 @@ SPanner_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "outs", "pan", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iO", kwlist, &inputtmp, &self->chnls, &pantmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iO", kwlist, &inputtmp, &self->chnls, &pantmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
     if (pantmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setPan", "O", pantmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setPan", pantmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     if (self->chnls < 1)
         self->chnls = 1;
@@ -1000,47 +950,31 @@ static PyMethodDef SPanner_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject SPannerType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.SPanner_base",                                   /*tp_name*/
-    sizeof(SPanner),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)SPanner_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "SPanner main objects. Simple equal power panner",           /* tp_doc */
-    (traverseproc)SPanner_traverse,                  /* tp_traverse */
-    (inquiry)SPanner_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    SPanner_methods,                                 /* tp_methods */
-    SPanner_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    SPanner_new,                                     /* tp_new */
+static PyType_Slot SPannerType_slots[] = {
+    {Py_tp_dealloc, SPanner_dealloc},
+    {Py_tp_doc, "SPanner main objects. Simple equal power panner"},
+    {Py_tp_traverse, SPanner_traverse},
+    {Py_tp_clear, SPanner_clear},
+    {Py_tp_methods, SPanner_methods},
+    {Py_tp_members, SPanner_members},
+    {Py_tp_new, SPanner_new},
+    {0, NULL}
 };
+
+static PyType_Spec SPannerType_spec =
+{
+    "_pyo.SPanner_base",
+    sizeof(SPanner),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    SPannerType_slots
+};
+
+PyTypeObject *
+PyoCreateSPannerType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &SPannerType_spec, NULL);
+}
 
 /************************************************************************************************/
 /* SSPan streamer object */
@@ -1072,39 +1006,39 @@ SPan_setProcMode(SPan *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = SPan_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SPan_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = SPan_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SPan_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = SPan_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SPan_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = SPan_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SPan_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = SPan_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SPan_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = SPan_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SPan_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = SPan_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SPan_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = SPan_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SPan_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = SPan_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(SPan_postprocessing_revareva);
             break;
     }
 }
@@ -1146,7 +1080,7 @@ SPan_dealloc(SPan* self)
 {
     pyo_DEALLOC
     SPan_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1157,33 +1091,37 @@ SPan_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     SPan *self;
     self = (SPan *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, SPan_compute_next_data_frame);
-    self->mode_func_ptr = SPan_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(SPan_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(SPan_setProcMode);
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainSplitter = (SPanner *)maintmp;
     Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -1233,85 +1171,39 @@ static PyMethodDef SPan_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods SPan_as_number =
-{
-    (binaryfunc)SPan_add,                      /*nb_add*/
-    (binaryfunc)SPan_sub,                 /*nb_subtract*/
-    (binaryfunc)SPan_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)SPan_inplace_add,              /*inplace_add*/
-    (binaryfunc)SPan_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)SPan_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)SPan_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)SPan_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot SPanType_slots[] = {
+    {Py_tp_dealloc, SPan_dealloc},
+    {Py_tp_doc, "SPan objects. Reads one band from a SPanner."},
+    {Py_tp_traverse, SPan_traverse},
+    {Py_tp_clear, SPan_clear},
+    {Py_tp_methods, SPan_methods},
+    {Py_tp_members, SPan_members},
+    {Py_tp_new, SPan_new},
+    {Py_nb_add, SPan_add},
+    {Py_nb_subtract, SPan_sub},
+    {Py_nb_multiply, SPan_multiply},
+    {Py_nb_true_divide, SPan_div},
+    {Py_nb_inplace_add, SPan_inplace_add},
+    {Py_nb_inplace_subtract, SPan_inplace_sub},
+    {Py_nb_inplace_multiply, SPan_inplace_multiply},
+    {Py_nb_inplace_true_divide, SPan_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject SPanType =
+static PyType_Spec SPanType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.SPan_base",         /*tp_name*/
-    sizeof(SPan),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)SPan_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &SPan_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "SPan objects. Reads one band from a SPanner.",           /* tp_doc */
-    (traverseproc)SPan_traverse,   /* tp_traverse */
-    (inquiry)SPan_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    SPan_methods,             /* tp_methods */
-    SPan_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    SPan_new,                 /* tp_new */
+    "_pyo.SPan_base",
+    sizeof(SPan),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    SPanType_slots
 };
+
+PyTypeObject *
+PyoCreateSPanType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &SPanType_spec, NULL);
+}
 
 /*********************/
 /***** Switcher ******/
@@ -1432,11 +1324,11 @@ Switcher_setProcMode(Switcher *self)
     switch (self->modebuffer[0])
     {
         case 0:
-            self->proc_func_ptr = Switcher_splitter_i;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Switcher_splitter_i);
             break;
 
         case 1:
-            self->proc_func_ptr = Switcher_splitter_a;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Switcher_splitter_a);
             break;
     }
 }
@@ -1471,7 +1363,7 @@ Switcher_dealloc(Switcher* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer_streams);
     Switcher_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1482,10 +1374,12 @@ Switcher_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *voicetmp = NULL;
     Switcher *self;
     self = (Switcher *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Switcher_compute_next_data_frame);
-    self->mode_func_ptr = Switcher_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Switcher_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Switcher_setProcMode);
 
     self->voice = PyFloat_FromDouble(0.0);
     self->chnls = 2;
@@ -1495,17 +1389,19 @@ Switcher_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "outs", "voice", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iO", kwlist, &inputtmp, &self->chnls, &voicetmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iO", kwlist, &inputtmp, &self->chnls, &voicetmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
     if (voicetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setVoice", "O", voicetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setVoice", voicetmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->buffer_streams = (MYFLT *)PyMem_RawRealloc(self->buffer_streams, self->chnls * self->bufsize * sizeof(MYFLT));
 
@@ -1548,47 +1444,31 @@ static PyMethodDef Switcher_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject SwitcherType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Switcher_base",                                   /*tp_name*/
-    sizeof(Switcher),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)Switcher_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Switcher main objects. Simple equal power voicener",           /* tp_doc */
-    (traverseproc)Switcher_traverse,                  /* tp_traverse */
-    (inquiry)Switcher_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    Switcher_methods,                                 /* tp_methods */
-    Switcher_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    Switcher_new,                                     /* tp_new */
+static PyType_Slot SwitcherType_slots[] = {
+    {Py_tp_dealloc, Switcher_dealloc},
+    {Py_tp_doc, "Switcher main objects. Simple equal power voicener"},
+    {Py_tp_traverse, Switcher_traverse},
+    {Py_tp_clear, Switcher_clear},
+    {Py_tp_methods, Switcher_methods},
+    {Py_tp_members, Switcher_members},
+    {Py_tp_new, Switcher_new},
+    {0, NULL}
 };
+
+static PyType_Spec SwitcherType_spec =
+{
+    "_pyo.Switcher_base",
+    sizeof(Switcher),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    SwitcherType_slots
+};
+
+PyTypeObject *
+PyoCreateSwitcherType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &SwitcherType_spec, NULL);
+}
 
 /************************************************************************************************/
 /* Switch streamer object */
@@ -1620,39 +1500,39 @@ Switch_setProcMode(Switch *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Switch_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Switch_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Switch_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Switch_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Switch_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Switch_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Switch_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Switch_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Switch_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Switch_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Switch_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Switch_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Switch_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Switch_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Switch_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Switch_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Switch_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Switch_postprocessing_revareva);
             break;
     }
 }
@@ -1694,7 +1574,7 @@ Switch_dealloc(Switch* self)
 {
     pyo_DEALLOC
     Switch_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1705,33 +1585,37 @@ Switch_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     Switch *self;
     self = (Switch *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Switch_compute_next_data_frame);
-    self->mode_func_ptr = Switch_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Switch_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Switch_setProcMode);
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainSplitter = (Switcher *)maintmp;
     Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -1781,85 +1665,39 @@ static PyMethodDef Switch_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Switch_as_number =
-{
-    (binaryfunc)Switch_add,                      /*nb_add*/
-    (binaryfunc)Switch_sub,                 /*nb_subtract*/
-    (binaryfunc)Switch_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Switch_inplace_add,              /*inplace_add*/
-    (binaryfunc)Switch_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Switch_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Switch_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Switch_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot SwitchType_slots[] = {
+    {Py_tp_dealloc, Switch_dealloc},
+    {Py_tp_doc, "Switch objects. Reads one band from a Switchner."},
+    {Py_tp_traverse, Switch_traverse},
+    {Py_tp_clear, Switch_clear},
+    {Py_tp_methods, Switch_methods},
+    {Py_tp_members, Switch_members},
+    {Py_tp_new, Switch_new},
+    {Py_nb_add, Switch_add},
+    {Py_nb_subtract, Switch_sub},
+    {Py_nb_multiply, Switch_multiply},
+    {Py_nb_true_divide, Switch_div},
+    {Py_nb_inplace_add, Switch_inplace_add},
+    {Py_nb_inplace_subtract, Switch_inplace_sub},
+    {Py_nb_inplace_multiply, Switch_inplace_multiply},
+    {Py_nb_inplace_true_divide, Switch_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject SwitchType =
+static PyType_Spec SwitchType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Switch_base",         /*tp_name*/
-    sizeof(Switch),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Switch_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Switch_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "Switch objects. Reads one band from a Switchner.",           /* tp_doc */
-    (traverseproc)Switch_traverse,   /* tp_traverse */
-    (inquiry)Switch_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Switch_methods,             /* tp_methods */
-    Switch_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Switch_new,                 /* tp_new */
+    "_pyo.Switch_base",
+    sizeof(Switch),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    SwitchType_slots
 };
+
+PyTypeObject *
+PyoCreateSwitchType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &SwitchType_spec, NULL);
+}
 
 /****************/
 /**** VoiceManager *****/
@@ -1892,7 +1730,7 @@ VoiceManager_generate(VoiceManager *self)
         {
             for (j = 0; j < self->maxVoices; j++)
             {
-                trig_stream = (Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->trigger_streams, j), "_getStream", NULL);
+                trig_stream = (Stream *)PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->trigger_streams, j), "_getStream", NULL);
                 if (Stream_getData(trig_stream)[i] == 1.0)
                     self->voices[j] = 0;
             }
@@ -1929,44 +1767,44 @@ VoiceManager_setProcMode(VoiceManager *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = VoiceManager_generate;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(VoiceManager_generate);
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = VoiceManager_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(VoiceManager_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = VoiceManager_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(VoiceManager_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = VoiceManager_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(VoiceManager_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = VoiceManager_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(VoiceManager_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = VoiceManager_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(VoiceManager_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = VoiceManager_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(VoiceManager_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = VoiceManager_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(VoiceManager_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = VoiceManager_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(VoiceManager_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = VoiceManager_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(VoiceManager_postprocessing_revareva);
             break;
     }
 }
@@ -2005,7 +1843,7 @@ VoiceManager_dealloc(VoiceManager* self)
         PyMem_RawFree(self->voices);
     }
 
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2016,6 +1854,8 @@ VoiceManager_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *triggerstmp = NULL, *multmp = NULL, *addtmp = NULL;
     VoiceManager *self;
     self = (VoiceManager *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->voices = NULL;
     self->maxVoices = 0;
@@ -2023,32 +1863,34 @@ VoiceManager_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, VoiceManager_compute_next_data_frame);
-    self->mode_func_ptr = VoiceManager_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(VoiceManager_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(VoiceManager_setProcMode);
 
     static char *kwlist[] = {"input", "triggers", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &triggerstmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &triggerstmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
     if (triggerstmp && triggerstmp != Py_None)
     {
-        PyObject_CallMethod((PyObject *)self, "setTriggers", "O", triggerstmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setTriggers", triggerstmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -2125,85 +1967,39 @@ static PyMethodDef VoiceManager_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods VoiceManager_as_number =
-{
-    (binaryfunc)VoiceManager_add,                         /*nb_add*/
-    (binaryfunc)VoiceManager_sub,                         /*nb_subtract*/
-    (binaryfunc)VoiceManager_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)VoiceManager_inplace_add,                 /*inplace_add*/
-    (binaryfunc)VoiceManager_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)VoiceManager_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)VoiceManager_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)VoiceManager_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot VoiceManagerType_slots[] = {
+    {Py_tp_dealloc, VoiceManager_dealloc},
+    {Py_tp_doc, "VoiceManager objects. Return the first free voices when receiving a trigger signal."},
+    {Py_tp_traverse, VoiceManager_traverse},
+    {Py_tp_clear, VoiceManager_clear},
+    {Py_tp_methods, VoiceManager_methods},
+    {Py_tp_members, VoiceManager_members},
+    {Py_tp_new, VoiceManager_new},
+    {Py_nb_add, VoiceManager_add},
+    {Py_nb_subtract, VoiceManager_sub},
+    {Py_nb_multiply, VoiceManager_multiply},
+    {Py_nb_true_divide, VoiceManager_div},
+    {Py_nb_inplace_add, VoiceManager_inplace_add},
+    {Py_nb_inplace_subtract, VoiceManager_inplace_sub},
+    {Py_nb_inplace_multiply, VoiceManager_inplace_multiply},
+    {Py_nb_inplace_true_divide, VoiceManager_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject VoiceManagerType =
+static PyType_Spec VoiceManagerType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.VoiceManager_base",                                   /*tp_name*/
-    sizeof(VoiceManager),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)VoiceManager_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    &VoiceManager_as_number,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "VoiceManager objects. Return the first free voices when receiving a trigger signal.",           /* tp_doc */
-    (traverseproc)VoiceManager_traverse,                  /* tp_traverse */
-    (inquiry)VoiceManager_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    VoiceManager_methods,                                 /* tp_methods */
-    VoiceManager_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    VoiceManager_new,                                     /* tp_new */
+    "_pyo.VoiceManager_base",
+    sizeof(VoiceManager),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    VoiceManagerType_slots
 };
+
+PyTypeObject *
+PyoCreateVoiceManagerType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &VoiceManagerType_spec, NULL);
+}
 
 /****************/
 /**** Mixer *****/
@@ -2243,7 +2039,9 @@ Mixer_generate(Mixer *self)
     for (j = 0; j < num; j++)
     {
         key = PyList_GetItem(keys, j);
-        MYFLT *st = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyDict_GetItem(self->inputs, key), "_getStream", NULL));
+        PyObject *streamobj = PYO_CALL_METHOD_RET((PyObject *)PyDict_GetItem(self->inputs, key), "_getStream", NULL);
+        MYFLT *st = Stream_getData((Stream *)streamobj);
+        Py_DECREF(streamobj);
         list_of_gains = PyDict_GetItem(self->gains, key);
         list_of_last_gains = PyDict_GetItem(self->lastGains, key);
         list_of_current_gains = PyDict_GetItem(self->currentGains, key);
@@ -2299,7 +2097,7 @@ Mixer_getSamplesBuffer(Mixer *self)
 static void
 Mixer_setProcMode(Mixer *self)
 {
-    self->proc_func_ptr = Mixer_generate;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(Mixer_generate);
 }
 
 static void
@@ -2340,7 +2138,7 @@ Mixer_dealloc(Mixer* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer_streams);
     Mixer_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2351,6 +2149,8 @@ Mixer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *timetmp = NULL;
     Mixer *self;
     self = (Mixer *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->inputs = PyDict_New();
     self->gains = PyDict_New();
@@ -2363,20 +2163,22 @@ Mixer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->timeStep = (long)(self->time * self->sr);
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Mixer_compute_next_data_frame);
-    self->mode_func_ptr = Mixer_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Mixer_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Mixer_setProcMode);
 
     static char *kwlist[] = {"outs", "time", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iO", kwlist, &self->num_outs, &timetmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iO", kwlist, &self->num_outs, &timetmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (timetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setTime", timetmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->buffer_streams = (MYFLT *)PyMem_RawRealloc(self->buffer_streams, self->num_outs * self->bufsize * sizeof(MYFLT));
 
@@ -2545,47 +2347,31 @@ static PyMethodDef Mixer_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject MixerType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Mixer_base",                                   /*tp_name*/
-    sizeof(Mixer),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)Mixer_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Mixer objects. Mixes multiple inputs toward multiple outputs.",           /* tp_doc */
-    (traverseproc)Mixer_traverse,                  /* tp_traverse */
-    (inquiry)Mixer_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    Mixer_methods,                                 /* tp_methods */
-    Mixer_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    Mixer_new,                                     /* tp_new */
+static PyType_Slot MixerType_slots[] = {
+    {Py_tp_dealloc, Mixer_dealloc},
+    {Py_tp_doc, "Mixer objects. Mixes multiple inputs toward multiple outputs."},
+    {Py_tp_traverse, Mixer_traverse},
+    {Py_tp_clear, Mixer_clear},
+    {Py_tp_methods, Mixer_methods},
+    {Py_tp_members, Mixer_members},
+    {Py_tp_new, Mixer_new},
+    {0, NULL}
 };
+
+static PyType_Spec MixerType_spec =
+{
+    "_pyo.Mixer_base",
+    sizeof(Mixer),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MixerType_slots
+};
+
+PyTypeObject *
+PyoCreateMixerType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MixerType_spec, NULL);
+}
 
 /************************************************************************************************/
 /* MixerVoice streamer object */
@@ -2617,39 +2403,39 @@ MixerVoice_setProcMode(MixerVoice *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = MixerVoice_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MixerVoice_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = MixerVoice_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MixerVoice_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = MixerVoice_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MixerVoice_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = MixerVoice_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MixerVoice_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = MixerVoice_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MixerVoice_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = MixerVoice_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MixerVoice_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = MixerVoice_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MixerVoice_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = MixerVoice_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MixerVoice_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = MixerVoice_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MixerVoice_postprocessing_revareva);
             break;
     }
 }
@@ -2691,7 +2477,7 @@ MixerVoice_dealloc(MixerVoice* self)
 {
     pyo_DEALLOC
     MixerVoice_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2702,33 +2488,37 @@ MixerVoice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     MixerVoice *self;
     self = (MixerVoice *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, MixerVoice_compute_next_data_frame);
-    self->mode_func_ptr = MixerVoice_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(MixerVoice_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(MixerVoice_setProcMode);
 
     static char *kwlist[] = {"mainMixer", "chnl", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainMixer = (Mixer *)maintmp;
     Py_INCREF(self->mainMixer);
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     return (PyObject *)self;
 }
@@ -2776,85 +2566,39 @@ static PyMethodDef MixerVoice_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods MixerVoice_as_number =
-{
-    (binaryfunc)MixerVoice_add,                      /*nb_add*/
-    (binaryfunc)MixerVoice_sub,                 /*nb_subtract*/
-    (binaryfunc)MixerVoice_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)MixerVoice_inplace_add,              /*inplace_add*/
-    (binaryfunc)MixerVoice_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)MixerVoice_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)MixerVoice_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)MixerVoice_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot MixerVoiceType_slots[] = {
+    {Py_tp_dealloc, MixerVoice_dealloc},
+    {Py_tp_doc, "MixerVoice objects. Reads one band from a Mixer."},
+    {Py_tp_traverse, MixerVoice_traverse},
+    {Py_tp_clear, MixerVoice_clear},
+    {Py_tp_methods, MixerVoice_methods},
+    {Py_tp_members, MixerVoice_members},
+    {Py_tp_new, MixerVoice_new},
+    {Py_nb_add, MixerVoice_add},
+    {Py_nb_subtract, MixerVoice_sub},
+    {Py_nb_multiply, MixerVoice_multiply},
+    {Py_nb_true_divide, MixerVoice_div},
+    {Py_nb_inplace_add, MixerVoice_inplace_add},
+    {Py_nb_inplace_subtract, MixerVoice_inplace_sub},
+    {Py_nb_inplace_multiply, MixerVoice_inplace_multiply},
+    {Py_nb_inplace_true_divide, MixerVoice_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject MixerVoiceType =
+static PyType_Spec MixerVoiceType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.MixerVoice_base",         /*tp_name*/
-    sizeof(MixerVoice),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)MixerVoice_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &MixerVoice_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "MixerVoice objects. Reads one band from a Mixer.",           /* tp_doc */
-    (traverseproc)MixerVoice_traverse,   /* tp_traverse */
-    (inquiry)MixerVoice_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    MixerVoice_methods,             /* tp_methods */
-    MixerVoice_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    MixerVoice_new,                 /* tp_new */
+    "_pyo.MixerVoice_base",
+    sizeof(MixerVoice),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MixerVoiceType_slots
 };
+
+PyTypeObject *
+PyoCreateMixerVoiceType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MixerVoiceType_spec, NULL);
+}
 
 /****************/
 /**** Selector *****/
@@ -2899,8 +2643,12 @@ Selector_generate_i(Selector *self)
         j--;
     }
 
-    MYFLT *st1 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j1), "_getStream", NULL));
-    MYFLT *st2 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j), "_getStream", NULL));
+    PyObject *streamobj1 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->inputs, j1), "_getStream", NULL);
+    PyObject *streamobj2 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->inputs, j), "_getStream", NULL);
+    MYFLT *st1 = Stream_getData((Stream *)streamobj1);
+    MYFLT *st2 = Stream_getData((Stream *)streamobj2);
+    Py_DECREF(streamobj1);
+    Py_DECREF(streamobj2);
 
     voice = P_clip(voice - j1);
     voice1 = MYSQRT(1.0 - voice);
@@ -2927,8 +2675,12 @@ Selector_generate_lin_i(Selector *self)
         j--;
     }
 
-    MYFLT *st1 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j1), "_getStream", NULL));
-    MYFLT *st2 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j), "_getStream", NULL));
+    PyObject *streamobj1 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->inputs, j1), "_getStream", NULL);
+    PyObject *streamobj2 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->inputs, j), "_getStream", NULL);
+    MYFLT *st1 = Stream_getData((Stream *)streamobj1);
+    MYFLT *st2 = Stream_getData((Stream *)streamobj2);
+    Py_DECREF(streamobj1);
+    Py_DECREF(streamobj2);
 
     voice = P_clip(voice - j1);
 
@@ -2948,8 +2700,12 @@ Selector_generate_a(Selector *self)
 
     old_j1 = 0;
     old_j = 1;
-    st1 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, old_j1), "_getStream", NULL));
-    st2 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, old_j), "_getStream", NULL));
+    PyObject *streamobj1 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->inputs, old_j1), "_getStream", NULL);
+    PyObject *streamobj2 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->inputs, old_j), "_getStream", NULL);
+    st1 = Stream_getData((Stream *)streamobj1);
+    st2 = Stream_getData((Stream *)streamobj2);
+    Py_DECREF(streamobj1);
+    Py_DECREF(streamobj2);
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -2966,13 +2722,17 @@ Selector_generate_a(Selector *self)
 
         if (j1 != old_j1)
         {
-            st1 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j1), "_getStream", NULL));
+            streamobj1 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->inputs, j1), "_getStream", NULL);
+            st1 = Stream_getData((Stream *)streamobj1);
+            Py_DECREF(streamobj1);
             old_j1 = j1;
         }
 
         if (j != old_j)
         {
-            st2 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j), "_getStream", NULL));
+            streamobj2 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->inputs, j), "_getStream", NULL);
+            st2 = Stream_getData((Stream *)streamobj2);
+            Py_DECREF(streamobj2);
             old_j = j;
         }
 
@@ -2992,8 +2752,12 @@ Selector_generate_lin_a(Selector *self)
 
     old_j1 = 0;
     old_j = 1;
-    st1 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, old_j1), "_getStream", NULL));
-    st2 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, old_j), "_getStream", NULL));
+    PyObject *streamobj1 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->inputs, old_j1), "_getStream", NULL);
+    PyObject *streamobj2 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->inputs, old_j), "_getStream", NULL);
+    st1 = Stream_getData((Stream *)streamobj1);
+    st2 = Stream_getData((Stream *)streamobj2);
+    Py_DECREF(streamobj1);
+    Py_DECREF(streamobj2);
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -3010,13 +2774,17 @@ Selector_generate_lin_a(Selector *self)
 
         if (j1 != old_j1)
         {
-            st1 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j1), "_getStream", NULL));
+            streamobj1 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->inputs, j1), "_getStream", NULL);
+            st1 = Stream_getData((Stream *)streamobj1);
+            Py_DECREF(streamobj1);
             old_j1 = j1;
         }
 
         if (j != old_j)
         {
-            st2 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j), "_getStream", NULL));
+            streamobj2 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->inputs, j), "_getStream", NULL);
+            st2 = Stream_getData((Stream *)streamobj2);
+            Py_DECREF(streamobj2);
             old_j = j;
         }
 
@@ -3047,17 +2815,17 @@ Selector_setProcMode(Selector *self)
     {
         case 0:
             if (self->mode == 0)
-                self->proc_func_ptr = Selector_generate_i;
+                self->proc_func_ptr = PYO_AUDIO_CALLBACK(Selector_generate_i);
             else
-                self->proc_func_ptr = Selector_generate_lin_i;
+                self->proc_func_ptr = PYO_AUDIO_CALLBACK(Selector_generate_lin_i);
 
             break;
 
         case 1:
             if (self->mode == 0)
-                self->proc_func_ptr = Selector_generate_a;
+                self->proc_func_ptr = PYO_AUDIO_CALLBACK(Selector_generate_a);
             else
-                self->proc_func_ptr = Selector_generate_lin_a;
+                self->proc_func_ptr = PYO_AUDIO_CALLBACK(Selector_generate_lin_a);
 
             break;
     }
@@ -3065,39 +2833,39 @@ Selector_setProcMode(Selector *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Selector_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Selector_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Selector_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Selector_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Selector_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Selector_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Selector_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Selector_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Selector_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Selector_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Selector_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Selector_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Selector_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Selector_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Selector_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Selector_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Selector_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Selector_postprocessing_revareva);
             break;
     }
 }
@@ -3132,7 +2900,7 @@ Selector_dealloc(Selector* self)
 {
     pyo_DEALLOC
     Selector_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3143,6 +2911,8 @@ Selector_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputstmp = NULL, *voicetmp = NULL, *multmp = NULL, *addtmp = NULL;
     Selector *self;
     self = (Selector *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->voice = PyFloat_FromDouble(0.);
     self->mode = 0;
@@ -3151,35 +2921,37 @@ Selector_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[2] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Selector_compute_next_data_frame);
-    self->mode_func_ptr = Selector_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Selector_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Selector_setProcMode);
 
     static char *kwlist[] = {"inputs", "voice", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputstmp, &voicetmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputstmp, &voicetmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (inputstmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setInputs", "O", inputstmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setInputs", inputstmp);
     }
 
     if (voicetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setVoice", "O", voicetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setVoice", voicetmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -3268,83 +3040,36 @@ static PyMethodDef Selector_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Selector_as_number =
-{
-    (binaryfunc)Selector_add,                         /*nb_add*/
-    (binaryfunc)Selector_sub,                         /*nb_subtract*/
-    (binaryfunc)Selector_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)Selector_inplace_add,                 /*inplace_add*/
-    (binaryfunc)Selector_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)Selector_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)Selector_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)Selector_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot SelectorType_slots[] = {
+    {Py_tp_dealloc, Selector_dealloc},
+    {Py_tp_doc, "Selector objects. Audio interpolation between multiple inputs."},
+    {Py_tp_traverse, Selector_traverse},
+    {Py_tp_clear, Selector_clear},
+    {Py_tp_methods, Selector_methods},
+    {Py_tp_members, Selector_members},
+    {Py_tp_new, Selector_new},
+    {Py_nb_add, Selector_add},
+    {Py_nb_subtract, Selector_sub},
+    {Py_nb_multiply, Selector_multiply},
+    {Py_nb_true_divide, Selector_div},
+    {Py_nb_inplace_add, Selector_inplace_add},
+    {Py_nb_inplace_subtract, Selector_inplace_sub},
+    {Py_nb_inplace_multiply, Selector_inplace_multiply},
+    {Py_nb_inplace_true_divide, Selector_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject SelectorType =
+static PyType_Spec SelectorType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Selector_base",                                   /*tp_name*/
-    sizeof(Selector),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)Selector_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    &Selector_as_number,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Selector objects. Audio interpolation between multiple inputs.",           /* tp_doc */
-    (traverseproc)Selector_traverse,                  /* tp_traverse */
-    (inquiry)Selector_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    Selector_methods,                                 /* tp_methods */
-    Selector_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    Selector_new,                                     /* tp_new */
+    "_pyo.Selector_base",
+    sizeof(Selector),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    SelectorType_slots
 };
 
+PyTypeObject *
+PyoCreateSelectorType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &SelectorType_spec, NULL);
+}

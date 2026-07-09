@@ -72,6 +72,74 @@
             }
         },
         {
+            "label": "Compile linux minimal (single) (python-dbg)",
+            "type": "shell",
+            "command": "${config:activate_venv_d}; ${config:build_linux_minimal_d}; ${config:build_linux_wheel_d}; ${config:install_linux_d}",
+            "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
+            "label": "Compile linux debug (single, jack) (python-dbg)",
+            "type": "shell",
+            "command": "${config:activate_venv_d}; ${config:build_linux_debug_d}; ${config:build_linux_wheel_d}; ${config:install_linux_d}",
+            "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
+            "label": "Compile linux (single, jack) (python-dbg)",
+            "type": "shell",
+            "command": "${config:activate_venv_d}; ${config:build_linux_single_d}; ${config:build_linux_wheel_d}; ${config:install_linux_d}",
+            "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
+            "label": "Compile linux (double, jack) (python-dbg)",
+            "type": "shell",
+            "command": "${config:activate_venv_d}; ${config:build_linux_double_d}; ${config:build_linux_wheel_d}; ${config:install_linux_d}",
+            "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
             "label": "Compile Windows (single)",
             "type": "shell",
             "command": "py -3.${input:pyMinVersion} -m build --wheel & py -3.${input:pyMinVersion} -m pip install --user --force-reinstall dist\\pyo-${config:pyo_version}-cp3${input:pyMinVersion}-cp3${input:pyMinVersion}-win_amd64.whl",
@@ -227,7 +295,7 @@
         {
             "label": "Run unit tests linux",
             "type": "shell",
-            "command": "${config:activate_venv}; jack_control stop; export -n PYO_SERVER_AUDIO; cd tests/pytests; python3 -m pytest -vv",
+            "command": "${config:activate_venv_d}; jack_control stop; export -n PYO_SERVER_AUDIO; cd tests/pytests; python3d -m pytest -vv",
             "problemMatcher": [],
             "options": {
                 "cwd": "${workspaceFolder}"

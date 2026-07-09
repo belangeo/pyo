@@ -7,4 +7,12 @@
     "build_linux_double": "python3 setup.py build_ext --inplace --use-jack --use-double",
     "build_linux_wheel": "python3 -m build --wheel",
     "install_linux": "python3 -m pip install --force-reinstall dist/pyo-*-cp313-cp313-linux_x86_64.whl",
+
+    "activate_venv_d": "source .venvd/bin/activate",
+    "build_linux_minimal_d": "python3d setup.py build_ext --inplace --minimal",
+    "build_linux_debug_d": "python3d setup.py build_ext --inplace --use-jack --debug --fast-compile",
+    "build_linux_single_d": "python3d setup.py build_ext --inplace --use-jack",
+    "build_linux_double_d": "python3d setup.py build_ext --inplace --use-jack --use-double",
+    "build_linux_wheel_d": "python3d -m build --wheel",
+    "install_linux_d": "python3d -m pip install --force-reinstall dist/pyo-*-cp313-cp313d-linux_x86_64.whl",
 }

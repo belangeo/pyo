@@ -74,44 +74,44 @@ Select_setProcMode(Select *self)
 
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = Select_selector;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(Select_selector);
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Select_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Select_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Select_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Select_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Select_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Select_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Select_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Select_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Select_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Select_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Select_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Select_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Select_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Select_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Select_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Select_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Select_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Select_postprocessing_revareva);
             break;
     }
 
@@ -145,7 +145,7 @@ Select_dealloc(Select* self)
 {
     pyo_DEALLOC
     Select_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -156,6 +156,8 @@ Select_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp = NULL, *addtmp = NULL;
     Select *self;
     self = (Select *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->value = 0;
     self->last_value = -99.0;
@@ -163,27 +165,29 @@ Select_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Select_compute_next_data_frame);
-    self->mode_func_ptr = Select_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Select_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Select_setProcMode);
 
     static char *kwlist[] = {"input", "value", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|LOO", kwlist, &inputtmp, &self->value, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|LOO", kwlist, &inputtmp, &self->value, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -245,85 +249,39 @@ static PyMethodDef Select_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Select_as_number =
-{
-    (binaryfunc)Select_add,                         /*nb_add*/
-    (binaryfunc)Select_sub,                         /*nb_subtract*/
-    (binaryfunc)Select_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)Select_inplace_add,                 /*inplace_add*/
-    (binaryfunc)Select_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)Select_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)Select_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)Select_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot SelectType_slots[] = {
+    {Py_tp_dealloc, Select_dealloc},
+    {Py_tp_doc, "Select objects. Watch input and send a trig on a selected value."},
+    {Py_tp_traverse, Select_traverse},
+    {Py_tp_clear, Select_clear},
+    {Py_tp_methods, Select_methods},
+    {Py_tp_members, Select_members},
+    {Py_tp_new, Select_new},
+    {Py_nb_add, Select_add},
+    {Py_nb_subtract, Select_sub},
+    {Py_nb_multiply, Select_multiply},
+    {Py_nb_true_divide, Select_div},
+    {Py_nb_inplace_add, Select_inplace_add},
+    {Py_nb_inplace_subtract, Select_inplace_sub},
+    {Py_nb_inplace_multiply, Select_inplace_multiply},
+    {Py_nb_inplace_true_divide, Select_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject SelectType =
+static PyType_Spec SelectType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Select_base",         /*tp_name*/
-    sizeof(Select),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Select_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Select_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Select objects. Watch input and send a trig on a selected value.",           /* tp_doc */
-    (traverseproc)Select_traverse,   /* tp_traverse */
-    (inquiry)Select_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Select_methods,             /* tp_methods */
-    Select_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Select_new,                 /* tp_new */
+    "_pyo.Select_base",
+    sizeof(Select),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    SelectType_slots
 };
+
+PyTypeObject *
+PyoCreateSelectType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &SelectType_spec, NULL);
+}
 
 typedef struct
 {
@@ -374,44 +332,44 @@ Change_setProcMode(Change *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = Change_selector;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(Change_selector);
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Change_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Change_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Change_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Change_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Change_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Change_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Change_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Change_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Change_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Change_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Change_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Change_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Change_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Change_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Change_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Change_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Change_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Change_postprocessing_revareva);
             break;
     }
 }
@@ -444,7 +402,7 @@ Change_dealloc(Change* self)
 {
     pyo_DEALLOC
     Change_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -455,33 +413,37 @@ Change_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp = NULL, *addtmp = NULL;
     Change *self;
     self = (Change *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->last_value = 0.0;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Change_compute_next_data_frame);
-    self->mode_func_ptr = Change_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Change_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Change_setProcMode);
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO", kwlist, &inputtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO", kwlist, &inputtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -529,82 +491,36 @@ static PyMethodDef Change_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Change_as_number =
-{
-    (binaryfunc)Change_add,                         /*nb_add*/
-    (binaryfunc)Change_sub,                         /*nb_subtract*/
-    (binaryfunc)Change_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)Change_inplace_add,                 /*inplace_add*/
-    (binaryfunc)Change_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)Change_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)Change_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)Change_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot ChangeType_slots[] = {
+    {Py_tp_dealloc, Change_dealloc},
+    {Py_tp_doc, "Change objects. Send a trig whenever input value changed."},
+    {Py_tp_traverse, Change_traverse},
+    {Py_tp_clear, Change_clear},
+    {Py_tp_methods, Change_methods},
+    {Py_tp_members, Change_members},
+    {Py_tp_new, Change_new},
+    {Py_nb_add, Change_add},
+    {Py_nb_subtract, Change_sub},
+    {Py_nb_multiply, Change_multiply},
+    {Py_nb_true_divide, Change_div},
+    {Py_nb_inplace_add, Change_inplace_add},
+    {Py_nb_inplace_subtract, Change_inplace_sub},
+    {Py_nb_inplace_multiply, Change_inplace_multiply},
+    {Py_nb_inplace_true_divide, Change_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject ChangeType =
+static PyType_Spec ChangeType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Change_base",         /*tp_name*/
-    sizeof(Change),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Change_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Change_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Change objects. Send a trig whenever input value changed.",           /* tp_doc */
-    (traverseproc)Change_traverse,   /* tp_traverse */
-    (inquiry)Change_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Change_methods,             /* tp_methods */
-    Change_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Change_new,                 /* tp_new */
+    "_pyo.Change_base",
+    sizeof(Change),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    ChangeType_slots
 };
+
+PyTypeObject *
+PyoCreateChangeType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &ChangeType_spec, NULL);
+}

@@ -374,44 +374,44 @@ OscBank_setProcMode(OscBank *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = OscBank_readframes;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(OscBank_readframes);
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = OscBank_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(OscBank_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = OscBank_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(OscBank_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = OscBank_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(OscBank_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = OscBank_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(OscBank_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = OscBank_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(OscBank_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = OscBank_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(OscBank_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = OscBank_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(OscBank_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = OscBank_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(OscBank_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = OscBank_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(OscBank_postprocessing_revareva);
             break;
     }
 }
@@ -464,7 +464,7 @@ OscBank_dealloc(OscBank* self)
     PyMem_RawFree(self->aValues);
     PyMem_RawFree(self->aDiffs);
     OscBank_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -475,6 +475,8 @@ OscBank_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *tabletmp, *freqtmp = NULL, *spreadtmp = NULL, *slopetmp = NULL, *frndftmp = NULL, *frndatmp = NULL, *arndftmp = NULL, *arndatmp = NULL, *multmp = NULL, *addtmp = NULL;
     OscBank *self;
     self = (OscBank *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->freq = PyFloat_FromDouble(100.0);
     self->spread = PyFloat_FromDouble(1.0);
@@ -503,13 +505,15 @@ OscBank_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
 
-    Stream_setFunctionPtr(self->stream, OscBank_compute_next_data_frame);
-    self->mode_func_ptr = OscBank_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(OscBank_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(OscBank_setProcMode);
 
     static char *kwlist[] = {"table", "freq", "spread", "slope", "frndf", "frnda", "arndf", "arnda", "num", "fjit", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOOOOiiOO", kwlist, &tabletmp, &freqtmp, &spreadtmp, &slopetmp, &frndftmp, &frndatmp, &arndftmp, &arndatmp, &self->stages, &self->fjit, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOOOOiiOO", kwlist, &tabletmp, &freqtmp, &spreadtmp, &slopetmp, &frndftmp, &frndatmp, &arndftmp, &arndatmp, &self->stages, &self->fjit, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
     {
@@ -517,54 +521,54 @@ OscBank_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)tabletmp, "getTableStream", "");
 
     if (freqtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFreq", freqtmp);
     }
 
     if (spreadtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setSpread", "O", spreadtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setSpread", spreadtmp);
     }
 
     if (slopetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setSlope", "O", slopetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setSlope", slopetmp);
     }
 
     if (frndftmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFrndf", "O", frndftmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFrndf", frndftmp);
     }
 
     if (frndatmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFrnda", "O", frndatmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFrnda", frndatmp);
     }
 
     if (arndftmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setArndf", "O", arndftmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setArndf", arndftmp);
     }
 
     if (arndatmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setArnda", "O", arndatmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setArnda", arndatmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -622,7 +626,7 @@ OscBank_setTable(OscBank *self, PyObject *arg)
     ASSERT_ARG_NOT_NULL
 
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
+    self->table = PYO_CALL_METHOD_RET((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -685,82 +689,36 @@ static PyMethodDef OscBank_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods OscBank_as_number =
-{
-    (binaryfunc)OscBank_add,                         /*nb_add*/
-    (binaryfunc)OscBank_sub,                         /*nb_subtract*/
-    (binaryfunc)OscBank_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)OscBank_inplace_add,                 /*inplace_add*/
-    (binaryfunc)OscBank_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)OscBank_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)OscBank_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)OscBank_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot OscBankType_slots[] = {
+    {Py_tp_dealloc, OscBank_dealloc},
+    {Py_tp_doc, "OscBank objects. Oscillator bank."},
+    {Py_tp_traverse, OscBank_traverse},
+    {Py_tp_clear, OscBank_clear},
+    {Py_tp_methods, OscBank_methods},
+    {Py_tp_members, OscBank_members},
+    {Py_tp_new, OscBank_new},
+    {Py_nb_add, OscBank_add},
+    {Py_nb_subtract, OscBank_sub},
+    {Py_nb_multiply, OscBank_multiply},
+    {Py_nb_true_divide, OscBank_div},
+    {Py_nb_inplace_add, OscBank_inplace_add},
+    {Py_nb_inplace_subtract, OscBank_inplace_sub},
+    {Py_nb_inplace_multiply, OscBank_inplace_multiply},
+    {Py_nb_inplace_true_divide, OscBank_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject OscBankType =
+static PyType_Spec OscBankType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.OscBank_base",                                   /*tp_name*/
-    sizeof(OscBank),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)OscBank_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    &OscBank_as_number,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "OscBank objects. Oscillator bank.",           /* tp_doc */
-    (traverseproc)OscBank_traverse,                  /* tp_traverse */
-    (inquiry)OscBank_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    OscBank_methods,                                 /* tp_methods */
-    OscBank_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    OscBank_new,                                     /* tp_new */
+    "_pyo.OscBank_base",
+    sizeof(OscBank),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    OscBankType_slots
 };
+
+PyTypeObject *
+PyoCreateOscBankType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &OscBankType_spec, NULL);
+}

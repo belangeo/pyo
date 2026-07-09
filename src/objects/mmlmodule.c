@@ -620,7 +620,7 @@ MMLMain_generate(MMLMain *self)
 
     if (self->to_stop)
     {
-        PyObject_CallMethod((PyObject *)self, "stop", NULL);
+        PYO_CALL_METHOD(self, "stop", NULL);
         self->to_stop = 0;
         return;
     }
@@ -708,7 +708,7 @@ MMLMain_getZBuffer(MMLMain *self)
 static void
 MMLMain_setProcMode(MMLMain *self)
 {
-    self->proc_func_ptr = MMLMain_generate;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(MMLMain_generate);
 }
 
 static void
@@ -766,7 +766,7 @@ MMLMain_dealloc(MMLMain* self)
     PyMem_RawFree(self->curYs);
     PyMem_RawFree(self->curZs);
     MMLMain_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -776,6 +776,8 @@ MMLMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     int i;
     MMLMain *self;
     self = (MMLMain *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->pitches = PyDict_New();
     PyDict_SetItem(self->pitches, PyUnicode_FromString("c"), PyLong_FromLong(0));
@@ -787,8 +789,8 @@ MMLMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyDict_SetItem(self->pitches, PyUnicode_FromString("b"), PyLong_FromLong(11));
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, MMLMain_compute_next_data_frame);
-    self->mode_func_ptr = MMLMain_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(MMLMain_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(MMLMain_setProcMode);
 
     Stream_setStreamActive(self->stream, 0);
 
@@ -814,10 +816,12 @@ MMLMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"loop", "poly", "updateAtEnd", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iii", kwlist, &self->loop, &self->poly, &self->updateAtEnd))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iii", kwlist, &self->loop, &self->poly, &self->updateAtEnd)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -943,47 +947,31 @@ static PyMethodDef MMLMain_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject MMLMainType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.MMLMain_base",         /*tp_name*/
-    sizeof(MMLMain),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)MMLMain_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "MMLMain objects. Read a MML sequence.",           /* tp_doc */
-    (traverseproc)MMLMain_traverse,   /* tp_traverse */
-    (inquiry)MMLMain_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    MMLMain_methods,             /* tp_methods */
-    MMLMain_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    MMLMain_new,                 /* tp_new */
+static PyType_Slot MMLMainType_slots[] = {
+    {Py_tp_dealloc, MMLMain_dealloc},
+    {Py_tp_doc, "MMLMain objects. Read a MML sequence."},
+    {Py_tp_traverse, MMLMain_traverse},
+    {Py_tp_clear, MMLMain_clear},
+    {Py_tp_methods, MMLMain_methods},
+    {Py_tp_members, MMLMain_members},
+    {Py_tp_new, MMLMain_new},
+    {0, NULL}
 };
+
+static PyType_Spec MMLMainType_spec =
+{
+    "_pyo.MMLMain_base",
+    sizeof(MMLMain),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MMLMainType_slots
+};
+
+PyTypeObject *
+PyoCreateMMLMainType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MMLMainType_spec, NULL);
+}
 
 /************************************************************************************************/
 /* MML streamer object per channel */
@@ -1015,39 +1003,39 @@ MML_setProcMode(MML *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = MML_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MML_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = MML_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MML_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = MML_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MML_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = MML_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MML_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = MML_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MML_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = MML_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MML_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = MML_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MML_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = MML_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MML_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = MML_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MML_postprocessing_revareva);
             break;
     }
 }
@@ -1089,7 +1077,7 @@ MML_dealloc(MML* self)
 {
     pyo_DEALLOC
     MML_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1100,24 +1088,28 @@ MML_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     MML *self;
     self = (MML *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, MML_compute_next_data_frame);
-    self->mode_func_ptr = MML_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(MML_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(MML_setProcMode);
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (MMLMain *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -1167,85 +1159,39 @@ static PyMethodDef MML_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods MML_as_number =
-{
-    (binaryfunc)MML_add,                         /*nb_add*/
-    (binaryfunc)MML_sub,                         /*nb_subtract*/
-    (binaryfunc)MML_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)MML_inplace_add,                 /*inplace_add*/
-    (binaryfunc)MML_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)MML_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)MML_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)MML_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot MMLType_slots[] = {
+    {Py_tp_dealloc, MML_dealloc},
+    {Py_tp_doc, "MML objects. Reads a channel from a MMLMain."},
+    {Py_tp_traverse, MML_traverse},
+    {Py_tp_clear, MML_clear},
+    {Py_tp_methods, MML_methods},
+    {Py_tp_members, MML_members},
+    {Py_tp_new, MML_new},
+    {Py_nb_add, MML_add},
+    {Py_nb_subtract, MML_sub},
+    {Py_nb_multiply, MML_multiply},
+    {Py_nb_true_divide, MML_div},
+    {Py_nb_inplace_add, MML_inplace_add},
+    {Py_nb_inplace_subtract, MML_inplace_sub},
+    {Py_nb_inplace_multiply, MML_inplace_multiply},
+    {Py_nb_inplace_true_divide, MML_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject MMLType =
+static PyType_Spec MMLType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.MML_base",         /*tp_name*/
-    sizeof(MML),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)MML_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &MML_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "MML objects. Reads a channel from a MMLMain.",           /* tp_doc */
-    (traverseproc)MML_traverse,   /* tp_traverse */
-    (inquiry)MML_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    MML_methods,             /* tp_methods */
-    MML_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    MML_new,                 /* tp_new */
+    "_pyo.MML_base",
+    sizeof(MML),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MMLType_slots
 };
+
+PyTypeObject *
+PyoCreateMMLType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MMLType_spec, NULL);
+}
 
 /************************************************************************************************/
 /* MMLFreqStream object per channel */
@@ -1277,39 +1223,39 @@ MMLFreqStream_setProcMode(MMLFreqStream *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = MMLFreqStream_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLFreqStream_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = MMLFreqStream_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLFreqStream_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = MMLFreqStream_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLFreqStream_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = MMLFreqStream_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLFreqStream_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = MMLFreqStream_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLFreqStream_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = MMLFreqStream_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLFreqStream_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = MMLFreqStream_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLFreqStream_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = MMLFreqStream_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLFreqStream_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = MMLFreqStream_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLFreqStream_postprocessing_revareva);
             break;
     }
 }
@@ -1351,7 +1297,7 @@ MMLFreqStream_dealloc(MMLFreqStream* self)
 {
     pyo_DEALLOC
     MMLFreqStream_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1362,24 +1308,28 @@ MMLFreqStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     MMLFreqStream *self;
     self = (MMLFreqStream *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, MMLFreqStream_compute_next_data_frame);
-    self->mode_func_ptr = MMLFreqStream_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(MMLFreqStream_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(MMLFreqStream_setProcMode);
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (MMLMain *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -1429,85 +1379,39 @@ static PyMethodDef MMLFreqStream_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods MMLFreqStream_as_number =
-{
-    (binaryfunc)MMLFreqStream_add,                         /*nb_add*/
-    (binaryfunc)MMLFreqStream_sub,                         /*nb_subtract*/
-    (binaryfunc)MMLFreqStream_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)MMLFreqStream_inplace_add,                 /*inplace_add*/
-    (binaryfunc)MMLFreqStream_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)MMLFreqStream_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)MMLFreqStream_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)MMLFreqStream_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot MMLFreqStreamType_slots[] = {
+    {Py_tp_dealloc, MMLFreqStream_dealloc},
+    {Py_tp_doc, "MMLFreqStream objects. Reads the current Freq from a MMLMain object."},
+    {Py_tp_traverse, MMLFreqStream_traverse},
+    {Py_tp_clear, MMLFreqStream_clear},
+    {Py_tp_methods, MMLFreqStream_methods},
+    {Py_tp_members, MMLFreqStream_members},
+    {Py_tp_new, MMLFreqStream_new},
+    {Py_nb_add, MMLFreqStream_add},
+    {Py_nb_subtract, MMLFreqStream_sub},
+    {Py_nb_multiply, MMLFreqStream_multiply},
+    {Py_nb_true_divide, MMLFreqStream_div},
+    {Py_nb_inplace_add, MMLFreqStream_inplace_add},
+    {Py_nb_inplace_subtract, MMLFreqStream_inplace_sub},
+    {Py_nb_inplace_multiply, MMLFreqStream_inplace_multiply},
+    {Py_nb_inplace_true_divide, MMLFreqStream_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject MMLFreqStreamType =
+static PyType_Spec MMLFreqStreamType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.MMLFreqStream_base",         /*tp_name*/
-    sizeof(MMLFreqStream),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)MMLFreqStream_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &MMLFreqStream_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "MMLFreqStream objects. Reads the current Freq from a MMLMain object.",           /* tp_doc */
-    (traverseproc)MMLFreqStream_traverse,   /* tp_traverse */
-    (inquiry)MMLFreqStream_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    MMLFreqStream_methods,             /* tp_methods */
-    MMLFreqStream_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    MMLFreqStream_new,                 /* tp_new */
+    "_pyo.MMLFreqStream_base",
+    sizeof(MMLFreqStream),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MMLFreqStreamType_slots
 };
+
+PyTypeObject *
+PyoCreateMMLFreqStreamType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MMLFreqStreamType_spec, NULL);
+}
 
 /************************************************************************************************/
 /* MMLAmpStream object per channel */
@@ -1539,39 +1443,39 @@ MMLAmpStream_setProcMode(MMLAmpStream *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = MMLAmpStream_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLAmpStream_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = MMLAmpStream_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLAmpStream_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = MMLAmpStream_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLAmpStream_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = MMLAmpStream_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLAmpStream_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = MMLAmpStream_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLAmpStream_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = MMLAmpStream_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLAmpStream_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = MMLAmpStream_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLAmpStream_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = MMLAmpStream_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLAmpStream_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = MMLAmpStream_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLAmpStream_postprocessing_revareva);
             break;
     }
 }
@@ -1613,7 +1517,7 @@ MMLAmpStream_dealloc(MMLAmpStream* self)
 {
     pyo_DEALLOC
     MMLAmpStream_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1624,24 +1528,28 @@ MMLAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     MMLAmpStream *self;
     self = (MMLAmpStream *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, MMLAmpStream_compute_next_data_frame);
-    self->mode_func_ptr = MMLAmpStream_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(MMLAmpStream_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(MMLAmpStream_setProcMode);
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (MMLMain *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -1691,85 +1599,39 @@ static PyMethodDef MMLAmpStream_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods MMLAmpStream_as_number =
-{
-    (binaryfunc)MMLAmpStream_add,                         /*nb_add*/
-    (binaryfunc)MMLAmpStream_sub,                         /*nb_subtract*/
-    (binaryfunc)MMLAmpStream_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)MMLAmpStream_inplace_add,                 /*inplace_add*/
-    (binaryfunc)MMLAmpStream_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)MMLAmpStream_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)MMLAmpStream_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)MMLAmpStream_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot MMLAmpStreamType_slots[] = {
+    {Py_tp_dealloc, MMLAmpStream_dealloc},
+    {Py_tp_doc, "MMLAmpStream objects. Reads a amplitude channel from a MMLMain object."},
+    {Py_tp_traverse, MMLAmpStream_traverse},
+    {Py_tp_clear, MMLAmpStream_clear},
+    {Py_tp_methods, MMLAmpStream_methods},
+    {Py_tp_members, MMLAmpStream_members},
+    {Py_tp_new, MMLAmpStream_new},
+    {Py_nb_add, MMLAmpStream_add},
+    {Py_nb_subtract, MMLAmpStream_sub},
+    {Py_nb_multiply, MMLAmpStream_multiply},
+    {Py_nb_true_divide, MMLAmpStream_div},
+    {Py_nb_inplace_add, MMLAmpStream_inplace_add},
+    {Py_nb_inplace_subtract, MMLAmpStream_inplace_sub},
+    {Py_nb_inplace_multiply, MMLAmpStream_inplace_multiply},
+    {Py_nb_inplace_true_divide, MMLAmpStream_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject MMLAmpStreamType =
+static PyType_Spec MMLAmpStreamType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.MMLAmpStream_base",         /*tp_name*/
-    sizeof(MMLAmpStream),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)MMLAmpStream_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &MMLAmpStream_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "MMLAmpStream objects. Reads a amplitude channel from a MMLMain object.",           /* tp_doc */
-    (traverseproc)MMLAmpStream_traverse,   /* tp_traverse */
-    (inquiry)MMLAmpStream_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    MMLAmpStream_methods,             /* tp_methods */
-    MMLAmpStream_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    MMLAmpStream_new,                 /* tp_new */
+    "_pyo.MMLAmpStream_base",
+    sizeof(MMLAmpStream),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MMLAmpStreamType_slots
 };
+
+PyTypeObject *
+PyoCreateMMLAmpStreamType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MMLAmpStreamType_spec, NULL);
+}
 
 /************************************************************************************************/
 /* MMLDurStream object per channel */
@@ -1801,39 +1663,39 @@ MMLDurStream_setProcMode(MMLDurStream *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = MMLDurStream_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLDurStream_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = MMLDurStream_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLDurStream_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = MMLDurStream_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLDurStream_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = MMLDurStream_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLDurStream_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = MMLDurStream_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLDurStream_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = MMLDurStream_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLDurStream_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = MMLDurStream_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLDurStream_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = MMLDurStream_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLDurStream_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = MMLDurStream_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLDurStream_postprocessing_revareva);
             break;
     }
 }
@@ -1875,7 +1737,7 @@ MMLDurStream_dealloc(MMLDurStream* self)
 {
     pyo_DEALLOC
     MMLDurStream_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1886,24 +1748,28 @@ MMLDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     MMLDurStream *self;
     self = (MMLDurStream *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, MMLDurStream_compute_next_data_frame);
-    self->mode_func_ptr = MMLDurStream_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(MMLDurStream_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(MMLDurStream_setProcMode);
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (MMLMain *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -1953,85 +1819,39 @@ static PyMethodDef MMLDurStream_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods MMLDurStream_as_number =
-{
-    (binaryfunc)MMLDurStream_add,                         /*nb_add*/
-    (binaryfunc)MMLDurStream_sub,                         /*nb_subtract*/
-    (binaryfunc)MMLDurStream_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)MMLDurStream_inplace_add,                 /*inplace_add*/
-    (binaryfunc)MMLDurStream_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)MMLDurStream_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)MMLDurStream_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)MMLDurStream_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot MMLDurStreamType_slots[] = {
+    {Py_tp_dealloc, MMLDurStream_dealloc},
+    {Py_tp_doc, "MMLDurStream objects. Reads a duration channel from a MMLMain object."},
+    {Py_tp_traverse, MMLDurStream_traverse},
+    {Py_tp_clear, MMLDurStream_clear},
+    {Py_tp_methods, MMLDurStream_methods},
+    {Py_tp_members, MMLDurStream_members},
+    {Py_tp_new, MMLDurStream_new},
+    {Py_nb_add, MMLDurStream_add},
+    {Py_nb_subtract, MMLDurStream_sub},
+    {Py_nb_multiply, MMLDurStream_multiply},
+    {Py_nb_true_divide, MMLDurStream_div},
+    {Py_nb_inplace_add, MMLDurStream_inplace_add},
+    {Py_nb_inplace_subtract, MMLDurStream_inplace_sub},
+    {Py_nb_inplace_multiply, MMLDurStream_inplace_multiply},
+    {Py_nb_inplace_true_divide, MMLDurStream_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject MMLDurStreamType =
+static PyType_Spec MMLDurStreamType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.MMLDurStream_base",         /*tp_name*/
-    sizeof(MMLDurStream),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)MMLDurStream_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &MMLDurStream_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "MMLDurStream objects. Reads a duration channel from a MMLMain object.",           /* tp_doc */
-    (traverseproc)MMLDurStream_traverse,   /* tp_traverse */
-    (inquiry)MMLDurStream_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    MMLDurStream_methods,             /* tp_methods */
-    MMLDurStream_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    MMLDurStream_new,                 /* tp_new */
+    "_pyo.MMLDurStream_base",
+    sizeof(MMLDurStream),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MMLDurStreamType_slots
 };
+
+PyTypeObject *
+PyoCreateMMLDurStreamType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MMLDurStreamType_spec, NULL);
+}
 
 /************************************************************************************************/
 /* MMLEndStream object per channel */
@@ -2063,39 +1883,39 @@ MMLEndStream_setProcMode(MMLEndStream *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = MMLEndStream_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLEndStream_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = MMLEndStream_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLEndStream_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = MMLEndStream_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLEndStream_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = MMLEndStream_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLEndStream_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = MMLEndStream_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLEndStream_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = MMLEndStream_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLEndStream_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = MMLEndStream_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLEndStream_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = MMLEndStream_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLEndStream_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = MMLEndStream_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLEndStream_postprocessing_revareva);
             break;
     }
 }
@@ -2137,7 +1957,7 @@ MMLEndStream_dealloc(MMLEndStream* self)
 {
     pyo_DEALLOC
     MMLEndStream_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2148,24 +1968,28 @@ MMLEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     MMLEndStream *self;
     self = (MMLEndStream *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, MMLEndStream_compute_next_data_frame);
-    self->mode_func_ptr = MMLEndStream_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(MMLEndStream_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(MMLEndStream_setProcMode);
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (MMLMain *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -2215,85 +2039,39 @@ static PyMethodDef MMLEndStream_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods MMLEndStream_as_number =
-{
-    (binaryfunc)MMLEndStream_add,                         /*nb_add*/
-    (binaryfunc)MMLEndStream_sub,                         /*nb_subtract*/
-    (binaryfunc)MMLEndStream_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)MMLEndStream_inplace_add,                 /*inplace_add*/
-    (binaryfunc)MMLEndStream_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)MMLEndStream_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)MMLEndStream_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)MMLEndStream_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot MMLEndStreamType_slots[] = {
+    {Py_tp_dealloc, MMLEndStream_dealloc},
+    {Py_tp_doc, "MMLEndStream objects. Reads a duration channel from a MMLMain object."},
+    {Py_tp_traverse, MMLEndStream_traverse},
+    {Py_tp_clear, MMLEndStream_clear},
+    {Py_tp_methods, MMLEndStream_methods},
+    {Py_tp_members, MMLEndStream_members},
+    {Py_tp_new, MMLEndStream_new},
+    {Py_nb_add, MMLEndStream_add},
+    {Py_nb_subtract, MMLEndStream_sub},
+    {Py_nb_multiply, MMLEndStream_multiply},
+    {Py_nb_true_divide, MMLEndStream_div},
+    {Py_nb_inplace_add, MMLEndStream_inplace_add},
+    {Py_nb_inplace_subtract, MMLEndStream_inplace_sub},
+    {Py_nb_inplace_multiply, MMLEndStream_inplace_multiply},
+    {Py_nb_inplace_true_divide, MMLEndStream_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject MMLEndStreamType =
+static PyType_Spec MMLEndStreamType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.MMLEndStream_base",         /*tp_name*/
-    sizeof(MMLEndStream),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)MMLEndStream_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &MMLEndStream_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "MMLEndStream objects. Reads a duration channel from a MMLMain object.",           /* tp_doc */
-    (traverseproc)MMLEndStream_traverse,   /* tp_traverse */
-    (inquiry)MMLEndStream_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    MMLEndStream_methods,             /* tp_methods */
-    MMLEndStream_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    MMLEndStream_new,                 /* tp_new */
+    "_pyo.MMLEndStream_base",
+    sizeof(MMLEndStream),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MMLEndStreamType_slots
 };
+
+PyTypeObject *
+PyoCreateMMLEndStreamType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MMLEndStreamType_spec, NULL);
+}
 
 /************************************************************************************************/
 /* MMLXStream object per channel */
@@ -2325,39 +2103,39 @@ MMLXStream_setProcMode(MMLXStream *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = MMLXStream_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLXStream_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = MMLXStream_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLXStream_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = MMLXStream_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLXStream_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = MMLXStream_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLXStream_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = MMLXStream_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLXStream_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = MMLXStream_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLXStream_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = MMLXStream_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLXStream_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = MMLXStream_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLXStream_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = MMLXStream_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLXStream_postprocessing_revareva);
             break;
     }
 }
@@ -2399,7 +2177,7 @@ MMLXStream_dealloc(MMLXStream* self)
 {
     pyo_DEALLOC
     MMLXStream_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2410,24 +2188,28 @@ MMLXStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     MMLXStream *self;
     self = (MMLXStream *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, MMLXStream_compute_next_data_frame);
-    self->mode_func_ptr = MMLXStream_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(MMLXStream_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(MMLXStream_setProcMode);
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (MMLMain *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -2477,85 +2259,39 @@ static PyMethodDef MMLXStream_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods MMLXStream_as_number =
-{
-    (binaryfunc)MMLXStream_add,                         /*nb_add*/
-    (binaryfunc)MMLXStream_sub,                         /*nb_subtract*/
-    (binaryfunc)MMLXStream_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)MMLXStream_inplace_add,                 /*inplace_add*/
-    (binaryfunc)MMLXStream_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)MMLXStream_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)MMLXStream_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)MMLXStream_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot MMLXStreamType_slots[] = {
+    {Py_tp_dealloc, MMLXStream_dealloc},
+    {Py_tp_doc, "MMLXStream objects. Reads a Xation channel from a MMLMain object."},
+    {Py_tp_traverse, MMLXStream_traverse},
+    {Py_tp_clear, MMLXStream_clear},
+    {Py_tp_methods, MMLXStream_methods},
+    {Py_tp_members, MMLXStream_members},
+    {Py_tp_new, MMLXStream_new},
+    {Py_nb_add, MMLXStream_add},
+    {Py_nb_subtract, MMLXStream_sub},
+    {Py_nb_multiply, MMLXStream_multiply},
+    {Py_nb_true_divide, MMLXStream_div},
+    {Py_nb_inplace_add, MMLXStream_inplace_add},
+    {Py_nb_inplace_subtract, MMLXStream_inplace_sub},
+    {Py_nb_inplace_multiply, MMLXStream_inplace_multiply},
+    {Py_nb_inplace_true_divide, MMLXStream_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject MMLXStreamType =
+static PyType_Spec MMLXStreamType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.MMLXStream_base",         /*tp_name*/
-    sizeof(MMLXStream),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)MMLXStream_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &MMLXStream_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "MMLXStream objects. Reads a Xation channel from a MMLMain object.",           /* tp_doc */
-    (traverseproc)MMLXStream_traverse,   /* tp_traverse */
-    (inquiry)MMLXStream_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    MMLXStream_methods,             /* tp_methods */
-    MMLXStream_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    MMLXStream_new,                 /* tp_new */
+    "_pyo.MMLXStream_base",
+    sizeof(MMLXStream),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MMLXStreamType_slots
 };
+
+PyTypeObject *
+PyoCreateMMLXStreamType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MMLXStreamType_spec, NULL);
+}
 
 /************************************************************************************************/
 /* MMLYStream object per channel */
@@ -2587,39 +2323,39 @@ MMLYStream_setProcMode(MMLYStream *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = MMLYStream_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLYStream_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = MMLYStream_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLYStream_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = MMLYStream_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLYStream_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = MMLYStream_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLYStream_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = MMLYStream_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLYStream_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = MMLYStream_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLYStream_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = MMLYStream_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLYStream_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = MMLYStream_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLYStream_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = MMLYStream_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLYStream_postprocessing_revareva);
             break;
     }
 }
@@ -2661,7 +2397,7 @@ MMLYStream_dealloc(MMLYStream* self)
 {
     pyo_DEALLOC
     MMLYStream_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2672,24 +2408,28 @@ MMLYStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     MMLYStream *self;
     self = (MMLYStream *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, MMLYStream_compute_next_data_frame);
-    self->mode_func_ptr = MMLYStream_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(MMLYStream_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(MMLYStream_setProcMode);
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (MMLMain *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -2739,85 +2479,39 @@ static PyMethodDef MMLYStream_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods MMLYStream_as_number =
-{
-    (binaryfunc)MMLYStream_add,                         /*nb_add*/
-    (binaryfunc)MMLYStream_sub,                         /*nb_subtract*/
-    (binaryfunc)MMLYStream_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)MMLYStream_inplace_add,                 /*inplace_add*/
-    (binaryfunc)MMLYStream_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)MMLYStream_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)MMLYStream_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)MMLYStream_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot MMLYStreamType_slots[] = {
+    {Py_tp_dealloc, MMLYStream_dealloc},
+    {Py_tp_doc, "MMLYStream objects. Reads a Yation channel from a MMLMain object."},
+    {Py_tp_traverse, MMLYStream_traverse},
+    {Py_tp_clear, MMLYStream_clear},
+    {Py_tp_methods, MMLYStream_methods},
+    {Py_tp_members, MMLYStream_members},
+    {Py_tp_new, MMLYStream_new},
+    {Py_nb_add, MMLYStream_add},
+    {Py_nb_subtract, MMLYStream_sub},
+    {Py_nb_multiply, MMLYStream_multiply},
+    {Py_nb_true_divide, MMLYStream_div},
+    {Py_nb_inplace_add, MMLYStream_inplace_add},
+    {Py_nb_inplace_subtract, MMLYStream_inplace_sub},
+    {Py_nb_inplace_multiply, MMLYStream_inplace_multiply},
+    {Py_nb_inplace_true_divide, MMLYStream_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject MMLYStreamType =
+static PyType_Spec MMLYStreamType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.MMLYStream_base",         /*tp_name*/
-    sizeof(MMLYStream),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)MMLYStream_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &MMLYStream_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "MMLYStream objects. Reads a Yation channel from a MMLMain object.",           /* tp_doc */
-    (traverseproc)MMLYStream_traverse,   /* tp_traverse */
-    (inquiry)MMLYStream_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    MMLYStream_methods,             /* tp_methods */
-    MMLYStream_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    MMLYStream_new,                 /* tp_new */
+    "_pyo.MMLYStream_base",
+    sizeof(MMLYStream),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MMLYStreamType_slots
 };
+
+PyTypeObject *
+PyoCreateMMLYStreamType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MMLYStreamType_spec, NULL);
+}
 
 /************************************************************************************************/
 /* MMLZStream object per channel */
@@ -2849,39 +2543,39 @@ MMLZStream_setProcMode(MMLZStream *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = MMLZStream_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLZStream_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = MMLZStream_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLZStream_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = MMLZStream_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLZStream_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = MMLZStream_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLZStream_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = MMLZStream_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLZStream_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = MMLZStream_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLZStream_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = MMLZStream_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLZStream_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = MMLZStream_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLZStream_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = MMLZStream_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(MMLZStream_postprocessing_revareva);
             break;
     }
 }
@@ -2923,7 +2617,7 @@ MMLZStream_dealloc(MMLZStream* self)
 {
     pyo_DEALLOC
     MMLZStream_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2934,24 +2628,28 @@ MMLZStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL;
     MMLZStream *self;
     self = (MMLZStream *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->chnl = 0;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, MMLZStream_compute_next_data_frame);
-    self->mode_func_ptr = MMLZStream_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(MMLZStream_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(MMLZStream_setProcMode);
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainPlayer = (MMLMain *)maintmp;
     Py_INCREF(self->mainPlayer);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -3001,82 +2699,36 @@ static PyMethodDef MMLZStream_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods MMLZStream_as_number =
-{
-    (binaryfunc)MMLZStream_add,                         /*nb_add*/
-    (binaryfunc)MMLZStream_sub,                         /*nb_subtract*/
-    (binaryfunc)MMLZStream_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    (binaryfunc)MMLZStream_inplace_add,                 /*inplace_add*/
-    (binaryfunc)MMLZStream_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)MMLZStream_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    (binaryfunc)MMLZStream_div,                       /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    (binaryfunc)MMLZStream_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
+static PyType_Slot MMLZStreamType_slots[] = {
+    {Py_tp_dealloc, MMLZStream_dealloc},
+    {Py_tp_doc, "MMLZStream objects. Reads a Zation channel from a MMLMain object."},
+    {Py_tp_traverse, MMLZStream_traverse},
+    {Py_tp_clear, MMLZStream_clear},
+    {Py_tp_methods, MMLZStream_methods},
+    {Py_tp_members, MMLZStream_members},
+    {Py_tp_new, MMLZStream_new},
+    {Py_nb_add, MMLZStream_add},
+    {Py_nb_subtract, MMLZStream_sub},
+    {Py_nb_multiply, MMLZStream_multiply},
+    {Py_nb_true_divide, MMLZStream_div},
+    {Py_nb_inplace_add, MMLZStream_inplace_add},
+    {Py_nb_inplace_subtract, MMLZStream_inplace_sub},
+    {Py_nb_inplace_multiply, MMLZStream_inplace_multiply},
+    {Py_nb_inplace_true_divide, MMLZStream_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject MMLZStreamType =
+static PyType_Spec MMLZStreamType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.MMLZStream_base",         /*tp_name*/
-    sizeof(MMLZStream),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)MMLZStream_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &MMLZStream_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "MMLZStream objects. Reads a Zation channel from a MMLMain object.",           /* tp_doc */
-    (traverseproc)MMLZStream_traverse,   /* tp_traverse */
-    (inquiry)MMLZStream_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    MMLZStream_methods,             /* tp_methods */
-    MMLZStream_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    MMLZStream_new,                 /* tp_new */
+    "_pyo.MMLZStream_base",
+    sizeof(MMLZStream),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MMLZStreamType_slots
 };
+
+PyTypeObject *
+PyoCreateMMLZStreamType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MMLZStreamType_spec, NULL);
+}

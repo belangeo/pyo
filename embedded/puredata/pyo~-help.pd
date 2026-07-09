@@ -232,14 +232,10 @@
 #X msg 37 74 read examples/cvlverb.py;
 #X text 35 38 load pyo processing file (audio signal must be given in pyo~ inputs).;
 #X text 202 110 balance between dry and wet signal;
-#X obj 206 58 loadbang;
-#X msg 206 82 0.5;
 #X connect 0 0 1 0;
 #X connect 1 0 2 0;
 #X connect 2 0 3 0;
 #X connect 4 0 3 0;
-#X connect 7 0 8 0;
-#X connect 8 0 0 0;
 #X restore 17 342 pd conv_reverb_example;
 #X text 11 53 play a soundfile to send audio signals to pyo;
 #N canvas 193 300 450 300 README 0;

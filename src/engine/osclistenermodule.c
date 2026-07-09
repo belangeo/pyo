@@ -135,7 +135,11 @@ int process_osc(const char *path, const char *types, lo_arg **argv, int argc,
         }
     }
 
-    PyObject_Call((PyObject *)server->osccallable, tup, NULL);
+    PyObject *result = PyObject_Call((PyObject *)server->osccallable, tup, NULL);
+    if (result == NULL)
+        PyErr_Print();
+    else
+        Py_DECREF(result);
     PyGILState_Release(s);
     Py_XDECREF(tup);
 
@@ -172,15 +176,19 @@ OscListener_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     OscListener *self;
 
     self = (OscListener *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     static char *kwlist[] = {"osccallable", "port", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi", kwlist, &osccalltmp, &self->oscport))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi", kwlist, &osccalltmp, &self->oscport)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (osccalltmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setOscFunction", "O", osccalltmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setOscFunction", osccalltmp);
     }
 
     sprintf(buf, "%i", self->oscport);
@@ -223,44 +231,29 @@ static PyMethodDef OscListener_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject OscListenerType =
+static PyType_Slot OscListenerType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.OscListener_base",         /*tp_name*/
-    sizeof(OscListener),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)OscListener_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "OscListener objects. Calls a function with OSC data as arguments.",           /* tp_doc */
-    (traverseproc)OscListener_traverse,   /* tp_traverse */
-    (inquiry)OscListener_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    OscListener_methods,             /* tp_methods */
-    OscListener_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    OscListener_new,                 /* tp_new */
+    {Py_tp_dealloc, OscListener_dealloc},
+    {Py_tp_doc, "OscListener objects. Calls a function with OSC data as arguments."},
+    {Py_tp_traverse, OscListener_traverse},
+    {Py_tp_clear, OscListener_clear},
+    {Py_tp_methods, OscListener_methods},
+    {Py_tp_members, OscListener_members},
+    {Py_tp_new, OscListener_new},
+    {0, NULL}
 };
+
+static PyType_Spec OscListenerType_spec =
+{
+    "_pyo.OscListener_base",
+    sizeof(OscListener),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    OscListenerType_slots
+};
+
+PyTypeObject *
+PyoCreateOscListenerType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &OscListenerType_spec, NULL);
+}

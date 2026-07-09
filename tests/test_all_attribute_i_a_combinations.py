@@ -55,7 +55,7 @@ for obj in objects:
 
     # search for mandatory attributes
     for i in range(mandatory_end):
-        if lines[i].startswith("        ") and lines[i][8] != " ":
+        if lines[i].startswith("    ") and lines[i][4] != " ":
             stripped = lines[i].strip()
             att, typ = stripped.split(": ")
             obj_dict[obj]["mandatory"][att] = typ.strip()

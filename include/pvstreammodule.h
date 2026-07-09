@@ -43,7 +43,7 @@ extern void PVStream_setOlaps(PVStream * self, int olaps);
 extern void PVStream_setMagn(PVStream * self, MYFLT **data);
 extern void PVStream_setFreq(PVStream * self, MYFLT **data);
 extern void PVStream_setCount(PVStream * self, int *data);
-extern PyTypeObject PVStreamType;
+PyTypeObject * PyoCreatePVStreamType(PyObject *module);
 
 #define MAKE_NEW_PV_STREAM(self, type, rt_error) \
     (self) = (PVStream *)(type)->tp_alloc((type), 0); \

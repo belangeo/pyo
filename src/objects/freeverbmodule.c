@@ -583,74 +583,74 @@ Freeverb_setProcMode(Freeverb *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Freeverb_transform_iii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Freeverb_transform_iii);
             break;
 
         case 1:
-            self->proc_func_ptr = Freeverb_transform_aii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Freeverb_transform_aii);
             break;
 
         case 10:
-            self->proc_func_ptr = Freeverb_transform_iai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Freeverb_transform_iai);
             break;
 
         case 11:
-            self->proc_func_ptr = Freeverb_transform_aai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Freeverb_transform_aai);
             break;
 
         case 100:
-            self->proc_func_ptr = Freeverb_transform_iia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Freeverb_transform_iia);
             break;
 
         case 101:
-            self->proc_func_ptr = Freeverb_transform_aia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Freeverb_transform_aia);
             break;
 
         case 110:
-            self->proc_func_ptr = Freeverb_transform_iaa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Freeverb_transform_iaa);
             break;
 
         case 111:
-            self->proc_func_ptr = Freeverb_transform_aaa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Freeverb_transform_aaa);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Freeverb_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Freeverb_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Freeverb_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Freeverb_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Freeverb_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Freeverb_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Freeverb_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Freeverb_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Freeverb_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Freeverb_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Freeverb_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Freeverb_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Freeverb_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Freeverb_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Freeverb_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Freeverb_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Freeverb_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Freeverb_postprocessing_revareva);
             break;
     }
 }
@@ -701,7 +701,7 @@ Freeverb_dealloc(Freeverb* self)
     }
 
     Freeverb_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -713,6 +713,8 @@ Freeverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *sizetmp = NULL, *damptmp = NULL, *mixtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Freeverb *self;
     self = (Freeverb *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->size = PyFloat_FromDouble(.5);
     self->damp = PyFloat_FromDouble(.5);
@@ -726,42 +728,44 @@ Freeverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->srFactor = pow((DEFAULT_SRATE / self->sr), 0.8);
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Freeverb_compute_next_data_frame);
-    self->mode_func_ptr = Freeverb_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Freeverb_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Freeverb_setProcMode);
 
     static char *kwlist[] = {"input", "size", "damp", "mix", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOO", kwlist, &inputtmp, &sizetmp, &damptmp, &mixtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOO", kwlist, &inputtmp, &sizetmp, &damptmp, &mixtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
     if (sizetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setSize", "O", sizetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setSize", sizetmp);
     }
 
     if (damptmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setDamp", "O", damptmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setDamp", damptmp);
     }
 
     if (mixtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMix", "O", mixtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMix", mixtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -883,82 +887,36 @@ static PyMethodDef Freeverb_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Freeverb_as_number =
-{
-    (binaryfunc)Freeverb_add,                      /*nb_add*/
-    (binaryfunc)Freeverb_sub,                 /*nb_subtract*/
-    (binaryfunc)Freeverb_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Freeverb_inplace_add,              /*inplace_add*/
-    (binaryfunc)Freeverb_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Freeverb_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Freeverb_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Freeverb_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot FreeverbType_slots[] = {
+    {Py_tp_dealloc, Freeverb_dealloc},
+    {Py_tp_doc, "Freeverb objects. Jezar's Freeverb ."},
+    {Py_tp_traverse, Freeverb_traverse},
+    {Py_tp_clear, Freeverb_clear},
+    {Py_tp_methods, Freeverb_methods},
+    {Py_tp_members, Freeverb_members},
+    {Py_nb_add, Freeverb_add},
+    {Py_nb_subtract, Freeverb_sub},
+    {Py_nb_multiply, Freeverb_multiply},
+    {Py_nb_true_divide, Freeverb_div},
+    {Py_nb_inplace_add, Freeverb_inplace_add},
+    {Py_nb_inplace_subtract, Freeverb_inplace_sub},
+    {Py_nb_inplace_multiply, Freeverb_inplace_multiply},
+    {Py_nb_inplace_true_divide, Freeverb_inplace_div},
+    {Py_tp_new, Freeverb_new},
+    {0, NULL}
 };
 
-PyTypeObject FreeverbType =
+static PyType_Spec FreeverbType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Freeverb_base",         /*tp_name*/
-    sizeof(Freeverb),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Freeverb_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Freeverb_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Freeverb objects. Jezar's Freeverb .",           /* tp_doc */
-    (traverseproc)Freeverb_traverse,   /* tp_traverse */
-    (inquiry)Freeverb_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Freeverb_methods,             /* tp_methods */
-    Freeverb_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Freeverb_new,                 /* tp_new */
+    "_pyo.Freeverb_base",
+    sizeof(Freeverb),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    FreeverbType_slots
 };
+
+PyTypeObject *
+PyoCreateFreeverbType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &FreeverbType_spec, NULL);
+}

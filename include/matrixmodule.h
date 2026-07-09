@@ -44,6 +44,6 @@ extern int MatrixStream_getWidth(MatrixStream *self);
 extern int MatrixStream_getHeight(MatrixStream *self);
 extern MYFLT MatrixStream_getPointFromPos(MatrixStream *self, long x, long y);
 extern MYFLT MatrixStream_getInterpPointFromPos(MatrixStream *self, MYFLT x, MYFLT y);
-extern PyTypeObject MatrixStreamType;
+PyTypeObject * PyoCreateMatrixStreamType(PyObject *module);
 
 #endif // _MATRIXMODULE_H
