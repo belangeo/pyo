@@ -347,7 +347,7 @@ OBJECTS_TREE = {
                     "Binaural",
                 ]
             ),
-            "pattern": sorted(["Pattern", "Score", "CallAfter"]),
+            "pattern": sorted(["Pattern", "Score", "CallAfter", "CallAlways"]),
             "randoms": sorted(
                 [
                     "Randi",

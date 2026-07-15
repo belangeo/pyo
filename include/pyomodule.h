@@ -95,6 +95,7 @@ typedef enum
     PYO_RUNTIME_TYPE_PATTERN,
     PYO_RUNTIME_TYPE_SCORE,
     PYO_RUNTIME_TYPE_CALLAFTER,
+    PYO_RUNTIME_TYPE_CALLALWAYS,
     PYO_RUNTIME_TYPE_M_SIN,
     PYO_RUNTIME_TYPE_M_COS,
     PYO_RUNTIME_TYPE_M_TAN,
@@ -442,6 +443,7 @@ PyTypeObject * PyoCreateOscListReceiverType(PyObject *module);
 PyTypeObject * PyoCreatePatternType(PyObject *module);
 PyTypeObject * PyoCreateScoreType(PyObject *module);
 PyTypeObject * PyoCreateCallAfterType(PyObject *module);
+PyTypeObject * PyoCreateCallAlwaysType(PyObject *module);
 PyTypeObject * PyoCreateMSinType(PyObject *module);
 PyTypeObject * PyoCreateMCosType(PyObject *module);
 PyTypeObject * PyoCreateMTanType(PyObject *module);
@@ -773,6 +775,7 @@ typedef Py_ssize_t T_SIZE_T;
 #define TYPE_F_FFF "f|fff"
 #define TYPE_O_FIFFI "O|fiffi"
 #define TYPE_O_F "O|f"
+#define TYPE_O_O "O|O"
 #define TYPE_O_FO "O|fO"
 #define TYPE_O_OIF "O|Oif"
 #define TYPE__OF "|Of"
@@ -869,6 +872,7 @@ typedef Py_ssize_t T_SIZE_T;
 #define TYPE_F_FFF "d|ddd"
 #define TYPE_O_FIFFI "O|diddi"
 #define TYPE_O_F "O|d"
+#define TYPE_O_O "O|O"
 #define TYPE_O_FO "O|dO"
 #define TYPE_O_OIF "O|Oid"
 #define TYPE__OF "|Od"

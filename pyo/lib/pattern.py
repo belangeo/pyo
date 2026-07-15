@@ -390,3 +390,96 @@ class CallAfter(PyoObject):
     @arg.setter
     def arg(self, x):
         self.setArg(x)
+
+class CallAlways(PyoObject):
+    """
+    Calls a Python function every processing frame.
+
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        function: Python callable (function or method)
+            Python callable executed every buffer size.
+        arg: any Python object, optional
+            Argument sent to the called function. Defaults to None.
+
+    .. note::
+
+        The out() method is bypassed. CallAlways doesn't return signal.
+
+        CallAlways has no `mul` and `add` attributes.
+
+        If `arg` is None, the function must be defined without argument:
+
+        >>> def tocall():
+        >>>     pass # function's body
+
+        If `arg` is not None, the function must be defined with one argument:
+
+        >>> def tocall(arg):
+        >>>     print(arg)
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> t = DataTable(size=s.getBufferSize())
+    >>> n = Noise()
+    >>> f = TableFill(n, t)
+    >>> def callback(arg):
+    ...     # Apply a lowpass filter and a gain on the table content
+    ...     t.lowpass(arg)
+    ...     t.mul(0.25)
+    >>> a = CallAlways(callback, 500)
+    >>> o = TableScan(t).out()
+
+    """
+
+    def __init__(self, function, arg=None):
+        pyoArgsAssert(self, "c", function)
+        PyoObject.__init__(self)
+        self._function = getWeakMethodRef(function)
+        self._arg = arg
+        function, arg, lmax = convertArgsToLists(function, arg)
+        self._base_objs = [
+            CallAlways_base(WeakMethod(wrap(function, i)), wrap(arg, i))
+            for i in range(lmax)
+        ]
+        self._init_play()
+
+    def out(self, x=0, inc=1, dur=0, delay=0):
+        return self.play(dur, delay)
+
+    def setMul(self, x):
+        pass
+
+    def setAdd(self, x):
+        pass
+
+    def setSub(self, x):
+        pass
+
+    def setDiv(self, x):
+        pass
+
+    def setArg(self, x):
+        """
+        Replace the `arg` attribute.
+
+        :Args:
+
+            x: Anything
+                new `arg` attribute.
+
+        """
+        self._arg = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setArg(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
+
+    @property
+    def arg(self):
+        """Anything. Callable's argument."""
+        return self._arg
+
+    @arg.setter
+    def arg(self, x):
+        self.setArg(x)

@@ -2522,6 +2522,8 @@ pyo_exec(PyObject *m)
         return -1;
     if (module_add_heap_object(m, "CallAfter_base", PyoCreateCallAfterType, PYO_RUNTIME_TYPE_CALLAFTER) < 0)
         return -1;
+    if (module_add_heap_object(m, "CallAlways_base", PyoCreateCallAlwaysType, PYO_RUNTIME_TYPE_CALLALWAYS) < 0)
+        return -1;
     if (module_add_heap_object(m, "BandSplitter_base", PyoCreateBandSplitterType, PYO_RUNTIME_TYPE_BANDSPLITTER) < 0)
         return -1;
     if (module_add_heap_object(m, "BandSplit_base", PyoCreateBandSplitType, PYO_RUNTIME_TYPE_BANDSPLIT) < 0)
