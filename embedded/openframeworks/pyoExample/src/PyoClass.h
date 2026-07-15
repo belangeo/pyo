@@ -5,7 +5,7 @@
 #include <vector>
 #include "m_pyo.h"
 
-typedef int callPtr(int);
+typedef int callPtr(void *);
 
 class Pyo {
     public:
@@ -37,7 +37,7 @@ class Pyo {
         float *pyoInBuffer;
         float *pyoOutBuffer;
         callPtr *pyoCallback;
-        int pyoId;
+        void *pyoId;
 		bool processing;
         char pyoMsg[262144];
 };

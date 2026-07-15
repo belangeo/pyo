@@ -526,7 +526,7 @@ p_savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds)
 
     for (i = 0; i < channels; i++)
     {
-        PyList_SET_ITEM(tablestreamlist, i, PyObject_CallMethod(PyList_GetItem(base_objs, i), "getTableStream", NULL));
+        PyList_SET_ITEM(tablestreamlist, i, PYO_CALL_METHOD_RET(PyList_GetItem(base_objs, i), "getTableStream", NULL));
     }
 
     sr = (int)TableStream_getSamplingRate((TableStream *)PyList_GetItem(tablestreamlist, 0));
@@ -1067,7 +1067,7 @@ reducePoints(PyObject *self, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"pointlist", "tolerance", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_F, kwlist, &pointlist, &dTolerance))
-        return PyLong_FromLong(-1);
+        Py_RETURN_NONE;
 
     nPointsCount = PyList_Size(pointlist);
 
@@ -1473,7 +1473,7 @@ rescale(PyObject *self, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"data", "xmin", "xmax", "ymin", "ymax", "xlog", "ylog", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FFFFII, kwlist, &data, &xmin, &xmax, &ymin, &ymax, &xlog, &ylog))
-        return PyLong_FromLong(-1);
+        Py_RETURN_NONE;
 
     if (PyNumber_Check(data))
         type = 0;
@@ -1847,7 +1847,7 @@ sampsToSec(PyObject *self, PyObject *arg)
         Py_RETURN_NONE;
     }
 
-    PyObject *srobj = PyObject_CallMethod(server, "getSamplingRate", NULL);
+    PyObject *srobj = PYO_CALL_METHOD_RET(server, "getSamplingRate", NULL);
     double sr = PyFloat_AsDouble(srobj);
     Py_DECREF(srobj);
 
@@ -1915,7 +1915,7 @@ secToSamps(PyObject *self, PyObject *arg)
         Py_RETURN_NONE;
     }
 
-    PyObject *srobj = PyObject_CallMethod(server, "getSamplingRate", NULL);
+    PyObject *srobj = PYO_CALL_METHOD_RET(server, "getSamplingRate", NULL);
     double sr = PyFloat_AsDouble(srobj);
     Py_DECREF(srobj);
 
@@ -1998,7 +1998,7 @@ serverBooted(PyObject *self)
     if (PyServer_get_server() != NULL)
     {
         server = PyServer_get_server();
-        boot = PyLong_AsLong(PyObject_CallMethod(server, "getIsBooted", NULL));
+        boot = Pyo_CallMethod_AsLong(server, "getIsBooted");
 
         if (boot == 0)
         {
@@ -2066,31 +2066,845 @@ static PyMethodDef pyo_functions[] =
     {NULL, NULL, 0, NULL},
 };
 
-// TODO: Pyo likely has a bunch of state stored in global variables right now, they should ideally be stored
-// in an interpreter specific struct as described in https://docs.python.org/3/howto/cporting.html
+static struct PyModuleDef pyo_moduledef;
+static const char *pyo_state_module_key = LIB_BASE_NAME "._module";
+
+static int
+module_add_heap_object(PyObject *module, const char *name, PyTypeObject *(*factory)(PyObject *), PyoRuntimeTypeId id)
+{
+    PyTypeObject *type = factory(module);
+
+    if (type == NULL)
+        return -1;
+
+    if (PyoType_SetCurrent(id, (PyTypeObject *)Py_NewRef((PyObject *)type)) < 0)
+    {
+        Py_DECREF(type);
+        return -1;
+    }
+
+    if (PyModule_AddObjectRef(module, name, (PyObject *)type) < 0)
+    {
+        Py_DECREF(type);
+        return -1;
+    }
+
+    Py_DECREF(type);
+    return 0;
+}
+
+PyoModuleState *
+PyoState_Get(void)
+{
+    PyInterpreterState *interp = PyInterpreterState_Get();
+    PyObject *interp_dict = PyInterpreterState_GetDict(interp);
+    PyObject *module;
+
+    if (interp_dict == NULL)
+        return NULL;
+
+    module = PyDict_GetItemString(interp_dict, pyo_state_module_key);
+
+    if (module == NULL)
+        return NULL;
+
+    return (PyoModuleState *)PyModule_GetState(module);
+}
+
+PyTypeObject *
+PyoType_GetCurrent(PyoRuntimeTypeId id)
+{
+    PyoModuleState *state = PyoState_Get();
+
+    if (state == NULL || id < 0 || id >= PYO_RUNTIME_TYPE_COUNT)
+        return NULL;
+
+    return state->runtime_types[id];
+}
+
+int
+PyoType_SetCurrent(PyoRuntimeTypeId id, PyTypeObject *type)
+{
+    PyoModuleState *state = PyoState_Get();
+
+    if (state == NULL || id < 0 || id >= PYO_RUNTIME_TYPE_COUNT)
+        return -1;
+
+    Py_XSETREF(state->runtime_types[id], type);
+    return 0;
+}
+
+void
+PyoState_Init(PyoModuleState *state)
+{
+    int i;
+
+    if (state == NULL)
+        return;
+
+    state->current_server_id = 0;
+    state->rand_seed = 1u;
+
+    for (i = 0; i < MAX_NBR_SERVER; i++)
+        state->servers[i] = NULL;
+
+    for (i = 0; i < PYO_NUM_RND_OBJS; i++)
+        state->rnd_objs_count[i] = 0;
+
+    for (i = 0; i < PYO_RUNTIME_TYPE_COUNT; i++)
+        state->runtime_types[i] = NULL;
+}
+
+static void
+PyoState_ClearTypes(PyoModuleState *state)
+{
+    int i;
+
+    if (state == NULL)
+        return;
+
+    for (i = 0; i < PYO_RUNTIME_TYPE_COUNT; i++)
+        Py_CLEAR(state->runtime_types[i]);
+}
+
+static int
+pyo_exec(PyObject *m)
+{
+    PyInterpreterState *interp;
+    PyObject *interp_dict;
+
+    PyoState_Init((PyoModuleState *)PyModule_GetState(m));
+
+    interp = PyInterpreterState_Get();
+    interp_dict = PyInterpreterState_GetDict(interp);
+
+    if (interp_dict == NULL)
+        return -1;
+
+    if (PyDict_SetItemString(interp_dict, pyo_state_module_key, m) < 0)
+        return -1;
+
+    if (module_add_heap_object(m, "Server_base", PyoCreateServerType, PYO_RUNTIME_TYPE_SERVER) < 0)
+        return -1;
+#ifdef USE_PORTMIDI
+    if (module_add_heap_object(m, "MidiListener_base", PyoCreateMidiListenerType, PYO_RUNTIME_TYPE_MIDI_LISTENER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "MidiDispatcher_base", PyoCreateMidiDispatcherType, PYO_RUNTIME_TYPE_MIDI_DISPATCHER) < 0)
+        return -1;
+#endif
+#ifdef USE_OSC
+    if (module_add_heap_object(m, "OscListener_base", PyoCreateOscListenerType, PYO_RUNTIME_TYPE_OSC_LISTENER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "OscSend_base", PyoCreateOscSendType, PYO_RUNTIME_TYPE_OSC_SEND) < 0)
+        return -1;
+    if (module_add_heap_object(m, "OscDataSend_base", PyoCreateOscDataSendType, PYO_RUNTIME_TYPE_OSC_DATA_SEND) < 0)
+        return -1;
+    if (module_add_heap_object(m, "OscReceive_base", PyoCreateOscReceiveType, PYO_RUNTIME_TYPE_OSC_RECEIVE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "OscReceiver_base", PyoCreateOscReceiverType, PYO_RUNTIME_TYPE_OSC_RECEIVER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "OscListReceive_base", PyoCreateOscListReceiveType, PYO_RUNTIME_TYPE_OSC_LIST_RECEIVE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "OscListReceiver_base", PyoCreateOscListReceiverType, PYO_RUNTIME_TYPE_OSC_LIST_RECEIVER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "OscDataReceive_base", PyoCreateOscDataReceiveType, PYO_RUNTIME_TYPE_OSC_DATA_RECEIVE) < 0)
+        return -1;
+#endif
+    if (module_add_heap_object(m, "Stream", PyoCreateStreamType, PYO_RUNTIME_TYPE_STREAM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TriggerStream", PyoCreateTriggerStreamType, PYO_RUNTIME_TYPE_TRIGGER_STREAM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "PVStream", PyoCreatePVStreamType, PYO_RUNTIME_TYPE_PV_STREAM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Dummy_base", PyoCreateDummyType, PYO_RUNTIME_TYPE_DUMMY) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TriggerDummy_base", PyoCreateTriggerDummyType, PYO_RUNTIME_TYPE_TRIGGER_DUMMY) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TableStream", PyoCreateTableStreamType, PYO_RUNTIME_TYPE_TABLE_STREAM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "MatrixStream", PyoCreateMatrixStreamType, PYO_RUNTIME_TYPE_MATRIX_STREAM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Record_base", PyoCreateRecordType, PYO_RUNTIME_TYPE_RECORD) < 0)
+        return -1;
+    if (module_add_heap_object(m, "ControlRec_base", PyoCreateControlRecType, PYO_RUNTIME_TYPE_CONTROLREC) < 0)
+        return -1;
+    if (module_add_heap_object(m, "ControlRead_base", PyoCreateControlReadType, PYO_RUNTIME_TYPE_CONTROLREAD) < 0)
+        return -1;
+    if (module_add_heap_object(m, "NoteinRec_base", PyoCreateNoteinRecType, PYO_RUNTIME_TYPE_NOTEINREC) < 0)
+        return -1;
+    if (module_add_heap_object(m, "NoteinRead_base", PyoCreateNoteinReadType, PYO_RUNTIME_TYPE_NOTEINREAD) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Compare_base", PyoCreateCompareType, PYO_RUNTIME_TYPE_COMPARE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Mix_base", PyoCreateMixType, PYO_RUNTIME_TYPE_MIX) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Sig_base", PyoCreateSigType, PYO_RUNTIME_TYPE_SIG) < 0)
+        return -1;
+    if (module_add_heap_object(m, "SigTo_base", PyoCreateSigToType, PYO_RUNTIME_TYPE_SIGTO) < 0)
+        return -1;
+    if (module_add_heap_object(m, "VarPort_base", PyoCreateVarPortType, PYO_RUNTIME_TYPE_VARPORT) < 0)
+        return -1;
+    if (module_add_heap_object(m, "InputFader_base", PyoCreateInputFaderType, PYO_RUNTIME_TYPE_INPUTFADER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Adsr_base", PyoCreateAdsrType, PYO_RUNTIME_TYPE_ADSR) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Linseg_base", PyoCreateLinsegType, PYO_RUNTIME_TYPE_LINSEG) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Expseg_base", PyoCreateExpsegType, PYO_RUNTIME_TYPE_EXPSEG) < 0)
+        return -1;
+    if (module_add_heap_object(m, "HarmTable_base", PyoCreateHarmTableType, PYO_RUNTIME_TYPE_HARMTABLE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "ChebyTable_base", PyoCreateChebyTableType, PYO_RUNTIME_TYPE_CHEBYTABLE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "HannTable_base", PyoCreateHannTableType, PYO_RUNTIME_TYPE_HANNTABLE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "SincTable_base", PyoCreateSincTableType, PYO_RUNTIME_TYPE_SINCTABLE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "WinTable_base", PyoCreateWinTableType, PYO_RUNTIME_TYPE_WINTABLE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "ParaTable_base", PyoCreateParaTableType, PYO_RUNTIME_TYPE_PARATABLE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "LinTable_base", PyoCreateLinTableType, PYO_RUNTIME_TYPE_LINTABLE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "LogTable_base", PyoCreateLogTableType, PYO_RUNTIME_TYPE_LOGTABLE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "CosLogTable_base", PyoCreateCosLogTableType, PYO_RUNTIME_TYPE_COSLOGTABLE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "CosTable_base", PyoCreateCosTableType, PYO_RUNTIME_TYPE_COSTABLE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "CurveTable_base", PyoCreateCurveTableType, PYO_RUNTIME_TYPE_CURVETABLE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "ExpTable_base", PyoCreateExpTableType, PYO_RUNTIME_TYPE_EXPTABLE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "SndTable_base", PyoCreateSndTableType, PYO_RUNTIME_TYPE_SNDTABLE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "DataTable_base", PyoCreateDataTableType, PYO_RUNTIME_TYPE_DATATABLE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "NewTable_base", PyoCreateNewTableType, PYO_RUNTIME_TYPE_NEWTABLE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TableRec_base", PyoCreateTableRecType, PYO_RUNTIME_TYPE_TABLEREC) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TableRecTimeStream_base", PyoCreateTableRecTimeStreamType, PYO_RUNTIME_TYPE_TABLERECTIMESTREAM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TableMorph_base", PyoCreateTableMorphType, PYO_RUNTIME_TYPE_TABLEMORPH) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TrigTableRec_base", PyoCreateTrigTableRecType, PYO_RUNTIME_TYPE_TRIGTABLEREC) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TrigTableRecTimeStream_base", PyoCreateTrigTableRecTimeStreamType, PYO_RUNTIME_TYPE_TRIGTABLERECTIMESTREAM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TableWrite_base", PyoCreateTableWriteType, PYO_RUNTIME_TYPE_TABLEWRITE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TablePut_base", PyoCreateTablePutType, PYO_RUNTIME_TYPE_TABLEPUT) < 0)
+        return -1;
+    if (module_add_heap_object(m, "NewMatrix_base", PyoCreateNewMatrixType, PYO_RUNTIME_TYPE_NEWMATRIX) < 0)
+        return -1;
+    if (module_add_heap_object(m, "MatrixPointer_base", PyoCreateMatrixPointerType, PYO_RUNTIME_TYPE_MATRIXPOINTER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "MatrixRec_base", PyoCreateMatrixRecType, PYO_RUNTIME_TYPE_MATRIXREC) < 0)
+        return -1;
+    if (module_add_heap_object(m, "MatrixRecLoop_base", PyoCreateMatrixRecLoopType, PYO_RUNTIME_TYPE_MATRIXRECLOOP) < 0)
+        return -1;
+    if (module_add_heap_object(m, "MatrixMorph_base", PyoCreateMatrixMorphType, PYO_RUNTIME_TYPE_MATRIXMORPH) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Input_base", PyoCreateInputType, PYO_RUNTIME_TYPE_INPUT) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Trig_base", PyoCreateTrigType, PYO_RUNTIME_TYPE_TRIG) < 0)
+        return -1;
+    if (module_add_heap_object(m, "NextTrig_base", PyoCreateNextTrigType, PYO_RUNTIME_TYPE_NEXTTRIG) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Metro_base", PyoCreateMetroType, PYO_RUNTIME_TYPE_METRO) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Seqer_base", PyoCreateSeqerType, PYO_RUNTIME_TYPE_SEQER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Seq_base", PyoCreateSeqType, PYO_RUNTIME_TYPE_SEQ) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Clouder_base", PyoCreateClouderType, PYO_RUNTIME_TYPE_CLOUDER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Cloud_base", PyoCreateCloudType, PYO_RUNTIME_TYPE_CLOUD) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Beater_base", PyoCreateBeaterType, PYO_RUNTIME_TYPE_BEATER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Beat_base", PyoCreateBeatType, PYO_RUNTIME_TYPE_BEAT) < 0)
+        return -1;
+    if (module_add_heap_object(m, "BeatTapStream_base", PyoCreateBeatTapStreamType, PYO_RUNTIME_TYPE_BEATTAPSTREAM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "BeatAmpStream_base", PyoCreateBeatAmpStreamType, PYO_RUNTIME_TYPE_BEATAMPSTREAM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "BeatDurStream_base", PyoCreateBeatDurStreamType, PYO_RUNTIME_TYPE_BEATDURSTREAM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "BeatEndStream_base", PyoCreateBeatEndStreamType, PYO_RUNTIME_TYPE_BEATENDSTREAM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Fader_base", PyoCreateFaderType, PYO_RUNTIME_TYPE_FADER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Randi_base", PyoCreateRandiType, PYO_RUNTIME_TYPE_RANDI) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Randh_base", PyoCreateRandhType, PYO_RUNTIME_TYPE_RANDH) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Choice_base", PyoCreateChoiceType, PYO_RUNTIME_TYPE_CHOICE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "RandDur_base", PyoCreateRandDurType, PYO_RUNTIME_TYPE_RANDDUR) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Xnoise_base", PyoCreateXnoiseType, PYO_RUNTIME_TYPE_XNOISE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "XnoiseMidi_base", PyoCreateXnoiseMidiType, PYO_RUNTIME_TYPE_XNOISEMIDI) < 0)
+        return -1;
+    if (module_add_heap_object(m, "XnoiseDur_base", PyoCreateXnoiseDurType, PYO_RUNTIME_TYPE_XNOISEDUR) < 0)
+        return -1;
+    if (module_add_heap_object(m, "RandInt_base", PyoCreateRandIntType, PYO_RUNTIME_TYPE_RANDINT) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Urn_base", PyoCreateUrnType, PYO_RUNTIME_TYPE_URN) < 0)
+        return -1;
+    if (module_add_heap_object(m, "SfPlayer_base", PyoCreateSfPlayerType, PYO_RUNTIME_TYPE_SFPLAYER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "SfPlay_base", PyoCreateSfPlayType, PYO_RUNTIME_TYPE_SFPLAY) < 0)
+        return -1;
+    if (module_add_heap_object(m, "SfMarkerShuffler_base", PyoCreateSfMarkerShufflerType, PYO_RUNTIME_TYPE_SFMARKERSHUFFLER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "SfMarkerShuffle_base", PyoCreateSfMarkerShuffleType, PYO_RUNTIME_TYPE_SFMARKERSHUFFLE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "SfMarkerLooper_base", PyoCreateSfMarkerLooperType, PYO_RUNTIME_TYPE_SFMARKERLOOPER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "SfMarkerLoop_base", PyoCreateSfMarkerLoopType, PYO_RUNTIME_TYPE_SFMARKERLOOP) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Osc_base", PyoCreateOscType, PYO_RUNTIME_TYPE_OSC) < 0)
+        return -1;
+    if (module_add_heap_object(m, "OscLoop_base", PyoCreateOscLoopType, PYO_RUNTIME_TYPE_OSCLOOP) < 0)
+        return -1;
+    if (module_add_heap_object(m, "OscTrig_base", PyoCreateOscTrigType, PYO_RUNTIME_TYPE_OSCTRIG) < 0)
+        return -1;
+    if (module_add_heap_object(m, "OscBank_base", PyoCreateOscBankType, PYO_RUNTIME_TYPE_OSCBANK) < 0)
+        return -1;
+    if (module_add_heap_object(m, "SumOsc_base", PyoCreateSumOscType, PYO_RUNTIME_TYPE_SUMOSC) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TableRead_base", PyoCreateTableReadType, PYO_RUNTIME_TYPE_TABLEREAD) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Pulsar_base", PyoCreatePulsarType, PYO_RUNTIME_TYPE_PULSAR) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Sine_base", PyoCreateSineType, PYO_RUNTIME_TYPE_SINE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "FastSine_base", PyoCreateFastSineType, PYO_RUNTIME_TYPE_FASTSINE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "SineLoop_base", PyoCreateSineLoopType, PYO_RUNTIME_TYPE_SINELOOP) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Fm_base", PyoCreateFmType, PYO_RUNTIME_TYPE_FM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "CrossFm_base", PyoCreateCrossFmType, PYO_RUNTIME_TYPE_CROSSFM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "LFO_base", PyoCreateLFOType, PYO_RUNTIME_TYPE_LFO) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Blit_base", PyoCreateBlitType, PYO_RUNTIME_TYPE_BLIT) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Rossler_base", PyoCreateRosslerType, PYO_RUNTIME_TYPE_ROSSLER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "RosslerAlt_base", PyoCreateRosslerAltType, PYO_RUNTIME_TYPE_ROSSLERALT) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Lorenz_base", PyoCreateLorenzType, PYO_RUNTIME_TYPE_LORENZ) < 0)
+        return -1;
+    if (module_add_heap_object(m, "LorenzAlt_base", PyoCreateLorenzAltType, PYO_RUNTIME_TYPE_LORENZALT) < 0)
+        return -1;
+    if (module_add_heap_object(m, "ChenLee_base", PyoCreateChenLeeType, PYO_RUNTIME_TYPE_CHENLEE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "ChenLeeAlt_base", PyoCreateChenLeeAltType, PYO_RUNTIME_TYPE_CHENLEEALT) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Phasor_base", PyoCreatePhasorType, PYO_RUNTIME_TYPE_PHASOR) < 0)
+        return -1;
+    if (module_add_heap_object(m, "SuperSaw_base", PyoCreateSuperSawType, PYO_RUNTIME_TYPE_SUPERSAW) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Pointer_base", PyoCreatePointerType, PYO_RUNTIME_TYPE_POINTER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TableIndex_base", PyoCreateTableIndexType, PYO_RUNTIME_TYPE_TABLEINDEX) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Lookup_base", PyoCreateLookupType, PYO_RUNTIME_TYPE_LOOKUP) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Noise_base", PyoCreateNoiseType, PYO_RUNTIME_TYPE_NOISE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "PinkNoise_base", PyoCreatePinkNoiseType, PYO_RUNTIME_TYPE_PINKNOISE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "BrownNoise_base", PyoCreateBrownNoiseType, PYO_RUNTIME_TYPE_BROWNNOISE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Biquad_base", PyoCreateBiquadType, PYO_RUNTIME_TYPE_BIQUAD) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Biquadx_base", PyoCreateBiquadxType, PYO_RUNTIME_TYPE_BIQUADX) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Biquada_base", PyoCreateBiquadaType, PYO_RUNTIME_TYPE_BIQUADA) < 0)
+        return -1;
+    if (module_add_heap_object(m, "EQ_base", PyoCreateEQType, PYO_RUNTIME_TYPE_EQ) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Tone_base", PyoCreateToneType, PYO_RUNTIME_TYPE_TONE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Atone_base", PyoCreateAtoneType, PYO_RUNTIME_TYPE_ATONE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "DCBlock_base", PyoCreateDCBlockType, PYO_RUNTIME_TYPE_DCBLOCK) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Allpass_base", PyoCreateAllpassType, PYO_RUNTIME_TYPE_ALLPASS) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Allpass2_base", PyoCreateAllpass2Type, PYO_RUNTIME_TYPE_ALLPASS2) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Phaser_base", PyoCreatePhaserType, PYO_RUNTIME_TYPE_PHASER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Vocoder_base", PyoCreateVocoderType, PYO_RUNTIME_TYPE_VOCODER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Port_base", PyoCreatePortType, PYO_RUNTIME_TYPE_PORT) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Denorm_base", PyoCreateDenormType, PYO_RUNTIME_TYPE_DENORM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Disto_base", PyoCreateDistoType, PYO_RUNTIME_TYPE_DISTO) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Clip_base", PyoCreateClipType, PYO_RUNTIME_TYPE_CLIP) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Mirror_base", PyoCreateMirrorType, PYO_RUNTIME_TYPE_MIRROR) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Wrap_base", PyoCreateWrapType, PYO_RUNTIME_TYPE_WRAP) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Between_base", PyoCreateBetweenType, PYO_RUNTIME_TYPE_BETWEEN) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Degrade_base", PyoCreateDegradeType, PYO_RUNTIME_TYPE_DEGRADE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Compress_base", PyoCreateCompressType, PYO_RUNTIME_TYPE_COMPRESS) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Gate_base", PyoCreateGateType, PYO_RUNTIME_TYPE_GATE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Balance_base", PyoCreateBalanceType, PYO_RUNTIME_TYPE_BALANCE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Delay_base", PyoCreateDelayType, PYO_RUNTIME_TYPE_DELAY) < 0)
+        return -1;
+    if (module_add_heap_object(m, "SDelay_base", PyoCreateSDelayType, PYO_RUNTIME_TYPE_SDELAY) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Waveguide_base", PyoCreateWaveguideType, PYO_RUNTIME_TYPE_WAVEGUIDE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "AllpassWG_base", PyoCreateAllpassWGType, PYO_RUNTIME_TYPE_ALLPASSWG) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Midictl_base", PyoCreateMidictlType, PYO_RUNTIME_TYPE_MIDICTL) < 0)
+        return -1;
+    if (module_add_heap_object(m, "CtlScan_base", PyoCreateCtlScanType, PYO_RUNTIME_TYPE_CTLSCAN) < 0)
+        return -1;
+    if (module_add_heap_object(m, "CtlScan2_base", PyoCreateCtlScan2Type, PYO_RUNTIME_TYPE_CTLSCAN2) < 0)
+        return -1;
+    if (module_add_heap_object(m, "MidiNote_base", PyoCreateMidiNoteType, PYO_RUNTIME_TYPE_MIDINOTE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Notein_base", PyoCreateNoteinType, PYO_RUNTIME_TYPE_NOTEIN) < 0)
+        return -1;
+    if (module_add_heap_object(m, "NoteinTrig_base", PyoCreateNoteinTrigType, PYO_RUNTIME_TYPE_NOTEINTRIG) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Bendin_base", PyoCreateBendinType, PYO_RUNTIME_TYPE_BENDIN) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Touchin_base", PyoCreateTouchinType, PYO_RUNTIME_TYPE_TOUCHIN) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Programin_base", PyoCreatePrograminType, PYO_RUNTIME_TYPE_PROGRAMIN) < 0)
+        return -1;
+    if (module_add_heap_object(m, "MidiAdsr_base", PyoCreateMidiAdsrType, PYO_RUNTIME_TYPE_MIDIADSR) < 0)
+        return -1;
+    if (module_add_heap_object(m, "MidiDelAdsr_base", PyoCreateMidiDelAdsrType, PYO_RUNTIME_TYPE_MIDIDELADSR) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TrigRand_base", PyoCreateTrigRandType, PYO_RUNTIME_TYPE_TRIGRAND) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TrigRandInt_base", PyoCreateTrigRandIntType, PYO_RUNTIME_TYPE_TRIGRANDINT) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TrigVal_base", PyoCreateTrigValType, PYO_RUNTIME_TYPE_TRIGVAL) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TrigChoice_base", PyoCreateTrigChoiceType, PYO_RUNTIME_TYPE_TRIGCHOICE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Iter_base", PyoCreateIterType, PYO_RUNTIME_TYPE_ITER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TrigEnv_base", PyoCreateTrigEnvType, PYO_RUNTIME_TYPE_TRIGENV) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TrigLinseg_base", PyoCreateTrigLinsegType, PYO_RUNTIME_TYPE_TRIGLINSEG) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TrigExpseg_base", PyoCreateTrigExpsegType, PYO_RUNTIME_TYPE_TRIGEXPSEG) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TrigFunc_base", PyoCreateTrigFuncType, PYO_RUNTIME_TYPE_TRIGFUNC) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TrigXnoise_base", PyoCreateTrigXnoiseType, PYO_RUNTIME_TYPE_TRIGXNOISE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TrigXnoiseMidi_base", PyoCreateTrigXnoiseMidiType, PYO_RUNTIME_TYPE_TRIGXNOISEMIDI) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Pattern_base", PyoCreatePatternType, PYO_RUNTIME_TYPE_PATTERN) < 0)
+        return -1;
+    if (module_add_heap_object(m, "CallAfter_base", PyoCreateCallAfterType, PYO_RUNTIME_TYPE_CALLAFTER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "BandSplitter_base", PyoCreateBandSplitterType, PYO_RUNTIME_TYPE_BANDSPLITTER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "BandSplit_base", PyoCreateBandSplitType, PYO_RUNTIME_TYPE_BANDSPLIT) < 0)
+        return -1;
+    if (module_add_heap_object(m, "FourBandMain_base", PyoCreateFourBandMainType, PYO_RUNTIME_TYPE_FOURBAND_MAIN) < 0)
+        return -1;
+    if (module_add_heap_object(m, "FourBand_base", PyoCreateFourBandType, PYO_RUNTIME_TYPE_FOURBAND) < 0)
+        return -1;
+    if (module_add_heap_object(m, "HilbertMain_base", PyoCreateHilbertMainType, PYO_RUNTIME_TYPE_HILBERTMAIN) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Hilbert_base", PyoCreateHilbertType, PYO_RUNTIME_TYPE_HILBERT) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Follower_base", PyoCreateFollowerType, PYO_RUNTIME_TYPE_FOLLOWER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Follower2_base", PyoCreateFollower2Type, PYO_RUNTIME_TYPE_FOLLOWER2) < 0)
+        return -1;
+    if (module_add_heap_object(m, "ZCross_base", PyoCreateZCrossType, PYO_RUNTIME_TYPE_ZCROSS) < 0)
+        return -1;
+    if (module_add_heap_object(m, "SPanner_base", PyoCreateSPannerType, PYO_RUNTIME_TYPE_SPANNER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Panner_base", PyoCreatePannerType, PYO_RUNTIME_TYPE_PANNER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Pan_base", PyoCreatePanType, PYO_RUNTIME_TYPE_PAN) < 0)
+        return -1;
+    if (module_add_heap_object(m, "SPan_base", PyoCreateSPanType, PYO_RUNTIME_TYPE_SPAN) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Switcher_base", PyoCreateSwitcherType, PYO_RUNTIME_TYPE_SWITCHER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Switch_base", PyoCreateSwitchType, PYO_RUNTIME_TYPE_SWITCH) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Selector_base", PyoCreateSelectorType, PYO_RUNTIME_TYPE_SELECTOR) < 0)
+        return -1;
+    if (module_add_heap_object(m, "VoiceManager_base", PyoCreateVoiceManagerType, PYO_RUNTIME_TYPE_VOICEMANAGER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Mixer_base", PyoCreateMixerType, PYO_RUNTIME_TYPE_MIXER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "MixerVoice_base", PyoCreateMixerVoiceType, PYO_RUNTIME_TYPE_MIXERVOICE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Counter_base", PyoCreateCounterType, PYO_RUNTIME_TYPE_COUNTER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Count_base", PyoCreateCountType, PYO_RUNTIME_TYPE_COUNTOBJ) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Thresh_base", PyoCreateThreshType, PYO_RUNTIME_TYPE_THRESH) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Percent_base", PyoCreatePercentType, PYO_RUNTIME_TYPE_PERCENT) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Timer_base", PyoCreateTimerType, PYO_RUNTIME_TYPE_TIMER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Select_base", PyoCreateSelectType, PYO_RUNTIME_TYPE_SELECT) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Change_base", PyoCreateChangeType, PYO_RUNTIME_TYPE_CHANGE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Score_base", PyoCreateScoreType, PYO_RUNTIME_TYPE_SCORE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Freeverb_base", PyoCreateFreeverbType, PYO_RUNTIME_TYPE_FREEVERB) < 0)
+        return -1;
+    if (module_add_heap_object(m, "WGVerb_base", PyoCreateWGVerbType, PYO_RUNTIME_TYPE_WGVERB) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Chorus_base", PyoCreateChorusType, PYO_RUNTIME_TYPE_CHORUS) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Convolve_base", PyoCreateConvolveType, PYO_RUNTIME_TYPE_CONVOLVE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "IRWinSinc_base", PyoCreateIRWinSincType, PYO_RUNTIME_TYPE_IRWINSINC) < 0)
+        return -1;
+    if (module_add_heap_object(m, "IRPulse_base", PyoCreateIRPulseType, PYO_RUNTIME_TYPE_IRPULSE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "IRAverage_base", PyoCreateIRAverageType, PYO_RUNTIME_TYPE_IRAVERAGE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "IRFM_base", PyoCreateIRFMType, PYO_RUNTIME_TYPE_IRFM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Granulator_base", PyoCreateGranulatorType, PYO_RUNTIME_TYPE_GRANULATOR) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Looper_base", PyoCreateLooperType, PYO_RUNTIME_TYPE_LOOPER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "LooperTimeStream_base", PyoCreateLooperTimeStreamType, PYO_RUNTIME_TYPE_LOOPERTIMESTREAM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Harmonizer_base", PyoCreateHarmonizerType, PYO_RUNTIME_TYPE_HARMONIZER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Print_base", PyoCreatePrintType, PYO_RUNTIME_TYPE_PRINT) < 0)
+        return -1;
+    if (module_add_heap_object(m, "M_Sin_base", PyoCreateMSinType, PYO_RUNTIME_TYPE_M_SIN) < 0)
+        return -1;
+    if (module_add_heap_object(m, "M_Cos_base", PyoCreateMCosType, PYO_RUNTIME_TYPE_M_COS) < 0)
+        return -1;
+    if (module_add_heap_object(m, "M_Tan_base", PyoCreateMTanType, PYO_RUNTIME_TYPE_M_TAN) < 0)
+        return -1;
+    if (module_add_heap_object(m, "M_Abs_base", PyoCreateMAbsType, PYO_RUNTIME_TYPE_M_ABS) < 0)
+        return -1;
+    if (module_add_heap_object(m, "M_Sqrt_base", PyoCreateMSqrtType, PYO_RUNTIME_TYPE_M_SQRT) < 0)
+        return -1;
+    if (module_add_heap_object(m, "M_Log_base", PyoCreateMLogType, PYO_RUNTIME_TYPE_M_LOG) < 0)
+        return -1;
+    if (module_add_heap_object(m, "M_Log2_base", PyoCreateMLog2Type, PYO_RUNTIME_TYPE_M_LOG2) < 0)
+        return -1;
+    if (module_add_heap_object(m, "M_Log10_base", PyoCreateMLog10Type, PYO_RUNTIME_TYPE_M_LOG10) < 0)
+        return -1;
+    if (module_add_heap_object(m, "M_Pow_base", PyoCreateMPowType, PYO_RUNTIME_TYPE_M_POW) < 0)
+        return -1;
+    if (module_add_heap_object(m, "M_Atan2_base", PyoCreateMAtan2Type, PYO_RUNTIME_TYPE_M_ATAN2) < 0)
+        return -1;
+    if (module_add_heap_object(m, "M_Floor_base", PyoCreateMFloorType, PYO_RUNTIME_TYPE_M_FLOOR) < 0)
+        return -1;
+    if (module_add_heap_object(m, "M_Ceil_base", PyoCreateMCeilType, PYO_RUNTIME_TYPE_M_CEIL) < 0)
+        return -1;
+    if (module_add_heap_object(m, "M_Round_base", PyoCreateMRoundType, PYO_RUNTIME_TYPE_M_ROUND) < 0)
+        return -1;
+    if (module_add_heap_object(m, "M_Tanh_base", PyoCreateMTanhType, PYO_RUNTIME_TYPE_M_TANH) < 0)
+        return -1;
+    if (module_add_heap_object(m, "M_Exp_base", PyoCreateMExpType, PYO_RUNTIME_TYPE_M_EXP) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Snap_base", PyoCreateSnapType, PYO_RUNTIME_TYPE_SNAP) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Interp_base", PyoCreateInterpType, PYO_RUNTIME_TYPE_INTERP) < 0)
+        return -1;
+    if (module_add_heap_object(m, "SampHold_base", PyoCreateSampHoldType, PYO_RUNTIME_TYPE_SAMPHOLD) < 0)
+        return -1;
+    if (module_add_heap_object(m, "DBToA_base", PyoCreateDBToAType, PYO_RUNTIME_TYPE_DBTOA) < 0)
+        return -1;
+    if (module_add_heap_object(m, "AToDB_base", PyoCreateAToDBType, PYO_RUNTIME_TYPE_ATODB) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Scale_base", PyoCreateScaleType, PYO_RUNTIME_TYPE_SCALE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "CentsToTranspo_base", PyoCreateCentsToTranspoType, PYO_RUNTIME_TYPE_CENTSTOTRANSPO) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TranspoToCents_base", PyoCreateTranspoToCentsType, PYO_RUNTIME_TYPE_TRANSPOTOCENTS) < 0)
+        return -1;
+    if (module_add_heap_object(m, "MToF_base", PyoCreateMToFType, PYO_RUNTIME_TYPE_MTOF) < 0)
+        return -1;
+    if (module_add_heap_object(m, "FToM_base", PyoCreateFToMType, PYO_RUNTIME_TYPE_FTOM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "MToT_base", PyoCreateMToTType, PYO_RUNTIME_TYPE_MTOT) < 0)
+        return -1;
+    if (module_add_heap_object(m, "FFTMain_base", PyoCreateFFTMainType, PYO_RUNTIME_TYPE_FFTMAIN) < 0)
+        return -1;
+    if (module_add_heap_object(m, "FFT_base", PyoCreateFFTType, PYO_RUNTIME_TYPE_FFT) < 0)
+        return -1;
+    if (module_add_heap_object(m, "IFFT_base", PyoCreateIFFTType, PYO_RUNTIME_TYPE_IFFT) < 0)
+        return -1;
+    if (module_add_heap_object(m, "IFFTMatrix_base", PyoCreateIFFTMatrixType, PYO_RUNTIME_TYPE_IFFTMATRIX) < 0)
+        return -1;
+    if (module_add_heap_object(m, "CarToPol_base", PyoCreateCarToPolType, PYO_RUNTIME_TYPE_CARTOPOL) < 0)
+        return -1;
+    if (module_add_heap_object(m, "PolToCar_base", PyoCreatePolToCarType, PYO_RUNTIME_TYPE_POLTOCAR) < 0)
+        return -1;
+    if (module_add_heap_object(m, "FrameDeltaMain_base", PyoCreateFrameDeltaMainType, PYO_RUNTIME_TYPE_FRAMEDELTAMAIN) < 0)
+        return -1;
+    if (module_add_heap_object(m, "FrameDelta_base", PyoCreateFrameDeltaType, PYO_RUNTIME_TYPE_FRAMEDELTA) < 0)
+        return -1;
+    if (module_add_heap_object(m, "FrameAccum_base", PyoCreateFrameAccumType, PYO_RUNTIME_TYPE_FRAMEACCUM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "FrameAccumMain_base", PyoCreateFrameAccumMainType, PYO_RUNTIME_TYPE_FRAMEACCUMMAIN) < 0)
+        return -1;
+    if (module_add_heap_object(m, "VectralMain_base", PyoCreateVectralMainType, PYO_RUNTIME_TYPE_VECTRALMAIN) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Vectral_base", PyoCreateVectralType, PYO_RUNTIME_TYPE_VECTRAL) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Min_base", PyoCreateMinType, PYO_RUNTIME_TYPE_MIN) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Max_base", PyoCreateMaxType, PYO_RUNTIME_TYPE_MAX) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Delay1_base", PyoCreateDelay1Type, PYO_RUNTIME_TYPE_DELAY1) < 0)
+        return -1;
+    if (module_add_heap_object(m, "RCOsc_base", PyoCreateRCOscType, PYO_RUNTIME_TYPE_RCOSC) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Yin_base", PyoCreateYinType, PYO_RUNTIME_TYPE_YIN) < 0)
+        return -1;
+    if (module_add_heap_object(m, "SVF_base", PyoCreateSVFType, PYO_RUNTIME_TYPE_SVF) < 0)
+        return -1;
+    if (module_add_heap_object(m, "SVF2_base", PyoCreateSVF2Type, PYO_RUNTIME_TYPE_SVF2) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Average_base", PyoCreateAverageType, PYO_RUNTIME_TYPE_AVERAGE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "CvlVerb_base", PyoCreateCvlVerbType, PYO_RUNTIME_TYPE_CVLVERB) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Spectrum_base", PyoCreateSpectrumType, PYO_RUNTIME_TYPE_SPECTRUM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Reson_base", PyoCreateResonType, PYO_RUNTIME_TYPE_RESON) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Resonx_base", PyoCreateResonxType, PYO_RUNTIME_TYPE_RESONX) < 0)
+        return -1;
+    if (module_add_heap_object(m, "ButLP_base", PyoCreateButLPType, PYO_RUNTIME_TYPE_BUTLP) < 0)
+        return -1;
+    if (module_add_heap_object(m, "ButHP_base", PyoCreateButHPType, PYO_RUNTIME_TYPE_BUTHP) < 0)
+        return -1;
+    if (module_add_heap_object(m, "ButBP_base", PyoCreateButBPType, PYO_RUNTIME_TYPE_BUTBP) < 0)
+        return -1;
+    if (module_add_heap_object(m, "ButBR_base", PyoCreateButBRType, PYO_RUNTIME_TYPE_BUTBR) < 0)
+        return -1;
+    if (module_add_heap_object(m, "MoogLP_base", PyoCreateMoogLPType, PYO_RUNTIME_TYPE_MOOGLP) < 0)
+        return -1;
+    if (module_add_heap_object(m, "PVAnal_base", PyoCreatePVAnalType, PYO_RUNTIME_TYPE_PVANAL) < 0)
+        return -1;
+    if (module_add_heap_object(m, "PVSynth_base", PyoCreatePVSynthType, PYO_RUNTIME_TYPE_PVSYNTH) < 0)
+        return -1;
+    if (module_add_heap_object(m, "PVTranspose_base", PyoCreatePVTransposeType, PYO_RUNTIME_TYPE_PVTRANSPOSE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "PVVerb_base", PyoCreatePVVerbType, PYO_RUNTIME_TYPE_PVVERB) < 0)
+        return -1;
+    if (module_add_heap_object(m, "PVGate_base", PyoCreatePVGateType, PYO_RUNTIME_TYPE_PVGATE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "PVAddSynth_base", PyoCreatePVAddSynthType, PYO_RUNTIME_TYPE_PVADDSYNTH) < 0)
+        return -1;
+    if (module_add_heap_object(m, "PVCross_base", PyoCreatePVCrossType, PYO_RUNTIME_TYPE_PVCROSS) < 0)
+        return -1;
+    if (module_add_heap_object(m, "PVMult_base", PyoCreatePVMultType, PYO_RUNTIME_TYPE_PVMULT) < 0)
+        return -1;
+    if (module_add_heap_object(m, "PVMorph_base", PyoCreatePVMorphType, PYO_RUNTIME_TYPE_PVMORPH) < 0)
+        return -1;
+    if (module_add_heap_object(m, "PVFilter_base", PyoCreatePVFilterType, PYO_RUNTIME_TYPE_PVFILTER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "PVDelay_base", PyoCreatePVDelayType, PYO_RUNTIME_TYPE_PVDELAY) < 0)
+        return -1;
+    if (module_add_heap_object(m, "PVBuffer_base", PyoCreatePVBufferType, PYO_RUNTIME_TYPE_PVBUFFER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "PVShift_base", PyoCreatePVShiftType, PYO_RUNTIME_TYPE_PVSHIFT) < 0)
+        return -1;
+    if (module_add_heap_object(m, "PVAmpMod_base", PyoCreatePVAmpModType, PYO_RUNTIME_TYPE_PVAMPMOD) < 0)
+        return -1;
+    if (module_add_heap_object(m, "PVFreqMod_base", PyoCreatePVFreqModType, PYO_RUNTIME_TYPE_PVFREQMOD) < 0)
+        return -1;
+    if (module_add_heap_object(m, "PVBufLoops_base", PyoCreatePVBufLoopsType, PYO_RUNTIME_TYPE_PVBUFLOOPS) < 0)
+        return -1;
+    if (module_add_heap_object(m, "PVBufTabLoops_base", PyoCreatePVBufTabLoopsType, PYO_RUNTIME_TYPE_PVBUFTABLOOPS) < 0)
+        return -1;
+    if (module_add_heap_object(m, "PVMix_base", PyoCreatePVMixType, PYO_RUNTIME_TYPE_PVMIX) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Granule_base", PyoCreateGranuleType, PYO_RUNTIME_TYPE_GRANULE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TableScale_base", PyoCreateTableScaleType, PYO_RUNTIME_TYPE_TABLESCALE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TrackHold_base", PyoCreateTrackHoldType, PYO_RUNTIME_TYPE_TRACKHOLD) < 0)
+        return -1;
+    if (module_add_heap_object(m, "ComplexRes_base", PyoCreateComplexResType, PYO_RUNTIME_TYPE_COMPLEXRES) < 0)
+        return -1;
+    if (module_add_heap_object(m, "STReverb_base", PyoCreateSTReverbType, PYO_RUNTIME_TYPE_STREVERB) < 0)
+        return -1;
+    if (module_add_heap_object(m, "STRev_base", PyoCreateSTRevType, PYO_RUNTIME_TYPE_STREV) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Pointer2_base", PyoCreatePointer2Type, PYO_RUNTIME_TYPE_POINTER2) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Centroid_base", PyoCreateCentroidType, PYO_RUNTIME_TYPE_CENTROID) < 0)
+        return -1;
+    if (module_add_heap_object(m, "AttackDetector_base", PyoCreateAttackDetectorType, PYO_RUNTIME_TYPE_ATTACK_DETECTOR) < 0)
+        return -1;
+    if (module_add_heap_object(m, "SmoothDelay_base", PyoCreateSmoothDelayType, PYO_RUNTIME_TYPE_SMOOTHDELAY) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TrigBurster_base", PyoCreateTrigBursterType, PYO_RUNTIME_TYPE_TRIGBURSTER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TrigBurst_base", PyoCreateTrigBurstType, PYO_RUNTIME_TYPE_TRIGBURST) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TrigBurstTapStream_base", PyoCreateTrigBurstTapStreamType, PYO_RUNTIME_TYPE_TRIGBURSTTAPSTREAM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TrigBurstAmpStream_base", PyoCreateTrigBurstAmpStreamType, PYO_RUNTIME_TYPE_TRIGBURSTAMPSTREAM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TrigBurstDurStream_base", PyoCreateTrigBurstDurStreamType, PYO_RUNTIME_TYPE_TRIGBURSTDURSTREAM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TrigBurstEndStream_base", PyoCreateTrigBurstEndStreamType, PYO_RUNTIME_TYPE_TRIGBURSTENDSTREAM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Scope_base", PyoCreateScopeType, PYO_RUNTIME_TYPE_SCOPE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "PeakAmp_base", PyoCreatePeakAmpType, PYO_RUNTIME_TYPE_PEAKAMP) < 0)
+        return -1;
+    if (module_add_heap_object(m, "MainParticle_base", PyoCreateMainParticleType, PYO_RUNTIME_TYPE_MAINPARTICLE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Particle_base", PyoCreateParticleType, PYO_RUNTIME_TYPE_PARTICLE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "MainParticle2_base", PyoCreateMainParticle2Type, PYO_RUNTIME_TYPE_MAINPARTICLE2) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Particle2_base", PyoCreateParticle2Type, PYO_RUNTIME_TYPE_PARTICLE2) < 0)
+        return -1;
+    if (module_add_heap_object(m, "AtanTable_base", PyoCreateAtanTableType, PYO_RUNTIME_TYPE_ATANTABLE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "RawMidi_base", PyoCreateRawMidiType, PYO_RUNTIME_TYPE_RAWMIDI) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Resample_base", PyoCreateResampleType, PYO_RUNTIME_TYPE_RESAMPLE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Exprer_base", PyoCreateExprerType, PYO_RUNTIME_TYPE_EXPRER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Expr_base", PyoCreateExprType, PYO_RUNTIME_TYPE_EXPR) < 0)
+        return -1;
+    if (module_add_heap_object(m, "PadSynthTable_base", PyoCreatePadSynthTableType, PYO_RUNTIME_TYPE_PADSYNTHTABLE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "LogiMap_base", PyoCreateLogiMapType, PYO_RUNTIME_TYPE_LOGIMAP) < 0)
+        return -1;
+    if (module_add_heap_object(m, "SharedTable_base", PyoCreateSharedTableType, PYO_RUNTIME_TYPE_SHAREDTABLE) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TableFill_base", PyoCreateTableFillType, PYO_RUNTIME_TYPE_TABLEFILL) < 0)
+        return -1;
+    if (module_add_heap_object(m, "TableScan_base", PyoCreateTableScanType, PYO_RUNTIME_TYPE_TABLESCAN) < 0)
+        return -1;
+    if (module_add_heap_object(m, "HRTFData_base", PyoCreateHRTFDataType, PYO_RUNTIME_TYPE_HRTFDATA) < 0)
+        return -1;
+    if (module_add_heap_object(m, "HRTFSpatter_base", PyoCreateHRTFSpatterType, PYO_RUNTIME_TYPE_HRTFSPATTER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "HRTF_base", PyoCreateHRTFType, PYO_RUNTIME_TYPE_HRTF) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Expand_base", PyoCreateExpandType, PYO_RUNTIME_TYPE_EXPAND) < 0)
+        return -1;
+    if (module_add_heap_object(m, "RMS_base", PyoCreateRMSType, PYO_RUNTIME_TYPE_RMS) < 0)
+        return -1;
+    if (module_add_heap_object(m, "MidiLinseg_base", PyoCreateMidiLinsegType, PYO_RUNTIME_TYPE_MIDILINSEG) < 0)
+        return -1;
+    if (module_add_heap_object(m, "MultiBandMain_base", PyoCreateMultiBandMainType, PYO_RUNTIME_TYPE_MULTIBAND_MAIN) < 0)
+        return -1;
+    if (module_add_heap_object(m, "MultiBand_base", PyoCreateMultiBandType, PYO_RUNTIME_TYPE_MULTIBAND) < 0)
+        return -1;
+    if (module_add_heap_object(m, "M_Div_base", PyoCreateMDivType, PYO_RUNTIME_TYPE_M_DIV) < 0)
+        return -1;
+    if (module_add_heap_object(m, "M_Sub_base", PyoCreateMSubType, PYO_RUNTIME_TYPE_M_SUB) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Binauraler_base", PyoCreateBinauralerType, PYO_RUNTIME_TYPE_BINAURALER) < 0)
+        return -1;
+    if (module_add_heap_object(m, "Binaural_base", PyoCreateBinauralType, PYO_RUNTIME_TYPE_BINAURAL) < 0)
+        return -1;
+    if (module_add_heap_object(m, "MMLMain_base", PyoCreateMMLMainType, PYO_RUNTIME_TYPE_MMLMAIN) < 0)
+        return -1;
+    if (module_add_heap_object(m, "MML_base", PyoCreateMMLType, PYO_RUNTIME_TYPE_MML) < 0)
+        return -1;
+    if (module_add_heap_object(m, "MMLFreqStream_base", PyoCreateMMLFreqStreamType, PYO_RUNTIME_TYPE_MMLFREQSTREAM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "MMLAmpStream_base", PyoCreateMMLAmpStreamType, PYO_RUNTIME_TYPE_MMLAMPSTREAM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "MMLDurStream_base", PyoCreateMMLDurStreamType, PYO_RUNTIME_TYPE_MMLDURSTREAM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "MMLEndStream_base", PyoCreateMMLEndStreamType, PYO_RUNTIME_TYPE_MMLENDSTREAM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "MMLXStream_base", PyoCreateMMLXStreamType, PYO_RUNTIME_TYPE_MMLXSTREAM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "MMLYStream_base", PyoCreateMMLYStreamType, PYO_RUNTIME_TYPE_MMLYSTREAM) < 0)
+        return -1;
+    if (module_add_heap_object(m, "MMLZStream_base", PyoCreateMMLZStreamType, PYO_RUNTIME_TYPE_MMLZSTREAM) < 0)
+        return -1;
+
+    if (PyModule_AddStringConstant(m, "PYO_VERSION", PYO_VERSION) < 0)
+        return -1;
+#ifdef COMPILE_EXTERNALS
+    EXTERNAL_OBJECTS
+    if (PyModule_AddIntConstant(m, "WITH_EXTERNALS", 1) < 0)
+        return -1;
+#else
+    if (PyModule_AddIntConstant(m, "WITH_EXTERNALS", 0) < 0)
+        return -1;
+#endif
+#ifndef USE_DOUBLE
+    if (PyModule_AddIntConstant(m, "USE_DOUBLE", 0) < 0)
+        return -1;
+#else
+    if (PyModule_AddIntConstant(m, "USE_DOUBLE", 1) < 0)
+        return -1;
+#endif
+
+    return 0;
+}
+
+static void
+pyo_free(void *module)
+{
+    PyoState_ClearTypes((PyoModuleState *)PyModule_GetState((PyObject *)module));
+}
+
+static PyModuleDef_Slot pyo_module_slots[] =
+{
+    {Py_mod_exec, pyo_exec},
+#if PY_VERSION_HEX >= 0x030c00f0  // Python 3.12+
+    {Py_mod_multiple_interpreters, Py_MOD_MULTIPLE_INTERPRETERS_SUPPORTED},
+#endif
+#if PY_VERSION_HEX >= 0x030d00f0  // Python 3.13+
+    // signal that this module does not supports running without an active GIL
+    {Py_mod_gil, Py_MOD_GIL_USED},
+#endif
+    {0, NULL}
+};
+
 static struct PyModuleDef pyo_moduledef =
 {
     PyModuleDef_HEAD_INIT,
-    LIB_BASE_NAME,/* m_name */
-    "Python digital signal processing module.",/* m_doc */
-    0,/* m_size */
-    pyo_functions,/* m_methods */
-    NULL,/* m_reload */
-    NULL,/* m_traverse */
-    NULL,/* m_clear */
-    NULL,/* m_free */
+    .m_name = LIB_BASE_NAME,
+    .m_doc = "Python digital signal processing module.",
+    .m_size = sizeof(PyoModuleState),
+    .m_methods = pyo_functions,
+    .m_slots = pyo_module_slots,
+    .m_free = pyo_free,
 };
-
-static PyObject *
-module_add_object(PyObject *module, const char *name, PyTypeObject *type)
-{
-    if (PyType_Ready(type) < 0)
-        Py_RETURN_NONE;
-
-    Py_INCREF(type);
-    PyModule_AddObject(module, name, (PyObject *)type);
-    Py_RETURN_NONE;
-}
 
 PyMODINIT_FUNC
 #ifndef USE_DOUBLE
@@ -2099,360 +2913,5 @@ PyInit__pyo(void)
 PyInit__pyo64(void)
 #endif
 {
-    PyObject *m;
-
-    m = PyModule_Create(&pyo_moduledef);
-
-    module_add_object(m, "Server_base", &ServerType);
-#ifdef USE_PORTMIDI
-    module_add_object(m, "MidiListener_base", &MidiListenerType);
-    module_add_object(m, "MidiDispatcher_base", &MidiDispatcherType);
-#endif
-#ifdef USE_OSC
-    module_add_object(m, "OscListener_base", &OscListenerType);
-    module_add_object(m, "OscSend_base", &OscSendType);
-    module_add_object(m, "OscDataSend_base", &OscDataSendType);
-    module_add_object(m, "OscReceive_base", &OscReceiveType);
-    module_add_object(m, "OscReceiver_base", &OscReceiverType);
-    module_add_object(m, "OscListReceive_base", &OscListReceiveType);
-    module_add_object(m, "OscListReceiver_base", &OscListReceiverType);
-    module_add_object(m, "OscDataReceive_base", &OscDataReceiveType);
-#endif
-    module_add_object(m, "Stream", &StreamType);
-    module_add_object(m, "TriggerStream", &TriggerStreamType);
-    module_add_object(m, "PVStream", &PVStreamType);
-    module_add_object(m, "Dummy_base", &DummyType);
-    module_add_object(m, "TriggerDummy_base", &TriggerDummyType);
-    module_add_object(m, "TableStream", &TableStreamType);
-    module_add_object(m, "MatrixStream", &MatrixStreamType);
-    module_add_object(m, "Record_base", &RecordType);
-    module_add_object(m, "ControlRec_base", &ControlRecType);
-    module_add_object(m, "ControlRead_base", &ControlReadType);
-    module_add_object(m, "NoteinRec_base", &NoteinRecType);
-    module_add_object(m, "NoteinRead_base", &NoteinReadType);
-    module_add_object(m, "Compare_base", &CompareType);
-    module_add_object(m, "Mix_base", &MixType);
-    module_add_object(m, "Sig_base", &SigType);
-    module_add_object(m, "SigTo_base", &SigToType);
-    module_add_object(m, "VarPort_base", &VarPortType);
-    module_add_object(m, "InputFader_base", &InputFaderType);
-    module_add_object(m, "Adsr_base", &AdsrType);
-    module_add_object(m, "Linseg_base", &LinsegType);
-    module_add_object(m, "Expseg_base", &ExpsegType);
-    module_add_object(m, "HarmTable_base", &HarmTableType);
-    module_add_object(m, "ChebyTable_base", &ChebyTableType);
-    module_add_object(m, "HannTable_base", &HannTableType);
-    module_add_object(m, "SincTable_base", &SincTableType);
-    module_add_object(m, "WinTable_base", &WinTableType);
-    module_add_object(m, "ParaTable_base", &ParaTableType);
-    module_add_object(m, "LinTable_base", &LinTableType);
-    module_add_object(m, "LogTable_base", &LogTableType);
-    module_add_object(m, "CosLogTable_base", &CosLogTableType);
-    module_add_object(m, "CosTable_base", &CosTableType);
-    module_add_object(m, "CurveTable_base", &CurveTableType);
-    module_add_object(m, "ExpTable_base", &ExpTableType);
-    module_add_object(m, "SndTable_base", &SndTableType);
-    module_add_object(m, "DataTable_base", &DataTableType);
-    module_add_object(m, "NewTable_base", &NewTableType);
-    module_add_object(m, "TableRec_base", &TableRecType);
-    module_add_object(m, "TableRecTimeStream_base", &TableRecTimeStreamType);
-    module_add_object(m, "TableMorph_base", &TableMorphType);
-    module_add_object(m, "TrigTableRec_base", &TrigTableRecType);
-    module_add_object(m, "TrigTableRecTimeStream_base", &TrigTableRecTimeStreamType);
-    module_add_object(m, "TableWrite_base", &TableWriteType);
-    module_add_object(m, "TablePut_base", &TablePutType);
-    module_add_object(m, "NewMatrix_base", &NewMatrixType);
-    module_add_object(m, "MatrixPointer_base", &MatrixPointerType);
-    module_add_object(m, "MatrixRec_base", &MatrixRecType);
-    module_add_object(m, "MatrixRecLoop_base", &MatrixRecLoopType);
-    module_add_object(m, "MatrixMorph_base", &MatrixMorphType);
-    module_add_object(m, "Input_base", &InputType);
-    module_add_object(m, "Trig_base", &TrigType);
-    module_add_object(m, "NextTrig_base", &NextTrigType);
-    module_add_object(m, "Metro_base", &MetroType);
-    module_add_object(m, "Seqer_base", &SeqerType);
-    module_add_object(m, "Seq_base", &SeqType);
-    module_add_object(m, "Clouder_base", &ClouderType);
-    module_add_object(m, "Cloud_base", &CloudType);
-    module_add_object(m, "Beater_base", &BeaterType);
-    module_add_object(m, "Beat_base", &BeatType);
-    module_add_object(m, "BeatTapStream_base", &BeatTapStreamType);
-    module_add_object(m, "BeatAmpStream_base", &BeatAmpStreamType);
-    module_add_object(m, "BeatDurStream_base", &BeatDurStreamType);
-    module_add_object(m, "BeatEndStream_base", &BeatEndStreamType);
-    module_add_object(m, "Fader_base", &FaderType);
-    module_add_object(m, "Randi_base", &RandiType);
-    module_add_object(m, "Randh_base", &RandhType);
-    module_add_object(m, "Choice_base", &ChoiceType);
-    module_add_object(m, "RandDur_base", &RandDurType);
-    module_add_object(m, "Xnoise_base", &XnoiseType);
-    module_add_object(m, "XnoiseMidi_base", &XnoiseMidiType);
-    module_add_object(m, "XnoiseDur_base", &XnoiseDurType);
-    module_add_object(m, "RandInt_base", &RandIntType);
-    module_add_object(m, "Urn_base", &UrnType);
-    module_add_object(m, "SfPlayer_base", &SfPlayerType);
-    module_add_object(m, "SfPlay_base", &SfPlayType);
-    module_add_object(m, "SfMarkerShuffler_base", &SfMarkerShufflerType);
-    module_add_object(m, "SfMarkerShuffle_base", &SfMarkerShuffleType);
-    module_add_object(m, "SfMarkerLooper_base", &SfMarkerLooperType);
-    module_add_object(m, "SfMarkerLoop_base", &SfMarkerLoopType);
-    module_add_object(m, "Osc_base", &OscType);
-    module_add_object(m, "OscLoop_base", &OscLoopType);
-    module_add_object(m, "OscTrig_base", &OscTrigType);
-    module_add_object(m, "OscBank_base", &OscBankType);
-    module_add_object(m, "SumOsc_base", &SumOscType);
-    module_add_object(m, "TableRead_base", &TableReadType);
-    module_add_object(m, "Pulsar_base", &PulsarType);
-    module_add_object(m, "Sine_base", &SineType);
-    module_add_object(m, "FastSine_base", &FastSineType);
-    module_add_object(m, "SineLoop_base", &SineLoopType);
-    module_add_object(m, "Fm_base", &FmType);
-    module_add_object(m, "CrossFm_base", &CrossFmType);
-    module_add_object(m, "LFO_base", &LFOType);
-    module_add_object(m, "Blit_base", &BlitType);
-    module_add_object(m, "Rossler_base", &RosslerType);
-    module_add_object(m, "RosslerAlt_base", &RosslerAltType);
-    module_add_object(m, "Lorenz_base", &LorenzType);
-    module_add_object(m, "LorenzAlt_base", &LorenzAltType);
-    module_add_object(m, "ChenLee_base", &ChenLeeType);
-    module_add_object(m, "ChenLeeAlt_base", &ChenLeeAltType);
-    module_add_object(m, "Phasor_base", &PhasorType);
-    module_add_object(m, "SuperSaw_base", &SuperSawType);
-    module_add_object(m, "Pointer_base", &PointerType);
-    module_add_object(m, "TableIndex_base", &TableIndexType);
-    module_add_object(m, "Lookup_base", &LookupType);
-    module_add_object(m, "Noise_base", &NoiseType);
-    module_add_object(m, "PinkNoise_base", &PinkNoiseType);
-    module_add_object(m, "BrownNoise_base", &BrownNoiseType);
-    module_add_object(m, "Biquad_base", &BiquadType);
-    module_add_object(m, "Biquadx_base", &BiquadxType);
-    module_add_object(m, "Biquada_base", &BiquadaType);
-    module_add_object(m, "EQ_base", &EQType);
-    module_add_object(m, "Tone_base", &ToneType);
-    module_add_object(m, "Atone_base", &AtoneType);
-    module_add_object(m, "DCBlock_base", &DCBlockType);
-    module_add_object(m, "Allpass_base", &AllpassType);
-    module_add_object(m, "Allpass2_base", &Allpass2Type);
-    module_add_object(m, "Phaser_base", &PhaserType);
-    module_add_object(m, "Vocoder_base", &VocoderType);
-    module_add_object(m, "Port_base", &PortType);
-    module_add_object(m, "Denorm_base", &DenormType);
-    module_add_object(m, "Disto_base", &DistoType);
-    module_add_object(m, "Clip_base", &ClipType);
-    module_add_object(m, "Mirror_base", &MirrorType);
-    module_add_object(m, "Wrap_base", &WrapType);
-    module_add_object(m, "Between_base", &BetweenType);
-    module_add_object(m, "Degrade_base", &DegradeType);
-    module_add_object(m, "Compress_base", &CompressType);
-    module_add_object(m, "Gate_base", &GateType);
-    module_add_object(m, "Balance_base", &BalanceType);
-    module_add_object(m, "Delay_base", &DelayType);
-    module_add_object(m, "SDelay_base", &SDelayType);
-    module_add_object(m, "Waveguide_base", &WaveguideType);
-    module_add_object(m, "AllpassWG_base", &AllpassWGType);
-    module_add_object(m, "Midictl_base", &MidictlType);
-    module_add_object(m, "CtlScan_base", &CtlScanType);
-    module_add_object(m, "CtlScan2_base", &CtlScan2Type);
-    module_add_object(m, "MidiNote_base", &MidiNoteType);
-    module_add_object(m, "Notein_base", &NoteinType);
-    module_add_object(m, "NoteinTrig_base", &NoteinTrigType);
-    module_add_object(m, "Bendin_base", &BendinType);
-    module_add_object(m, "Touchin_base", &TouchinType);
-    module_add_object(m, "Programin_base", &PrograminType);
-    module_add_object(m, "MidiAdsr_base", &MidiAdsrType);
-    module_add_object(m, "MidiDelAdsr_base", &MidiDelAdsrType);
-    module_add_object(m, "TrigRand_base", &TrigRandType);
-    module_add_object(m, "TrigRandInt_base", &TrigRandIntType);
-    module_add_object(m, "TrigVal_base", &TrigValType);
-    module_add_object(m, "TrigChoice_base", &TrigChoiceType);
-    module_add_object(m, "Iter_base", &IterType);
-    module_add_object(m, "TrigEnv_base", &TrigEnvType);
-    module_add_object(m, "TrigLinseg_base", &TrigLinsegType);
-    module_add_object(m, "TrigExpseg_base", &TrigExpsegType);
-    module_add_object(m, "TrigFunc_base", &TrigFuncType);
-    module_add_object(m, "TrigXnoise_base", &TrigXnoiseType);
-    module_add_object(m, "TrigXnoiseMidi_base", &TrigXnoiseMidiType);
-    module_add_object(m, "Pattern_base", &PatternType);
-    module_add_object(m, "CallAfter_base", &CallAfterType);
-    module_add_object(m, "BandSplitter_base", &BandSplitterType);
-    module_add_object(m, "BandSplit_base", &BandSplitType);
-    module_add_object(m, "FourBandMain_base", &FourBandMainType);
-    module_add_object(m, "FourBand_base", &FourBandType);
-    module_add_object(m, "HilbertMain_base", &HilbertMainType);
-    module_add_object(m, "Hilbert_base", &HilbertType);
-    module_add_object(m, "Follower_base", &FollowerType);
-    module_add_object(m, "Follower2_base", &Follower2Type);
-    module_add_object(m, "ZCross_base", &ZCrossType);
-    module_add_object(m, "SPanner_base", &SPannerType);
-    module_add_object(m, "Panner_base", &PannerType);
-    module_add_object(m, "Pan_base", &PanType);
-    module_add_object(m, "SPan_base", &SPanType);
-    module_add_object(m, "Switcher_base", &SwitcherType);
-    module_add_object(m, "Switch_base", &SwitchType);
-    module_add_object(m, "Selector_base", &SelectorType);
-    module_add_object(m, "VoiceManager_base", &VoiceManagerType);
-    module_add_object(m, "Mixer_base", &MixerType);
-    module_add_object(m, "MixerVoice_base", &MixerVoiceType);
-    module_add_object(m, "Counter_base", &CounterType);
-    module_add_object(m, "Count_base", &CountType);
-    module_add_object(m, "Thresh_base", &ThreshType);
-    module_add_object(m, "Percent_base", &PercentType);
-    module_add_object(m, "Timer_base", &TimerType);
-    module_add_object(m, "Select_base", &SelectType);
-    module_add_object(m, "Change_base", &ChangeType);
-    module_add_object(m, "Score_base", &ScoreType);
-    module_add_object(m, "Freeverb_base", &FreeverbType);
-    module_add_object(m, "WGVerb_base", &WGVerbType);
-    module_add_object(m, "Chorus_base", &ChorusType);
-    module_add_object(m, "Convolve_base", &ConvolveType);
-    module_add_object(m, "IRWinSinc_base", &IRWinSincType);
-    module_add_object(m, "IRPulse_base", &IRPulseType);
-    module_add_object(m, "IRAverage_base", &IRAverageType);
-    module_add_object(m, "IRFM_base", &IRFMType);
-    module_add_object(m, "Granulator_base", &GranulatorType);
-    module_add_object(m, "Looper_base", &LooperType);
-    module_add_object(m, "LooperTimeStream_base", &LooperTimeStreamType);
-    module_add_object(m, "Harmonizer_base", &HarmonizerType);
-    module_add_object(m, "Print_base", &PrintType);
-    module_add_object(m, "M_Sin_base", &M_SinType);
-    module_add_object(m, "M_Cos_base", &M_CosType);
-    module_add_object(m, "M_Tan_base", &M_TanType);
-    module_add_object(m, "M_Abs_base", &M_AbsType);
-    module_add_object(m, "M_Sqrt_base", &M_SqrtType);
-    module_add_object(m, "M_Log_base", &M_LogType);
-    module_add_object(m, "M_Log2_base", &M_Log2Type);
-    module_add_object(m, "M_Log10_base", &M_Log10Type);
-    module_add_object(m, "M_Pow_base", &M_PowType);
-    module_add_object(m, "M_Atan2_base", &M_Atan2Type);
-    module_add_object(m, "M_Floor_base", &M_FloorType);
-    module_add_object(m, "M_Ceil_base", &M_CeilType);
-    module_add_object(m, "M_Round_base", &M_RoundType);
-    module_add_object(m, "M_Tanh_base", &M_TanhType);
-    module_add_object(m, "M_Exp_base", &M_ExpType);
-    module_add_object(m, "Snap_base", &SnapType);
-    module_add_object(m, "Interp_base", &InterpType);
-    module_add_object(m, "SampHold_base", &SampHoldType);
-    module_add_object(m, "DBToA_base", &DBToAType);
-    module_add_object(m, "AToDB_base", &AToDBType);
-    module_add_object(m, "Scale_base", &ScaleType);
-    module_add_object(m, "CentsToTranspo_base", &CentsToTranspoType);
-    module_add_object(m, "TranspoToCents_base", &TranspoToCentsType);
-    module_add_object(m, "MToF_base", &MToFType);
-    module_add_object(m, "FToM_base", &FToMType);
-    module_add_object(m, "MToT_base", &MToTType);
-    module_add_object(m, "FFTMain_base", &FFTMainType);
-    module_add_object(m, "FFT_base", &FFTType);
-    module_add_object(m, "IFFT_base", &IFFTType);
-    module_add_object(m, "IFFTMatrix_base", &IFFTMatrixType);
-    module_add_object(m, "CarToPol_base", &CarToPolType);
-    module_add_object(m, "PolToCar_base", &PolToCarType);
-    module_add_object(m, "FrameDeltaMain_base", &FrameDeltaMainType);
-    module_add_object(m, "FrameDelta_base", &FrameDeltaType);
-    module_add_object(m, "FrameAccum_base", &FrameAccumType);
-    module_add_object(m, "FrameAccumMain_base", &FrameAccumMainType);
-    module_add_object(m, "VectralMain_base", &VectralMainType);
-    module_add_object(m, "Vectral_base", &VectralType);
-    module_add_object(m, "Min_base", &MinType);
-    module_add_object(m, "Max_base", &MaxType);
-    module_add_object(m, "Delay1_base", &Delay1Type);
-    module_add_object(m, "RCOsc_base", &RCOscType);
-    module_add_object(m, "Yin_base", &YinType);
-    module_add_object(m, "SVF_base", &SVFType);
-    module_add_object(m, "SVF2_base", &SVF2Type);
-    module_add_object(m, "Average_base", &AverageType);
-    module_add_object(m, "CvlVerb_base", &CvlVerbType);
-    module_add_object(m, "Spectrum_base", &SpectrumType);
-    module_add_object(m, "Reson_base", &ResonType);
-    module_add_object(m, "Resonx_base", &ResonxType);
-    module_add_object(m, "ButLP_base", &ButLPType);
-    module_add_object(m, "ButHP_base", &ButHPType);
-    module_add_object(m, "ButBP_base", &ButBPType);
-    module_add_object(m, "ButBR_base", &ButBRType);
-    module_add_object(m, "MoogLP_base", &MoogLPType);
-    module_add_object(m, "PVAnal_base", &PVAnalType);
-    module_add_object(m, "PVSynth_base", &PVSynthType);
-    module_add_object(m, "PVTranspose_base", &PVTransposeType);
-    module_add_object(m, "PVVerb_base", &PVVerbType);
-    module_add_object(m, "PVGate_base", &PVGateType);
-    module_add_object(m, "PVAddSynth_base", &PVAddSynthType);
-    module_add_object(m, "PVCross_base", &PVCrossType);
-    module_add_object(m, "PVMult_base", &PVMultType);
-    module_add_object(m, "PVMorph_base", &PVMorphType);
-    module_add_object(m, "PVFilter_base", &PVFilterType);
-    module_add_object(m, "PVDelay_base", &PVDelayType);
-    module_add_object(m, "PVBuffer_base", &PVBufferType);
-    module_add_object(m, "PVShift_base", &PVShiftType);
-    module_add_object(m, "PVAmpMod_base", &PVAmpModType);
-    module_add_object(m, "PVFreqMod_base", &PVFreqModType);
-    module_add_object(m, "PVBufLoops_base", &PVBufLoopsType);
-    module_add_object(m, "PVBufTabLoops_base", &PVBufTabLoopsType);
-    module_add_object(m, "PVMix_base", &PVMixType);
-    module_add_object(m, "Granule_base", &GranuleType);
-    module_add_object(m, "TableScale_base", &TableScaleType);
-    module_add_object(m, "TrackHold_base", &TrackHoldType);
-    module_add_object(m, "ComplexRes_base", &ComplexResType);
-    module_add_object(m, "STReverb_base", &STReverbType);
-    module_add_object(m, "STRev_base", &STRevType);
-    module_add_object(m, "Pointer2_base", &Pointer2Type);
-    module_add_object(m, "Centroid_base", &CentroidType);
-    module_add_object(m, "AttackDetector_base", &AttackDetectorType);
-    module_add_object(m, "SmoothDelay_base", &SmoothDelayType);
-    module_add_object(m, "TrigBurster_base", &TrigBursterType);
-    module_add_object(m, "TrigBurst_base", &TrigBurstType);
-    module_add_object(m, "TrigBurstTapStream_base", &TrigBurstTapStreamType);
-    module_add_object(m, "TrigBurstAmpStream_base", &TrigBurstAmpStreamType);
-    module_add_object(m, "TrigBurstDurStream_base", &TrigBurstDurStreamType);
-    module_add_object(m, "TrigBurstEndStream_base", &TrigBurstEndStreamType);
-    module_add_object(m, "Scope_base", &ScopeType);
-    module_add_object(m, "PeakAmp_base", &PeakAmpType);
-    module_add_object(m, "MainParticle_base", &MainParticleType);
-    module_add_object(m, "Particle_base", &ParticleType);
-    module_add_object(m, "MainParticle2_base", &MainParticle2Type);
-    module_add_object(m, "Particle2_base", &Particle2Type);
-    module_add_object(m, "AtanTable_base", &AtanTableType);
-    module_add_object(m, "RawMidi_base", &RawMidiType);
-    module_add_object(m, "Resample_base", &ResampleType);
-    module_add_object(m, "Exprer_base", &ExprerType);
-    module_add_object(m, "Expr_base", &ExprType);
-    module_add_object(m, "PadSynthTable_base", &PadSynthTableType);
-    module_add_object(m, "LogiMap_base", &LogiMapType);
-    module_add_object(m, "SharedTable_base", &SharedTableType);
-    module_add_object(m, "TableFill_base", &TableFillType);
-    module_add_object(m, "TableScan_base", &TableScanType);
-    module_add_object(m, "HRTFData_base", &HRTFDataType);
-    module_add_object(m, "HRTFSpatter_base", &HRTFSpatterType);
-    module_add_object(m, "HRTF_base", &HRTFType);
-    module_add_object(m, "Expand_base", &ExpandType);
-    module_add_object(m, "RMS_base", &RMSType);
-    module_add_object(m, "MidiLinseg_base", &MidiLinsegType);
-    module_add_object(m, "MultiBandMain_base", &MultiBandMainType);
-    module_add_object(m, "MultiBand_base", &MultiBandType);
-    module_add_object(m, "M_Div_base", &M_DivType);
-    module_add_object(m, "M_Sub_base", &M_SubType);
-    module_add_object(m, "Binauraler_base", &BinauralerType);
-    module_add_object(m, "Binaural_base", &BinauralType);
-    module_add_object(m, "MMLMain_base", &MMLMainType);
-    module_add_object(m, "MML_base", &MMLType);
-    module_add_object(m, "MMLFreqStream_base", &MMLFreqStreamType);
-    module_add_object(m, "MMLAmpStream_base", &MMLAmpStreamType);
-    module_add_object(m, "MMLDurStream_base", &MMLDurStreamType);
-    module_add_object(m, "MMLEndStream_base", &MMLEndStreamType);
-    module_add_object(m, "MMLXStream_base", &MMLXStreamType);
-    module_add_object(m, "MMLYStream_base", &MMLYStreamType);
-    module_add_object(m, "MMLZStream_base", &MMLZStreamType);
-
-    PyModule_AddStringConstant(m, "PYO_VERSION", PYO_VERSION);
-#ifdef COMPILE_EXTERNALS
-    EXTERNAL_OBJECTS
-    PyModule_AddIntConstant(m, "WITH_EXTERNALS", 1);
-#else
-    PyModule_AddIntConstant(m, "WITH_EXTERNALS", 0);
-#endif
-#ifndef USE_DOUBLE
-    PyModule_AddIntConstant(m, "USE_DOUBLE", 0);
-#else
-    PyModule_AddIntConstant(m, "USE_DOUBLE", 1);
-#endif
-
-    return m;
+    return PyModuleDef_Init(&pyo_moduledef);
 }

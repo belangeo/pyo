@@ -124,47 +124,28 @@ MatrixStream_setHeight(MatrixStream *self, int size)
     self->height = size;
 }
 
-PyTypeObject MatrixStreamType =
+static PyType_Slot MatrixStreamType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.MatrixStream", /*tp_name*/
-    sizeof(MatrixStream), /*tp_basicsize*/
-    0, /*tp_itemsize*/
-    (destructor)MatrixStream_dealloc, /*tp_dealloc*/
-    0, /*tp_print*/
-    0, /*tp_getattr*/
-    0, /*tp_setattr*/
-    0, /*tp_as_async (tp_compare in Python 2)*/
-    0, /*tp_repr*/
-    0, /*tp_as_number*/
-    0, /*tp_as_sequence*/
-    0, /*tp_as_mapping*/
-    0, /*tp_hash */
-    0, /*tp_call*/
-    0, /*tp_str*/
-    0, /*tp_getattro*/
-    0, /*tp_setattro*/
-    0, /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
-    "MatrixStream objects. For internal use only. Must never be instantiated by the user.", /* tp_doc */
-    0, /* tp_traverse */
-    0, /* tp_clear */
-    0, /* tp_richcompare */
-    0, /* tp_weaklistoffset */
-    0, /* tp_iter */
-    0, /* tp_iternext */
-    0, /* tp_methods */
-    0, /* tp_members */
-    0, /* tp_getset */
-    0, /* tp_base */
-    0, /* tp_dict */
-    0, /* tp_descr_get */
-    0, /* tp_descr_set */
-    0, /* tp_dictoffset */
-    0, /* tp_init */
-    0, /* tp_alloc */
-    MatrixStream_new, /* tp_new */
+    {Py_tp_dealloc, MatrixStream_dealloc},
+    {Py_tp_doc, "MatrixStream objects. For internal use only. Must never be instantiated by the user."},
+    {Py_tp_new, MatrixStream_new},
+    {0, NULL}
 };
+
+static PyType_Spec MatrixStreamType_spec =
+{
+    "_pyo.MatrixStream",
+    sizeof(MatrixStream),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    MatrixStreamType_slots
+};
+
+PyTypeObject *
+PyoCreateMatrixStreamType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MatrixStreamType_spec, NULL);
+}
 
 /***********************/
 /* NewMatrix structure */
@@ -233,6 +214,8 @@ NewMatrix_dealloc(NewMatrix* self)
 {
     int i;
 
+    pyo_GC_UNTRACK(self);
+
     for (i = 0; i < (self->height + 1); i++)
     {
         PyMem_RawFree(self->data[i]);
@@ -252,18 +235,22 @@ NewMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     NewMatrix *self;
 
     self = (NewMatrix *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->server = PyServer_get_server();
     Py_INCREF(self->server);
 
     self->x_pointer = self->y_pointer = 0;
 
-    MAKE_NEW_MATRIXSTREAM(self->matrixstream, &MatrixStreamType, NULL);
+    MAKE_NEW_MATRIXSTREAM(self->matrixstream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_MATRIX_STREAM), NULL);
 
     static char *kwlist[] = {"width", "height", "init", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii|O", kwlist, &self->width, &self->height, &inittmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii|O", kwlist, &self->width, &self->height, &inittmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->data = (MYFLT **)PyMem_RawRealloc(self->data, (self->height + 1) * sizeof(MYFLT *));
 
@@ -285,7 +272,7 @@ NewMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (inittmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMatrix", "O", inittmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMatrix", inittmp);
     }
 
     MatrixStream_setData(self->matrixstream, self->data);
@@ -324,7 +311,7 @@ NewMatrix_getHeight(NewMatrix *self)
 static PyObject *
 NewMatrix_getRate(NewMatrix *self)
 {
-    MYFLT sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    MYFLT sr = Pyo_CallMethod_AsDouble(self->server, "getSamplingRate");
     \
     return PyFloat_FromDouble(sr / self->width);
 };
@@ -489,47 +476,32 @@ static PyMethodDef NewMatrix_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject NewMatrixType =
+static PyType_Slot NewMatrixType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.NewMatrix_base",         /*tp_name*/
-    sizeof(NewMatrix),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)NewMatrix_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "NewMatrix objects. Generates an empty matrix.",  /* tp_doc */
-    (traverseproc)NewMatrix_traverse,   /* tp_traverse */
-    (inquiry)NewMatrix_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    NewMatrix_methods,             /* tp_methods */
-    NewMatrix_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    NewMatrix_new,                 /* tp_new */
+    {Py_tp_dealloc, NewMatrix_dealloc},
+    {Py_tp_doc, "NewMatrix objects. Generates an empty matrix."},
+    {Py_tp_traverse, NewMatrix_traverse},
+    {Py_tp_clear, NewMatrix_clear},
+    {Py_tp_methods, NewMatrix_methods},
+    {Py_tp_members, NewMatrix_members},
+    {Py_tp_new, NewMatrix_new},
+    {0, NULL}
 };
+
+static PyType_Spec NewMatrixType_spec =
+{
+    "_pyo.NewMatrix_base",
+    sizeof(NewMatrix),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    NewMatrixType_slots
+};
+
+PyTypeObject *
+PyoCreateNewMatrixType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &NewMatrixType_spec, NULL);
+}
 
 /******************************/
 /* MatrixRec object definition */
@@ -646,7 +618,7 @@ MatrixRec_dealloc(MatrixRec* self)
     pyo_DEALLOC
     PyMem_RawFree(self->trigsBuffer);
     MatrixRec_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -658,6 +630,8 @@ MatrixRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *matrixtmp;
     MatrixRec *self;
     self = (MatrixRec *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->pointer = 0;
     self->active = 1;
@@ -666,19 +640,21 @@ MatrixRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
 
-    Stream_setFunctionPtr(self->stream, MatrixRec_compute_next_data_frame);
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(MatrixRec_compute_next_data_frame));
 
     static char *kwlist[] = {"input", "matrix", "fadetime", "delay", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OO_FI, kwlist, &inputtmp, &matrixtmp, &self->fadetime, &self->delay))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OO_FI, kwlist, &inputtmp, &matrixtmp, &self->fadetime, &self->delay)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
     self->matrix = (NewMatrix *)matrixtmp;
     Py_INCREF(self->matrix);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->trigsBuffer = (MYFLT *)PyMem_RawRealloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
@@ -687,7 +663,7 @@ MatrixRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->trigsBuffer[i] = 0.0;
     }
 
-    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
+    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGGER_STREAM), NULL);
     TriggerStream_setData(self->trig_stream, self->trigsBuffer);
 
     int width = NewMatrix_getWidth((NewMatrix *)self->matrix);
@@ -749,47 +725,32 @@ static PyMethodDef MatrixRec_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject MatrixRecType =
+static PyType_Slot MatrixRecType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.MatrixRec_base",         /*tp_name*/
-    sizeof(MatrixRec),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)MatrixRec_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "MatrixRec objects. Record audio input in a Matrix object.",           /* tp_doc */
-    (traverseproc)MatrixRec_traverse,   /* tp_traverse */
-    (inquiry)MatrixRec_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    MatrixRec_methods,             /* tp_methods */
-    MatrixRec_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    MatrixRec_new,                 /* tp_new */
+    {Py_tp_dealloc, MatrixRec_dealloc},
+    {Py_tp_doc, "MatrixRec objects. Record audio input in a Matrix object."},
+    {Py_tp_traverse, MatrixRec_traverse},
+    {Py_tp_clear, MatrixRec_clear},
+    {Py_tp_methods, MatrixRec_methods},
+    {Py_tp_members, MatrixRec_members},
+    {Py_tp_new, MatrixRec_new},
+    {0, NULL}
 };
+
+static PyType_Spec MatrixRecType_spec =
+{
+    "_pyo.MatrixRec_base",
+    sizeof(MatrixRec),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MatrixRecType_slots
+};
+
+PyTypeObject *
+PyoCreateMatrixRecType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MatrixRecType_spec, NULL);
+}
 
 /******************************/
 /* MatrixRecLoop object definition */
@@ -856,7 +817,7 @@ MatrixRecLoop_dealloc(MatrixRecLoop* self)
     pyo_DEALLOC
     PyMem_RawFree(self->trigsBuffer);
     MatrixRecLoop_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -868,24 +829,28 @@ MatrixRecLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *matrixtmp;
     MatrixRecLoop *self;
     self = (MatrixRecLoop *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->pointer = 0;
 
     INIT_OBJECT_COMMON
 
-    Stream_setFunctionPtr(self->stream, MatrixRecLoop_compute_next_data_frame);
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(MatrixRecLoop_compute_next_data_frame));
 
     static char *kwlist[] = {"input", "matrix", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &inputtmp, &matrixtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &inputtmp, &matrixtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
     self->matrix = (NewMatrix *)matrixtmp;
     Py_INCREF(self->matrix);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->trigsBuffer = (MYFLT *)PyMem_RawRealloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
@@ -894,7 +859,7 @@ MatrixRecLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->trigsBuffer[i] = 0.0;
     }
 
-    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
+    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, PyoType_GetCurrent(PYO_RUNTIME_TYPE_TRIGGER_STREAM), NULL);
     TriggerStream_setData(self->trig_stream, self->trigsBuffer);
 
     return (PyObject *)self;
@@ -940,47 +905,32 @@ static PyMethodDef MatrixRecLoop_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject MatrixRecLoopType =
+static PyType_Slot MatrixRecLoopType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.MatrixRecLoop_base",         /*tp_name*/
-    sizeof(MatrixRecLoop),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)MatrixRecLoop_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "MatrixRecLoop objects. Record circular audio input in a Matrix object.",           /* tp_doc */
-    (traverseproc)MatrixRecLoop_traverse,   /* tp_traverse */
-    (inquiry)MatrixRecLoop_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    MatrixRecLoop_methods,             /* tp_methods */
-    MatrixRecLoop_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    MatrixRecLoop_new,                 /* tp_new */
+    {Py_tp_dealloc, MatrixRecLoop_dealloc},
+    {Py_tp_doc, "MatrixRecLoop objects. Record circular audio input in a Matrix object."},
+    {Py_tp_traverse, MatrixRecLoop_traverse},
+    {Py_tp_clear, MatrixRecLoop_clear},
+    {Py_tp_methods, MatrixRecLoop_methods},
+    {Py_tp_members, MatrixRecLoop_members},
+    {Py_tp_new, MatrixRecLoop_new},
+    {0, NULL}
 };
+
+static PyType_Spec MatrixRecLoopType_spec =
+{
+    "_pyo.MatrixRecLoop_base",
+    sizeof(MatrixRecLoop),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MatrixRecLoopType_slots
+};
+
+PyTypeObject *
+PyoCreateMatrixRecLoopType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MatrixRecLoopType_spec, NULL);
+}
 
 /******************************/
 /* MatrixMorph object definition */
@@ -1025,8 +975,10 @@ MatrixMorph_compute_next_data_frame(MatrixMorph *self)
     x = (int)(interp);
     y = x + 1;
 
-    MatrixStream *tab1 = (MatrixStream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->sources, x), "getMatrixStream", "");
-    MatrixStream *tab2 = (MatrixStream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->sources, y), "getMatrixStream", "");
+    PyObject *tabobj1 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->sources, x), "getMatrixStream", "");
+    PyObject *tabobj2 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->sources, y), "getMatrixStream", "");
+    MatrixStream *tab1 = (MatrixStream *)tabobj1;
+    MatrixStream *tab2 = (MatrixStream *)tabobj2;
 
     interp = MYFMOD(interp, 1.0);
     interp1 = 1. - interp;
@@ -1039,6 +991,9 @@ MatrixMorph_compute_next_data_frame(MatrixMorph *self)
             self->buffer[index] = MatrixStream_getPointFromPos(tab1, j, i) * interp1 + MatrixStream_getPointFromPos(tab2, j, i) * interp;
         }
     }
+
+    Py_DECREF(tabobj1);
+    Py_DECREF(tabobj2);
 
     NewMatrix_recordChunkAllRow((NewMatrix *)self->matrix, self->buffer, numsamps);
 }
@@ -1069,7 +1024,7 @@ MatrixMorph_dealloc(MatrixMorph* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer);
     MatrixMorph_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1081,15 +1036,19 @@ MatrixMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *matrixtmp, *sourcestmp;
     MatrixMorph *self;
     self = (MatrixMorph *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     INIT_OBJECT_COMMON
 
-    Stream_setFunctionPtr(self->stream, MatrixMorph_compute_next_data_frame);
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(MatrixMorph_compute_next_data_frame));
 
     static char *kwlist[] = {"input", "matrix", "sources", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO", kwlist, &inputtmp, &matrixtmp, &sourcestmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO", kwlist, &inputtmp, &matrixtmp, &sourcestmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
@@ -1104,7 +1063,7 @@ MatrixMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->sources = (PyObject *)sourcestmp;
     Py_INCREF(self->sources);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     return (PyObject *)self;
 }
@@ -1166,44 +1125,29 @@ static PyMethodDef MatrixMorph_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject MatrixMorphType =
+static PyType_Slot MatrixMorphType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.MatrixMorph_base",         /*tp_name*/
-    sizeof(MatrixMorph),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)MatrixMorph_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "MatrixMorph objects. Interpolation contents of different matrix objects.",           /* tp_doc */
-    (traverseproc)MatrixMorph_traverse,   /* tp_traverse */
-    (inquiry)MatrixMorph_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    MatrixMorph_methods,             /* tp_methods */
-    MatrixMorph_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    MatrixMorph_new,                 /* tp_new */
+    {Py_tp_dealloc, MatrixMorph_dealloc},
+    {Py_tp_doc, "MatrixMorph objects. Interpolation contents of different matrix objects."},
+    {Py_tp_traverse, MatrixMorph_traverse},
+    {Py_tp_clear, MatrixMorph_clear},
+    {Py_tp_methods, MatrixMorph_methods},
+    {Py_tp_members, MatrixMorph_members},
+    {Py_tp_new, MatrixMorph_new},
+    {0, NULL}
 };
+
+static PyType_Spec MatrixMorphType_spec =
+{
+    "_pyo.MatrixMorph_base",
+    sizeof(MatrixMorph),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MatrixMorphType_slots
+};
+
+PyTypeObject *
+PyoCreateMatrixMorphType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MatrixMorphType_spec, NULL);
+}

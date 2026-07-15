@@ -1,14 +1,17 @@
 Here's the procedure to compile the [pyo~] object:
 
-First of all, you'll need Pd's current external objects builder, which you can get here https://github.com/pure-data/pd-lib-builder.
-You need to create a directory with your Pd externals, usually that's /home/Documents/Pd/externals. Move the pd-lib-builder directory in there, and the [pyo~] external sources there too (in its own directory).
-Copy the m_pyo.h file into the pyo~ external directory.
+First of all, update pyo's submodules to get the latest Pd's external objects builder (pd-lib-builder):
 
-Then make the object with the following:
 ```
-make PY_LIBS="-lpython3.13"
+git submodule update --init --recursive
 ```
-The last two bits (m_pyo.h and the make commad) should use the Python version you have installed or built Pyo against.
+
+Then, from `embedded/puredata` directory, make the object with the following command:
+```
+make
+```
+
+You need to create a directory with your Pd externals, usually that's `~/Documents/Pd/externals`. Move the [pyo~] external there, in its own directory, with its resources (pyo~-meta.pd, pyo~-help.pd, and ounkmaster.aif). Don't forget to add the directory to puredata's search paths.
 
 If when loading the object in Pd you get the following error:
 ```

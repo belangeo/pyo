@@ -53,6 +53,6 @@ extern void TableStream_resetRecordingPointer(TableStream *self);
 extern void TableStream_setFeedback(TableStream *self, MYFLT feedback);
 extern MYFLT TableStream_getFeedback(TableStream *self);
 extern void TableStream_record(TableStream *self, int pos, MYFLT value);
-extern PyTypeObject TableStreamType;
+PyTypeObject * PyoCreateTableStreamType(PyObject *module);
 
 #endif // _TABLEMODULE_H

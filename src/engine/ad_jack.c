@@ -313,7 +313,7 @@ Server_jack_autoconnect(Server *self)
                 i++;
             }
 
-            PyMem_RawFree(ports);
+            free(ports);
         }
     }
 
@@ -346,7 +346,7 @@ Server_jack_autoconnect(Server *self)
             i++;
         }
 
-        PyMem_RawFree(ports);
+        free(ports);
     }
 
     if (self->duplex == 1)

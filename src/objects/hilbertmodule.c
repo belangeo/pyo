@@ -104,7 +104,7 @@ HilbertMain_getSamplesBuffer(HilbertMain *self)
 static void
 HilbertMain_setProcMode(HilbertMain *self)
 {
-    self->proc_func_ptr = HilbertMain_filters;
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(HilbertMain_filters);
 }
 
 static void
@@ -135,7 +135,7 @@ HilbertMain_dealloc(HilbertMain* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer_streams);
     HilbertMain_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -146,10 +146,12 @@ HilbertMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp;
     HilbertMain *self;
     self = (HilbertMain *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, HilbertMain_compute_next_data_frame);
-    self->mode_func_ptr = HilbertMain_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(HilbertMain_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(HilbertMain_setProcMode);
 
     for (i = 0; i < 12; i++)
     {
@@ -159,12 +161,14 @@ HilbertMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &inputtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &inputtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->buffer_streams = (MYFLT *)PyMem_RawRealloc(self->buffer_streams, 2 * self->bufsize * sizeof(MYFLT));
 
@@ -198,47 +202,31 @@ static PyMethodDef HilbertMain_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject HilbertMainType =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.HilbertMain_base",                                   /*tp_name*/
-    sizeof(HilbertMain),                                 /*tp_basicsize*/
-    0,                                              /*tp_itemsize*/
-    (destructor)HilbertMain_dealloc,                     /*tp_dealloc*/
-    0,                                              /*tp_print*/
-    0,                                              /*tp_getattr*/
-    0,                                              /*tp_setattr*/
-    0,                                              /*tp_as_async (tp_compare in Python 2)*/
-    0,                                              /*tp_repr*/
-    0,                              /*tp_as_number*/
-    0,                                              /*tp_as_sequence*/
-    0,                                              /*tp_as_mapping*/
-    0,                                              /*tp_hash */
-    0,                                              /*tp_call*/
-    0,                                              /*tp_str*/
-    0,                                              /*tp_getattro*/
-    0,                                              /*tp_setattro*/
-    0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "HilbertMain objects. Hilbert transform. Created real and imaginary parts from an audio stream",           /* tp_doc */
-    (traverseproc)HilbertMain_traverse,                  /* tp_traverse */
-    (inquiry)HilbertMain_clear,                          /* tp_clear */
-    0,                                              /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,                                              /* tp_iter */
-    0,                                              /* tp_iternext */
-    HilbertMain_methods,                                 /* tp_methods */
-    HilbertMain_members,                                 /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                                              /* tp_alloc */
-    HilbertMain_new,                                     /* tp_new */
+static PyType_Slot HilbertMainType_slots[] = {
+    {Py_tp_dealloc, HilbertMain_dealloc},
+    {Py_tp_doc, "HilbertMain objects. Hilbert transform. Created real and imaginary parts from an audio stream"},
+    {Py_tp_traverse, HilbertMain_traverse},
+    {Py_tp_clear, HilbertMain_clear},
+    {Py_tp_methods, HilbertMain_methods},
+    {Py_tp_members, HilbertMain_members},
+    {Py_tp_new, HilbertMain_new},
+    {0, NULL}
 };
+
+static PyType_Spec HilbertMainType_spec =
+{
+    "_pyo.HilbertMain_base",
+    sizeof(HilbertMain),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    HilbertMainType_slots
+};
+
+PyTypeObject *
+PyoCreateHilbertMainType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &HilbertMainType_spec, NULL);
+}
 
 /************************************************************************************************/
 /* Hilbert streamer object */
@@ -270,39 +258,39 @@ Hilbert_setProcMode(Hilbert *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Hilbert_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Hilbert_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Hilbert_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Hilbert_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Hilbert_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Hilbert_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Hilbert_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Hilbert_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Hilbert_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Hilbert_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Hilbert_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Hilbert_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Hilbert_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Hilbert_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Hilbert_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Hilbert_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Hilbert_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Hilbert_postprocessing_revareva);
             break;
     }
 }
@@ -344,7 +332,7 @@ Hilbert_dealloc(Hilbert* self)
 {
     pyo_DEALLOC
     Hilbert_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -355,33 +343,37 @@ Hilbert_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     Hilbert *self;
     self = (Hilbert *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Hilbert_compute_next_data_frame);
-    self->mode_func_ptr = Hilbert_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Hilbert_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Hilbert_setProcMode);
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainSplitter = (HilbertMain *)maintmp;
     Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -431,82 +423,36 @@ static PyMethodDef Hilbert_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Hilbert_as_number =
-{
-    (binaryfunc)Hilbert_add,                      /*nb_add*/
-    (binaryfunc)Hilbert_sub,                 /*nb_subtract*/
-    (binaryfunc)Hilbert_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Hilbert_inplace_add,              /*inplace_add*/
-    (binaryfunc)Hilbert_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Hilbert_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Hilbert_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Hilbert_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot HilbertType_slots[] = {
+    {Py_tp_dealloc, Hilbert_dealloc},
+    {Py_tp_doc, "Hilbert objects. Reads one band from a Hilbert transform."},
+    {Py_tp_traverse, Hilbert_traverse},
+    {Py_tp_clear, Hilbert_clear},
+    {Py_tp_methods, Hilbert_methods},
+    {Py_tp_members, Hilbert_members},
+    {Py_tp_new, Hilbert_new},
+    {Py_nb_add, Hilbert_add},
+    {Py_nb_subtract, Hilbert_sub},
+    {Py_nb_multiply, Hilbert_multiply},
+    {Py_nb_true_divide, Hilbert_div},
+    {Py_nb_inplace_add, Hilbert_inplace_add},
+    {Py_nb_inplace_subtract, Hilbert_inplace_sub},
+    {Py_nb_inplace_multiply, Hilbert_inplace_multiply},
+    {Py_nb_inplace_true_divide, Hilbert_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject HilbertType =
+static PyType_Spec HilbertType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Hilbert_base",         /*tp_name*/
-    sizeof(Hilbert),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Hilbert_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Hilbert_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "Hilbert objects. Reads one band from a Hilbert transform.",           /* tp_doc */
-    (traverseproc)Hilbert_traverse,   /* tp_traverse */
-    (inquiry)Hilbert_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Hilbert_methods,             /* tp_methods */
-    Hilbert_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Hilbert_new,                 /* tp_new */
+    "_pyo.Hilbert_base",
+    sizeof(Hilbert),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    HilbertType_slots
 };
+
+PyTypeObject *
+PyoCreateHilbertType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &HilbertType_spec, NULL);
+}

@@ -23,32 +23,23 @@
 #include "pyomodule.h"
 #include "streammodule.h"
 
-int stream_id = 1;
-
-int
-Stream_getNewStreamId()
-{
-    return stream_id++;
-}
-
 static int
 Stream_traverse(Stream *self, visitproc visit, void *arg)
 {
-    Py_VISIT(self->streamobject);
     return 0;
 }
 
 static int
 Stream_clear(Stream *self)
 {
-    if (Py_REFCNT(self->streamobject) > 0)
-        Py_CLEAR(self->streamobject);
+    self->streamobject = NULL;
     return 0;
 }
 
 static void
 Stream_dealloc(Stream* self)
 {
+    pyo_GC_UNTRACK(self);
     self->data = NULL;
     Stream_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
@@ -110,6 +101,14 @@ void Stream_setFunctionPtr(Stream *self, void (*ptr)(void *))
 void Stream_callFunction(Stream *self)
 {
     (*self->funcptr)(self->streamobject);
+
+    // Some stream implementations still call Python APIs internally.
+    // In debug Python builds, leaving an exception pending here can
+    // trip assertions in the next unrelated Python API call.
+    if (PyErr_Occurred())
+    {
+        PyErr_Print();
+    }
 }
 
 void Stream_IncrementBufferCount(Stream *self)
@@ -129,7 +128,9 @@ void Stream_IncrementDurationCount(Stream *self)
 
     if (self->bufferCount >= self->duration)
     {
-        PyObject_CallMethod((PyObject *)Stream_getStreamObject(self), "stop", NULL);
+        PyObject *streamobj = Stream_getStreamObject(self);
+        PYO_CALL_METHOD(streamobj, "stop", NULL);
+        Py_DECREF(streamobj);
         self->duration = self->bufferCount = 0;
     }
 }
@@ -200,29 +201,10 @@ static PyMethodDef Stream_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject StreamType =
+static PyType_Slot StreamType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "pyo.Stream", /*tp_name*/
-    sizeof(Stream), /*tp_basicsize*/
-    0, /*tp_itemsize*/
-    (destructor)Stream_dealloc, /*tp_dealloc*/
-    0, /*tp_print*/
-    0, /*tp_getattr*/
-    0, /*tp_setattr*/
-    0, /*tp_as_async (tp_compare in Python 2)*/
-    0, /*tp_repr*/
-    0, /*tp_as_number*/
-    0, /*tp_as_sequence*/
-    0, /*tp_as_mapping*/
-    0, /*tp_hash */
-    0, /*tp_call*/
-    0, /*tp_str*/
-    0, /*tp_getattro*/
-    0, /*tp_setattro*/
-    0, /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
-    "\n\
+    {Py_tp_dealloc, Stream_dealloc},
+    {Py_tp_doc, "\n\
 Audio stream objects. For internal use only. \n\n\
 A Stream object must never be instantiated by the user. \n\n\
 A Stream is a mono buffer of audio samples. It is used to pass \n\
@@ -244,25 +226,28 @@ between brackets, beginning at 0. To retrieve only the third stream of our objec
 The method getStreamObject() can be called on a Stream object to retrieve the \n\
 XXX_base object associated with this Stream. This method can be used by developers who\n\
 are debugging their programs!\n\n\
-", /* tp_doc */
-    (traverseproc)Stream_traverse, /* tp_traverse */
-    (inquiry)Stream_clear, /* tp_clear */
-    0, /* tp_richcompare */
-    0, /* tp_weaklistoffset */
-    0, /* tp_iter */
-    0, /* tp_iternext */
-    Stream_methods, /* tp_methods */
-    0, /* tp_members */
-    0, /* tp_getset */
-    0, /* tp_base */
-    0, /* tp_dict */
-    0, /* tp_descr_get */
-    0, /* tp_descr_set */
-    0, /* tp_dictoffset */
-    0, /* tp_init */
-    0, /* tp_alloc */
-    0, /* tp_new */
+"},
+    {Py_tp_traverse, Stream_traverse},
+    {Py_tp_clear, Stream_clear},
+    {Py_tp_methods, Stream_methods},
+    {Py_tp_new, PyType_GenericNew},
+    {0, NULL}
 };
+
+static PyType_Spec StreamType_spec =
+{
+    "pyo.Stream",
+    sizeof(Stream),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    StreamType_slots
+};
+
+PyTypeObject *
+PyoCreateStreamType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &StreamType_spec, NULL);
+}
 
 /************************/
 /* TriggerStream object */
@@ -286,46 +271,27 @@ TriggerStream_setData(TriggerStream *self, MYFLT *data)
     self->data = data;
 }
 
-PyTypeObject TriggerStreamType =
+static PyType_Slot TriggerStreamType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "pyo.TriggerStream", /*tp_name*/
-    sizeof(TriggerStream), /*tp_basicsize*/
-    0, /*tp_itemsize*/
-    (destructor)TriggerStream_dealloc, /*tp_dealloc*/
-    0, /*tp_print*/
-    0, /*tp_getattr*/
-    0, /*tp_setattr*/
-    0, /*tp_as_async (tp_compare in Python 2)*/
-    0, /*tp_repr*/
-    0, /*tp_as_number*/
-    0, /*tp_as_sequence*/
-    0, /*tp_as_mapping*/
-    0, /*tp_hash */
-    0, /*tp_call*/
-    0, /*tp_str*/
-    0, /*tp_getattro*/
-    0, /*tp_setattro*/
-    0, /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
-    "\n\
+    {Py_tp_dealloc, TriggerStream_dealloc},
+    {Py_tp_doc, "\n\
     Trigger stream object. For internal use only. \n\n\
-    ", /* tp_doc */
-    0, /* tp_traverse */
-    0, /* tp_clear */
-    0, /* tp_richcompare */
-    0, /* tp_weaklistoffset */
-    0, /* tp_iter */
-    0, /* tp_iternext */
-    0, /* tp_methods */
-    0, /* tp_members */
-    0, /* tp_getset */
-    0, /* tp_base */
-    0, /* tp_dict */
-    0, /* tp_descr_get */
-    0, /* tp_descr_set */
-    0, /* tp_dictoffset */
-    0, /* tp_init */
-    0, /* tp_alloc */
-    0, /* tp_new */
+    "},
+    {Py_tp_new, PyType_GenericNew},
+    {0, NULL}
 };
+
+static PyType_Spec TriggerStreamType_spec =
+{
+    "pyo.TriggerStream",
+    sizeof(TriggerStream),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    TriggerStreamType_slots
+};
+
+PyTypeObject *
+PyoCreateTriggerStreamType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &TriggerStreamType_spec, NULL);
+}

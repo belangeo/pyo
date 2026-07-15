@@ -68,20 +68,32 @@ void process_midi(PtTimestamp timestamp, void *userData)
 
                 if (server->reportdevice)
                 {
+                    PyObject *pyresult;
                     tup = PyTuple_New(4);
                     PyTuple_SetItem(tup, 0, PyLong_FromLong(status));
                     PyTuple_SetItem(tup, 1, PyLong_FromLong(data1));
                     PyTuple_SetItem(tup, 2, PyLong_FromLong(data2));
                     PyTuple_SetItem(tup, 3, PyLong_FromLong(server->ids[i]));
-                    PyObject_Call((PyObject *)server->midicallable, tup, NULL);
+                    pyresult = PyObject_Call((PyObject *)server->midicallable, tup, NULL);
+                    Py_DECREF(tup);
+                    if (pyresult == NULL)
+                        PyErr_Print();
+                    else
+                        Py_DECREF(pyresult);
                 }
                 else
                 {
+                    PyObject *pyresult;
                     tup = PyTuple_New(3);
                     PyTuple_SetItem(tup, 0, PyLong_FromLong(status));
                     PyTuple_SetItem(tup, 1, PyLong_FromLong(data1));
                     PyTuple_SetItem(tup, 2, PyLong_FromLong(data2));
-                    PyObject_Call((PyObject *)server->midicallable, tup, NULL);
+                    pyresult = PyObject_Call((PyObject *)server->midicallable, tup, NULL);
+                    Py_DECREF(tup);
+                    if (pyresult == NULL)
+                        PyErr_Print();
+                    else
+                        Py_DECREF(pyresult);
                 }
             }
         }
@@ -111,7 +123,7 @@ static void
 MidiListener_dealloc(MidiListener* self)
 {
     if (self->active == 1)
-        PyObject_CallMethod((PyObject *)self, "stop", NULL);
+        PYO_CALL_METHOD(self, "stop", NULL);
 
     MidiListener_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
@@ -124,17 +136,21 @@ MidiListener_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     MidiListener *self;
 
     self = (MidiListener *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->active = self->midicount = self->reportdevice = 0;
 
     static char *kwlist[] = {"midicallable", "mididevice", "reportdevice", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOi", kwlist, &midicalltmp, &mididevtmp, &self->reportdevice))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOi", kwlist, &midicalltmp, &mididevtmp, &self->reportdevice)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (midicalltmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMidiFunction", "O", midicalltmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMidiFunction", midicalltmp);
     }
 
     if (mididevtmp)
@@ -366,47 +382,32 @@ static PyMethodDef MidiListener_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject MidiListenerType =
+static PyType_Slot MidiListenerType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.MidiListener_base",         /*tp_name*/
-    sizeof(MidiListener),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)MidiListener_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "MidiListener objects. Calls a function with midi data as arguments.",           /* tp_doc */
-    (traverseproc)MidiListener_traverse,   /* tp_traverse */
-    (inquiry)MidiListener_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    MidiListener_methods,             /* tp_methods */
-    MidiListener_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    MidiListener_new,                 /* tp_new */
+    {Py_tp_dealloc, MidiListener_dealloc},
+    {Py_tp_doc, "MidiListener objects. Calls a function with midi data as arguments."},
+    {Py_tp_traverse, MidiListener_traverse},
+    {Py_tp_clear, MidiListener_clear},
+    {Py_tp_methods, MidiListener_methods},
+    {Py_tp_members, MidiListener_members},
+    {Py_tp_new, MidiListener_new},
+    {0, NULL}
 };
+
+static PyType_Spec MidiListenerType_spec =
+{
+    "_pyo.MidiListener_base",
+    sizeof(MidiListener),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MidiListenerType_slots
+};
+
+PyTypeObject *
+PyoCreateMidiListenerType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MidiListenerType_spec, NULL);
+}
 
 typedef struct
 {
@@ -434,7 +435,7 @@ static void
 MidiDispatcher_dealloc(MidiDispatcher* self)
 {
     if (self->active == 1)
-        PyObject_CallMethod((PyObject *)self, "stop", NULL);
+        PYO_CALL_METHOD(self, "stop", NULL);
 
     MidiDispatcher_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
@@ -447,13 +448,17 @@ MidiDispatcher_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     MidiDispatcher *self;
 
     self = (MidiDispatcher *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->active = self->midicount = 0;
 
     static char *kwlist[] = {"mididevice", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &mididevtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &mididevtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (mididevtmp)
     {
@@ -751,44 +756,29 @@ static PyMethodDef MidiDispatcher_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject MidiDispatcherType =
+static PyType_Slot MidiDispatcherType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.MidiDispatcher_base",         /*tp_name*/
-    sizeof(MidiDispatcher),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)MidiDispatcher_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "MidiDispatcher objects. Calls a function with midi data as arguments.",           /* tp_doc */
-    (traverseproc)MidiDispatcher_traverse,   /* tp_traverse */
-    (inquiry)MidiDispatcher_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    MidiDispatcher_methods,             /* tp_methods */
-    MidiDispatcher_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    MidiDispatcher_new,                 /* tp_new */
+    {Py_tp_dealloc, MidiDispatcher_dealloc},
+    {Py_tp_doc, "MidiDispatcher objects. Calls a function with midi data as arguments."},
+    {Py_tp_traverse, MidiDispatcher_traverse},
+    {Py_tp_clear, MidiDispatcher_clear},
+    {Py_tp_methods, MidiDispatcher_methods},
+    {Py_tp_members, MidiDispatcher_members},
+    {Py_tp_new, MidiDispatcher_new},
+    {0, NULL}
 };
+
+static PyType_Spec MidiDispatcherType_spec =
+{
+    "_pyo.MidiDispatcher_base",
+    sizeof(MidiDispatcher),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MidiDispatcherType_slots
+};
+
+PyTypeObject *
+PyoCreateMidiDispatcherType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MidiDispatcherType_spec, NULL);
+}

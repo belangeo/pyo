@@ -73,7 +73,7 @@ typedef struct
 
 /************************************************/
 
-typedef struct
+struct Server
 {
     PyObject_HEAD
     PyObject *streams;
@@ -121,6 +121,7 @@ typedef struct
     int server_stopped; /* for fadeout */
     int server_booted;
     int stream_count;
+    int next_stream_id;
     int record;
     int thisServerID;       /* To keep the reference index in the array of servers */
 
@@ -181,9 +182,10 @@ typedef struct
     /* 2 = message, 4 = warning , 8 = debug. Default 7.*/
     int globalSeed; /* initial seed for random objects. If <= 0, objects are seeded with the clock. */
     int autoStartChildren; /* if true, calls to play, out and stop propagate to children objects. */
-} Server;
+};
 
 PyObject * PyServer_get_server();
+extern int Server_getNewStreamId(Server *self);
 extern unsigned int pyorand();
 extern PyObject * Server_removeStream(Server *self, int sid);
 extern MYFLT * Server_getInputBuffer(Server *self);
@@ -194,7 +196,6 @@ extern unsigned long Server_getElapsedTime(Server *self);
 extern int Server_getCurrentResamplingFactor(Server *self);
 extern int Server_getLastResamplingFactor(Server *self);
 extern int Server_generateSeed(Server *self, int oid);
-extern PyTypeObject ServerType;
 void pyoGetMidiEvents(Server *self);
 void Server_process_buffers(Server *server);
 void Server_error(Server *self, char * format, ...);

@@ -445,19 +445,19 @@ WGVerb_setProcMode(WGVerb *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = WGVerb_process_ii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(WGVerb_process_ii);
             break;
 
         case 1:
-            self->proc_func_ptr = WGVerb_process_ai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(WGVerb_process_ai);
             break;
 
         case 10:
-            self->proc_func_ptr = WGVerb_process_ia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(WGVerb_process_ia);
             break;
 
         case 11:
-            self->proc_func_ptr = WGVerb_process_aa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(WGVerb_process_aa);
             break;
     }
 
@@ -475,39 +475,39 @@ WGVerb_setProcMode(WGVerb *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = WGVerb_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(WGVerb_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = WGVerb_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(WGVerb_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = WGVerb_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(WGVerb_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = WGVerb_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(WGVerb_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = WGVerb_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(WGVerb_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = WGVerb_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(WGVerb_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = WGVerb_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(WGVerb_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = WGVerb_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(WGVerb_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = WGVerb_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(WGVerb_postprocessing_revareva);
             break;
     }
 }
@@ -554,7 +554,7 @@ WGVerb_dealloc(WGVerb* self)
     }
 
     WGVerb_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -565,6 +565,8 @@ WGVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *feedbacktmp = NULL, *cutofftmp = NULL, *mixtmp = NULL, *multmp = NULL, *addtmp = NULL;
     WGVerb *self;
     self = (WGVerb *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->feedback = PyFloat_FromDouble(0.5);
     self->cutoff = PyFloat_FromDouble(5000.0);
@@ -579,8 +581,8 @@ WGVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[4] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, WGVerb_compute_next_data_frame);
-    self->mode_func_ptr = WGVerb_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(WGVerb_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(WGVerb_setProcMode);
 
     for (i = 0; i < 8; i++)
     {
@@ -596,37 +598,39 @@ WGVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "feedback", "cutoff", "mix", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOO", kwlist, &inputtmp, &feedbacktmp, &cutofftmp, &mixtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOO", kwlist, &inputtmp, &feedbacktmp, &cutofftmp, &mixtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
     if (feedbacktmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setFeedback", "O", feedbacktmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setFeedback", feedbacktmp);
     }
 
     if (cutofftmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setCutoff", "O", cutofftmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setCutoff", cutofftmp);
     }
 
     if (mixtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMix", "O", mixtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMix", mixtmp);
     }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     for (i = 0; i < 8; i++)
     {
@@ -720,85 +724,40 @@ static PyMethodDef WGVerb_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods WGVerb_as_number =
+static PyType_Slot WGVerbType_slots[] =
 {
-    (binaryfunc)WGVerb_add,                      /*nb_add*/
-    (binaryfunc)WGVerb_sub,                 /*nb_subtract*/
-    (binaryfunc)WGVerb_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)WGVerb_inplace_add,              /*inplace_add*/
-    (binaryfunc)WGVerb_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)WGVerb_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)WGVerb_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)WGVerb_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+    {Py_tp_dealloc, WGVerb_dealloc},
+    {Py_tp_doc, "WGVerb objects. Waveguide-based reverberation network."},
+    {Py_tp_traverse, WGVerb_traverse},
+    {Py_tp_clear, WGVerb_clear},
+    {Py_tp_methods, WGVerb_methods},
+    {Py_tp_members, WGVerb_members},
+    {Py_nb_add, WGVerb_add},
+    {Py_nb_subtract, WGVerb_sub},
+    {Py_nb_multiply, WGVerb_multiply},
+    {Py_nb_true_divide, WGVerb_div},
+    {Py_nb_inplace_add, WGVerb_inplace_add},
+    {Py_nb_inplace_subtract, WGVerb_inplace_sub},
+    {Py_nb_inplace_multiply, WGVerb_inplace_multiply},
+    {Py_nb_inplace_true_divide, WGVerb_inplace_div},
+    {Py_tp_new, WGVerb_new},
+    {0, NULL}
 };
 
-PyTypeObject WGVerbType =
+static PyType_Spec WGVerbType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.WGVerb_base",         /*tp_name*/
-    sizeof(WGVerb),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)WGVerb_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &WGVerb_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "WGVerb objects. Waveguide-based reverberation network.",           /* tp_doc */
-    (traverseproc)WGVerb_traverse,   /* tp_traverse */
-    (inquiry)WGVerb_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    WGVerb_methods,             /* tp_methods */
-    WGVerb_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    WGVerb_new,                 /* tp_new */
+    "_pyo.WGVerb_base",
+    sizeof(WGVerb),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    WGVerbType_slots
 };
+
+PyTypeObject *
+PyoCreateWGVerbType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &WGVerbType_spec, NULL);
+}
 
 /***************/
 /**** STRev ****/
@@ -1518,19 +1477,19 @@ STReverb_setProcMode(STReverb *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = STReverb_process_ii;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(STReverb_process_ii);
             break;
 
         case 1:
-            self->proc_func_ptr = STReverb_process_ai;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(STReverb_process_ai);
             break;
 
         case 10:
-            self->proc_func_ptr = STReverb_process_ia;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(STReverb_process_ia);
             break;
 
         case 11:
-            self->proc_func_ptr = STReverb_process_aa;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(STReverb_process_aa);
             break;
     }
 
@@ -1606,7 +1565,7 @@ STReverb_dealloc(STReverb* self)
 
     PyMem_RawFree(self->buffer_streams);
     STReverb_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1620,6 +1579,8 @@ STReverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *inpostmp = NULL, *revtimetmp = NULL, *cutofftmp = NULL, *mixtmp = NULL;
     STReverb *self;
     self = (STReverb *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->inpos = PyFloat_FromDouble(0.5);
     self->revtime = PyFloat_FromDouble(0.5);
@@ -1637,37 +1598,39 @@ STReverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->nyquist = self->sr * 0.49;
     self->srfac = self->sr / 44100.0;
 
-    Stream_setFunctionPtr(self->stream, STReverb_compute_next_data_frame);
-    self->mode_func_ptr = STReverb_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(STReverb_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(STReverb_setProcMode);
 
     static char *kwlist[] = {"input", "inpos", "revtime", "cutoff", "mix", "roomSize", "firstRefGain", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOOOFF, kwlist, &inputtmp, &inpostmp, &revtimetmp, &cutofftmp, &mixtmp, &roomSize, &firstRefTmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOOOFF, kwlist, &inputtmp, &inpostmp, &revtimetmp, &cutofftmp, &mixtmp, &roomSize, &firstRefTmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     INIT_INPUT_STREAM
 
     if (inpostmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setInpos", "O", inpostmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setInpos", inpostmp);
     }
 
     if (revtimetmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setRevtime", "O", revtimetmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setRevtime", revtimetmp);
     }
 
     if (cutofftmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setCutoff", "O", cutofftmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setCutoff", cutofftmp);
     }
 
     if (mixtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMix", "O", mixtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMix", mixtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     self->firstRefGain = MYPOW(10.0, firstRefTmp * 0.05);
 
@@ -1904,47 +1867,32 @@ static PyMethodDef STReverb_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject STReverbType =
+static PyType_Slot STReverbType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.STReverb_base",         /*tp_name*/
-    sizeof(STReverb),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)STReverb_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "STReverb objects. Waveguide-based reverberation network.",           /* tp_doc */
-    (traverseproc)STReverb_traverse,   /* tp_traverse */
-    (inquiry)STReverb_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    STReverb_methods,             /* tp_methods */
-    STReverb_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    STReverb_new,                 /* tp_new */
+    {Py_tp_dealloc, STReverb_dealloc},
+    {Py_tp_doc, "STReverb objects. Waveguide-based reverberation network."},
+    {Py_tp_traverse, STReverb_traverse},
+    {Py_tp_clear, STReverb_clear},
+    {Py_tp_methods, STReverb_methods},
+    {Py_tp_members, STReverb_members},
+    {Py_tp_new, STReverb_new},
+    {0, NULL}
 };
+
+static PyType_Spec STReverbType_spec =
+{
+    "_pyo.STReverb_base",
+    sizeof(STReverb),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    STReverbType_slots
+};
+
+PyTypeObject *
+PyoCreateSTReverbType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &STReverbType_spec, NULL);
+}
 
 /************************************************************************************************/
 /* STReverb streamer object */
@@ -1976,39 +1924,39 @@ STRev_setProcMode(STRev *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = STRev_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(STRev_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = STRev_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(STRev_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = STRev_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(STRev_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = STRev_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(STRev_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = STRev_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(STRev_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = STRev_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(STRev_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = STRev_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(STRev_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = STRev_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(STRev_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = STRev_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(STRev_postprocessing_revareva);
             break;
     }
 }
@@ -2050,7 +1998,7 @@ STRev_dealloc(STRev* self)
 {
     pyo_DEALLOC
     STRev_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2061,33 +2009,37 @@ STRev_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     STRev *self;
     self = (STRev *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, STRev_compute_next_data_frame);
-    self->mode_func_ptr = STRev_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(STRev_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(STRev_setProcMode);
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->mainSplitter = (STReverb *)maintmp;
     Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -2137,82 +2089,37 @@ static PyMethodDef STRev_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods STRev_as_number =
+static PyType_Slot STRevType_slots[] =
 {
-    (binaryfunc)STRev_add,                      /*nb_add*/
-    (binaryfunc)STRev_sub,                 /*nb_subtract*/
-    (binaryfunc)STRev_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)STRev_inplace_add,              /*inplace_add*/
-    (binaryfunc)STRev_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)STRev_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)STRev_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)STRev_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+    {Py_tp_dealloc, STRev_dealloc},
+    {Py_tp_doc, "STRev objects. Reads one channel from a STReverb object."},
+    {Py_tp_traverse, STRev_traverse},
+    {Py_tp_clear, STRev_clear},
+    {Py_tp_methods, STRev_methods},
+    {Py_tp_members, STRev_members},
+    {Py_nb_add, STRev_add},
+    {Py_nb_subtract, STRev_sub},
+    {Py_nb_multiply, STRev_multiply},
+    {Py_nb_true_divide, STRev_div},
+    {Py_nb_inplace_add, STRev_inplace_add},
+    {Py_nb_inplace_subtract, STRev_inplace_sub},
+    {Py_nb_inplace_multiply, STRev_inplace_multiply},
+    {Py_nb_inplace_true_divide, STRev_inplace_div},
+    {Py_tp_new, STRev_new},
+    {0, NULL}
 };
 
-PyTypeObject STRevType =
+static PyType_Spec STRevType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.STRev_base",         /*tp_name*/
-    sizeof(STRev),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)STRev_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &STRev_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "STRev objects. Reads one channel from a STReverb object.",           /* tp_doc */
-    (traverseproc)STRev_traverse,   /* tp_traverse */
-    (inquiry)STRev_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    STRev_methods,             /* tp_methods */
-    STRev_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    STRev_new,                 /* tp_new */
+    "_pyo.STRev_base",
+    sizeof(STRev),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    STRevType_slots
 };
+
+PyTypeObject *
+PyoCreateSTRevType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &STRevType_spec, NULL);
+}

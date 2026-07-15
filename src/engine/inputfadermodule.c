@@ -147,7 +147,7 @@ InputFader_dealloc(InputFader* self)
 {
     pyo_DEALLOC
     InputFader_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -158,6 +158,8 @@ InputFader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp = NULL;
     InputFader *self;
     self = (InputFader *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->switcher = 0;
     self->fadetime = 0.05;
@@ -169,14 +171,16 @@ InputFader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->sampleToSec = 1. / self->sr;
 
-    Stream_setFunctionPtr(self->stream, InputFader_compute_next_data_frame);
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(InputFader_compute_next_data_frame));
     self->mode_func_ptr = PYO_AUDIO_CALLBACK(InputFader_setProcMode);
     self->proc_func_ptr = PYO_AUDIO_CALLBACK(InputFader_process_only_first);
 
     static char *kwlist[] = {"input", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &inputtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &inputtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "server") == 0 )
     {
@@ -187,11 +191,11 @@ InputFader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_DECREF(self->input1);
     self->input1 = inputtmp;
     Py_INCREF(self->input1);
-    PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->input1, "_getStream", NULL);
+    PyObject *streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input1, "_getStream", NULL);
     self->input1_stream = (Stream *)streamtmp;
     Py_INCREF(self->input1_stream);
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     return (PyObject *)self;
 }
@@ -217,7 +221,7 @@ InputFader_setInput(InputFader *self, PyObject *args, PyObject *kwds)
         Py_DECREF(self->input1);
         self->input1 = tmp;
         Py_INCREF(self->input1);
-        streamtmp = PyObject_CallMethod((PyObject *)self->input1, "_getStream", NULL);
+        streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input1, "_getStream", NULL);
         self->input1_stream = (Stream *)streamtmp;
         Py_INCREF(self->input1_stream);
         self->proc_func_ptr = PYO_AUDIO_CALLBACK(InputFader_process_one);
@@ -227,7 +231,7 @@ InputFader_setInput(InputFader *self, PyObject *args, PyObject *kwds)
         Py_DECREF(self->input2);
         self->input2 = tmp;
         Py_INCREF(self->input2);
-        streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
+        streamtmp = PYO_CALL_METHOD_RET((PyObject *)self->input2, "_getStream", NULL);
         self->input2_stream = (Stream *)streamtmp;
         Py_INCREF(self->input2_stream);
         self->proc_func_ptr = PYO_AUDIO_CALLBACK(InputFader_process_two);
@@ -263,44 +267,29 @@ static PyMethodDef InputFader_methods[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject InputFaderType =
+static PyType_Slot InputFaderType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.InputFader_base",         /*tp_name*/
-    sizeof(InputFader),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)InputFader_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "InputFader objects. Generates a crossfade between current input sound stream and new input sound stream.",  /* tp_doc */
-    (traverseproc)InputFader_traverse,   /* tp_traverse */
-    (inquiry)InputFader_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    InputFader_methods,             /* tp_methods */
-    InputFader_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    InputFader_new,                 /* tp_new */
+    {Py_tp_dealloc, InputFader_dealloc},
+    {Py_tp_doc, "InputFader objects. Generates a crossfade between current input sound stream and new input sound stream."},
+    {Py_tp_traverse, InputFader_traverse},
+    {Py_tp_clear, InputFader_clear},
+    {Py_tp_methods, InputFader_methods},
+    {Py_tp_members, InputFader_members},
+    {Py_tp_new, InputFader_new},
+    {0, NULL}
 };
+
+static PyType_Spec InputFaderType_spec =
+{
+    "_pyo.InputFader_base",
+    sizeof(InputFader),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    InputFaderType_slots
+};
+
+PyTypeObject *
+PyoCreateInputFaderType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &InputFaderType_spec, NULL);
+}

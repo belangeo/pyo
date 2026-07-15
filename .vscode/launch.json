@@ -16,6 +16,57 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "cwd": "${fileDirname}"
+        },
+        {
+            "name": "Pure Data: pyo~ under gdb",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/usr/bin/pd",
+            "args": [
+                "-noprefs",
+                "-stderr",
+                "-path",
+                "${workspaceFolder}/embedded/puredata"
+            ],
+            "cwd": "${workspaceFolder}/embedded/puredata",
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "stopAtEntry": false,
+            "externalConsole": false,
+            "setupCommands": [
+                {
+                    "text": "-enable-pretty-printing"
+                }
+            ]
+        },
+        {
+            "name": "Python3d: Current File under gdb",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/.venvd/bin/python3d",
+            "args": [
+                "${file}"
+            ],
+            "cwd": "${fileDirname}",
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "stopAtEntry": false,
+            "externalConsole": false,
+            "environment": [
+                {
+                    "name": "VIRTUAL_ENV",
+                    "value": "${workspaceFolder}/.venvd"
+                },
+                {
+                    "name": "PATH",
+                    "value": "${workspaceFolder}/.venvd/bin:${env:PATH}"
+                }
+            ],
+            "setupCommands": [
+                {
+                    "text": "-enable-pretty-printing"
+                }
+            ]
         }
     ]
 }

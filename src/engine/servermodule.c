@@ -90,34 +90,48 @@ void pm_makenote(Server *self, int pit, int vel, int dur, int chan) {};
 long pm_get_current_time() { return 0; };
 #endif
 
-/** Array of Server objects. **/
-/******************************/
-
-#define MAX_NBR_SERVER 256
-
-static Server *my_server[MAX_NBR_SERVER];
-static int serverID = 0;
-
 /* Function called by any new pyo object to get a pointer to the current server. */
-PyObject * PyServer_get_server() { return (PyObject *)my_server[serverID]; }; // TODO: INCREF should be done here.
+PyObject *
+PyServer_get_server()
+{
+    PyoModuleState *state = PyoState_Get();
+
+    if (state == NULL)
+        return NULL;
+
+    if (state->current_server_id < 0 || state->current_server_id >= MAX_NBR_SERVER)
+        return NULL;
+
+    // Returns a borrowed reference
+    return (PyObject *)state->servers[state->current_server_id];
+}
 
 /** Random generator and object seeds. **/
 /****************************************/
 
-#define num_rnd_objs 29
-
-int rnd_objs_count[num_rnd_objs] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-int rnd_objs_mult[num_rnd_objs] = {1993, 1997, 1999, 2003, 2011, 2017, 2027, 2029, 2039, 2053, 2063, 2069,
-                                   2081, 2083, 2087, 2089, 2099, 2111, 2113, 2129, 2131, 2137, 2141, 2143,
-                                   2153, 2161, 2179, 2203, 2207
-                                  };
+static const int rnd_objs_mult[PYO_NUM_RND_OBJS] = {1993, 1997, 1999, 2003, 2011, 2017, 2027, 2029, 2039, 2053, 2063, 2069,
+                                                    2081, 2083, 2087, 2089, 2099, 2111, 2113, 2129, 2131, 2137, 2141, 2143,
+                                                    2153, 2161, 2179, 2203, 2207
+                                                   };
 
 /* Linear congruential pseudo-random generator. */
-static unsigned int PYO_RAND_SEED = 1u;
 unsigned int pyorand()
 {
-    PYO_RAND_SEED = (PYO_RAND_SEED * 1664525 + 1013904223) % PYO_RAND_MAX;
-    return PYO_RAND_SEED;
+    PyoModuleState *state = PyoState_Get();
+
+    if (state == NULL)
+        return 1u;
+
+    state->rand_seed = (state->rand_seed * 1664525 + 1013904223) % PYO_RAND_MAX;
+    return state->rand_seed;
+}
+
+/** Stream IDs **/
+/****************/
+int
+Server_getNewStreamId(Server *self)
+{
+    return self->next_stream_id++;
 }
 
 /** Logging levels. **/
@@ -324,7 +338,11 @@ Server_embedded_i_start(Server *self)
 int
 Server_embedded_i_startIdx(int idx)
 {
-    Server_embedded_i_start(my_server[idx]);
+    PyoModuleState *state = PyoState_Get();
+
+    if (state != NULL && idx >= 0 && idx < MAX_NBR_SERVER && state->servers[idx] != NULL)
+        Server_embedded_i_start(state->servers[idx]);
+
     return 0;
 }
 
@@ -357,7 +375,11 @@ Server_embedded_ni_start(Server *self)
 int
 Server_embedded_ni_startIdx(int idx)
 {
-    Server_embedded_ni_start(my_server[idx]);
+    PyoModuleState *state = PyoState_Get();
+
+    if (state != NULL && idx >= 0 && idx < MAX_NBR_SERVER && state->servers[idx] != NULL)
+        Server_embedded_ni_start(state->servers[idx]);
+
     return 0;
 }
 
@@ -399,7 +421,15 @@ Server_process_buffers(Server *server)
         server->midi_time_offset = pm_get_current_time();
 
     if (server->CALLBACK != NULL)
-        PyObject_Call((PyObject *)server->CALLBACK, PyTuple_New(0), NULL);
+    {
+        PyObject *tuple = PyTuple_New(0);
+        PyObject *result = PyObject_Call((PyObject *)server->CALLBACK, tuple, NULL);
+        Py_DECREF(tuple);
+        if (result == NULL)
+            PyErr_Print();
+        else
+            Py_DECREF(result);
+    }
 
     for (i = 0; i < server->stream_count; i++)
     {
@@ -514,67 +544,67 @@ Server_process_gui(Server *server)
         switch (server->nchnls)
         {
             case 1:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "f", server->lastRms[0]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "f", server->lastRms[0]);
                 break;
 
             case 2:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "ff", server->lastRms[0], server->lastRms[1]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "ff", server->lastRms[0], server->lastRms[1]);
                 break;
 
             case 3:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "fff", server->lastRms[0], server->lastRms[1], server->lastRms[2]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "fff", server->lastRms[0], server->lastRms[1], server->lastRms[2]);
                 break;
 
             case 4:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "ffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "ffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3]);
                 break;
 
             case 5:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "fffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "fffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4]);
                 break;
 
             case 6:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "ffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "ffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5]);
                 break;
 
             case 7:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "fffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "fffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6]);
                 break;
 
             case 8:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "ffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "ffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7]);
                 break;
 
             case 9:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "fffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "fffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8]);
                 break;
 
             case 10:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "ffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "ffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9]);
                 break;
 
             case 11:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "fffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "fffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10]);
                 break;
 
             case 12:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "ffffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10], server->lastRms[11]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "ffffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10], server->lastRms[11]);
                 break;
 
             case 13:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "fffffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10], server->lastRms[11], server->lastRms[12]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "fffffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10], server->lastRms[11], server->lastRms[12]);
                 break;
 
             case 14:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "ffffffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10], server->lastRms[11], server->lastRms[12], server->lastRms[13]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "ffffffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10], server->lastRms[11], server->lastRms[12], server->lastRms[13]);
                 break;
 
             case 15:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "fffffffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10], server->lastRms[11], server->lastRms[12], server->lastRms[13], server->lastRms[14]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "fffffffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10], server->lastRms[11], server->lastRms[12], server->lastRms[13], server->lastRms[14]);
                 break;
 
             case 16:
-                PyObject_CallMethod((PyObject *)server->GUI, "setRms", "ffffffffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10], server->lastRms[11], server->lastRms[12], server->lastRms[13], server->lastRms[14], server->lastRms[15]);
+                PYO_CALL_METHOD(server->GUI, "setRms", "ffffffffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10], server->lastRms[11], server->lastRms[12], server->lastRms[13], server->lastRms[14], server->lastRms[15]);
                 break;
         }
 
@@ -602,7 +632,7 @@ Server_process_time(Server *server)
         hours = minutes / 60;
         minutes = minutes % 60;
         seconds = seconds % 60;
-        PyObject_CallMethod((PyObject *)server->TIME, "setTime", "iiii", hours, minutes, seconds, milliseconds);
+        PYO_CALL_METHOD(server->TIME, "setTime", "iiii", hours, minutes, seconds, milliseconds);
         server->tcount = 0;
     }
 }
@@ -663,7 +693,9 @@ Server_dealloc(Server* self)
     if (self->withGUI == 1)
         PyMem_RawFree(self->lastRms);
 
-    my_server[self->thisServerID] = NULL;
+    PyoModuleState *state = PyoState_Get();
+    if (state != NULL && self->thisServerID >= 0 && self->thisServerID < MAX_NBR_SERVER)
+        state->servers[self->thisServerID] = NULL;
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -686,20 +718,28 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|diiissisi", kwlist,
                                       &samplingRate, &nchnls, &bufferSize, &duplex, &audioType, &serverName, &ichnls, &midiType, &verbosity))
     {
-        Py_INCREF(Py_False);
-        return Py_False;
+        return NULL;
+    }
+
+    int server_id = 0;
+    PyoModuleState *state = PyoState_Get();
+
+    if (state == NULL)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "pyo module state is unavailable.");
+        return NULL;
     }
 
     /* find the first free serverID */
-    for (serverID = 0; serverID < MAX_NBR_SERVER; serverID++)
+    for (server_id = 0; server_id < MAX_NBR_SERVER; server_id++)
     {
-        if (my_server[serverID] == NULL)
+        if (state->servers[server_id] == NULL)
         {
             break;
         }
     }
 
-    if(serverID == MAX_NBR_SERVER)
+    if (server_id == MAX_NBR_SERVER)
     {
         PyErr_SetString(PyExc_RuntimeError, "You are already using the maximum number of server allowed!\n");
         Py_RETURN_NONE;
@@ -707,6 +747,8 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     Server *self;
     self = (Server *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
     self->server_booted = 0;
     self->audio_be_data = NULL;
     self->midi_be_data = NULL;
@@ -763,9 +805,10 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->globalSeed = 0;
     self->autoStartChildren = 0;
     self->CALLBACK = NULL;
-    self->thisServerID = serverID;
-    Py_XDECREF(my_server[serverID]);
-    my_server[serverID] = (Server *)self;
+    self->thisServerID = server_id;
+    state->current_server_id = server_id;
+    Py_XDECREF(state->servers[server_id]);
+    state->servers[server_id] = (Server *)self;
     return (PyObject *)self;
 }
 
@@ -852,7 +895,7 @@ Server_setDefaultRecPath(Server *self, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"path", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "s", kwlist, &self->recpath))
-        return PyLong_FromLong(-1);
+        return NULL;
 
     Py_RETURN_NONE;
 }
@@ -1276,7 +1319,12 @@ Server_generateSeed(Server *self, int oid)
 {
     unsigned int curseed, count, mult, ltime;
 
-    count = ++rnd_objs_count[oid];
+    PyoModuleState *state = PyoState_Get();
+
+    if (state == NULL || oid < 0 || oid >= PYO_NUM_RND_OBJS)
+        return -1;
+
+    count = ++state->rnd_objs_count[oid];
     mult = rnd_objs_mult[oid];
 
     if (self->globalSeed > 0)
@@ -1289,7 +1337,7 @@ Server_generateSeed(Server *self, int oid)
         curseed = (ltime * ltime + count * mult) % PYO_RAND_MAX;
     }
 
-    PYO_RAND_SEED = curseed;
+    state->rand_seed = curseed;
 
     return 0;
 }
@@ -1440,9 +1488,16 @@ Server_shutdown(Server *self)
         Server_stop((Server *)self);
     }
 
-    for (i = 0; i < num_rnd_objs; i++)
     {
-        rnd_objs_count[i] = 0;
+        PyoModuleState *state = PyoState_Get();
+        if (state != NULL)
+        {
+            for (i = 0; i < PYO_NUM_RND_OBJS; i++)
+            {
+                state->rnd_objs_count[i] = 0;
+            }
+            state->rand_seed = 1u;
+        }
     }
 
     switch (self->midi_be_type)
@@ -1511,6 +1566,7 @@ Server_shutdown(Server *self)
     }
 
     self->stream_count = 0;
+    self->next_stream_id = 1;
 
     if (self->audio_be_type != PyoEmbedded)
     {
@@ -1533,6 +1589,7 @@ Server_boot(Server *self, PyObject *arg)
 
     self->server_started = 0;
     self->stream_count = 0;
+    self->next_stream_id = 1;
     self->elapsedSamples = 0;
 
     int needNewBuffer = 0;
@@ -1669,7 +1726,10 @@ Server_boot(Server *self, PyObject *arg)
         Server_error(self, "\nServer not booted.\n");
     }
 
-    if (self->audio_be_type != PyoOffline && self->audio_be_type != PyoOfflineNB && self->audio_be_type != PyoEmbedded)
+    if (self->audio_be_type != PyoOffline &&
+        self->audio_be_type != PyoOfflineNB &&
+        self->audio_be_type != PyoEmbedded &&
+        self->audio_be_type != PyoManual)
     {
         switch (self->midi_be_type)
         {
@@ -1779,7 +1839,7 @@ Server_start(Server *self)
     }
 
     if (self->withGUI && PyObject_HasAttrString((PyObject *)self->GUI, "setStartButtonState"))
-        PyObject_CallMethod((PyObject *)self->GUI, "setStartButtonState", "i", 1);
+        PYO_CALL_METHOD(self->GUI, "setStartButtonState", "i", 1);
 
     Py_RETURN_NONE;
 }
@@ -1837,7 +1897,7 @@ Server_stop(Server *self)
     }
 
     if (self->withGUI && PyObject_HasAttrString((PyObject *)self->GUI, "setStartButtonState"))
-        PyObject_CallMethod((PyObject *)self->GUI, "setStartButtonState", "i", 0);
+        PYO_CALL_METHOD(self->GUI, "setStartButtonState", "i", 0);
 
     Py_RETURN_NONE;
 }
@@ -1850,7 +1910,7 @@ Server_recordOptions(Server *self, PyObject *args, PyObject *kwds)
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "d|siid", kwlist, &self->recdur, &self->recpath, &self->recformat, &self->rectype, &self->recquality))
     {
-        return PyLong_FromLong(-1);
+        return NULL;
     }
 
     Py_RETURN_NONE;
@@ -2034,7 +2094,7 @@ Server_removeStream(Server *self, int id)
         s = PyGILState_Ensure();
     }
 
-    if (my_server[self->thisServerID] != NULL && PySequence_Size(self->streams) != -1)
+    if (PySequence_Size(self->streams) != -1)
     {
         for (i = 0; i < self->stream_count; i++)
         {
@@ -2513,8 +2573,16 @@ Server_getStreams(Server *self)
 static PyObject *
 Server_setServer(Server *self)
 {
-    serverID = self->thisServerID;
-    return PyLong_FromLong(serverID);
+    PyoModuleState *state = PyoState_Get();
+
+    if (state == NULL)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "pyo module state is unavailable.");
+        return NULL;
+    }
+
+    state->current_server_id = self->thisServerID;
+    return PyLong_FromLong(state->current_server_id);
 }
 
 
@@ -2545,14 +2613,19 @@ static PyObject *
 Server_getServerAddr(Server *self)
 {
     char address[32];
-    sprintf(address, "%p", &my_server[self->thisServerID]);
+    sprintf(address, "%p", self);
     return PyUnicode_FromString(address);
 }
 
 void
 Server_getThisServer(int id, Server *server)
 {
-    server = my_server[id];
+    PyoModuleState *state = PyoState_Get();
+
+    if (state != NULL && id >= 0 && id < MAX_NBR_SERVER)
+        server = state->servers[id];
+    else
+        server = NULL;
 }
 
 /*
@@ -2569,7 +2642,7 @@ static PyObject *
 Server_getEmbedICallbackAddr(Server *self)
 {
     char address[32];
-    sprintf(address, "%p", &Server_embedded_i_startIdx);
+    sprintf(address, "%p", &Server_embedded_i_start);
     return PyUnicode_FromString(address);
 }
 
@@ -2745,44 +2818,30 @@ static PyMemberDef Server_members[] =
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject ServerType =
+static PyType_Slot ServerType_slots[] =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Server",         /*tp_name*/
-    sizeof(Server),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Server_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT, /*tp_flags*/
-    "Pyo Server object. Handles communication with Portaudio and processing callback loop.",           /* tp_doc */
-    (traverseproc)Server_traverse,   /* tp_traverse */
-    (inquiry)Server_clear,           /* tp_clear */
-    0,                       /* tp_richcompare */
-    0,                       /* tp_weaklistoffset */
-    0,                       /* tp_iter */
-    0,                       /* tp_iternext */
-    Server_methods,             /* tp_methods */
-    Server_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    (initproc)Server_init,      /* tp_init */
-    0,                         /* tp_alloc */
-    Server_new,                 /* tp_new */
+    {Py_tp_dealloc, Server_dealloc},
+    {Py_tp_doc, "Pyo Server object. Handles communication with Portaudio and processing callback loop."},
+    {Py_tp_traverse, Server_traverse},
+    {Py_tp_clear, Server_clear},
+    {Py_tp_methods, Server_methods},
+    {Py_tp_members, Server_members},
+    {Py_tp_init, Server_init},
+    {Py_tp_new, Server_new},
+    {0, NULL}
 };
+
+static PyType_Spec ServerType_spec =
+{
+    "_pyo.Server",
+    sizeof(Server),
+    0,
+    Py_TPFLAGS_DEFAULT,
+    ServerType_slots
+};
+
+PyTypeObject *
+PyoCreateServerType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &ServerType_spec, NULL);
+}

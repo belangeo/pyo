@@ -102,7 +102,7 @@ Mix_compute_next_data_frame(Mix *self)
 
     for (i = 0; i < lsize; i++)
     {
-        stream = PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->input, i), "_getStream", NULL);
+        stream = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->input, i), "_getStream", NULL);
         MYFLT *in = Stream_getData((Stream *)stream);
 
         for (j = 0; j < self->bufsize; j++)
@@ -141,7 +141,7 @@ Mix_dealloc(Mix* self)
 {
     pyo_DEALLOC
     Mix_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -152,33 +152,37 @@ Mix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Mix *self;
     self = (Mix *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Mix_compute_next_data_frame);
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Mix_compute_next_data_frame));
     self->mode_func_ptr = PYO_AUDIO_CALLBACK(Mix_setProcMode);
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     self->input = inputtmp;
     Py_INCREF(self->input);
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -229,82 +233,37 @@ static PyMethodDef Mix_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Mix_as_number =
+static PyType_Slot MixType_slots[] =
 {
-    (binaryfunc)Mix_add,                      /*nb_add*/
-    (binaryfunc)Mix_sub,                 /*nb_subtract*/
-    (binaryfunc)Mix_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Mix_inplace_add,              /*inplace_add*/
-    (binaryfunc)Mix_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Mix_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Mix_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Mix_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+    {Py_tp_dealloc, Mix_dealloc},
+    {Py_tp_doc, "Mix objects. Retreive audio from an input channel."},
+    {Py_tp_traverse, Mix_traverse},
+    {Py_tp_clear, Mix_clear},
+    {Py_tp_methods, Mix_methods},
+    {Py_tp_members, Mix_members},
+    {Py_nb_add, Mix_add},
+    {Py_nb_subtract, Mix_sub},
+    {Py_nb_multiply, Mix_multiply},
+    {Py_nb_true_divide, Mix_div},
+    {Py_nb_inplace_add, Mix_inplace_add},
+    {Py_nb_inplace_subtract, Mix_inplace_sub},
+    {Py_nb_inplace_multiply, Mix_inplace_multiply},
+    {Py_nb_inplace_true_divide, Mix_inplace_div},
+    {Py_tp_new, Mix_new},
+    {0, NULL}
 };
 
-PyTypeObject MixType =
+static PyType_Spec MixType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Mix_base",         /*tp_name*/
-    sizeof(Mix),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Mix_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Mix_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Mix objects. Retreive audio from an input channel.",           /* tp_doc */
-    (traverseproc)Mix_traverse,   /* tp_traverse */
-    (inquiry)Mix_clear,           /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Mix_methods,             /* tp_methods */
-    Mix_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Mix_new,                 /* tp_new */
+    "_pyo.Mix_base",
+    sizeof(Mix),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    MixType_slots
 };
+
+PyTypeObject *
+PyoCreateMixType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &MixType_spec, NULL);
+}

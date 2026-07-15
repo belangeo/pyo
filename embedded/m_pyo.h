@@ -17,7 +17,10 @@
  * You should have received a copy of the GNU Lesser General Public       *
  * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
+#include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #if !defined(_WIN32)
 #include <dlfcn.h>
@@ -110,7 +113,7 @@ INLINE PyThreadState * pyo_new_interpreter(float sr, int bufsize, int ichnls, in
     sprintf(msg, "_s_ = Server(sr=%f, nchnls=%d, buffersize=%d, duplex=1, ichnls=%d)", sr, ochnls, bufsize, ichnls);
     PyRun_SimpleString(msg);
     PyRun_SimpleString("_s_.boot()\n_s_.start()\n_s_.setServer()");
-    PyRun_SimpleString("_server_id_ = _s_.getServerID()");
+    PyRun_SimpleString("_server_addr_ = _s_.getServerAddr()");
 
     /* 
     ** printf %p specifier behaves differently in Linux/MacOS and Windows.
@@ -232,10 +235,10 @@ INLINE unsigned long long pyo_get_output_buffer_address_64(PyThreadState *interp
 **
 ** returns an "unsigned long" that should be recast to a void pointer.
 **
-** The callback should be called with the server id (int) as argument.
+** The callback should be called with the server address (void *) as argument.
 **
 ** Prototype:
-** void (*callback)(int);
+** int (*callback)(void *);
 */
 INLINE unsigned long pyo_get_embedded_callback_address(PyThreadState *interp) {
     PyObject *module, *obj;
@@ -260,10 +263,10 @@ INLINE unsigned long pyo_get_embedded_callback_address(PyThreadState *interp) {
 **
 ** returns an "unsigned long long" that should be recast to a void pointer.
 **
-** The callback should be called with the server id (int) as argument.
+** The callback should be called with the server address (void *) as argument.
 **
 ** Prototype:
-** void (*callback)(int);
+** int (*callback)(void *);
 */
 INLINE unsigned long long pyo_get_embedded_callback_address_64(PyThreadState *interp) {
     PyObject *module, *obj;
@@ -279,23 +282,25 @@ INLINE unsigned long long pyo_get_embedded_callback_address_64(PyThreadState *in
 }
 
 /*
-** Returns the pyo server id of this thread, as an integer.
-** The id must be pass as argument to the callback function.
+** Returns the pyo server address of this thread, as an unsigned long.
+** The address must be passed as argument to the callback function.
 **
 ** arguments:
 **  interp : pointer, pointer to the targeted Python thread state.
 **
-** returns an integer.
+** returns an unsigned long.
 */
-INLINE int pyo_get_server_id(PyThreadState *interp) {
+INLINE unsigned long pyo_get_server_address(PyThreadState *interp) {
     PyObject *module, *obj;
-    int id;
+    const char *address;
+    unsigned long uadd;
     PyEval_AcquireThread(interp);
     module = PyImport_AddModule("__main__");
-    obj = PyObject_GetAttrString(module, "_server_id_");
-    id = PyLong_AsLong(obj);
+    obj = PyObject_GetAttrString(module, "_server_addr_");
+    address = PyUnicode_AsUTF8(obj);
+    uadd = strtoul(address, NULL, 0);
     PyEval_ReleaseThread(interp);
-    return id;
+    return uadd;
 }
 
 /*
@@ -526,36 +531,78 @@ INLINE int pyo_exec_code(char *msg, const char *filename, int debug)
 ** returns 0 (no error), 1 (failed to open the file) or 2 (bad code in file).
 */
 INLINE int pyo_exec_file(PyThreadState *interp, const char *file, char *msg, int add, int debug) {
-    int ok, isrel, err = 0;
-    PyObject *module;
+    int err = 0;
+    int isrel = 0;
+    FILE *fp = NULL;
+    char *source = NULL;
+    char relpath[4096];
+    const char *path = file;
+    long source_size;
+
+    snprintf(relpath, sizeof(relpath), "./%s", file);
+    fp = fopen(relpath, "rb");
+    if (fp != NULL) {
+        isrel = 1;
+        path = relpath;
+    } else {
+        fp = fopen(file, "rb");
+        if (fp == NULL) {
+            return 1;
+        }
+    }
+
+    if (fseek(fp, 0, SEEK_END) != 0) {
+        snprintf(msg, 4096, "Unable to seek file <%.4000s>: %.48s", path, strerror(errno));
+        fclose(fp);
+        return 2;
+    }
+
+    source_size = ftell(fp);
+    if (source_size < 0) {
+        snprintf(msg, 4096, "Unable to tell file size <%.4000s>: %.48s", path, strerror(errno));
+        fclose(fp);
+        return 2;
+    }
+
+    if (fseek(fp, 0, SEEK_SET) != 0) {
+        snprintf(msg, 4096, "Unable to rewind file <%.4000s>: %.48s", path, strerror(errno));
+        fclose(fp);
+        return 2;
+    }
+
+    source = (char *)PyMem_RawMalloc((size_t)source_size + 1);
+    if (source == NULL) {
+        snprintf(msg, 4096, "Unable to allocate memory to read file <%.4000s>.", path);
+        fclose(fp);
+        return 2;
+    }
+
+    if (fread(source, 1, (size_t)source_size, fp) != (size_t)source_size) {
+        snprintf(msg, 4096, "Unable to read file <%.4000s>: %.48s", path, strerror(errno));
+        PyMem_RawFree(source);
+        fclose(fp);
+        return 2;
+    }
+    source[source_size] = '\0';
+    fclose(fp);
+
     PyEval_AcquireThread(interp);
-    sprintf(msg, "import os\n_isrel_ = True\n_ok_ = os.path.isfile('./%s')", file);
-    PyRun_SimpleString(msg);
-    sprintf(msg, "if not _ok_:\n    _isrel_ = False\n    _ok_ = os.path.isfile('%s')", file);
-    PyRun_SimpleString(msg);
-    module = PyImport_AddModule("__main__");
-    ok = PyLong_AsLong(PyObject_GetAttrString(module, "_ok_"));
-    isrel = PyLong_AsLong(PyObject_GetAttrString(module, "_isrel_"));
-    if (ok) {
-        if (!add) {
-            PyRun_SimpleString("_s_.setServer()\n_s_.stop()\n_s_.shutdown()");
-            PyRun_SimpleString("_s_.boot(newBuffer=False).start()");
-        }
-        if (isrel) {
-            sprintf(msg, "exec(open('./%s').read())", file);
-        } else {
-            sprintf(msg, "exec(open('%s').read())", file);
-        }
-		err = pyo_exec_code(msg, file, debug);
-		/* error code 1 means file not loaded
-		 * so if we get an error in the code, we increment the error code by one
-		 */
-		if (err) err++;
+
+    if (!add) {
+        PyRun_SimpleString("_s_.setServer()\n_s_.stop()\n_s_.shutdown()");
+        PyRun_SimpleString("_s_.boot(newBuffer=False).start()");
     }
-    else {
-		err = 1;
+
+	err = pyo_exec_code(source, isrel ? relpath : file, debug);
+	/* error code 1 means file not loaded
+	 * so if we get an error in the code, we increment the error code by one
+	 */
+	if (err) {
+        err++;
     }
+
     PyEval_ReleaseThread(interp);
+    PyMem_RawFree(source);
     return err;
 }
 

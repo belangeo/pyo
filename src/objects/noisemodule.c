@@ -75,50 +75,50 @@ Noise_setProcMode(Noise *self)
     switch (self->type)
     {
         case 0:
-            self->proc_func_ptr = Noise_generate;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Noise_generate);
             break;
 
         case 1:
-            self->proc_func_ptr = Noise_generate_cheap;
+            self->proc_func_ptr = PYO_AUDIO_CALLBACK(Noise_generate_cheap);
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Noise_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Noise_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Noise_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Noise_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Noise_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Noise_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Noise_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Noise_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Noise_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Noise_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Noise_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Noise_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Noise_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Noise_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Noise_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Noise_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Noise_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Noise_postprocessing_revareva);
             break;
     }
 }
@@ -149,7 +149,7 @@ Noise_dealloc(Noise* self)
 {
     pyo_DEALLOC
     Noise_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -160,31 +160,35 @@ Noise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *multmp = NULL, *addtmp = NULL;
     Noise *self;
     self = (Noise *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->type = 0;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Noise_compute_next_data_frame);
-    self->mode_func_ptr = Noise_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(Noise_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Noise_setProcMode);
 
     static char *kwlist[] = {"mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OO", kwlist, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OO", kwlist, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     Server_generateSeed((Server *)self->server, NOISE_ID);
 
@@ -254,85 +258,39 @@ static PyMethodDef Noise_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Noise_as_number =
-{
-    (binaryfunc)Noise_add,                      /*nb_add*/
-    (binaryfunc)Noise_sub,                 /*nb_subtract*/
-    (binaryfunc)Noise_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)Noise_inplace_add,              /*inplace_add*/
-    (binaryfunc)Noise_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Noise_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Noise_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Noise_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot NoiseType_slots[] = {
+    {Py_tp_dealloc, Noise_dealloc},
+    {Py_tp_doc, "Noise objects. White noise generator."},
+    {Py_tp_traverse, Noise_traverse},
+    {Py_tp_clear, Noise_clear},
+    {Py_tp_methods, Noise_methods},
+    {Py_tp_members, Noise_members},
+    {Py_tp_new, Noise_new},
+    {Py_nb_add, Noise_add},
+    {Py_nb_subtract, Noise_sub},
+    {Py_nb_multiply, Noise_multiply},
+    {Py_nb_true_divide, Noise_div},
+    {Py_nb_inplace_add, Noise_inplace_add},
+    {Py_nb_inplace_subtract, Noise_inplace_sub},
+    {Py_nb_inplace_multiply, Noise_inplace_multiply},
+    {Py_nb_inplace_true_divide, Noise_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject NoiseType =
+static PyType_Spec NoiseType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Noise_base",         /*tp_name*/
-    sizeof(Noise),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Noise_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &Noise_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Noise objects. White noise generator.",           /* tp_doc */
-    (traverseproc)Noise_traverse,   /* tp_traverse */
-    (inquiry)Noise_clear,           /* tp_clear */
-    0,                         /* tp_richcompare */
-    0,                         /* tp_weaklistoffset */
-    0,                         /* tp_iter */
-    0,                         /* tp_iternext */
-    Noise_methods,             /* tp_methods */
-    Noise_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    Noise_new,                 /* tp_new */
+    "_pyo.Noise_base",
+    sizeof(Noise),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    NoiseType_slots
 };
+
+PyTypeObject *
+PyoCreateNoiseType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &NoiseType_spec, NULL);
+}
 
 typedef struct
 {
@@ -387,39 +345,39 @@ PinkNoise_setProcMode(PinkNoise *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = PinkNoise_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(PinkNoise_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = PinkNoise_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(PinkNoise_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = PinkNoise_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(PinkNoise_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = PinkNoise_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(PinkNoise_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = PinkNoise_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(PinkNoise_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = PinkNoise_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(PinkNoise_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = PinkNoise_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(PinkNoise_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = PinkNoise_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(PinkNoise_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = PinkNoise_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(PinkNoise_postprocessing_revareva);
             break;
     }
 }
@@ -450,7 +408,7 @@ PinkNoise_dealloc(PinkNoise* self)
 {
     pyo_DEALLOC
     PinkNoise_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -461,31 +419,35 @@ PinkNoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *multmp = NULL, *addtmp = NULL;
     PinkNoise *self;
     self = (PinkNoise *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->c0 = self->c1 = self->c2 = self->c3 = self->c4 = self->c5 = self->c6 = 0.0;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, PinkNoise_compute_next_data_frame);
-    self->mode_func_ptr = PinkNoise_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(PinkNoise_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(PinkNoise_setProcMode);
 
     static char *kwlist[] = {"mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OO", kwlist, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OO", kwlist, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     (*self->mode_func_ptr)(self);
 
@@ -537,85 +499,39 @@ static PyMethodDef PinkNoise_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods PinkNoise_as_number =
-{
-    (binaryfunc)PinkNoise_add,                      /*nb_add*/
-    (binaryfunc)PinkNoise_sub,                 /*nb_subtract*/
-    (binaryfunc)PinkNoise_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)PinkNoise_inplace_add,              /*inplace_add*/
-    (binaryfunc)PinkNoise_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)PinkNoise_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)PinkNoise_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)PinkNoise_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot PinkNoiseType_slots[] = {
+    {Py_tp_dealloc, PinkNoise_dealloc},
+    {Py_tp_doc, "PinkNoise objects. Pink noise generator."},
+    {Py_tp_traverse, PinkNoise_traverse},
+    {Py_tp_clear, PinkNoise_clear},
+    {Py_tp_methods, PinkNoise_methods},
+    {Py_tp_members, PinkNoise_members},
+    {Py_tp_new, PinkNoise_new},
+    {Py_nb_add, PinkNoise_add},
+    {Py_nb_subtract, PinkNoise_sub},
+    {Py_nb_multiply, PinkNoise_multiply},
+    {Py_nb_true_divide, PinkNoise_div},
+    {Py_nb_inplace_add, PinkNoise_inplace_add},
+    {Py_nb_inplace_subtract, PinkNoise_inplace_sub},
+    {Py_nb_inplace_multiply, PinkNoise_inplace_multiply},
+    {Py_nb_inplace_true_divide, PinkNoise_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject PinkNoiseType =
+static PyType_Spec PinkNoiseType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.PinkNoise_base",         /*tp_name*/
-    sizeof(PinkNoise),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)PinkNoise_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &PinkNoise_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PinkNoise objects. Pink noise generator.",           /* tp_doc */
-    (traverseproc)PinkNoise_traverse,   /* tp_traverse */
-    (inquiry)PinkNoise_clear,           /* tp_clear */
-    0,                         /* tp_richcompare */
-    0,                         /* tp_weaklistoffset */
-    0,                         /* tp_iter */
-    0,                         /* tp_iternext */
-    PinkNoise_methods,             /* tp_methods */
-    PinkNoise_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    PinkNoise_new,                 /* tp_new */
+    "_pyo.PinkNoise_base",
+    sizeof(PinkNoise),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    PinkNoiseType_slots
 };
+
+PyTypeObject *
+PyoCreatePinkNoiseType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &PinkNoiseType_spec, NULL);
+}
 
 typedef struct
 {
@@ -658,39 +574,39 @@ BrownNoise_setProcMode(BrownNoise *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = BrownNoise_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(BrownNoise_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = BrownNoise_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(BrownNoise_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = BrownNoise_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(BrownNoise_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = BrownNoise_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(BrownNoise_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = BrownNoise_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(BrownNoise_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = BrownNoise_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(BrownNoise_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = BrownNoise_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(BrownNoise_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = BrownNoise_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(BrownNoise_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = BrownNoise_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(BrownNoise_postprocessing_revareva);
             break;
     }
 }
@@ -721,7 +637,7 @@ BrownNoise_dealloc(BrownNoise* self)
 {
     pyo_DEALLOC
     BrownNoise_clear(self);
-    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_CLEAR(self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -733,31 +649,35 @@ BrownNoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *multmp = NULL, *addtmp = NULL;
     BrownNoise *self;
     self = (BrownNoise *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
 
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
     self->y1 = self->c = 0.0;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, BrownNoise_compute_next_data_frame);
-    self->mode_func_ptr = BrownNoise_setProcMode;
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(BrownNoise_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(BrownNoise_setProcMode);
 
     static char *kwlist[] = {"mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OO", kwlist, &multmp, &addtmp))
-        Py_RETURN_NONE;
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OO", kwlist, &multmp, &addtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     if (multmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setMul", multmp);
     }
 
     if (addtmp)
     {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setAdd", addtmp);
     }
 
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
 
     b = 2.0 - MYCOS(TWOPI * 20.0 / self->sr);
     self->c = (b - MYSQRT(b * b - 1.0));
@@ -812,82 +732,36 @@ static PyMethodDef BrownNoise_methods[] =
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods BrownNoise_as_number =
-{
-    (binaryfunc)BrownNoise_add,                      /*nb_add*/
-    (binaryfunc)BrownNoise_sub,                 /*nb_subtract*/
-    (binaryfunc)BrownNoise_multiply,                 /*nb_multiply*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    (binaryfunc)BrownNoise_inplace_add,              /*inplace_add*/
-    (binaryfunc)BrownNoise_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)BrownNoise_inplace_multiply,         /*inplace_multiply*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)BrownNoise_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)BrownNoise_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
+static PyType_Slot BrownNoiseType_slots[] = {
+    {Py_tp_dealloc, BrownNoise_dealloc},
+    {Py_tp_doc, "BrownNoise objects. Brown noise generator (-6dB/octave rolloff)."},
+    {Py_tp_traverse, BrownNoise_traverse},
+    {Py_tp_clear, BrownNoise_clear},
+    {Py_tp_methods, BrownNoise_methods},
+    {Py_tp_members, BrownNoise_members},
+    {Py_tp_new, BrownNoise_new},
+    {Py_nb_add, BrownNoise_add},
+    {Py_nb_subtract, BrownNoise_sub},
+    {Py_nb_multiply, BrownNoise_multiply},
+    {Py_nb_true_divide, BrownNoise_div},
+    {Py_nb_inplace_add, BrownNoise_inplace_add},
+    {Py_nb_inplace_subtract, BrownNoise_inplace_sub},
+    {Py_nb_inplace_multiply, BrownNoise_inplace_multiply},
+    {Py_nb_inplace_true_divide, BrownNoise_inplace_div},
+    {0, NULL}
 };
 
-PyTypeObject BrownNoiseType =
+static PyType_Spec BrownNoiseType_spec =
 {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.BrownNoise_base",         /*tp_name*/
-    sizeof(BrownNoise),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)BrownNoise_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_as_async (tp_compare in Python 2)*/
-    0,                         /*tp_repr*/
-    &BrownNoise_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "BrownNoise objects. Brown noise generator (-6dB/octave rolloff).",           /* tp_doc */
-    (traverseproc)BrownNoise_traverse,   /* tp_traverse */
-    (inquiry)BrownNoise_clear,           /* tp_clear */
-    0,                         /* tp_richcompare */
-    0,                         /* tp_weaklistoffset */
-    0,                         /* tp_iter */
-    0,                         /* tp_iternext */
-    BrownNoise_methods,             /* tp_methods */
-    BrownNoise_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    BrownNoise_new,                 /* tp_new */
+    "_pyo.BrownNoise_base",
+    sizeof(BrownNoise),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    BrownNoiseType_slots
 };
+
+PyTypeObject *
+PyoCreateBrownNoiseType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &BrownNoiseType_spec, NULL);
+}
