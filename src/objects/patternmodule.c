@@ -704,3 +704,182 @@ PyoCreateCallAfterType(PyObject *module)
 {
     return (PyTypeObject *)PyType_FromModuleAndSpec(module, &CallAfterType_spec, NULL);
 }
+
+/*****************/
+/*** CallAlways ***/
+/*****************/
+typedef struct
+{
+    pyo_audio_HEAD
+    PyObject *callable;
+    PyObject *arg;
+} CallAlways;
+
+static void
+CallAlways_generate(CallAlways *self)
+{
+    PyObject *tuple, *result;
+
+    if (self->arg == Py_None)
+    {
+        tuple = PyTuple_New(0);
+        result = PyObject_Call(self->callable, tuple, NULL);
+        Py_DECREF(tuple);
+    }
+    else
+    {
+        tuple = PyTuple_New(1);
+        Py_INCREF(self->arg);
+        PyTuple_SET_ITEM(tuple, 0, self->arg);
+        result = PyObject_Call(self->callable, tuple, NULL);
+        Py_DECREF(tuple);
+    }
+
+    if (result == NULL)
+        PyErr_Print();
+    else
+        Py_DECREF(result);
+}
+
+static void
+CallAlways_setProcMode(CallAlways *self)
+{
+    self->proc_func_ptr = PYO_AUDIO_CALLBACK(CallAlways_generate);
+}
+
+static void
+CallAlways_compute_next_data_frame(CallAlways *self)
+{
+    (*self->proc_func_ptr)(self);
+}
+
+static int
+CallAlways_traverse(CallAlways *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->callable);
+    Py_VISIT(self->arg);
+    return 0;
+}
+
+static int
+CallAlways_clear(CallAlways *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->callable);
+    Py_CLEAR(self->arg);
+    return 0;
+}
+
+static void
+CallAlways_dealloc(CallAlways* self)
+{
+    pyo_DEALLOC
+    CallAlways_clear(self);
+    Py_CLEAR(self->stream);
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
+static PyObject *
+CallAlways_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *calltmp = NULL, *argtmp = NULL;
+    CallAlways *self;
+    self = (CallAlways *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
+
+    self->arg = Py_None;
+
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, PYO_AUDIO_CALLBACK(CallAlways_compute_next_data_frame));
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(CallAlways_setProcMode);
+
+    static char *kwlist[] = {"callable", "arg", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_O, kwlist, &calltmp, &argtmp)) {
+        Py_DECREF(self);
+        return NULL;
+    }
+
+    if (! PyCallable_Check(calltmp))
+        Py_RETURN_NONE;
+
+    if (argtmp)
+    {
+        Py_DECREF(self->arg);
+        Py_INCREF(argtmp);
+        self->arg = argtmp;
+    }
+
+    Py_INCREF(calltmp);
+    Py_XDECREF(self->callable);
+    self->callable = calltmp;
+
+    PYO_ADD_STREAM_OR_RETURN_NULL(self);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * CallAlways_getServer(CallAlways* self) { GET_SERVER };
+static PyObject * CallAlways_getStream(CallAlways* self) { GET_STREAM };
+
+static PyObject * CallAlways_play(CallAlways *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * CallAlways_stop(CallAlways *self, PyObject *args, PyObject *kwds) { STOP };
+
+static PyObject *
+CallAlways_setArg(CallAlways *self, PyObject *arg)
+{
+    Py_XDECREF(self->arg);
+    self->arg = arg;
+    Py_INCREF(self->arg);
+
+    Py_RETURN_NONE;
+}
+
+static PyMemberDef CallAlways_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(CallAlways, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(CallAlways, stream), 0, "Stream object."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef CallAlways_methods[] =
+{
+    {"getServer", (PyCFunction)CallAlways_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)CallAlways_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)CallAlways_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)CallAlways_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setArg", (PyCFunction)CallAlways_setArg, METH_O, "Sets function's argument."},
+    {NULL}  /* Sentinel */
+};
+
+static PyType_Slot CallAlwaysType_slots[] =
+{
+    {Py_tp_dealloc, CallAlways_dealloc},
+    {Py_tp_doc, "CallAlways objects. Create a metronome."},
+    {Py_tp_traverse, CallAlways_traverse},
+    {Py_tp_clear, CallAlways_clear},
+    {Py_tp_methods, CallAlways_methods},
+    {Py_tp_members, CallAlways_members},
+    {Py_tp_new, CallAlways_new},
+    {0, NULL}
+};
+
+static PyType_Spec CallAlwaysType_spec =
+{
+    "_pyo.CallAlways_base",
+    sizeof(CallAlways),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    CallAlwaysType_slots
+};
+
+PyTypeObject *
+PyoCreateCallAlwaysType(PyObject *module)
+{
+    return (PyTypeObject *)PyType_FromModuleAndSpec(module, &CallAlwaysType_spec, NULL);
+}
