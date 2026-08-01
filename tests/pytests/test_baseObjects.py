@@ -16,6 +16,25 @@ class TestPyoBaseObject_ServerNotCreated:
 
 @pytest.mark.usefixtures("audio_server")
 class TestPyoBaseObject:
+    def test_stream_ids_remain_unique_across_server_reboot(self, audio_server):
+        old = Sine()
+        old_stream_id = audio_server.getStreams()[0].getId()
+
+        audio_server.shutdown()
+        audio_server.boot()
+
+        new = Sine()
+        new_stream_id = audio_server.getStreams()[0].getId()
+
+        assert new_stream_id != old_stream_id
+
+        # Releasing a stream created before the reboot must not remove the
+        # new stream, even though both objects share the same Server.
+        del old
+
+        assert audio_server.getNumberOfStreams() == 1
+        assert audio_server.getStreams()[0].getId() == new_stream_id
+
     def test_PyoObjectBase_server_not_booted_exception(self, audio_server):
         audio_server.shutdown()
         with pytest.raises(PyoServerStateException):

@@ -750,6 +750,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (self == NULL)
         return NULL;
     self->server_booted = 0;
+    self->next_stream_id = 1;
     self->audio_be_data = NULL;
     self->midi_be_data = NULL;
     self->serverName = (char *) PyMem_RawCalloc(32, sizeof(char));
@@ -1566,7 +1567,6 @@ Server_shutdown(Server *self)
     }
 
     self->stream_count = 0;
-    self->next_stream_id = 1;
 
     if (self->audio_be_type != PyoEmbedded)
     {
@@ -1589,7 +1589,6 @@ Server_boot(Server *self, PyObject *arg)
 
     self->server_started = 0;
     self->stream_count = 0;
-    self->next_stream_id = 1;
     self->elapsedSamples = 0;
 
     int needNewBuffer = 0;

@@ -11,7 +11,7 @@ class TestInitFunctions:
         assert "PyoObject" in kwds
         assert "SineLoop" in kwds
         assert "Particle" in kwds
-        assert len(kwds) == 368
+        assert len(kwds) == 369
 
     def test_getPyoExamples(self):
         examples = getPyoExamples(fullpath=True)
