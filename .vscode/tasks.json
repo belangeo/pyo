@@ -394,7 +394,7 @@
         {
             "label": "Build Documentation",
             "type": "shell",
-            "command": "source ${workspaceFolder}/.venv/bin/activate; python3 build.py --${input:docFormat}",
+            "command": "source ${workspaceFolder}/.venv/bin/activate; PYO_GUI_WX=0 python3 build.py --${input:docFormat}",
             "problemMatcher": [],
             "options": {
                 "cwd": "${workspaceFolder}/documentation"

@@ -17,6 +17,7 @@ Give the focus to the Scrubbing window then click and move the mouse...
     
     s = Server().boot()
     
+    
     # The callback given to the SndTable.view() method.
     def mouse(mpos):
         print("X = %.2f, Y = %.2f" % tuple(mpos))

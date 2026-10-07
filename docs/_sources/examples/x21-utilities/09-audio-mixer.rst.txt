@@ -45,6 +45,7 @@ will be duplicated to fill the two channels of the voice.
     inputs = {0: "low", 1: "mid", 2: "hig"}
     outputs = {0: "Octave below", 1: "Fifth below", 2: "Second above"}
     
+    
     # Dynamic assignation of inputs to outputs with random amplitude.
     def assign():
         vin = random.randint(0, 2)

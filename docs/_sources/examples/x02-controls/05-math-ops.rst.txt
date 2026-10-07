@@ -40,7 +40,7 @@ modulo (%) and unary negative (-) operators.
     d.out()
     
     # PyoObject can be used with Exponent operator.
-    e = c ** 10 * 0.4
+    e = c**10 * 0.4
     e.out(1)
     
     # Displays the ringmod and the rectified signals.

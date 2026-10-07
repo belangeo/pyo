@@ -10,8 +10,8 @@
 <link href="../_static/sphinx-codeautolink.css?v=b2176991" rel="stylesheet" type="text/css"/>
 <link href="../_static/autoclasstoc.css?v=08871587" rel="stylesheet" type="text/css"/>
 <script src="../_static/documentation_options.js?v=e2a723ec"></script>
-<script src="../_static/doctools.js?v=9bcbadda"></script>
-<script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+<script src="../_static/doctools.js?v=fd6eb6e6"></script>
+<script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
 <link href="../_static/E-PyoIcon.ico" rel="icon"/>
 <link href="../about.html" rel="author" title="About these documents"/>
 <link href="../genindex.html" rel="index" title="Index"/>
@@ -64,22 +64,21 @@
 <div class="body" role="main">
 <section id="creating-a-custom-pyotableobject-triangletable">
 <h1>Creating a custom PyoTableObject - TriangleTable<a class="headerlink" href="#creating-a-custom-pyotableobject-triangletable" title="Link to this heading">¶</a></h1>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="../api/alphabetical.html#module-pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">TriTable</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../api/classes/_core.html#pyo.PyoTableObject" title="pyo.lib._core.PyoTableObject"><span class="n">PyoTableObject</span></a><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Triangle waveform generator.</span>
 
-<span class="sd">    Generates triangle waveforms made up of fixed number of harmonics.</span>
+<span class="sd">    Generates triangle waveforms made up of a fixed number of harmonics.</span>
 
 <span class="sd">    :Parent: :py:class:`PyoTableObject`</span>
 
 <span class="sd">    :Args:</span>
 
 <span class="sd">        order : int, optional</span>
-<span class="sd">            Number of harmonics triangle waveform is made of. The waveform will</span>
-<span class="sd">            contains `order` odd harmonics. Defaults to 10.</span>
-<span class="sd">        size : int, optional</span>
+<span class="sd">            Number of harmonics the triangle waveform is made of. The waveform will</span>
+<span class="sd">            contain `order` odd harmonics. Defaults to 10.            size : int, optional</span>
 <span class="sd">            Table size in samples. Defaults to 8192.</span>
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
@@ -134,7 +133,7 @@
     <span class="n">t</span> <span class="o">=</span> <span class="n">TriTable</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8192</span><span class="p">)</span>
     <span class="n">t</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span>
     <span class="n">t</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
-    <span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../api/classes/tableprocess.html#pyo.Osc" title="pyo.lib.tableprocess.Osc"><span class="n">Osc</span></a><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.3</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+    <span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../api/classes/tableprocess.html#pyo.Osc" title="pyo.lib.tableprocess.Osc"><span class="n">Osc</span></a><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
     <span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
 </pre></div>
 </div>
@@ -160,7 +159,7 @@
 <div class="right">
 <div class="footer" role="contentinfo">
     © Copyright 2025, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
 </div>
 <div class="clearer"></div>

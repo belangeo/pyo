@@ -28,7 +28,9 @@ Complete example
     
     s = Server(duplex=0).boot()
     
-    t = CurveTable([(0, 0), (2048, 0.5), (4096, 0.2), (6144, 0.5), (8192, 0)], tension=0, bias=20).normalize()
+    t = CurveTable(
+        [(0, 0), (2048, 0.5), (4096, 0.2), (6144, 0.5), (8192, 0)], tension=0, bias=20
+    ).normalize()
     t.view(title="LFO Waveform")
     
     # LFO applied on amplitude value of the synths.

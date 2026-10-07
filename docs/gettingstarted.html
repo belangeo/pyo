@@ -10,8 +10,8 @@
 <link href="_static/sphinx-codeautolink.css?v=b2176991" rel="stylesheet" type="text/css"/>
 <link href="_static/autoclasstoc.css?v=08871587" rel="stylesheet" type="text/css"/>
 <script src="_static/documentation_options.js?v=e2a723ec"></script>
-<script src="_static/doctools.js?v=9bcbadda"></script>
-<script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+<script src="_static/doctools.js?v=fd6eb6e6"></script>
+<script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
 <link href="_static/E-PyoIcon.ico" rel="icon"/>
 <link href="about.html" rel="author" title="About these documents"/>
 <link href="genindex.html" rel="index" title="Index"/>
@@ -61,15 +61,15 @@
 <div class="body" role="main">
 <section id="getting-started">
 <h1>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h1>
-<p>Here is quick introduction to Pyo. It assumes you already know Python and
-basics about OOP (Object-Oriented Programming).</p>
+<p>Here is a quick introduction to Pyo. It assumes you already know Python and
+basics of OOP (Object-Oriented Programming).</p>
 <section id="the-pyo-server-and-gui">
 <h2>The Pyo Server and GUI<a class="headerlink" href="#the-pyo-server-and-gui" title="Link to this heading">¶</a></h2>
 <p>The first thing you need to do to use Pyo is import the pyo python module and
-boot the server. This audio server will open audio and midi interfaces and
+boot the server. This audio server will open audio and MIDI interfaces and
 will be ready to send to them the audio and MIDI produced by other pyo objects.
 You then need to make some sound:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">mul</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
@@ -83,7 +83,7 @@ Sine object, and store it in variable a, after calling its out method. The
 Sine class defines a Sine wave oscillator. The out method from this class
 connects the output of the oscillator to the server audio outputs. I have
 set the mul attribute of the Sine object to make sure you don’t blow your
-ears when you play this, as the default amplitude multiplier is 1, i.e. a
+ears when you play this, as the default amplitude multiplier is 1, i.e., a
 sine wave at the maximum amplitude before clipping! (But I’ll talk about
 attributes later…) You can stop the server with:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
@@ -98,7 +98,7 @@ you are probably asking yourself why you haven’t heard anything. The reason
 is that the script has finished before the server has sent any audio to the
 outputs! So if you are using python non-interactively, the way to hear this
 example is:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 <span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
 <span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 <span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">mul</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
@@ -125,7 +125,7 @@ value when you create it. Also, if you want to do without the server gui,
 you can use the server method start() from your script, but you might need
 to use the sleep function from the time module to have your script run the
 server for a while if you are running Python non-interactively:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
 <span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="mi">440</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
@@ -155,7 +155,7 @@ object after it has been created you can use:</p>
 <h2>Chaining objects<a class="headerlink" href="#chaining-objects" title="Link to this heading">¶</a></h2>
 <p>Oscillators like the Sine class can be used as inputs to other classes, for
 example for frequency modulation:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 <span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
 <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">mod</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
 <span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">mod</span></a> <span class="o">+</span> <span class="mi">440</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
@@ -163,9 +163,9 @@ example for frequency modulation:</p>
 </pre></div>
 </div>
 <p>You can create an envelope for a sine wave like this:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 <span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
-<a class="sphinx-codeautolink-a" href="api/classes/controls.html#pyo.Adsr" title="pyo.lib.controls.Adsr"><span class="n">f</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/controls.html#pyo.Adsr" title="pyo.lib.controls.Adsr"><span class="n">Adsr</span></a><span class="p">(</span><span class="n">attack</span><span class="o">=</span><span class="mf">.01</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="mf">.2</span><span class="p">,</span> <span class="n">sustain</span><span class="o">=</span><span class="mf">.5</span><span class="p">,</span> <span class="n">release</span><span class="o">=</span><span class="mf">.1</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.5</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="api/classes/controls.html#pyo.Adsr" title="pyo.lib.controls.Adsr"><span class="n">f</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/controls.html#pyo.Adsr" title="pyo.lib.controls.Adsr"><span class="n">Adsr</span></a><span class="p">(</span><span class="n">attack</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">sustain</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">release</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 <span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="api/classes/controls.html#pyo.Adsr" title="pyo.lib.controls.Adsr"><span class="n">f</span></a><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
 <span class="n">f</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
 <span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
@@ -174,9 +174,9 @@ example for frequency modulation:</p>
 </section>
 <section id="class-examples">
 <h2>Class examples<a class="headerlink" href="#class-examples" title="Link to this heading">¶</a></h2>
-<p>All Classes in Pyo come with an example which shows how it can be used. To
+<p>All classes in Pyo come with an example that shows how they can be used. To
 execute the example you can do:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="api/functions/util.html#pyo.example" title="pyo.example"><span class="n">example</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="api/classes/effects.html#pyo.Harmonizer" title="pyo.lib.effects.Harmonizer"><span class="n">Harmonizer</span></a><span class="p">)</span>
 </pre></div>
 </div>
@@ -205,7 +205,7 @@ execute the example you can do:</p>
 <div class="right">
 <div class="footer" role="contentinfo">
     © Copyright 2025, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
 </div>
 <div class="clearer"></div>

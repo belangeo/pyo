@@ -10,8 +10,8 @@
 <link href="../../_static/sphinx-codeautolink.css?v=b2176991" rel="stylesheet" type="text/css"/>
 <link href="../../_static/autoclasstoc.css?v=08871587" rel="stylesheet" type="text/css"/>
 <script src="../../_static/documentation_options.js?v=e2a723ec"></script>
-<script src="../../_static/doctools.js?v=9bcbadda"></script>
-<script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+<script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+<script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
 <link href="../../_static/E-PyoIcon.ico" rel="icon"/>
 <link href="../../about.html" rel="author" title="About these documents"/>
 <link href="../../genindex.html" rel="index" title="Index"/>
@@ -101,14 +101,23 @@ Useful to experiment graphically and then copy/paste the result in the script.</
 function with the desired frequency and duration.</p>
 <p>Note: The wxPython Phoenix graphical library must be installed to use the graph. Infos at:</p>
 <p><a class="reference external" href="http://www.wxpython.org/">http://www.wxpython.org/</a></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 
 <span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
 
 <span class="c1"># Defines tables for the amplitude, the ratio and the modulation index.</span>
 <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.CosTable" title="pyo.lib.tables.CosTable"><span class="n">amp_table</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.CosTable" title="pyo.lib.tables.CosTable"><span class="n">CosTable</span></a><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1024</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="p">(</span><span class="mi">7000</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="p">(</span><span class="mi">8192</span><span class="p">,</span> <span class="mi">0</span><span class="p">)])</span>
 <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.ExpTable" title="pyo.lib.tables.ExpTable"><span class="n">rat_table</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.ExpTable" title="pyo.lib.tables.ExpTable"><span class="n">ExpTable</span></a><span class="p">(</span>
-    <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="p">(</span><span class="mi">1500</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="p">(</span><span class="mi">2000</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">),</span> <span class="p">(</span><span class="mi">3500</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">),</span> <span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">5500</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">6000</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="p">(</span><span class="mi">8192</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),]</span>
+    <span class="p">[</span>
+        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">1500</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">2000</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">3500</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">5500</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">6000</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">8192</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
+    <span class="p">]</span>
 <span class="p">)</span>
 <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.LinTable" title="pyo.lib.tables.LinTable"><span class="n">ind_table</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.LinTable" title="pyo.lib.tables.LinTable"><span class="n">LinTable</span></a><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="p">(</span><span class="mi">512</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="p">(</span><span class="mi">8192</span><span class="p">,</span> <span class="mi">0</span><span class="p">)])</span>
 
@@ -125,6 +134,7 @@ function with the desired frequency and duration.</p>
 
 <span class="c1"># Use the signals from the table readers to control an FM synthesis.</span>
 <span class="n">fm</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.FM" title="pyo.lib.generators.FM"><span class="n">FM</span></a><span class="p">(</span><span class="n">carrier</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">],</span> <span class="n">ratio</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.TableRead" title="pyo.lib.tableprocess.TableRead"><span class="n">rat</span></a><span class="p">,</span> <span class="n">index</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.TableRead" title="pyo.lib.tableprocess.TableRead"><span class="n">ind</span></a><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.TableRead" title="pyo.lib.tableprocess.TableRead"><span class="n">amp</span></a><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
 
 <span class="c1"># Call the "note" function to generate an event.</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">note</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
@@ -166,7 +176,7 @@ function with the desired frequency and duration.</p>
 <div class="right">
 <div class="footer" role="contentinfo">
     © Copyright 2025, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
 </div>
 <div class="clearer"></div>

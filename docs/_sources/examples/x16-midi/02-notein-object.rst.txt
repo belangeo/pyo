@@ -50,6 +50,7 @@ processes with events received from a MIDI keyboard (virtual or not).
     # Notein["trigon"] sends a trigger when a voice receive a noteon.
     # Notein["trigoff"] sends a trigger when a voice receive a noteoff.
     
+    
     # These functions are called when Notein receives a MIDI note event.
     def noteon(voice):
         "Print pitch and velocity for noteon event."

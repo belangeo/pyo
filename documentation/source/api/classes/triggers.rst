@@ -3,31 +3,40 @@ Sample Accurate Timing (Triggers)
 
 .. currentmodule:: pyo
 
-Set of objects to manage triggers streams.
+A trigger is a one-sample audio signal whose value is 1, surrounded by 0s.
+It represents an event at a precisely defined instant in the audio stream.
 
-A trigger is an audio signal with a value of 1 surrounded by 0s.
+pyo uses triggers for sample-accurate timing and event-driven processing.
+A trigger can start an envelope, choose a new random value, advance through
+a sequence, play a sound, or execute a Python callback.
 
-TrigXXX objects use this kind of signal to generate different 
-processes with sample rate timing accuracy.
-
-Objects in this category
+Triggers generators
 ------------------------------
+
+Trigger generators produce streams of trigger pulses.
 
 - :py:class:`Beat` :     Generates algorithmic trigger patterns.
 - :py:class:`Change` :     Sends trigger that informs when input value has changed.
 - :py:class:`Cloud` :     Generates random triggers.
-- :py:class:`Count` :     Counts integers at audio rate.
-- :py:class:`Counter` :     Integer count generator.
 - :py:class:`Euclide` :     Euclidean rhythm generator.
-- :py:class:`Iter` :     Triggers iterate over a list of values.
 - :py:class:`Metro` :     Generates isochronous trigger signals.
 - :py:class:`NextTrig` :     A trigger in the second stream opens a gate only for the next one in the first stream.
 - :py:class:`Percent` :     Lets pass a certain percentage of the input triggers.
 - :py:class:`Select` :     Sends trigger on matching integer values.
 - :py:class:`Seq` :     Generates a rhythmic sequence of trigger signals.
 - :py:class:`Thresh` :     Informs when a signal crosses a threshold.
-- :py:class:`Timer` :     Reports elapsed time between two trigs.
 - :py:class:`Trig` :     Sends one trigger.
+
+Trigger-reactive objects
+---------------------------
+
+Trigger-reactive objects receive a trigger stream through their input argument.
+Each incoming trigger starts, restarts, or updates their process.
+
+- :py:class:`Count` :     Counts integers at audio rate.
+- :py:class:`Counter` :     Integer count generator.
+- :py:class:`Iter` :     Triggers iterate over a list of values.
+- :py:class:`Timer` :     Reports elapsed time between two trigs.
 - :py:class:`TrigBurst` :     Generates a time/amplitude expandable trigger pattern.
 - :py:class:`TrigChoice` :     Random generator from user's defined values.
 - :py:class:`TrigEnv` :     Envelope reader generator.
@@ -40,6 +49,9 @@ Objects in this category
 - :py:class:`TrigVal` :     Outputs a previously defined value on a trigger signal.
 - :py:class:`TrigXnoise` :     Triggered X-class pseudo-random generator.
 - :py:class:`TrigXnoiseMidi` :     Triggered X-class midi notes pseudo-random generator.
+
+Generators
+==========
 
 *Beat*
 -----------------------------------
@@ -65,21 +77,6 @@ Objects in this category
 
    .. autoclasstoc::
 
-*Count*
------------------------------------
-
-.. autoclass:: Count
-   :members:
-
-   .. autoclasstoc::
-
-*Counter*
------------------------------------
-
-.. autoclass:: Counter
-   :members:
-
-   .. autoclasstoc::
 
 *Euclide*
 -----------------------------------
@@ -89,13 +86,6 @@ Objects in this category
 
    .. autoclasstoc::
 
-*Iter*
------------------------------------
-
-.. autoclass:: Iter
-   :members:
-
-   .. autoclasstoc::
 
 *Metro*
 -----------------------------------
@@ -145,18 +135,46 @@ Objects in this category
 
    .. autoclasstoc::
 
-*Timer*
------------------------------------
-
-.. autoclass:: Timer
-   :members:
-
-   .. autoclasstoc::
 
 *Trig*
 -----------------------------------
 
 .. autoclass:: Trig
+   :members:
+
+   .. autoclasstoc::
+
+Triggered Processors
+====================
+
+*Count*
+-----------------------------------
+
+.. autoclass:: Count
+   :members:
+
+   .. autoclasstoc::
+
+*Counter*
+-----------------------------------
+
+.. autoclass:: Counter
+   :members:
+
+   .. autoclasstoc::
+
+*Iter*
+-----------------------------------
+
+.. autoclass:: Iter
+   :members:
+
+   .. autoclasstoc::
+
+*Timer*
+-----------------------------------
+
+.. autoclass:: Timer
    :members:
 
    .. autoclasstoc::

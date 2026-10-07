@@ -175,7 +175,9 @@ of the object. The initialization of sliders is done with a list of `SLMap` obje
 where we can set the range of the slider, the type of scaling, the name of the 
 attribute linked to the slider, and the initial value. We will define a default 
 ``self._map_list`` that will be used if the user doesn't provide one to the parameter 
-``map_list``. If the object doesn't have any parameter to control with a GUI, this
+``map_list``. If the object doesn't have any parameter to control with a GUI, this method
+can be omitted.
+
 .. code-block:: python
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
@@ -318,6 +320,6 @@ Complete class definition and test
         src = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.3)
         lfo = Sine(.25, phase=[0,.5], mul=0.5, add=0.5)
         ring = RingMod(src, freq=[800,1000], mul=lfo).out()
-        `s.gui(locals())`
+        s.gui(locals())
 
 

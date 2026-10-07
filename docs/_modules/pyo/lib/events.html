@@ -10,8 +10,8 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-codeautolink.css?v=b2176991" />
     <link rel="stylesheet" type="text/css" href="../../../_static/autoclasstoc.css?v=08871587" />
     <script src="../../../_static/documentation_options.js?v=e2a723ec"></script>
-    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="icon" href="../../../_static/E-PyoIcon.ico"/>
     <link rel="author" title="About these documents" href="../../../about.html" />
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -128,6 +128,7 @@
 <span class="n">PYO_EVENT_FILTER_SCALE</span> <span class="o">=</span> <span class="mi">1107</span>
 <span class="n">PYO_EVENT_FILTER_RESCALE</span> <span class="o">=</span> <span class="mi">1108</span>
 <span class="n">PYO_EVENT_FILTER_IFTRUE</span> <span class="o">=</span> <span class="mi">1109</span>
+
 
 <span class="c1"># Utility functions</span>
 <span class="c1">###################</span>
@@ -281,9 +282,13 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">envelope</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">TableRead</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">envelope</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dur</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">amp</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">decay</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">Adsr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attack</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">decay</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sustain</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">release</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dur</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">amp</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">Adsr</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">attack</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">decay</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sustain</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">release</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dur</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">amp</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">Fader</span><span class="p">(</span><span class="n">fadein</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">attack</span><span class="p">,</span> <span class="n">fadeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">release</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dur</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">amp</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">Fader</span><span class="p">(</span>
+                <span class="n">fadein</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">attack</span><span class="p">,</span> <span class="n">fadeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">release</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dur</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">amp</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">clearWhenDone</span> <span class="o">=</span> <span class="n">CallAfter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">clearWhenDone</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">delay</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dur</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tail</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
@@ -694,7 +699,9 @@
                         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">master</span><span class="o">.</span><span class="n">getCurrentDict</span><span class="p">()[</span><span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">getKey</span><span class="p">()]</span>
                 <span class="k">except</span><span class="p">:</span>
                     <span class="k">pass</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">getValueFromAttribute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">master</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">getKey</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">master</span><span class="o">.</span><span class="n">getCurrentDict</span><span class="p">())</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">getValueFromAttribute</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">master</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">getKey</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">master</span><span class="o">.</span><span class="n">getCurrentDict</span><span class="p">()</span>
+            <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">setMaster</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">master</span><span class="p">)</span>
             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
@@ -968,7 +975,7 @@
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">PYO_EVENT_OPERATOR_DIV</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">v1</span> <span class="o">/</span> <span class="n">v2</span>
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">PYO_EVENT_OPERATOR_POW</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">v1</span> <span class="o">**</span> <span class="n">v2</span>
+                <span class="k">return</span> <span class="n">v1</span><span class="o">**</span><span class="n">v2</span>
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">PYO_EVENT_OPERATOR_MOD</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">v1</span> <span class="o">%</span> <span class="n">v2</span>
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">PYO_EVENT_OPERATOR_FLR</span><span class="p">:</span>
@@ -1114,7 +1121,9 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">externalMaster</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">getValueFromAttribute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">master</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">getKey</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">master</span><span class="o">.</span><span class="n">getCurrentDict</span><span class="p">())</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">getValueFromAttribute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">externalMaster</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">getKey</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">externalMaster</span><span class="o">.</span><span class="n">getCurrentDict</span><span class="p">())</span></div>
+            <span class="k">return</span> <span class="n">getValueFromAttribute</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">externalMaster</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">getKey</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">externalMaster</span><span class="o">.</span><span class="n">getCurrentDict</span><span class="p">()</span>
+            <span class="p">)</span></div>
 
 
 
@@ -1230,7 +1239,16 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">segment</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">startpos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">wraparound</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">occurrences</span><span class="o">=</span><span class="n">inf</span><span class="p">,</span> <span class="n">stopEventsWhenDone</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">values</span><span class="p">,</span>
+        <span class="n">segment</span><span class="p">,</span>
+        <span class="n">step</span><span class="p">,</span>
+        <span class="n">startpos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">wraparound</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">occurrences</span><span class="o">=</span><span class="n">inf</span><span class="p">,</span>
+        <span class="n">stopEventsWhenDone</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="n">EventGenerator</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inspect_values</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">occurrences</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inspect_occurrences</span><span class="p">(</span><span class="n">occurrences</span><span class="p">)</span>
@@ -1768,7 +1786,16 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">c3</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">c3</span> <span class="o">*</span> <span class="mf">0.86650</span> <span class="o">+</span> <span class="n">rnd</span> <span class="o">*</span> <span class="mf">0.3104856</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">c4</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">c4</span> <span class="o">*</span> <span class="mf">0.55000</span> <span class="o">+</span> <span class="n">rnd</span> <span class="o">*</span> <span class="mf">0.5329522</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">c5</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">c5</span> <span class="o">*</span> <span class="o">-</span><span class="mf">0.7616</span> <span class="o">-</span> <span class="n">rnd</span> <span class="o">*</span> <span class="mf">0.0168980</span>
-                <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">c0</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">c1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">c2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">c3</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">c4</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">c5</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">c6</span> <span class="o">+</span> <span class="n">rnd</span> <span class="o">*</span> <span class="mf">0.5362</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">c0</span>
+                    <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">c1</span>
+                    <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">c2</span>
+                    <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">c3</span>
+                    <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">c4</span>
+                    <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">c5</span>
+                    <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">c6</span>
+                    <span class="o">+</span> <span class="n">rnd</span> <span class="o">*</span> <span class="mf">0.5362</span>
+                <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">c6</span> <span class="o">=</span> <span class="n">rnd</span> <span class="o">*</span> <span class="mf">0.115926</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checkValueTypeAndIncrementCount</span><span class="p">(</span><span class="n">val</span> <span class="o">*</span> <span class="mf">0.2</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -2131,7 +2158,7 @@
         <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;atend&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">instanceId</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">maxInstanceId</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="mi">31</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxInstanceId</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">31</span>
 
         <span class="c1"># Add user-supplied arguments as dict attributes.</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -2146,7 +2173,7 @@
 <div class="viewcode-block" id="Events.events">
 <a class="viewcode-back" href="../../../api/classes/events.html#pyo.Events.events">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return a copy of this Events object. &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a copy of this Events object.&quot;&quot;&quot;</span>
         <span class="n">evts</span> <span class="o">=</span> <span class="n">Events</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
@@ -2273,7 +2300,19 @@
         <span class="n">ending</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="c1"># Process event&#39;s every other attributes.</span>
-        <span class="n">proscribe</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;dur&quot;</span><span class="p">,</span> <span class="s2">&quot;beat&quot;</span><span class="p">,</span> <span class="s2">&quot;instr&quot;</span><span class="p">,</span> <span class="s2">&quot;bpm&quot;</span><span class="p">,</span> <span class="s2">&quot;outs&quot;</span><span class="p">,</span> <span class="s2">&quot;midinote&quot;</span><span class="p">,</span> <span class="s2">&quot;degree&quot;</span><span class="p">,</span> <span class="s2">&quot;db&quot;</span><span class="p">,</span> <span class="s2">&quot;midivel&quot;</span><span class="p">,</span> <span class="s2">&quot;atend&quot;</span><span class="p">,</span> <span class="s2">&quot;signal&quot;</span><span class="p">]</span>
+        <span class="n">proscribe</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;dur&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;beat&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;instr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;bpm&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;outs&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;midinote&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;degree&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;db&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;midivel&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;atend&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;signal&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
         <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">proscribe</span><span class="p">]:</span>
             <span class="k">if</span> <span class="n">arg</span> <span class="o">==</span> <span class="s2">&quot;freq&quot;</span><span class="p">:</span>
                 <span class="n">transpo</span> <span class="o">=</span> <span class="n">getValueFromAttribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;transpo&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">currentDict</span><span class="p">,</span> <span class="n">valueIfNone</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -2351,12 +2390,16 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">instanceId</span> <span class="o">=</span> <span class="mi">0</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instanceId</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Removes an instrument instance from the active list. &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Removes an instrument instance from the active list.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">instanceId</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">actives</span><span class="p">:</span>
             <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">actives</span><span class="p">[</span><span class="n">instanceId</span><span class="p">]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;signal&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
-                <span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="n">instr</span><span class="p">,</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;signal&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">instr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">actives</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">instr</span><span class="p">,</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;signal&quot;</span><span class="p">])]</span>
+                <span class="p">[</span>
+                    <span class="nb">getattr</span><span class="p">(</span><span class="n">instr</span><span class="p">,</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;signal&quot;</span><span class="p">])</span>
+                    <span class="k">for</span> <span class="n">instr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">actives</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">instr</span><span class="p">,</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;signal&quot;</span><span class="p">])</span>
+                <span class="p">]</span>
             <span class="p">)</span></div>
 
 </pre></div>
@@ -2385,7 +2428,7 @@
           
     <div class="footer" role="contentinfo">
     &#169; Copyright 2025, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
         </div>
         <div class="clearer"></div>

@@ -10,8 +10,8 @@
 <link href="../../_static/sphinx-codeautolink.css?v=b2176991" rel="stylesheet" type="text/css"/>
 <link href="../../_static/autoclasstoc.css?v=08871587" rel="stylesheet" type="text/css"/>
 <script src="../../_static/documentation_options.js?v=e2a723ec"></script>
-<script src="../../_static/doctools.js?v=9bcbadda"></script>
-<script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+<script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+<script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
 <link href="../../_static/E-PyoIcon.ico" rel="icon"/>
 <link href="../../about.html" rel="author" title="About these documents"/>
 <link href="../../genindex.html" rel="index" title="Index"/>
@@ -88,7 +88,7 @@ This produces a swept comb filter effect: peaks and notches are produced
 in the resulting frequency spectrum, related to each other in a linear
 harmonic series. Varying the time delay causes these to sweep up and
 down the frequency spectrum.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 
 <span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
 
@@ -97,13 +97,13 @@ down the frequency spectrum.</p>
 <span class="n">src</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.PinkNoise" title="pyo.lib.generators.PinkNoise"><span class="n">PinkNoise</span></a><span class="p">(</span><span class="n">amp</span><span class="p">)</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
 <span class="c1"># Flanger parameters                        == unit ==</span>
-<span class="n">middelay</span> <span class="o">=</span> <span class="mf">0.005</span>                            <span class="c1"># seconds</span>
+<span class="n">middelay</span> <span class="o">=</span> <span class="mf">0.005</span>  <span class="c1"># seconds</span>
 
-<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">depth</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">Sig</span></a><span class="p">(</span><span class="mf">0.99</span><span class="p">)</span>                           <span class="c1"># 0 --&gt; 1</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">depth</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">Sig</span></a><span class="p">(</span><span class="mf">0.99</span><span class="p">)</span>  <span class="c1"># 0 --&gt; 1</span>
 <span class="n">depth</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Modulation Depth"</span><span class="p">)</span>
-<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">lfospeed</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">Sig</span></a><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>                         <span class="c1"># Hertz</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">lfospeed</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">Sig</span></a><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>  <span class="c1"># Hertz</span>
 <span class="n">lfospeed</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"LFO Frequency in Hz"</span><span class="p">)</span>
-<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">feedback</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">Sig</span></a><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.95</span><span class="p">)</span>               <span class="c1"># 0 --&gt; 1</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">feedback</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">Sig</span></a><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.95</span><span class="p">)</span>  <span class="c1"># 0 --&gt; 1</span>
 <span class="n">feedback</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Feedback"</span><span class="p">)</span>
 
 <span class="c1"># LFO with adjusted output range to control the delay time in seconds.</span>
@@ -144,7 +144,7 @@ down the frequency spectrum.</p>
 <div class="right">
 <div class="footer" role="contentinfo">
     © Copyright 2025, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
 </div>
 <div class="clearer"></div>

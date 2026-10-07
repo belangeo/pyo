@@ -10,8 +10,8 @@
 <link href="../../_static/sphinx-codeautolink.css?v=b2176991" rel="stylesheet" type="text/css"/>
 <link href="../../_static/autoclasstoc.css?v=08871587" rel="stylesheet" type="text/css"/>
 <script src="../../_static/documentation_options.js?v=e2a723ec"></script>
-<script src="../../_static/doctools.js?v=9bcbadda"></script>
-<script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+<script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+<script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
 <link href="../../_static/E-PyoIcon.ico" rel="icon"/>
 <link href="../../about.html" rel="author" title="About these documents"/>
 <link href="../../genindex.html" rel="index" title="Index"/>
@@ -82,7 +82,7 @@ an AIFF file to create more specific reading patterns.</p>
 <h2><em>SfPlayer</em><a class="headerlink" href="#sfplayer" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.SfPlayer">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SfPlayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">speed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/players.html#SfPlayer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.SfPlayer" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SfPlayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">speed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/players.html#SfPlayer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.SfPlayer" title="Link to this definition">¶</a></dt>
 <dd><p>Soundfile player.</p>
 <p>Reads audio data from a file using one of several available interpolation
 types. User can alter its pitch with the <cite>speed</cite> attribute. The object
@@ -146,7 +146,7 @@ the first stream to the next object:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">snd</span> <span class="o">=</span> <span class="n">SNDS_PATH</span> <span class="o">+</span> <span class="s2">"/transparent.aif"</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sf</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">snd</span><span class="p">,</span> <span class="n">speed</span><span class="o">=</span><span class="p">[</span><span class="mf">.75</span><span class="p">,</span><span class="mf">.8</span><span class="p">],</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.3</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sf</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">snd</span><span class="p">,</span> <span class="n">speed</span><span class="o">=</span><span class="p">[</span><span class="mf">.75</span><span class="p">,</span><span class="mf">.8</span><span class="p">],</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
 </pre></div>
 </div>
 <div class="autoclasstoc docutils container">
@@ -554,32 +554,32 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.SfPlayer.path">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#pyo.SfPlayer.path" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#pyo.SfPlayer.path" title="Link to this definition">¶</a></dt>
 <dd><p>string. Full path of the sound.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.SfPlayer.sound">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sound</span></span><a class="headerlink" href="#pyo.SfPlayer.sound" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">sound</span></span><a class="headerlink" href="#pyo.SfPlayer.sound" title="Link to this definition">¶</a></dt>
 <dd><p>string. Alias to the <cite>path</cite> attribute.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.SfPlayer.speed">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">speed</span></span><a class="headerlink" href="#pyo.SfPlayer.speed" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">speed</span></span><a class="headerlink" href="#pyo.SfPlayer.speed" title="Link to this definition">¶</a></dt>
 <dd><p>float or PyoObject. Transposition factor.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.SfPlayer.loop">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">loop</span></span><a class="headerlink" href="#pyo.SfPlayer.loop" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">loop</span></span><a class="headerlink" href="#pyo.SfPlayer.loop" title="Link to this definition">¶</a></dt>
 <dd><p>bool. Looping mode.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.SfPlayer.offset">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">offset</span></span><a class="headerlink" href="#pyo.SfPlayer.offset" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">offset</span></span><a class="headerlink" href="#pyo.SfPlayer.offset" title="Link to this definition">¶</a></dt>
 <dd><p>float. Time, in seconds, of the first sample to read.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.SfPlayer.interp">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">interp</span></span><a class="headerlink" href="#pyo.SfPlayer.interp" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">interp</span></span><a class="headerlink" href="#pyo.SfPlayer.interp" title="Link to this definition">¶</a></dt>
 <dd><p>int {1, 2, 3, 4}. Interpolation method.</p>
 </dd></dl>
 </dd></dl>
@@ -588,7 +588,7 @@ the server GUI before showing the controller window.</p>
 <h2><em>SfMarkerLooper</em><a class="headerlink" href="#sfmarkerlooper" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.SfMarkerLooper">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SfMarkerLooper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">speed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/players.html#SfMarkerLooper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.SfMarkerLooper" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SfMarkerLooper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">speed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/players.html#SfMarkerLooper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.SfMarkerLooper" title="Link to this definition">¶</a></dt>
 <dd><p>Soundfile player with markers looper.</p>
 <p>Reads audio data from an audio file using one of several available
 interpolation types. User can alter its pitch with the <cite>speed</cite>
@@ -631,7 +631,7 @@ rate signal, its value is updated only once per buffer size.</p>
 </dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfMarkerLooper" title="pyo.lib.players.SfMarkerLooper"><span class="n">SfMarkerLooper</span></a><span class="p">(</span><span class="n">SNDS_PATH</span> <span class="o">+</span> <span class="s1">'/transparent.aif'</span><span class="p">,</span> <span class="n">speed</span><span class="o">=</span><span class="p">[</span><span class="mf">.999</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.3</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfMarkerLooper" title="pyo.lib.players.SfMarkerLooper"><span class="n">SfMarkerLooper</span></a><span class="p">(</span><span class="n">SNDS_PATH</span> <span class="o">+</span> <span class="s1">'/transparent.aif'</span><span class="p">,</span> <span class="n">speed</span><span class="o">=</span><span class="p">[</span><span class="mf">.999</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.RandInt" title="pyo.lib.randoms.RandInt"><span class="n">rnd</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.RandInt" title="pyo.lib.randoms.RandInt"><span class="n">RandInt</span></a><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">getMarkers</span><span class="p">()),</span> <span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">mark</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.RandInt" title="pyo.lib.randoms.RandInt"><span class="n">rnd</span></a>
 </pre></div>
@@ -988,17 +988,17 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.SfMarkerLooper.speed">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">speed</span></span><a class="headerlink" href="#pyo.SfMarkerLooper.speed" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">speed</span></span><a class="headerlink" href="#pyo.SfMarkerLooper.speed" title="Link to this definition">¶</a></dt>
 <dd><p>float or PyoObject. Transposition factor.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.SfMarkerLooper.mark">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mark</span></span><a class="headerlink" href="#pyo.SfMarkerLooper.mark" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">mark</span></span><a class="headerlink" href="#pyo.SfMarkerLooper.mark" title="Link to this definition">¶</a></dt>
 <dd><p>float or PyoObject. Marker to loop.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.SfMarkerLooper.interp">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">interp</span></span><a class="headerlink" href="#pyo.SfMarkerLooper.interp" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">interp</span></span><a class="headerlink" href="#pyo.SfMarkerLooper.interp" title="Link to this definition">¶</a></dt>
 <dd><p>int {1, 2, 3, 4}. Interpolation method.</p>
 </dd></dl>
 </dd></dl>
@@ -1007,7 +1007,7 @@ the server GUI before showing the controller window.</p>
 <h2><em>SfMarkerShuffler</em><a class="headerlink" href="#sfmarkershuffler" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.SfMarkerShuffler">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SfMarkerShuffler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">speed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/players.html#SfMarkerShuffler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.SfMarkerShuffler" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SfMarkerShuffler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">speed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/players.html#SfMarkerShuffler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.SfMarkerShuffler" title="Link to this definition">¶</a></dt>
 <dd><p>Soundfile player with markers shuffler.</p>
 <p>Reads audio data from an audio file using one of several available
 interpolation types. User can alter its pitch with the <cite>speed</cite>
@@ -1050,7 +1050,7 @@ rate signal, its value is updated only once per buffer size.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sound</span> <span class="o">=</span> <span class="n">SNDS_PATH</span> <span class="o">+</span> <span class="s2">"/transparent.aif"</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sf</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfMarkerShuffler" title="pyo.lib.players.SfMarkerShuffler"><span class="n">SfMarkerShuffler</span></a><span class="p">(</span><span class="n">sound</span><span class="p">,</span> <span class="n">speed</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.3</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sf</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfMarkerShuffler" title="pyo.lib.players.SfMarkerShuffler"><span class="n">SfMarkerShuffler</span></a><span class="p">(</span><span class="n">sound</span><span class="p">,</span> <span class="n">speed</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sf</span><span class="o">.</span><span class="n">setRandomType</span><span class="p">(</span><span class="s2">"expon_min"</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1498,12 +1498,12 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.SfMarkerShuffler.speed">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">speed</span></span><a class="headerlink" href="#pyo.SfMarkerShuffler.speed" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">speed</span></span><a class="headerlink" href="#pyo.SfMarkerShuffler.speed" title="Link to this definition">¶</a></dt>
 <dd><p>float or PyoObject. Transposition factor.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.SfMarkerShuffler.interp">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">interp</span></span><a class="headerlink" href="#pyo.SfMarkerShuffler.interp" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">interp</span></span><a class="headerlink" href="#pyo.SfMarkerShuffler.interp" title="Link to this definition">¶</a></dt>
 <dd><p>int {1, 2, 3, 4}. Interpolation method.</p>
 </dd></dl>
 </dd></dl>
@@ -1531,7 +1531,7 @@ the server GUI before showing the controller window.</p>
 <div class="right">
 <div class="footer" role="contentinfo">
     © Copyright 2025, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
 </div>
 <div class="clearer"></div>

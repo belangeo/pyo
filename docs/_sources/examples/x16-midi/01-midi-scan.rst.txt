@@ -39,6 +39,7 @@ List of MIDI-related functions:
     
     print("Play with your Midi controllers...")
     
+    
     # Function called by CtlScan2 object.
     def scanner(ctlnum, midichnl):
         print("MIDI channel: %d, controller number: %d" % (midichnl, ctlnum))

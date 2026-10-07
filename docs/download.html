@@ -10,8 +10,8 @@
 <link href="_static/sphinx-codeautolink.css?v=b2176991" rel="stylesheet" type="text/css"/>
 <link href="_static/autoclasstoc.css?v=08871587" rel="stylesheet" type="text/css"/>
 <script src="_static/documentation_options.js?v=e2a723ec"></script>
-<script src="_static/doctools.js?v=9bcbadda"></script>
-<script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+<script src="_static/doctools.js?v=fd6eb6e6"></script>
+<script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
 <link href="_static/E-PyoIcon.ico" rel="icon"/>
 <link href="about.html" rel="author" title="About these documents"/>
 <link href="genindex.html" rel="index" title="Index"/>
@@ -61,16 +61,16 @@
 <div class="body" role="main">
 <section id="installing-pyo-with-pip">
 <h1>Installing pyo with pip<a class="headerlink" href="#installing-pyo-with-pip" title="Link to this heading">¶</a></h1>
-<p>In most use cases the best way to install pyo on your system is by using a pre-built
+<p>In most use cases, the best way to install pyo on your system is by using a pre-built
 package for your operating system. These packages are available through pip.
-Current version supports Python 3.9 to 3.13.
+The current version supports Python 3.9 to 3.13.
 Older supported Python versions are 2.7 (up to 1.0.1), 3.5 (up to 1.0.1), 3.6 (up to 1.0.4).
 To install, run this command (if you have both python2 and python3 installed and want
 to target python3, use <cite>pip3</cite>):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">user</span> <span class="n">pyo</span>
 </pre></div>
 </div>
-<p>If you are not sure to which version of python the <cite>pip</cite> command is bound to, you can
+<p>If you are not sure which version of Python the <cite>pip</cite> command is bound to, you can
 invoke it as a script from the <cite>python</cite> command.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># for python 3.13</span>
 python3.13<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--user<span class="w"> </span>pyo
@@ -82,14 +82,14 @@ py<span class="w"> </span>-3.13<span class="w"> </span>-m<span class="w"> </span
 sudo<span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pyo
 </pre></div>
 </div>
-<p>For instructions on building from source package, see <a class="reference external" href="compiling.html">Compiling pyo from sources</a>.
+<p>For instructions on building from the source package, see <a class="reference external" href="compiling.html">Compiling pyo from sources</a>.
 This information is useful mainly for advanced users.</p>
 <section id="pyo-is-a-python-module">
-<h2>Pyo is a python module…<a class="headerlink" href="#pyo-is-a-python-module" title="Link to this heading">¶</a></h2>
+<h2>Pyo is a Python module…<a class="headerlink" href="#pyo-is-a-python-module" title="Link to this heading">¶</a></h2>
 <p>… which means that python must be present (version 3.9 to 3.13)
 on the system. If python is not installed, you can download it on
 <a class="reference external" href="https://www.python.org/downloads/">python.org</a>.</p>
-<p>Pyo also offers some GUI facilities to control or visualize the audio processing.
+<p>Pyo also offers some GUI facilities to control or visualize audio processing.
 If you want to use all of pyo’s GUI features, you must install WxPython, available on
 <a class="reference external" href="http://wxpython.org/download.php">wxpython.org</a> or with pip:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">user</span> <span class="n">wxPython</span>
@@ -98,36 +98,36 @@ If you want to use all of pyo’s GUI features, you must install WxPython, avail
 </section>
 <section id="removing-older-version-of-pyo-prior-to-1-0-0">
 <h2>Removing older version of pyo (prior to 1.0.0)<a class="headerlink" href="#removing-older-version-of-pyo-prior-to-1-0-0" title="Link to this heading">¶</a></h2>
-<p>Prior to version 1.0.0, pyo was installed with binary installers on MacOS and Windows. <cite>pip</cite> knows
-nothing about these files and therefore cannot automatically removed them. To avoid conflicts between
+<p>Prior to version 1.0.0, pyo was installed with binary installers on macOS and Windows. <cite>pip</cite> knows
+nothing about these files and therefore cannot automatically remove them. To avoid conflicts between
 versions, it’s best to remove older installation of pyo.</p>
 <p><strong>MacOS</strong></p>
-<p>On MacOS, you can run this script for the version of python for which you want to use 1.0.0.</p>
+<p>On macOS, you can run this script for the version of Python for which you want to use 1.0.0.</p>
 <p><a class="reference external" href="https://github.com/belangeo/pyo/blob/master/scripts/cleanup_older_pyo_versions.py">https://github.com/belangeo/pyo/blob/master/scripts/cleanup_older_pyo_versions.py</a></p>
 <p>As an example, if you want to remove an old installation under python 3.6, run</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>python3.6<span class="w"> </span>cleanup_older_pyo_versions.py
 </pre></div>
 </div>
-<p>You should also delete the <strong>E-pyo</strong> app in the <cite>Applications</cite> folder.</p>
+<p>You should also delete the <strong>E-Pyo</strong> app in the <cite>Applications</cite> folder.</p>
 <p><strong>Windows</strong></p>
-<p>Under Windows, all you have to do is to run the uninstaller that comes with pyo to
-remove all its components. It is located in the python root directory (ex.: C:\Python27)
+<p>Under Windows, all you have to do is run the uninstaller that comes with pyo to
+remove all its components. It is located in the Python root directory (e.g., C:\Python27)
 and is named <cite>unins000.exe</cite>.</p>
 <p><strong>linux</strong></p>
-<p>On linux, if you installed pyo from the system’s package manager, just uninstall it.
+<p>On Linux, if you installed pyo from the system’s package manager, just uninstall it.
 If you compile pyo from sources, you have to delete the files manually (in site-packages
-or dist-packages folder of your python distribution). Files to delete are:
+or dist-packages folder of your Python distribution). Files to delete are:
 pyo.py, pyo64.py, _pyo.so, _pyo64.so, pyolib/ and pyo…egg.</p>
 </section>
 <section id="running-the-epyo-text-editor">
 <h2>Running the EPyo text editor<a class="headerlink" href="#running-the-epyo-text-editor" title="Link to this heading">¶</a></h2>
-<p>To be “pip” compliant, I’ve had to make a choice and removed the pre-built E-Pyo application
+<p>To be “pip” compliant, I’ve had to make a choice and remove the pre-built E-Pyo application
 previously installed alongside pyo. But the truth is that this application lives in a single
-python script and can be easily used as long as WxPython is installed under the current python
+Python script and can be easily used as long as WxPython is installed under the current Python
 distribution. The installation with <cite>pip</cite> puts this program under the <cite>Scripts</cite> folder (or <cite>bin</cite>
-folder, depending on which system you are running) of the python distribution. If python’s path
+folder, depending on which system you are running) of the python distribution. If Python’s path
 is in your PATH environment variable (which should really be the case), all you have to do to start
-EPyo is to run this command in a terminal or a command prompt:</p>
+E-Pyo is to run this command in a terminal or a command prompt:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>epyo
 </pre></div>
 </div>
@@ -155,7 +155,7 @@ EPyo is to run this command in a terminal or a command prompt:</p>
 <div class="right">
 <div class="footer" role="contentinfo">
     © Copyright 2025, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
 </div>
 <div class="clearer"></div>

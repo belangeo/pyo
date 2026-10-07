@@ -10,8 +10,8 @@
 <link href="../../_static/sphinx-codeautolink.css?v=b2176991" rel="stylesheet" type="text/css"/>
 <link href="../../_static/autoclasstoc.css?v=08871587" rel="stylesheet" type="text/css"/>
 <script src="../../_static/documentation_options.js?v=e2a723ec"></script>
-<script src="../../_static/doctools.js?v=9bcbadda"></script>
-<script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+<script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+<script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
 <link href="../../_static/E-PyoIcon.ico" rel="icon"/>
 <link href="../../about.html" rel="author" title="About these documents"/>
 <link href="../../genindex.html" rel="index" title="Index"/>
@@ -85,7 +85,7 @@
 <p>In this example, an FM synthesis is generated and recorded, row after
 row, in the matrix used as the terrain for the synthesis. It is then
 scanned with sine waves assigned to x and y positions in the 2D table.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 
 <span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">(</span><span class="n">duplex</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
 
@@ -115,9 +115,11 @@ scanned with sine waves assigned to x and y positions in the 2D table.</p>
 <span class="c1"># Lowpass filtering of the output signal.</span>
 <span class="n">filt</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.Tone" title="pyo.lib.filters.Tone"><span class="n">Tone</span></a><span class="p">(</span><span class="nb">input</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/matrixprocess.html#pyo.MatrixPointer" title="pyo.lib.matrixprocess.MatrixPointer"><span class="n">c</span></a><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">3000</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
 
+
 <span class="c1"># Signals when the recording is done.</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">func</span><span class="p">():</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">"End of recording"</span><span class="p">)</span>
+
 
 <a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.TrigFunc" title="pyo.lib.triggers.TrigFunc"><span class="n">tr</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.TrigFunc" title="pyo.lib.triggers.TrigFunc"><span class="n">TrigFunc</span></a><span class="p">(</span><span class="n">rec</span><span class="p">[</span><span class="s2">"trig"</span><span class="p">],</span> <span class="n">func</span><span class="p">)</span>
 
@@ -147,7 +149,7 @@ scanned with sine waves assigned to x and y positions in the 2D table.</p>
 <div class="right">
 <div class="footer" role="contentinfo">
     © Copyright 2025, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
 </div>
 <div class="clearer"></div>

@@ -10,8 +10,8 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-codeautolink.css?v=b2176991" />
     <link rel="stylesheet" type="text/css" href="../../../_static/autoclasstoc.css?v=08871587" />
     <script src="../../../_static/documentation_options.js?v=e2a723ec"></script>
-    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="icon" href="../../../_static/E-PyoIcon.ico"/>
     <link rel="author" title="About these documents" href="../../../about.html" />
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -150,7 +150,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_arg</span> <span class="o">=</span> <span class="n">arg</span>
         <span class="n">function</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">Pattern_base</span><span class="p">(</span><span class="n">WeakMethod</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">i</span><span class="p">)),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+            <span class="n">Pattern_base</span><span class="p">(</span><span class="n">WeakMethod</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">i</span><span class="p">)),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
         <span class="p">]</span>
 
 <div class="viewcode-block" id="Pattern.setFunction">
@@ -436,7 +437,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_arg</span> <span class="o">=</span> <span class="n">arg</span>
         <span class="n">function</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">CallAfter_base</span><span class="p">(</span><span class="n">WeakMethod</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">i</span><span class="p">)),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+            <span class="n">CallAfter_base</span><span class="p">(</span><span class="n">WeakMethod</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">i</span><span class="p">)),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
         <span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
 
@@ -523,6 +525,120 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setArg</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="CallAlways">
+<a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.CallAlways">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CallAlways</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calls a Python function every processing frame.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        function: Python callable (function or method)</span>
+<span class="sd">            Python callable executed every buffer size.</span>
+<span class="sd">        arg: any Python object, optional</span>
+<span class="sd">            Argument sent to the called function. Defaults to None.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        The out() method is bypassed. CallAlways doesn&#39;t return signal.</span>
+
+<span class="sd">        CallAlways has no `mul` and `add` attributes.</span>
+
+<span class="sd">        If `arg` is None, the function must be defined without argument:</span>
+
+<span class="sd">        &gt;&gt;&gt; def tocall():</span>
+<span class="sd">        &gt;&gt;&gt;     pass # function&#39;s body</span>
+
+<span class="sd">        If `arg` is not None, the function must be defined with one argument:</span>
+
+<span class="sd">        &gt;&gt;&gt; def tocall(arg):</span>
+<span class="sd">        &gt;&gt;&gt;     print(arg)</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; t = DataTable(size=s.getBufferSize())</span>
+<span class="sd">    &gt;&gt;&gt; n = Noise()</span>
+<span class="sd">    &gt;&gt;&gt; f = TableFill(n, t)</span>
+<span class="sd">    &gt;&gt;&gt; def callback(arg):</span>
+<span class="sd">    ...     # Apply a lowpass filter and a gain on the table content</span>
+<span class="sd">    ...     t.lowpass(arg)</span>
+<span class="sd">    ...     t.mul(0.25)</span>
+<span class="sd">    &gt;&gt;&gt; a = CallAlways(callback, 500)</span>
+<span class="sd">    &gt;&gt;&gt; o = TableScan(t).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">arg</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="n">function</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_function</span> <span class="o">=</span> <span class="n">getWeakMethodRef</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_arg</span> <span class="o">=</span> <span class="n">arg</span>
+        <span class="n">function</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">CallAlways_base</span><span class="p">(</span><span class="n">WeakMethod</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">i</span><span class="p">)),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CallAlways.out">
+<a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.CallAlways.out">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inc</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">dur</span><span class="p">,</span> <span class="n">delay</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CallAlways.setMul">
+<a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.CallAlways.setMul">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setMul</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="CallAlways.setAdd">
+<a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.CallAlways.setAdd">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setAdd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="CallAlways.setSub">
+<a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.CallAlways.setSub">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setSub</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="CallAlways.setDiv">
+<a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.CallAlways.setDiv">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setDiv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="CallAlways.setArg">
+<a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.CallAlways.setArg">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setArg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `arg` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: Anything</span>
+<span class="sd">                new `arg` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_arg</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setArg</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">arg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Anything. Callable&#39;s argument.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arg</span>
+
+    <span class="nd">@arg</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setArg</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
 </pre></div>
 
             <div class="clearer"></div>
@@ -549,7 +665,7 @@
           
     <div class="footer" role="contentinfo">
     &#169; Copyright 2025, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
         </div>
         <div class="clearer"></div>

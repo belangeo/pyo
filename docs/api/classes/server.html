@@ -10,8 +10,8 @@
 <link href="../../_static/sphinx-codeautolink.css?v=b2176991" rel="stylesheet" type="text/css"/>
 <link href="../../_static/autoclasstoc.css?v=08871587" rel="stylesheet" type="text/css"/>
 <script src="../../_static/documentation_options.js?v=e2a723ec"></script>
-<script src="../../_static/doctools.js?v=9bcbadda"></script>
-<script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+<script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+<script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
 <link href="../../_static/E-PyoIcon.ico" rel="icon"/>
 <link href="../../about.html" rel="author" title="About these documents"/>
 <link href="../../genindex.html" rel="index" title="Index"/>
@@ -71,7 +71,7 @@
 <h2><em>Server</em><a class="headerlink" href="#server" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.Server">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">44100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nchnls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffersize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duplex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'portaudio'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jackname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pyo'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ichnls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">winhost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'directsound'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">midi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'portmidi'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbosity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/server.html#Server"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Server" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">44100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nchnls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffersize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duplex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'portaudio'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jackname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pyo'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ichnls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">winhost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'directsound'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">midi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'portmidi'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbosity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/server.html#Server"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Server" title="Link to this definition">¶</a></dt>
 <dd><p>Main processing audio loop callback handler.</p>
 <p>The Server object handles all communications with Portaudio and
 Portmidi. It keeps track of all audio streams created as well as
@@ -190,6 +190,12 @@ the user’s responsibility to manage the audio/midi configuration of its system
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__del__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__enter__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__exit__</span></code>(exc_type, exc_value, traceback)</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">reinit</span></code>([sr, nchnls, buffersize, duplex, ...])</p></td>
@@ -1450,7 +1456,7 @@ very last object.</p>
 <p>With setAutoStartChildren(True), a call to the <cite>out</cite> method
 will automatically triggers the <cite>play</cite> method of the Fader
 object given as <cite>mul</cite> argument.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.RCOsc" title="pyo.lib.generators.RCOsc"><span class="n">RCOsc</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Fader" title="pyo.lib.controls.Fader"><span class="n">Fader</span></a><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.3</span><span class="p">))</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.RCOsc" title="pyo.lib.generators.RCOsc"><span class="n">RCOsc</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Fader" title="pyo.lib.controls.Fader"><span class="n">Fader</span></a><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.3</span><span class="p">))</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>With setAutoStartChildren(True), a call to the <cite>stop</cite> method
@@ -1464,7 +1470,7 @@ the Linseg assigned to the frequency waits for 1 second before
 actually stopping its process, the Fader assigned to the <cite>mul</cite>
 argument starts its fadeout immediately.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Linseg" title="pyo.lib.controls.Linseg"><span class="n">freq</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Linseg" title="pyo.lib.controls.Linseg"><span class="n">Linseg</span></a><span class="p">([(</span><span class="mi">0</span><span class="p">,</span><span class="mi">500</span><span class="p">),(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">750</span><span class="p">),(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">500</span><span class="p">)],</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Linseg" title="pyo.lib.controls.Linseg"><span class="n">freq</span></a><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Fader" title="pyo.lib.controls.Fader"><span class="n">Fader</span></a><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.2</span><span class="p">))</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Linseg" title="pyo.lib.controls.Linseg"><span class="n">freq</span></a><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Fader" title="pyo.lib.controls.Fader"><span class="n">Fader</span></a><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.2</span><span class="p">))</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Sometime, we still want the process assigned to a <cite>mul</cite> attribute
@@ -1515,22 +1521,22 @@ It’s probably only useful in the context of internal testing.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Server.amp">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">amp</span></span><a class="headerlink" href="#pyo.Server.amp" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">amp</span></span><a class="headerlink" href="#pyo.Server.amp" title="Link to this definition">¶</a></dt>
 <dd><p>float. Overall amplitude.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Server.startoffset">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">startoffset</span></span><a class="headerlink" href="#pyo.Server.startoffset" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">startoffset</span></span><a class="headerlink" href="#pyo.Server.startoffset" title="Link to this definition">¶</a></dt>
 <dd><p>float. Starting time of the real-time processing.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Server.verbosity">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">verbosity</span></span><a class="headerlink" href="#pyo.Server.verbosity" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">verbosity</span></span><a class="headerlink" href="#pyo.Server.verbosity" title="Link to this definition">¶</a></dt>
 <dd><p>int. Server verbosity.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Server.globalseed">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">globalseed</span></span><a class="headerlink" href="#pyo.Server.globalseed" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">globalseed</span></span><a class="headerlink" href="#pyo.Server.globalseed" title="Link to this definition">¶</a></dt>
 <dd><p>int. Server global seed.</p>
 </dd></dl>
 </dd></dl>
@@ -1558,7 +1564,7 @@ It’s probably only useful in the context of internal testing.</p>
 <div class="right">
 <div class="footer" role="contentinfo">
     © Copyright 2025, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
 </div>
 <div class="clearer"></div>

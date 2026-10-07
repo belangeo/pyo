@@ -38,9 +38,11 @@ scanned with sine waves assigned to x and y positions in the 2D table.
     # Lowpass filtering of the output signal.
     filt = Tone(input=c, freq=3000).out()
     
+    
     # Signals when the recording is done.
     def func():
         print("End of recording")
+    
     
     tr = TrigFunc(rec["trig"], func)
     

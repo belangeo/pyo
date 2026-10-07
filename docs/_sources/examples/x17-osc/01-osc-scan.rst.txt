@@ -17,6 +17,7 @@ range of values sent on a given address.
     
     print("Play with your OSC interface...")
     
+    
     # Function called whenever OscDataReceive receives an input.
     def printInputMessage(address, *args):
         print("Address =", address)

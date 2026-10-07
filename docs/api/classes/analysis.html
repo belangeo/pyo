@@ -10,8 +10,8 @@
 <link href="../../_static/sphinx-codeautolink.css?v=b2176991" rel="stylesheet" type="text/css"/>
 <link href="../../_static/autoclasstoc.css?v=08871587" rel="stylesheet" type="text/css"/>
 <script src="../../_static/documentation_options.js?v=e2a723ec"></script>
-<script src="../../_static/doctools.js?v=9bcbadda"></script>
-<script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+<script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+<script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
 <link href="../../_static/E-PyoIcon.ico" rel="icon"/>
 <link href="../../about.html" rel="author" title="About these documents"/>
 <link href="../../genindex.html" rel="index" title="Index"/>
@@ -91,7 +91,7 @@ results via function handlers). The user can use these objects for controlling p
 <h2><em>Follower</em><a class="headerlink" href="#follower" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.Follower">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Follower</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/analysis.html#Follower"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Follower" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Follower</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/analysis.html#Follower"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Follower" title="Link to this definition">¶</a></dt>
 <dd><p>Envelope follower.</p>
 <p>Output signal is the continuous mean amplitude of an input signal.</p>
 <dl class="field-list simple">
@@ -118,7 +118,7 @@ audio outs.</p>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sf</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span> <span class="o">+</span> <span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.4</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sf</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span> <span class="o">+</span> <span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Follower" title="pyo.lib.analysis.Follower"><span class="n">fol</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Follower" title="pyo.lib.analysis.Follower"><span class="n">Follower</span></a><span class="p">(</span><span class="n">sf</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">Noise</span></a><span class="p">(</span><span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Follower" title="pyo.lib.analysis.Follower"><span class="n">fol</span></a><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
@@ -484,12 +484,12 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Follower.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.Follower.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.Follower.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoObject. Input signal to process.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Follower.freq">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">freq</span></span><a class="headerlink" href="#pyo.Follower.freq" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">freq</span></span><a class="headerlink" href="#pyo.Follower.freq" title="Link to this definition">¶</a></dt>
 <dd><p>float or PyoObject. Cutoff frequency of the filter.</p>
 </dd></dl>
 </dd></dl>
@@ -498,7 +498,7 @@ the server GUI before showing the controller window.</p>
 <h2><em>Follower2</em><a class="headerlink" href="#follower2" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.Follower2">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Follower2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">risetime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">falltime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/analysis.html#Follower2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Follower2" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Follower2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">risetime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">falltime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/analysis.html#Follower2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Follower2" title="Link to this definition">¶</a></dt>
 <dd><p>Envelope follower with different attack and release times.</p>
 <p>Output signal is the continuous mean amplitude of an input signal.</p>
 <dl class="field-list simple">
@@ -527,8 +527,8 @@ audio outs.</p>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sf</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span> <span class="o">+</span> <span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.4</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Follower2" title="pyo.lib.analysis.Follower2"><span class="n">fol2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Follower2" title="pyo.lib.analysis.Follower2"><span class="n">Follower2</span></a><span class="p">(</span><span class="n">sf</span><span class="p">,</span> <span class="n">risetime</span><span class="o">=</span><span class="mf">0.002</span><span class="p">,</span> <span class="n">falltime</span><span class="o">=</span><span class="mf">.1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sf</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span> <span class="o">+</span> <span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Follower2" title="pyo.lib.analysis.Follower2"><span class="n">fol2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Follower2" title="pyo.lib.analysis.Follower2"><span class="n">Follower2</span></a><span class="p">(</span><span class="n">sf</span><span class="p">,</span> <span class="n">risetime</span><span class="o">=</span><span class="mf">0.002</span><span class="p">,</span> <span class="n">falltime</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">Noise</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Follower2" title="pyo.lib.analysis.Follower2"><span class="n">fol2</span></a><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -912,17 +912,17 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Follower2.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.Follower2.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.Follower2.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoObject. Input signal to process.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Follower2.risetime">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">risetime</span></span><a class="headerlink" href="#pyo.Follower2.risetime" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">risetime</span></span><a class="headerlink" href="#pyo.Follower2.risetime" title="Link to this definition">¶</a></dt>
 <dd><p>float or PyoObject. Time to reach upward value in seconds.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Follower2.falltime">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">falltime</span></span><a class="headerlink" href="#pyo.Follower2.falltime" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">falltime</span></span><a class="headerlink" href="#pyo.Follower2.falltime" title="Link to this definition">¶</a></dt>
 <dd><p>float or PyoObject. Time to reach downward value in seconds.</p>
 </dd></dl>
 </dd></dl>
@@ -931,7 +931,7 @@ the server GUI before showing the controller window.</p>
 <h2><em>ZCross</em><a class="headerlink" href="#zcross" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.ZCross">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ZCross</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/analysis.html#ZCross"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.ZCross" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ZCross</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/analysis.html#ZCross"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.ZCross" title="Link to this definition">¶</a></dt>
 <dd><p>Zero-crossing counter.</p>
 <p>Output signal is the number of zero-crossing that occurred during each
 buffer size, normalized between 0 and 1.</p>
@@ -956,8 +956,8 @@ audio outs.</p>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span> <span class="o">+</span> <span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.4</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.ZCross" title="pyo.lib.analysis.ZCross"><span class="n">b</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.ZCross" title="pyo.lib.analysis.ZCross"><span class="n">ZCross</span></a><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="mf">.02</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span> <span class="o">+</span> <span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.ZCross" title="pyo.lib.analysis.ZCross"><span class="n">b</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.ZCross" title="pyo.lib.analysis.ZCross"><span class="n">ZCross</span></a><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">Noise</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.ZCross" title="pyo.lib.analysis.ZCross"><span class="n">b</span></a><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1322,12 +1322,12 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.ZCross.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.ZCross.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.ZCross.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoObject. Input signal to process.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.ZCross.thresh">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">thresh</span></span><a class="headerlink" href="#pyo.ZCross.thresh" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">thresh</span></span><a class="headerlink" href="#pyo.ZCross.thresh" title="Link to this definition">¶</a></dt>
 <dd><p>float. Amplitude difference threshold.</p>
 </dd></dl>
 </dd></dl>
@@ -1336,7 +1336,7 @@ the server GUI before showing the controller window.</p>
 <h2><em>Yin</em><a class="headerlink" href="#yin" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.Yin">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Yin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minfreq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxfreq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">winsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/analysis.html#Yin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Yin" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Yin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minfreq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxfreq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">winsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/analysis.html#Yin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Yin" title="Link to this definition">¶</a></dt>
 <dd><p>Pitch tracker using the Yin algorithm.</p>
 <p>Pitch tracker using the Yin algorithm based on the implementation in C of aubio.
 This algorithm was developed by A. de Cheveigne and H. Kawahara and published in</p>
@@ -1374,7 +1374,7 @@ of the lowest desired frequency.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">(</span><span class="n">duplex</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Randh" title="pyo.lib.randoms.Randh"><span class="n">lfo</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Randh" title="pyo.lib.randoms.Randh"><span class="n">Randh</span></a><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">src</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">SineLoop</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Randh" title="pyo.lib.randoms.Randh"><span class="n">lfo</span></a><span class="p">,</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.3</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">src</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">SineLoop</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Randh" title="pyo.lib.randoms.Randh"><span class="n">lfo</span></a><span class="p">,</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Yin" title="pyo.lib.analysis.Yin"><span class="n">pit</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Yin" title="pyo.lib.analysis.Yin"><span class="n">Yin</span></a><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">winsize</span><span class="o">=</span><span class="mi">1024</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">freq</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.Tone" title="pyo.lib.filters.Tone"><span class="n">Tone</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Yin" title="pyo.lib.analysis.Yin"><span class="n">pit</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.Tone" title="pyo.lib.filters.Tone"><span class="n">freq</span></a><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># fifth above</span>
@@ -1799,27 +1799,27 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Yin.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.Yin.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.Yin.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoObject. Input signal to process.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Yin.tolerance">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tolerance</span></span><a class="headerlink" href="#pyo.Yin.tolerance" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">tolerance</span></span><a class="headerlink" href="#pyo.Yin.tolerance" title="Link to this definition">¶</a></dt>
 <dd><p>float. Parameter for minima selection.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Yin.minfreq">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">minfreq</span></span><a class="headerlink" href="#pyo.Yin.minfreq" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">minfreq</span></span><a class="headerlink" href="#pyo.Yin.minfreq" title="Link to this definition">¶</a></dt>
 <dd><p>float. Minimum frequency detected.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Yin.maxfreq">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">maxfreq</span></span><a class="headerlink" href="#pyo.Yin.maxfreq" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">maxfreq</span></span><a class="headerlink" href="#pyo.Yin.maxfreq" title="Link to this definition">¶</a></dt>
 <dd><p>float. Maximum frequency detected.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Yin.cutoff">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cutoff</span></span><a class="headerlink" href="#pyo.Yin.cutoff" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">cutoff</span></span><a class="headerlink" href="#pyo.Yin.cutoff" title="Link to this definition">¶</a></dt>
 <dd><p>float. Input lowpass filter cutoff frequency.</p>
 </dd></dl>
 </dd></dl>
@@ -1828,7 +1828,7 @@ the server GUI before showing the controller window.</p>
 <h2><em>Centroid</em><a class="headerlink" href="#centroid" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.Centroid">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Centroid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/analysis.html#Centroid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Centroid" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Centroid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/analysis.html#Centroid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Centroid" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the spectral centroid of an input signal.</p>
 <p>Output signal is the spectral centroid, in Hz, of the input signal.
 It indicates where the “center of mass” of the spectrum is. Perceptually,
@@ -1856,7 +1856,7 @@ audio outs.</p>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span> <span class="o">+</span> <span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.4</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span> <span class="o">+</span> <span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Centroid" title="pyo.lib.analysis.Centroid"><span class="n">b</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Centroid" title="pyo.lib.analysis.Centroid"><span class="n">Centroid</span></a><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">1024</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.Port" title="pyo.lib.filters.Port"><span class="n">c</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.Port" title="pyo.lib.filters.Port"><span class="n">Port</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Centroid" title="pyo.lib.analysis.Centroid"><span class="n">b</span></a><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.ButBP" title="pyo.lib.filters.ButBP"><span class="n">ButBP</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">Noise</span></a><span class="p">(</span><span class="mf">0.2</span><span class="p">),</span> <span class="n">freq</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.Port" title="pyo.lib.filters.Port"><span class="n">c</span></a><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -2204,7 +2204,7 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Centroid.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.Centroid.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.Centroid.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoObject. Input signal to process.</p>
 </dd></dl>
 </dd></dl>
@@ -2213,7 +2213,7 @@ the server GUI before showing the controller window.</p>
 <h2><em>AttackDetector</em><a class="headerlink" href="#attackdetector" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.AttackDetector">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AttackDetector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deltime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.005</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxthresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minthresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reltime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/analysis.html#AttackDetector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.AttackDetector" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AttackDetector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deltime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.005</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxthresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minthresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reltime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/analysis.html#AttackDetector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.AttackDetector" title="Link to this definition">¶</a></dt>
 <dd><p>Audio signal onset detection.</p>
 <p>AttackDetector analyses an audio signal in input and output a trigger each
 time an onset is detected. An onset is a sharp amplitude rising while the
@@ -2699,32 +2699,32 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.AttackDetector.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.AttackDetector.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.AttackDetector.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoObject. Input signal to process.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.AttackDetector.deltime">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">deltime</span></span><a class="headerlink" href="#pyo.AttackDetector.deltime" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">deltime</span></span><a class="headerlink" href="#pyo.AttackDetector.deltime" title="Link to this definition">¶</a></dt>
 <dd><p>float. Delay between rms analysis.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.AttackDetector.cutoff">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cutoff</span></span><a class="headerlink" href="#pyo.AttackDetector.cutoff" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">cutoff</span></span><a class="headerlink" href="#pyo.AttackDetector.cutoff" title="Link to this definition">¶</a></dt>
 <dd><p>float. Cutoff for the follower lowpass filter.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.AttackDetector.maxthresh">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">maxthresh</span></span><a class="headerlink" href="#pyo.AttackDetector.maxthresh" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">maxthresh</span></span><a class="headerlink" href="#pyo.AttackDetector.maxthresh" title="Link to this definition">¶</a></dt>
 <dd><p>float. Attack threshold in dB.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.AttackDetector.minthresh">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">minthresh</span></span><a class="headerlink" href="#pyo.AttackDetector.minthresh" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">minthresh</span></span><a class="headerlink" href="#pyo.AttackDetector.minthresh" title="Link to this definition">¶</a></dt>
 <dd><p>float. Minimum threshold in dB.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.AttackDetector.reltime">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reltime</span></span><a class="headerlink" href="#pyo.AttackDetector.reltime" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">reltime</span></span><a class="headerlink" href="#pyo.AttackDetector.reltime" title="Link to this definition">¶</a></dt>
 <dd><p>float. Time to wait before reporting a new attack.</p>
 </dd></dl>
 </dd></dl>
@@ -2733,7 +2733,7 @@ the server GUI before showing the controller window.</p>
 <h2><em>Spectrum</em><a class="headerlink" href="#spectrum" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.Spectrum">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wintype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wintitle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Spectrum'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/analysis.html#Spectrum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Spectrum" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wintype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wintitle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Spectrum'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/analysis.html#Spectrum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Spectrum" title="Link to this definition">¶</a></dt>
 <dd><p>Spectrum analyzer and display.</p>
 <p>Spectrum measures the magnitude of an input signal versus frequency
 within a user defined range. It can show both magnitude and frequency
@@ -3502,52 +3502,52 @@ consecutive audio streams instead of the generic ‘chan X’ names.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Spectrum.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.Spectrum.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.Spectrum.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoObject. Input signal to process.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Spectrum.size">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">size</span></span><a class="headerlink" href="#pyo.Spectrum.size" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">size</span></span><a class="headerlink" href="#pyo.Spectrum.size" title="Link to this definition">¶</a></dt>
 <dd><p>int. FFT size.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Spectrum.wintype">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wintype</span></span><a class="headerlink" href="#pyo.Spectrum.wintype" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">wintype</span></span><a class="headerlink" href="#pyo.Spectrum.wintype" title="Link to this definition">¶</a></dt>
 <dd><p>int. Windowing method.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Spectrum.gain">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gain</span></span><a class="headerlink" href="#pyo.Spectrum.gain" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">gain</span></span><a class="headerlink" href="#pyo.Spectrum.gain" title="Link to this definition">¶</a></dt>
 <dd><p>float. Sets the gain of the analysis data.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Spectrum.lowbound">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lowbound</span></span><a class="headerlink" href="#pyo.Spectrum.lowbound" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">lowbound</span></span><a class="headerlink" href="#pyo.Spectrum.lowbound" title="Link to this definition">¶</a></dt>
 <dd><p>float. Lowest frequency (multiplier of sr) to output.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Spectrum.highbound">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">highbound</span></span><a class="headerlink" href="#pyo.Spectrum.highbound" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">highbound</span></span><a class="headerlink" href="#pyo.Spectrum.highbound" title="Link to this definition">¶</a></dt>
 <dd><p>float. Highest frequency (multiplier of sr) to output.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Spectrum.width">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">width</span></span><a class="headerlink" href="#pyo.Spectrum.width" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">width</span></span><a class="headerlink" href="#pyo.Spectrum.width" title="Link to this definition">¶</a></dt>
 <dd><p>int. Width, in pixels, of the current display.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Spectrum.height">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">height</span></span><a class="headerlink" href="#pyo.Spectrum.height" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">height</span></span><a class="headerlink" href="#pyo.Spectrum.height" title="Link to this definition">¶</a></dt>
 <dd><p>int. Height, in pixels, of the current display.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Spectrum.fscaling">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fscaling</span></span><a class="headerlink" href="#pyo.Spectrum.fscaling" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fscaling</span></span><a class="headerlink" href="#pyo.Spectrum.fscaling" title="Link to this definition">¶</a></dt>
 <dd><p>boolean. Scaling of the frequency display.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Spectrum.mscaling">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mscaling</span></span><a class="headerlink" href="#pyo.Spectrum.mscaling" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">mscaling</span></span><a class="headerlink" href="#pyo.Spectrum.mscaling" title="Link to this definition">¶</a></dt>
 <dd><p>boolean. Scaling of the magnitude display.</p>
 </dd></dl>
 </dd></dl>
@@ -3556,7 +3556,7 @@ consecutive audio streams instead of the generic ‘chan X’ names.</p>
 <h2><em>Scope</em><a class="headerlink" href="#scope" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.Scope">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Scope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.67</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wintitle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Scope'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/analysis.html#Scope"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Scope" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Scope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.67</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wintitle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Scope'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/analysis.html#Scope"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Scope" title="Link to this definition">¶</a></dt>
 <dd><p>Oscilloscope - audio waveform display.</p>
 <p>Oscilloscopes are used to observe the change of an electrical
 signal over time.</p>
@@ -4041,17 +4041,17 @@ consecutive audio streams instead of the generic ‘chan X’ names.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Scope.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.Scope.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.Scope.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoObject. Input signal to process.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Scope.length">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">length</span></span><a class="headerlink" href="#pyo.Scope.length" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">length</span></span><a class="headerlink" href="#pyo.Scope.length" title="Link to this definition">¶</a></dt>
 <dd><p>float. Window length.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Scope.gain">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gain</span></span><a class="headerlink" href="#pyo.Scope.gain" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">gain</span></span><a class="headerlink" href="#pyo.Scope.gain" title="Link to this definition">¶</a></dt>
 <dd><p>float. Sets the gain of the analysis data.</p>
 </dd></dl>
 </dd></dl>
@@ -4060,7 +4060,7 @@ consecutive audio streams instead of the generic ‘chan X’ names.</p>
 <h2><em>PeakAmp</em><a class="headerlink" href="#peakamp" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.PeakAmp">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PeakAmp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/analysis.html#PeakAmp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PeakAmp" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PeakAmp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/analysis.html#PeakAmp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PeakAmp" title="Link to this definition">¶</a></dt>
 <dd><p>Peak amplitude follower.</p>
 <p>Output signal is the continuous peak amplitude of an input signal.
 A new peaking value is computed every buffer size. If <cite>function</cite>
@@ -4097,7 +4097,7 @@ audio outs.</p>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sf</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span> <span class="o">+</span> <span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.4</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sf</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span> <span class="o">+</span> <span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.PeakAmp" title="pyo.lib.analysis.PeakAmp"><span class="n">amp</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.PeakAmp" title="pyo.lib.analysis.PeakAmp"><span class="n">PeakAmp</span></a><span class="p">(</span><span class="n">sf</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">Noise</span></a><span class="p">(</span><span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.Port" title="pyo.lib.filters.Port"><span class="n">Port</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.PeakAmp" title="pyo.lib.analysis.PeakAmp"><span class="n">amp</span></a><span class="p">))</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
@@ -4540,12 +4540,12 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PeakAmp.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PeakAmp.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PeakAmp.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoObject. Input signal to process.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PeakAmp.function">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">function</span></span><a class="headerlink" href="#pyo.PeakAmp.function" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">function</span></span><a class="headerlink" href="#pyo.PeakAmp.function" title="Link to this definition">¶</a></dt>
 <dd><p>PyoObject. function signal to process.</p>
 </dd></dl>
 </dd></dl>
@@ -4554,7 +4554,7 @@ the server GUI before showing the controller window.</p>
 <h2><em>RMS</em><a class="headerlink" href="#rms" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.RMS">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RMS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/analysis.html#RMS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.RMS" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">RMS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/analysis.html#RMS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.RMS" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the RMS (Root-Mean-Square) value of a signal.</p>
 <p>Output signal is the continuous rms of an input signal. A new rms
 value is computed every buffer size. If <cite>function</cite> argument is not
@@ -4591,7 +4591,7 @@ audio outs.</p>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sf</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span> <span class="o">+</span> <span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.4</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sf</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span> <span class="o">+</span> <span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.RMS" title="pyo.lib.analysis.RMS"><span class="n">amp</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.RMS" title="pyo.lib.analysis.RMS"><span class="n">RMS</span></a><span class="p">(</span><span class="n">sf</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">Noise</span></a><span class="p">(</span><span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.Port" title="pyo.lib.filters.Port"><span class="n">Port</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.RMS" title="pyo.lib.analysis.RMS"><span class="n">amp</span></a><span class="p">))</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
@@ -5034,12 +5034,12 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.RMS.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.RMS.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.RMS.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoObject. Input signal to process.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.RMS.function">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">function</span></span><a class="headerlink" href="#pyo.RMS.function" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">function</span></span><a class="headerlink" href="#pyo.RMS.function" title="Link to this definition">¶</a></dt>
 <dd><p>PyoObject. function signal to process.</p>
 </dd></dl>
 </dd></dl>
@@ -5067,7 +5067,7 @@ the server GUI before showing the controller window.</p>
 <div class="right">
 <div class="footer" role="contentinfo">
     © Copyright 2025, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
 </div>
 <div class="clearer"></div>

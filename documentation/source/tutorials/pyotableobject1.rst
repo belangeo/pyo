@@ -27,7 +27,7 @@ Creating a custom PyoTableObject - TriangleTable
 
         """
         def __init__(self, order=10, size=8192):
-            `PyoTableObject.__init__(self, size)`
+            PyoTableObject.__init__(self, size)
             self._order = order
             self._tri_table = HarmTable(self._create_list(order), size)
             self._base_objs = self._tri_table.getBaseObjects()

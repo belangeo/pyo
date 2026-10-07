@@ -10,8 +10,8 @@
 <link href="../../_static/sphinx-codeautolink.css?v=b2176991" rel="stylesheet" type="text/css"/>
 <link href="../../_static/autoclasstoc.css?v=08871587" rel="stylesheet" type="text/css"/>
 <script src="../../_static/documentation_options.js?v=e2a723ec"></script>
-<script src="../../_static/doctools.js?v=9bcbadda"></script>
-<script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+<script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+<script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
 <link href="../../_static/E-PyoIcon.ico" rel="icon"/>
 <link href="../../about.html" rel="author" title="About these documents"/>
 <link href="../../genindex.html" rel="index" title="Index"/>
@@ -83,17 +83,12 @@
 <section id="algo-with-matrix-py-midi-algorithm-with-a-2d-matrix">
 <h1>04-algo-with-matrix.py - MIDI algorithm with a 2D matrix.<a class="headerlink" href="#algo-with-matrix-py-midi-algorithm-with-a-2d-matrix" title="Link to this heading">¶</a></h1>
 <p>This script demonstrates how to use a matrix to do some algorithmic generation of notes.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 
 <span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">(</span><span class="n">duplex</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">audio</span><span class="o">=</span><span class="s2">"jack"</span><span class="p">)</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
 
 <span class="c1"># Matrix of 4 rows of 4 MIDI notes each.</span>
-<span class="n">mat</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="p">[</span><span class="mi">36</span><span class="p">,</span> <span class="mi">41</span><span class="p">,</span> <span class="mi">43</span><span class="p">,</span> <span class="mi">48</span><span class="p">],</span>
-    <span class="p">[</span><span class="mi">48</span><span class="p">,</span> <span class="mi">51</span><span class="p">,</span> <span class="mi">53</span><span class="p">,</span> <span class="mi">57</span><span class="p">],</span>
-    <span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">68</span><span class="p">],</span>
-    <span class="p">[</span><span class="mi">70</span><span class="p">,</span> <span class="mi">72</span><span class="p">,</span> <span class="mi">74</span><span class="p">,</span> <span class="mi">77</span><span class="p">]</span>
-<span class="p">]</span>
+<span class="n">mat</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">36</span><span class="p">,</span> <span class="mi">41</span><span class="p">,</span> <span class="mi">43</span><span class="p">,</span> <span class="mi">48</span><span class="p">],</span> <span class="p">[</span><span class="mi">48</span><span class="p">,</span> <span class="mi">51</span><span class="p">,</span> <span class="mi">53</span><span class="p">,</span> <span class="mi">57</span><span class="p">],</span> <span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">68</span><span class="p">],</span> <span class="p">[</span><span class="mi">70</span><span class="p">,</span> <span class="mi">72</span><span class="p">,</span> <span class="mi">74</span><span class="p">,</span> <span class="mi">77</span><span class="p">]]</span>
 
 <a class="sphinx-codeautolink-a" href="../../api/classes/matrices.html#pyo.NewMatrix" title="pyo.lib.matrix.NewMatrix"><span class="n">notes</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/matrices.html#pyo.NewMatrix" title="pyo.lib.matrix.NewMatrix"><span class="n">NewMatrix</span></a><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">mat</span><span class="p">)</span>
 
@@ -140,7 +135,7 @@
 <div class="right">
 <div class="footer" role="contentinfo">
     © Copyright 2025, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
 </div>
 <div class="clearer"></div>

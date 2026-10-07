@@ -11,8 +11,8 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-codeautolink.css?v=b2176991" />
     <link rel="stylesheet" type="text/css" href="../../_static/autoclasstoc.css?v=08871587" />
     <script src="../../_static/documentation_options.js?v=e2a723ec"></script>
-    <script src="../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="icon" href="../../_static/E-PyoIcon.ico"/>
     <link rel="author" title="About these documents" href="../../about.html" />
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -370,6 +370,7 @@
 <li class="toctree-l1"><a class="reference internal" href="pattern.html">Event Sequencing</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="pattern.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pattern.html#callafter"><em>CallAfter</em></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pattern.html#callalways"><em>CallAlways</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="pattern.html#pattern"><em>Pattern</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="pattern.html#score"><em>Score</em></a></li>
 </ul>
@@ -422,22 +423,29 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="triggers.html">Sample Accurate Timing (Triggers)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="triggers.html#objects-in-this-category">Objects in this category</a></li>
+<li class="toctree-l2"><a class="reference internal" href="triggers.html#triggers-generators">Triggers generators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="triggers.html#trigger-reactive-objects">Trigger-reactive objects</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="triggers.html#generators">Generators</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="triggers.html#beat"><em>Beat</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="triggers.html#change"><em>Change</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="triggers.html#cloud"><em>Cloud</em></a></li>
-<li class="toctree-l2"><a class="reference internal" href="triggers.html#count"><em>Count</em></a></li>
-<li class="toctree-l2"><a class="reference internal" href="triggers.html#counter"><em>Counter</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="triggers.html#euclide"><em>Euclide</em></a></li>
-<li class="toctree-l2"><a class="reference internal" href="triggers.html#iter"><em>Iter</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="triggers.html#metro"><em>Metro</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="triggers.html#nexttrig"><em>NextTrig</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="triggers.html#percent"><em>Percent</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="triggers.html#select"><em>Select</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="triggers.html#seq"><em>Seq</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="triggers.html#thresh"><em>Thresh</em></a></li>
-<li class="toctree-l2"><a class="reference internal" href="triggers.html#timer"><em>Timer</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="triggers.html#trig"><em>Trig</em></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="triggers.html#triggered-processors">Triggered Processors</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="triggers.html#count"><em>Count</em></a></li>
+<li class="toctree-l2"><a class="reference internal" href="triggers.html#counter"><em>Counter</em></a></li>
+<li class="toctree-l2"><a class="reference internal" href="triggers.html#iter"><em>Iter</em></a></li>
+<li class="toctree-l2"><a class="reference internal" href="triggers.html#timer"><em>Timer</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="triggers.html#trigburst"><em>TrigBurst</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="triggers.html#trigchoice"><em>TrigChoice</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="triggers.html#trigenv"><em>TrigEnv</em></a></li>
@@ -567,7 +575,7 @@
           
     <div class="footer" role="contentinfo">
     &#169; Copyright 2025, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
         </div>
         <div class="clearer"></div>

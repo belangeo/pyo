@@ -10,8 +10,8 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-codeautolink.css?v=b2176991" />
     <link rel="stylesheet" type="text/css" href="../../../_static/autoclasstoc.css?v=08871587" />
     <script src="../../../_static/documentation_options.js?v=e2a723ec"></script>
-    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="icon" href="../../../_static/E-PyoIcon.ico"/>
     <link rel="author" title="About these documents" href="../../../about.html" />
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -97376,15 +97376,21 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_azimuth</span> <span class="o">=</span> <span class="n">azimuth</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_elevation</span> <span class="o">=</span> <span class="n">elevation</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
-        <span class="n">in_fader</span><span class="p">,</span> <span class="n">azimuth</span><span class="p">,</span> <span class="n">elevation</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">azimuth</span><span class="p">,</span> <span class="n">elevation</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">azimuth</span><span class="p">,</span> <span class="n">elevation</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">azimuth</span><span class="p">,</span> <span class="n">elevation</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_base_players</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">HRTFSpatter_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hrtfdata</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span> <span class="n">wrap</span><span class="p">(</span><span class="n">azimuth</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">elevation</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="n">HRTFSpatter_base</span><span class="p">(</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hrtfdata</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span> <span class="n">wrap</span><span class="p">(</span><span class="n">azimuth</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">elevation</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+            <span class="p">)</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
         <span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">HRTF_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_players</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">j</span><span class="p">,</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">)))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">HRTF_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_players</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">j</span><span class="p">,</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+                <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
 
 <div class="viewcode-block" id="HRTF.setInput">
@@ -97546,13 +97552,21 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">azimuth</span><span class="p">,</span> <span class="n">elevation</span><span class="p">,</span> <span class="n">azispan</span><span class="p">,</span> <span class="n">elespan</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_base_players</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">Binauraler_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">azimuth</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">elevation</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">azispan</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">elespan</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="n">Binauraler_base</span><span class="p">(</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">azimuth</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">elevation</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">azispan</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">elespan</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+            <span class="p">)</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
         <span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Binaural_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_players</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">j</span><span class="p">,</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">)))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">Binaural_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_players</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">j</span><span class="p">,</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+                <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Binaural.setInput">
@@ -97730,7 +97744,7 @@
           
     <div class="footer" role="contentinfo">
     &#169; Copyright 2025, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
         </div>
         <div class="clearer"></div>

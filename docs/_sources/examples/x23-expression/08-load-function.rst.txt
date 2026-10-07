@@ -10,7 +10,7 @@ as desired. The syntax is:
 .. code-block:: scheme
 
     (load path/to/the/file)
- 
+
 The content of the file will be inserted where the load function
 is called and all functions defined inside the file will then be
 accessible. The path can be absolute or relative to the current

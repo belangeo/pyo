@@ -10,8 +10,8 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-codeautolink.css?v=b2176991" />
     <link rel="stylesheet" type="text/css" href="../../../_static/autoclasstoc.css?v=08871587" />
     <script src="../../../_static/documentation_options.js?v=e2a723ec"></script>
-    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="icon" href="../../../_static/E-PyoIcon.ico"/>
     <link rel="author" title="About these documents" href="../../../about.html" />
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -401,6 +401,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">._maps</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">._widgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">createExprEditorWindow</span>
 
+
 <div class="viewcode-block" id="Expr">
 <a class="viewcode-back" href="../../../api/classes/expression.html#pyo.Expr">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Expr</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
@@ -500,7 +501,11 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">setVar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varname</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;sn&quot;</span><span class="p">,</span> <span class="n">varname</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
         <span class="n">varname</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setVar</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">j</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_players</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+        <span class="p">[</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">setVar</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">j</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_players</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_matching_bracket_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">p1</span><span class="p">):</span>
         <span class="n">count</span> <span class="o">=</span> <span class="mi">1</span>
@@ -670,7 +675,7 @@
             <span class="k">if</span> <span class="n">p2</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Mismatched brackets in function body.&quot;</span><span class="p">)</span>
             <span class="n">p2</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="n">funcbody</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">p1</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">p2</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">funcbody</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">p1</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:</span> <span class="n">p2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
             <span class="c1"># get end of the definition</span>
             <span class="k">while</span> <span class="n">x</span><span class="p">[</span><span class="n">p2</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">&quot; </span><span class="se">\t\n</span><span class="s2">&quot;</span><span class="p">:</span>
                 <span class="n">p2</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -743,7 +748,7 @@
           
     <div class="footer" role="contentinfo">
     &#169; Copyright 2025, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
         </div>
         <div class="clearer"></div>

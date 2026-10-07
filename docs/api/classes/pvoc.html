@@ -10,8 +10,8 @@
 <link href="../../_static/sphinx-codeautolink.css?v=b2176991" rel="stylesheet" type="text/css"/>
 <link href="../../_static/autoclasstoc.css?v=08871587" rel="stylesheet" type="text/css"/>
 <script src="../../_static/documentation_options.js?v=e2a723ec"></script>
-<script src="../../_static/doctools.js?v=9bcbadda"></script>
-<script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+<script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+<script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
 <link href="../../_static/E-PyoIcon.ico" rel="icon"/>
 <link href="../../about.html" rel="author" title="About these documents"/>
 <link href="../../genindex.html" rel="index" title="Index"/>
@@ -97,7 +97,7 @@ time scaling, pitch transposition, and myriad other modifications of sounds.</p>
 <h2><em>PVAnal</em><a class="headerlink" href="#pvanal" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.PVAnal">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PVAnal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlaps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wintype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVAnal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVAnal" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PVAnal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlaps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wintype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVAnal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVAnal" title="Link to this definition">¶</a></dt>
 <dd><p>Phase Vocoder analysis object.</p>
 <p>PVAnal takes an input sound and performs the phase vocoder
 analysis on it. This results in two streams, one for the bin’s
@@ -395,22 +395,22 @@ of callables, one per channel to analyse.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVAnal.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVAnal.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVAnal.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoObject. Input signal to process.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVAnal.size">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">size</span></span><a class="headerlink" href="#pyo.PVAnal.size" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">size</span></span><a class="headerlink" href="#pyo.PVAnal.size" title="Link to this definition">¶</a></dt>
 <dd><p>int. FFT size.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVAnal.overlaps">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">overlaps</span></span><a class="headerlink" href="#pyo.PVAnal.overlaps" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">overlaps</span></span><a class="headerlink" href="#pyo.PVAnal.overlaps" title="Link to this definition">¶</a></dt>
 <dd><p>int. FFT overlap factor.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVAnal.wintype">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wintype</span></span><a class="headerlink" href="#pyo.PVAnal.wintype" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">wintype</span></span><a class="headerlink" href="#pyo.PVAnal.wintype" title="Link to this definition">¶</a></dt>
 <dd><p>int. Windowing method.</p>
 </dd></dl>
 </dd></dl>
@@ -419,7 +419,7 @@ of callables, one per channel to analyse.</p>
 <h2><em>PVSynth</em><a class="headerlink" href="#pvsynth" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.PVSynth">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PVSynth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wintype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVSynth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVSynth" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PVSynth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wintype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVSynth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVSynth" title="Link to this definition">¶</a></dt>
 <dd><p>Phase Vocoder synthesis object.</p>
 <p>PVSynth takes a PyoPVObject as its input and performed
 the spectral to time domain conversion on it. This step
@@ -782,12 +782,12 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVSynth.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVSynth.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVSynth.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoPVObject. Input signal to process.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVSynth.wintype">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wintype</span></span><a class="headerlink" href="#pyo.PVSynth.wintype" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">wintype</span></span><a class="headerlink" href="#pyo.PVSynth.wintype" title="Link to this definition">¶</a></dt>
 <dd><p>int. Windowing method.</p>
 </dd></dl>
 </dd></dl>
@@ -796,7 +796,7 @@ the server GUI before showing the controller window.</p>
 <h2><em>PVAddSynth</em><a class="headerlink" href="#pvaddsynth" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.PVAddSynth">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PVAddSynth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVAddSynth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVAddSynth" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PVAddSynth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVAddSynth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVAddSynth" title="Link to this definition">¶</a></dt>
 <dd><p>Phase Vocoder additive synthesis object.</p>
 <p>PVAddSynth takes a PyoPVObject as its input and resynthesize
 the real signal using the magnitude and true frequency’s
@@ -1213,27 +1213,27 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVAddSynth.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVAddSynth.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVAddSynth.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoPVObject. Input signal to process.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVAddSynth.pitch">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pitch</span></span><a class="headerlink" href="#pyo.PVAddSynth.pitch" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">pitch</span></span><a class="headerlink" href="#pyo.PVAddSynth.pitch" title="Link to this definition">¶</a></dt>
 <dd><p>float or PyoObject. Transposition factor.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVAddSynth.num">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num</span></span><a class="headerlink" href="#pyo.PVAddSynth.num" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">num</span></span><a class="headerlink" href="#pyo.PVAddSynth.num" title="Link to this definition">¶</a></dt>
 <dd><p>int. Number of oscillators.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVAddSynth.first">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">first</span></span><a class="headerlink" href="#pyo.PVAddSynth.first" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">first</span></span><a class="headerlink" href="#pyo.PVAddSynth.first" title="Link to this definition">¶</a></dt>
 <dd><p>int. First bin to synthesize.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVAddSynth.inc">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inc</span></span><a class="headerlink" href="#pyo.PVAddSynth.inc" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">inc</span></span><a class="headerlink" href="#pyo.PVAddSynth.inc" title="Link to this definition">¶</a></dt>
 <dd><p>int. Synthesized bin increment.</p>
 </dd></dl>
 </dd></dl>
@@ -1242,7 +1242,7 @@ the server GUI before showing the controller window.</p>
 <h2><em>PVTranspose</em><a class="headerlink" href="#pvtranspose" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.PVTranspose">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PVTranspose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transpo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVTranspose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVTranspose" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PVTranspose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transpo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVTranspose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVTranspose" title="Link to this definition">¶</a></dt>
 <dd><p>Transpose the frequency components of a pv stream.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parent<span class="colon">:</span></dt>
@@ -1259,11 +1259,11 @@ the server GUI before showing the controller window.</p>
 </dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span><span class="o">+</span><span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.7</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span><span class="o">+</span><span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">pva</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">PVAnal</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1024</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVTranspose" title="pyo.lib.phasevoc.PVTranspose"><span class="n">pvt</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVTranspose" title="pyo.lib.phasevoc.PVTranspose"><span class="n">PVTranspose</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">pva</span></a><span class="p">,</span> <span class="n">transpo</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pvs</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVSynth" title="pyo.lib.phasevoc.PVSynth"><span class="n">PVSynth</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVTranspose" title="pyo.lib.phasevoc.PVTranspose"><span class="n">pvt</span></a><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">dry</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Delay" title="pyo.lib.effects.Delay"><span class="n">Delay</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">1024.</span><span class="o">/</span><span class="n">s</span><span class="o">.</span><span class="n">getSamplingRate</span><span class="p">(),</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.7</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dry</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Delay" title="pyo.lib.effects.Delay"><span class="n">Delay</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">1024.</span><span class="o">/</span><span class="n">s</span><span class="o">.</span><span class="n">getSamplingRate</span><span class="p">(),</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="autoclasstoc docutils container">
@@ -1476,12 +1476,12 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVTranspose.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVTranspose.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVTranspose.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoPVObject. Input signal to process.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVTranspose.transpo">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">transpo</span></span><a class="headerlink" href="#pyo.PVTranspose.transpo" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">transpo</span></span><a class="headerlink" href="#pyo.PVTranspose.transpo" title="Link to this definition">¶</a></dt>
 <dd><p>float or PyoObject. Transposition factor.</p>
 </dd></dl>
 </dd></dl>
@@ -1490,7 +1490,7 @@ the server GUI before showing the controller window.</p>
 <h2><em>PVVerb</em><a class="headerlink" href="#pvverb" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.PVVerb">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PVVerb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revtime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.75</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">damp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.75</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVVerb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVVerb" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PVVerb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revtime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.75</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">damp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.75</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVVerb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVVerb" title="Link to this definition">¶</a></dt>
 <dd><p>Spectral domain reverberation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parent<span class="colon">:</span></dt>
@@ -1512,12 +1512,12 @@ Defaults to 0.75.</p>
 </dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span><span class="o">+</span><span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span><span class="o">+</span><span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">pva</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">PVAnal</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">2048</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVGate" title="pyo.lib.phasevoc.PVGate"><span class="n">pvg</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVGate" title="pyo.lib.phasevoc.PVGate"><span class="n">PVGate</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">pva</span></a><span class="p">,</span> <span class="n">thresh</span><span class="o">=-</span><span class="mi">36</span><span class="p">,</span> <span class="n">damp</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVVerb" title="pyo.lib.phasevoc.PVVerb"><span class="n">pvv</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVVerb" title="pyo.lib.phasevoc.PVVerb"><span class="n">PVVerb</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVGate" title="pyo.lib.phasevoc.PVGate"><span class="n">pvg</span></a><span class="p">,</span> <span class="n">revtime</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">damp</span><span class="o">=</span><span class="mf">0.95</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pvs</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVSynth" title="pyo.lib.phasevoc.PVSynth"><span class="n">PVSynth</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVVerb" title="pyo.lib.phasevoc.PVVerb"><span class="n">pvv</span></a><span class="p">)</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">dry</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Delay" title="pyo.lib.effects.Delay"><span class="n">Delay</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">2048.</span><span class="o">/</span><span class="n">s</span><span class="o">.</span><span class="n">getSamplingRate</span><span class="p">(),</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.4</span><span class="p">)</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dry</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Delay" title="pyo.lib.effects.Delay"><span class="n">Delay</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">2048.</span><span class="o">/</span><span class="n">s</span><span class="o">.</span><span class="n">getSamplingRate</span><span class="p">(),</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
 </pre></div>
 </div>
 <div class="autoclasstoc docutils container">
@@ -1749,17 +1749,17 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVVerb.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVVerb.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVVerb.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoPVObject. Input signal to process.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVVerb.revtime">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">revtime</span></span><a class="headerlink" href="#pyo.PVVerb.revtime" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">revtime</span></span><a class="headerlink" href="#pyo.PVVerb.revtime" title="Link to this definition">¶</a></dt>
 <dd><p>float or PyoObject. Reverberation factor.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVVerb.damp">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">damp</span></span><a class="headerlink" href="#pyo.PVVerb.damp" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">damp</span></span><a class="headerlink" href="#pyo.PVVerb.damp" title="Link to this definition">¶</a></dt>
 <dd><p>float or PyoObject. High frequency damping factor.</p>
 </dd></dl>
 </dd></dl>
@@ -1768,7 +1768,7 @@ the server GUI before showing the controller window.</p>
 <h2><em>PVGate</em><a class="headerlink" href="#pvgate" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.PVGate">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PVGate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">damp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVGate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVGate" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PVGate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">damp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVGate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVGate" title="Link to this definition">¶</a></dt>
 <dd><p>Spectral gate.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parent<span class="colon">:</span></dt>
@@ -1793,7 +1793,7 @@ the given threshold. Defaults to False.</p>
 </dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span><span class="o">+</span><span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span><span class="o">+</span><span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">pva</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">PVAnal</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">2048</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVGate" title="pyo.lib.phasevoc.PVGate"><span class="n">pvg</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVGate" title="pyo.lib.phasevoc.PVGate"><span class="n">PVGate</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">pva</span></a><span class="p">,</span> <span class="n">thresh</span><span class="o">=-</span><span class="mi">50</span><span class="p">,</span> <span class="n">damp</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pvs</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVSynth" title="pyo.lib.phasevoc.PVSynth"><span class="n">PVSynth</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVGate" title="pyo.lib.phasevoc.PVGate"><span class="n">pvg</span></a><span class="p">)</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
@@ -2047,22 +2047,22 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVGate.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVGate.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVGate.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoPVObject. Input signal to process.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVGate.thresh">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">thresh</span></span><a class="headerlink" href="#pyo.PVGate.thresh" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">thresh</span></span><a class="headerlink" href="#pyo.PVGate.thresh" title="Link to this definition">¶</a></dt>
 <dd><p>float or PyoObject. Threshold factor.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVGate.damp">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">damp</span></span><a class="headerlink" href="#pyo.PVGate.damp" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">damp</span></span><a class="headerlink" href="#pyo.PVGate.damp" title="Link to this definition">¶</a></dt>
 <dd><p>float or PyoObject. Damping factor for low amplitude bins.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVGate.inverse">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inverse</span></span><a class="headerlink" href="#pyo.PVGate.inverse" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">inverse</span></span><a class="headerlink" href="#pyo.PVGate.inverse" title="Link to this definition">¶</a></dt>
 <dd><p>boolean. If True, the gate is applied to high amplitude bins.</p>
 </dd></dl>
 </dd></dl>
@@ -2071,7 +2071,7 @@ the server GUI before showing the controller window.</p>
 <h2><em>PVCross</em><a class="headerlink" href="#pvcross" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.PVCross">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PVCross</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fade</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVCross"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVCross" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PVCross</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fade</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVCross"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVCross" title="Link to this definition">¶</a></dt>
 <dd><p>Performs cross-synthesis between two phase vocoder streaming object.</p>
 <p>The amplitudes from <cite>input</cite> and <cite>input2</cite> (scaled by <cite>fade</cite> argument)
 are applied to the frequencies of <cite>input</cite>.</p>
@@ -2105,8 +2105,8 @@ with the same PVAnal object.</p>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">sf</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">SineLoop</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="p">[</span><span class="mi">80</span><span class="p">,</span><span class="mi">81</span><span class="p">],</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.07</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.5</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span><span class="o">+</span><span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">sf</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">SineLoop</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="p">[</span><span class="mi">80</span><span class="p">,</span><span class="mi">81</span><span class="p">],</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.07</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span><span class="o">+</span><span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">pva</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">PVAnal</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">sf</span></a><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">pva2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">PVAnal</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf2</span></a><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVCross" title="pyo.lib.phasevoc.PVCross"><span class="n">pvc</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVCross" title="pyo.lib.phasevoc.PVCross"><span class="n">PVCross</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">pva</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">pva2</span></a><span class="p">,</span> <span class="n">fade</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -2348,17 +2348,17 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVCross.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVCross.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVCross.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoPVObject. Input signal to process.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVCross.input2">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input2</span></span><a class="headerlink" href="#pyo.PVCross.input2" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input2</span></span><a class="headerlink" href="#pyo.PVCross.input2" title="Link to this definition">¶</a></dt>
 <dd><p>PyoPVObject. Second set of amplitudes.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVCross.fade">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fade</span></span><a class="headerlink" href="#pyo.PVCross.fade" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fade</span></span><a class="headerlink" href="#pyo.PVCross.fade" title="Link to this definition">¶</a></dt>
 <dd><p>float or PyoObject. Scaling factor.</p>
 </dd></dl>
 </dd></dl>
@@ -2367,7 +2367,7 @@ the server GUI before showing the controller window.</p>
 <h2><em>PVMult</em><a class="headerlink" href="#pvmult" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.PVMult">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PVMult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVMult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVMult" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PVMult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVMult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVMult" title="Link to this definition">¶</a></dt>
 <dd><p>Multiply magnitudes from two phase vocoder streaming object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parent<span class="colon">:</span></dt>
@@ -2395,8 +2395,8 @@ with the same PVAnal object.</p>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.FM" title="pyo.lib.generators.FM"><span class="n">sf</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.FM" title="pyo.lib.generators.FM"><span class="n">FM</span></a><span class="p">(</span><span class="n">carrier</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span><span class="mi">150</span><span class="p">],</span> <span class="n">ratio</span><span class="o">=</span><span class="p">[</span><span class="mf">.999</span><span class="p">,</span><span class="mf">.5005</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.4</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span><span class="o">+</span><span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.FM" title="pyo.lib.generators.FM"><span class="n">sf</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.FM" title="pyo.lib.generators.FM"><span class="n">FM</span></a><span class="p">(</span><span class="n">carrier</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span><span class="mi">150</span><span class="p">],</span> <span class="n">ratio</span><span class="o">=</span><span class="p">[</span><span class="mf">.999</span><span class="p">,</span><span class="mf">.5005</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span><span class="o">+</span><span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">pva</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">PVAnal</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.FM" title="pyo.lib.generators.FM"><span class="n">sf</span></a><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">pva2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">PVAnal</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf2</span></a><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVMult" title="pyo.lib.phasevoc.PVMult"><span class="n">pvc</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVMult" title="pyo.lib.phasevoc.PVMult"><span class="n">PVMult</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">pva</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">pva2</span></a><span class="p">)</span>
@@ -2590,12 +2590,12 @@ with the same PVAnal object.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVMult.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVMult.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVMult.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoPVObject. Input signal to process.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVMult.input2">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input2</span></span><a class="headerlink" href="#pyo.PVMult.input2" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input2</span></span><a class="headerlink" href="#pyo.PVMult.input2" title="Link to this definition">¶</a></dt>
 <dd><p>PyoPVObject. Second set of magnitudes.</p>
 </dd></dl>
 </dd></dl>
@@ -2604,7 +2604,7 @@ with the same PVAnal object.</p>
 <h2><em>PVMorph</em><a class="headerlink" href="#pvmorph" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.PVMorph">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PVMorph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fade</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVMorph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVMorph" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PVMorph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fade</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVMorph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVMorph" title="Link to this definition">¶</a></dt>
 <dd><p>Performs spectral morphing between two phase vocoder streaming object.</p>
 <p>According to <cite>fade</cite> argument, the amplitudes from <cite>input</cite> and <cite>input2</cite>
 are interpolated linearly while the frequencies are interpolated
@@ -2638,8 +2638,8 @@ with the same PVAnal object.</p>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">sf</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">SineLoop</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span><span class="mi">101</span><span class="p">],</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.12</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.5</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span><span class="o">+</span><span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">sf</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">SineLoop</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span><span class="mi">101</span><span class="p">],</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.12</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span><span class="o">+</span><span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">pva</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">PVAnal</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">sf</span></a><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">pva2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">PVAnal</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf2</span></a><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVMorph" title="pyo.lib.phasevoc.PVMorph"><span class="n">pvc</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVMorph" title="pyo.lib.phasevoc.PVMorph"><span class="n">PVMorph</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">pva</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">pva2</span></a><span class="p">,</span> <span class="n">fade</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
@@ -2881,17 +2881,17 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVMorph.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVMorph.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVMorph.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoPVObject. First input signal.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVMorph.input2">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input2</span></span><a class="headerlink" href="#pyo.PVMorph.input2" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input2</span></span><a class="headerlink" href="#pyo.PVMorph.input2" title="Link to this definition">¶</a></dt>
 <dd><p>PyoPVObject. Second input signal.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVMorph.fade">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fade</span></span><a class="headerlink" href="#pyo.PVMorph.fade" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fade</span></span><a class="headerlink" href="#pyo.PVMorph.fade" title="Link to this definition">¶</a></dt>
 <dd><p>float or PyoObject. Scaling factor.</p>
 </dd></dl>
 </dd></dl>
@@ -2900,7 +2900,7 @@ the server GUI before showing the controller window.</p>
 <h2><em>PVFilter</em><a class="headerlink" href="#pvfilter" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.PVFilter">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PVFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVFilter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVFilter" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PVFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVFilter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVFilter" title="Link to this definition">¶</a></dt>
 <dd><p>Spectral filter.</p>
 <p>PVFilter filters frequency components of a pv stream
 according to the shape drawn in the table given in
@@ -3184,22 +3184,22 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVFilter.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVFilter.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVFilter.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoPVObject. Input signal to process.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVFilter.table">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">table</span></span><a class="headerlink" href="#pyo.PVFilter.table" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">table</span></span><a class="headerlink" href="#pyo.PVFilter.table" title="Link to this definition">¶</a></dt>
 <dd><p>PyoTableObject. Table containing the filter shape.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVFilter.gain">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gain</span></span><a class="headerlink" href="#pyo.PVFilter.gain" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">gain</span></span><a class="headerlink" href="#pyo.PVFilter.gain" title="Link to this definition">¶</a></dt>
 <dd><p>float or PyoObject. Gain of the filter.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVFilter.mode">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mode</span></span><a class="headerlink" href="#pyo.PVFilter.mode" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">mode</span></span><a class="headerlink" href="#pyo.PVFilter.mode" title="Link to this definition">¶</a></dt>
 <dd><p>int. Table scanning mode.</p>
 </dd></dl>
 </dd></dl>
@@ -3208,7 +3208,7 @@ the server GUI before showing the controller window.</p>
 <h2><em>PVDelay</em><a class="headerlink" href="#pvdelay" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.PVDelay">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PVDelay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deltable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feedtable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxdelay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVDelay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVDelay" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PVDelay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deltable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feedtable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxdelay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVDelay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVDelay" title="Link to this definition">¶</a></dt>
 <dd><p>Spectral delays.</p>
 <p>PVDelay applies different delay times and feedbacks for
 each bin of a phase vocoder analysis. Delay times and
@@ -3475,22 +3475,22 @@ If 1, bin indexes are scaled over table length.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVDelay.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVDelay.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVDelay.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoPVObject. Input signal to process.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVDelay.deltable">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">deltable</span></span><a class="headerlink" href="#pyo.PVDelay.deltable" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">deltable</span></span><a class="headerlink" href="#pyo.PVDelay.deltable" title="Link to this definition">¶</a></dt>
 <dd><p>PyoTableObject. Table containing the delay times.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVDelay.feedtable">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">feedtable</span></span><a class="headerlink" href="#pyo.PVDelay.feedtable" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">feedtable</span></span><a class="headerlink" href="#pyo.PVDelay.feedtable" title="Link to this definition">¶</a></dt>
 <dd><p>PyoTableObject. Table containing feedback values.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVDelay.mode">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mode</span></span><a class="headerlink" href="#pyo.PVDelay.mode" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">mode</span></span><a class="headerlink" href="#pyo.PVDelay.mode" title="Link to this definition">¶</a></dt>
 <dd><p>int. Table scanning mode.</p>
 </dd></dl>
 </dd></dl>
@@ -3499,7 +3499,7 @@ If 1, bin indexes are scaled over table length.</p>
 <h2><em>PVBuffer</em><a class="headerlink" href="#pvbuffer" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.PVBuffer">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PVBuffer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVBuffer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVBuffer" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PVBuffer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVBuffer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVBuffer" title="Link to this definition">¶</a></dt>
 <dd><p>Phase vocoder buffer and playback with transposition.</p>
 <p>PVBuffer keeps <cite>length</cite> seconds of pv analysis in memory
 and gives control on playback position and transposition.</p>
@@ -3785,22 +3785,22 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVBuffer.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVBuffer.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVBuffer.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoPVObject. Input signal to process.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVBuffer.index">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">index</span></span><a class="headerlink" href="#pyo.PVBuffer.index" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">index</span></span><a class="headerlink" href="#pyo.PVBuffer.index" title="Link to this definition">¶</a></dt>
 <dd><p>PyoObject. Reader’s normalized position.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVBuffer.pitch">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pitch</span></span><a class="headerlink" href="#pyo.PVBuffer.pitch" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">pitch</span></span><a class="headerlink" href="#pyo.PVBuffer.pitch" title="Link to this definition">¶</a></dt>
 <dd><p>float or PyoObject. Transposition factor.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVBuffer.length">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">length</span></span><a class="headerlink" href="#pyo.PVBuffer.length" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">length</span></span><a class="headerlink" href="#pyo.PVBuffer.length" title="Link to this definition">¶</a></dt>
 <dd><p>float. Buffer length in seconds.</p>
 </dd></dl>
 </dd></dl>
@@ -3809,7 +3809,7 @@ the server GUI before showing the controller window.</p>
 <h2><em>PVShift</em><a class="headerlink" href="#pvshift" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.PVShift">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PVShift</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVShift"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVShift" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PVShift</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVShift"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVShift" title="Link to this definition">¶</a></dt>
 <dd><p>Spectral domain frequency shifter.</p>
 <p>PVShift linearly moves the analysis bins by the amount, in Hertz,
 specified by the the <cite>shift</cite> argument.</p>
@@ -3828,7 +3828,7 @@ specified by the the <cite>shift</cite> argument.</p>
 </dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span><span class="o">+</span><span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.7</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span><span class="o">+</span><span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">pva</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">PVAnal</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1024</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVShift" title="pyo.lib.phasevoc.PVShift"><span class="n">pvt</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVShift" title="pyo.lib.phasevoc.PVShift"><span class="n">PVShift</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">pva</span></a><span class="p">,</span> <span class="n">shift</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pvs</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVSynth" title="pyo.lib.phasevoc.PVSynth"><span class="n">PVSynth</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVShift" title="pyo.lib.phasevoc.PVShift"><span class="n">pvt</span></a><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
@@ -4044,12 +4044,12 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVShift.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVShift.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVShift.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoPVObject. Input signal to process.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVShift.shift">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shift</span></span><a class="headerlink" href="#pyo.PVShift.shift" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">shift</span></span><a class="headerlink" href="#pyo.PVShift.shift" title="Link to this definition">¶</a></dt>
 <dd><p>float or PyoObject. Frequency shift factor.</p>
 </dd></dl>
 </dd></dl>
@@ -4058,7 +4058,7 @@ the server GUI before showing the controller window.</p>
 <h2><em>PVAmpMod</em><a class="headerlink" href="#pvampmod" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.PVAmpMod">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PVAmpMod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basefreq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spread</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVAmpMod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVAmpMod" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PVAmpMod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basefreq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spread</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVAmpMod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVAmpMod" title="Link to this definition">¶</a></dt>
 <dd><p>Performs frequency independent amplitude modulations.</p>
 <p>PVAmpMod modulates the magnitude of each bin of a pv
 stream with an independent oscillator. <cite>basefreq</cite> and
@@ -4377,22 +4377,22 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVAmpMod.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVAmpMod.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVAmpMod.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoPVObject. Input signal to process.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVAmpMod.basefreq">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">basefreq</span></span><a class="headerlink" href="#pyo.PVAmpMod.basefreq" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">basefreq</span></span><a class="headerlink" href="#pyo.PVAmpMod.basefreq" title="Link to this definition">¶</a></dt>
 <dd><p>float or PyoObject. Modulator’s base frequency.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVAmpMod.spread">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">spread</span></span><a class="headerlink" href="#pyo.PVAmpMod.spread" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">spread</span></span><a class="headerlink" href="#pyo.PVAmpMod.spread" title="Link to this definition">¶</a></dt>
 <dd><p>float or PyoObject. Modulator’s frequency spreading factor.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVAmpMod.shape">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shape</span></span><a class="headerlink" href="#pyo.PVAmpMod.shape" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">shape</span></span><a class="headerlink" href="#pyo.PVAmpMod.shape" title="Link to this definition">¶</a></dt>
 <dd><p>int. Modulation oscillator waveform.</p>
 </dd></dl>
 </dd></dl>
@@ -4401,7 +4401,7 @@ the server GUI before showing the controller window.</p>
 <h2><em>PVFreqMod</em><a class="headerlink" href="#pvfreqmod" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.PVFreqMod">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PVFreqMod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basefreq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spread</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVFreqMod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVFreqMod" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PVFreqMod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basefreq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spread</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVFreqMod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVFreqMod" title="Link to this definition">¶</a></dt>
 <dd><p>Performs frequency independent frequency modulations.</p>
 <p>PVFreqMod modulates the frequency of each bin of a pv
 stream with an independent oscillator. <cite>basefreq</cite> and
@@ -4742,27 +4742,27 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVFreqMod.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVFreqMod.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVFreqMod.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoPVObject. Input signal to process.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVFreqMod.basefreq">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">basefreq</span></span><a class="headerlink" href="#pyo.PVFreqMod.basefreq" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">basefreq</span></span><a class="headerlink" href="#pyo.PVFreqMod.basefreq" title="Link to this definition">¶</a></dt>
 <dd><p>float or PyoObject. Modulator’s base frequency.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVFreqMod.spread">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">spread</span></span><a class="headerlink" href="#pyo.PVFreqMod.spread" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">spread</span></span><a class="headerlink" href="#pyo.PVFreqMod.spread" title="Link to this definition">¶</a></dt>
 <dd><p>float or PyoObject. Modulator’s frequencies spreading factor.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVFreqMod.depth">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">depth</span></span><a class="headerlink" href="#pyo.PVFreqMod.depth" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">depth</span></span><a class="headerlink" href="#pyo.PVFreqMod.depth" title="Link to this definition">¶</a></dt>
 <dd><p>float or PyoObject. Amplitude of the modulators.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVFreqMod.shape">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shape</span></span><a class="headerlink" href="#pyo.PVFreqMod.shape" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">shape</span></span><a class="headerlink" href="#pyo.PVFreqMod.shape" title="Link to this definition">¶</a></dt>
 <dd><p>int. Modulation oscillator waveform.</p>
 </dd></dl>
 </dd></dl>
@@ -4771,7 +4771,7 @@ the server GUI before showing the controller window.</p>
 <h2><em>PVBufLoops</em><a class="headerlink" href="#pvbufloops" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.PVBufLoops">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PVBufLoops</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVBufLoops"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVBufLoops" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PVBufLoops</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVBufLoops"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVBufLoops" title="Link to this definition">¶</a></dt>
 <dd><p>Phase vocoder buffer with bin independent speed playback.</p>
 <p>PVBufLoops keeps <cite>length</cite> seconds of pv analysis in memory
 and gives control on playback position independently for
@@ -5078,22 +5078,22 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVBufLoops.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVBufLoops.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVBufLoops.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoPVObject. Input signal to process.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVBufLoops.low">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">low</span></span><a class="headerlink" href="#pyo.PVBufLoops.low" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">low</span></span><a class="headerlink" href="#pyo.PVBufLoops.low" title="Link to this definition">¶</a></dt>
 <dd><p>float or PyoObject. Lowest bin speed factor.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVBufLoops.high">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">high</span></span><a class="headerlink" href="#pyo.PVBufLoops.high" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">high</span></span><a class="headerlink" href="#pyo.PVBufLoops.high" title="Link to this definition">¶</a></dt>
 <dd><p>float or PyoObject. Highest bin speed factor.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVBufLoops.mode">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mode</span></span><a class="headerlink" href="#pyo.PVBufLoops.mode" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">mode</span></span><a class="headerlink" href="#pyo.PVBufLoops.mode" title="Link to this definition">¶</a></dt>
 <dd><p>int. Speed distribution algorithm.</p>
 </dd></dl>
 </dd></dl>
@@ -5102,7 +5102,7 @@ the server GUI before showing the controller window.</p>
 <h2><em>PVBufTabLoops</em><a class="headerlink" href="#pvbuftabloops" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.PVBufTabLoops">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PVBufTabLoops</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">speed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVBufTabLoops"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVBufTabLoops" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PVBufTabLoops</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">speed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVBufTabLoops"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVBufTabLoops" title="Link to this definition">¶</a></dt>
 <dd><p>Phase vocoder buffer with bin independent speed playback.</p>
 <p>PVBufTabLoops keeps <cite>length</cite> seconds of pv analysis in memory
 and gives control on playback position, using a PyoTableObject,
@@ -5328,12 +5328,12 @@ the current pv input.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVBufTabLoops.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVBufTabLoops.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVBufTabLoops.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoPVObject. Input signal to process.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVBufTabLoops.speed">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">speed</span></span><a class="headerlink" href="#pyo.PVBufTabLoops.speed" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">speed</span></span><a class="headerlink" href="#pyo.PVBufTabLoops.speed" title="Link to this definition">¶</a></dt>
 <dd><p>PyoTableObject. Table which specify the speed of bin playback readers.</p>
 </dd></dl>
 </dd></dl>
@@ -5342,7 +5342,7 @@ the current pv input.</p>
 <h2><em>PVMix</em><a class="headerlink" href="#pvmix" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.PVMix">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PVMix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVMix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVMix" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PVMix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/phasevoc.html#PVMix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PVMix" title="Link to this definition">¶</a></dt>
 <dd><p>Mix the most prominent components from two phase vocoder streaming objects.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parent<span class="colon">:</span></dt>
@@ -5368,8 +5368,8 @@ with the same PVAnal object.</p>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span><span class="o">+</span><span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.5</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span><span class="o">+</span><span class="s2">"/accord.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span><span class="o">+</span><span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span><span class="o">+</span><span class="s2">"/accord.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">pva</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">PVAnal</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">pva2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">PVAnal</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf2</span></a><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVMix" title="pyo.lib.phasevoc.PVMix"><span class="n">pvm</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVMix" title="pyo.lib.phasevoc.PVMix"><span class="n">PVMix</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">pva</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pvoc.html#pyo.PVAnal" title="pyo.lib.phasevoc.PVAnal"><span class="n">pva2</span></a><span class="p">)</span>
@@ -5563,12 +5563,12 @@ with the same PVAnal object.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVMix.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVMix.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.PVMix.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoPVObject. Phase vocoder streaming object 1.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PVMix.input2">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input2</span></span><a class="headerlink" href="#pyo.PVMix.input2" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input2</span></span><a class="headerlink" href="#pyo.PVMix.input2" title="Link to this definition">¶</a></dt>
 <dd><p>PyoPVObject. Phase vocoder streaming object 2.</p>
 </dd></dl>
 </dd></dl>
@@ -5596,7 +5596,7 @@ with the same PVAnal object.</p>
 <div class="right">
 <div class="footer" role="contentinfo">
     © Copyright 2025, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
 </div>
 <div class="clearer"></div>

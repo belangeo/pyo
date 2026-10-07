@@ -10,8 +10,8 @@
 <link href="../../_static/sphinx-codeautolink.css?v=b2176991" rel="stylesheet" type="text/css"/>
 <link href="../../_static/autoclasstoc.css?v=08871587" rel="stylesheet" type="text/css"/>
 <script src="../../_static/documentation_options.js?v=e2a723ec"></script>
-<script src="../../_static/doctools.js?v=9bcbadda"></script>
-<script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+<script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+<script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
 <link href="../../_static/E-PyoIcon.ico" rel="icon"/>
 <link href="../../about.html" rel="author" title="About these documents"/>
 <link href="../../genindex.html" rel="index" title="Index"/>
@@ -83,7 +83,7 @@ the different kinds of objects in the library.</p>
 <h2><em>PyoObjectBase</em><a class="headerlink" href="#pyoobjectbase" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.PyoObjectBase">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PyoObjectBase</span></span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObjectBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObjectBase" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PyoObjectBase</span></span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObjectBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObjectBase" title="Link to this definition">¶</a></dt>
 <dd><p>Base class for all pyo objects.</p>
 <p>This object encapsulates some common behaviors for all pyo objects.</p>
 <p>One typically inherits from a more specific subclass of this class
@@ -263,7 +263,7 @@ automatically detected:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">tab</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">NewTable</span></a><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">chnls</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.TableRec" title="pyo.lib.tableprocess.TableRec"><span class="n">rec</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.TableRec" title="pyo.lib.tableprocess.TableRec"><span class="n">TableRec</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="mi">500</span><span class="p">),</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">tab</span></a><span class="p">,</span> <span class="mf">.01</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.TrigVal" title="pyo.lib.triggers.TrigVal"><span class="n">amp</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.TrigVal" title="pyo.lib.triggers.TrigVal"><span class="n">TrigVal</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.TableRec" title="pyo.lib.tableprocess.TableRec"><span class="n">rec</span></a><span class="p">[</span><span class="s2">"trig"</span><span class="p">],</span> <span class="mf">0.5</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.Osc" title="pyo.lib.tableprocess.Osc"><span class="n">osc</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.Osc" title="pyo.lib.tableprocess.Osc"><span class="n">Osc</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">tab</span></a><span class="p">,</span> <span class="n">tab</span><span class="o">.</span><span class="n">getRate</span><span class="p">(),</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Fader" title="pyo.lib.controls.Fader"><span class="n">Fader</span></a><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.Osc" title="pyo.lib.tableprocess.Osc"><span class="n">osc</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.Osc" title="pyo.lib.tableprocess.Osc"><span class="n">Osc</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">tab</span></a><span class="p">,</span> <span class="n">tab</span><span class="o">.</span><span class="n">getRate</span><span class="p">(),</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Fader" title="pyo.lib.controls.Fader"><span class="n">Fader</span></a><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.2</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># "osc" can't know for sure that "rec" should be linked</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># to this dsp chain, so we add it manually.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">osc</span><span class="o">.</span><span class="n">addLinkedObject</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.TableRec" title="pyo.lib.tableprocess.TableRec"><span class="n">rec</span></a><span class="p">)</span>
@@ -319,7 +319,7 @@ call:</p>
 <h2><em>PyoObject</em><a class="headerlink" href="#pyoobject" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.PyoObject">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PyoObject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObject"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObject" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PyoObject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObject"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObject" title="Link to this definition">¶</a></dt>
 <dd><p>Base class for all pyo objects that manipulate vectors of samples.</p>
 <p>The user should never instantiate an object of this class.</p>
 <dl class="field-list simple">
@@ -900,12 +900,12 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PyoObject.mul">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mul</span></span><a class="headerlink" href="#pyo.PyoObject.mul" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">mul</span></span><a class="headerlink" href="#pyo.PyoObject.mul" title="Link to this definition">¶</a></dt>
 <dd><p>float or PyoObject. Multiplication factor.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PyoObject.add">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">add</span></span><a class="headerlink" href="#pyo.PyoObject.add" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">add</span></span><a class="headerlink" href="#pyo.PyoObject.add" title="Link to this definition">¶</a></dt>
 <dd><p>float or PyoObject. Addition factor.</p>
 </dd></dl>
 </dd></dl>
@@ -914,7 +914,7 @@ the server GUI before showing the controller window.</p>
 <h2><em>PyoTableObject</em><a class="headerlink" href="#pyotableobject" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.PyoTableObject">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PyoTableObject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PyoTableObject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject" title="Link to this definition">¶</a></dt>
 <dd><p>Base class for all pyo table objects.</p>
 <p>A table object is a buffer memory to store precomputed samples.</p>
 <p>The user should never instantiate an object of this class.</p>
@@ -1624,7 +1624,7 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.PyoTableObject.size">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">size</span></span><a class="headerlink" href="#pyo.PyoTableObject.size" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">size</span></span><a class="headerlink" href="#pyo.PyoTableObject.size" title="Link to this definition">¶</a></dt>
 <dd><p>int. Table size in samples.</p>
 </dd></dl>
 </dd></dl>
@@ -1633,7 +1633,7 @@ the server GUI before showing the controller window.</p>
 <h2><em>PyoMatrixObject</em><a class="headerlink" href="#pyomatrixobject" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.PyoMatrixObject">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PyoMatrixObject</span></span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoMatrixObject"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoMatrixObject" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PyoMatrixObject</span></span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoMatrixObject"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoMatrixObject" title="Link to this definition">¶</a></dt>
 <dd><p>Base class for all pyo matrix objects.</p>
 <p>A matrix object is a 2 dimensions buffer memory to store
 precomputed samples.</p>
@@ -1947,7 +1947,7 @@ the server GUI before showing the controller window.</p>
 <h2><em>PyoPVObject</em><a class="headerlink" href="#pyopvobject" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.PyoPVObject">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PyoPVObject</span></span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoPVObject"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoPVObject" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PyoPVObject</span></span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoPVObject"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoPVObject" title="Link to this definition">¶</a></dt>
 <dd><p>Base class for objects working with phase vocoder’s magnitude and frequency streams.</p>
 <p>The user should never instantiate an object of this class.</p>
 <dl class="field-list simple">
@@ -2215,7 +2215,7 @@ the server GUI before showing the controller window.</p>
 <div class="right">
 <div class="footer" role="contentinfo">
     © Copyright 2025, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
 </div>
 <div class="clearer"></div>

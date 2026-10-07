@@ -10,8 +10,8 @@
 <link href="../../_static/sphinx-codeautolink.css?v=b2176991" rel="stylesheet" type="text/css"/>
 <link href="../../_static/autoclasstoc.css?v=08871587" rel="stylesheet" type="text/css"/>
 <script src="../../_static/documentation_options.js?v=e2a723ec"></script>
-<script src="../../_static/doctools.js?v=9bcbadda"></script>
-<script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+<script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+<script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
 <link href="../../_static/E-PyoIcon.ico" rel="icon"/>
 <link href="../../about.html" rel="author" title="About these documents"/>
 <link href="../../genindex.html" rel="index" title="Index"/>
@@ -84,7 +84,7 @@ are done by giving row and column positions.</p>
 <h2><em>MatrixMorph</em><a class="headerlink" href="#matrixmorph" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.MatrixMorph">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MatrixMorph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sources</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixMorph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixMorph" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MatrixMorph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sources</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixMorph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixMorph" title="Link to this definition">¶</a></dt>
 <dd><p>Morphs between multiple PyoMatrixObjects.</p>
 <p>Uses an index into a list of PyoMatrixObjects to morph between adjacent
 matrices in the list. The resulting morphed function is written into the
@@ -510,17 +510,17 @@ assigned to successive streams.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.MatrixMorph.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.MatrixMorph.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.MatrixMorph.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoObject. Morphing index between 0 and 1.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.MatrixMorph.matrix">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">matrix</span></span><a class="headerlink" href="#pyo.MatrixMorph.matrix" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">matrix</span></span><a class="headerlink" href="#pyo.MatrixMorph.matrix" title="Link to this definition">¶</a></dt>
 <dd><p>NewMatrix. The matrix where to write samples.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.MatrixMorph.sources">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sources</span></span><a class="headerlink" href="#pyo.MatrixMorph.sources" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">sources</span></span><a class="headerlink" href="#pyo.MatrixMorph.sources" title="Link to this definition">¶</a></dt>
 <dd><p>list of PyoMatrixObject. List of matrices to interpolate from.</p>
 </dd></dl>
 </dd></dl>
@@ -529,7 +529,7 @@ assigned to successive streams.</p>
 <h2><em>MatrixPointer</em><a class="headerlink" href="#matrixpointer" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.MatrixPointer">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MatrixPointer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixPointer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixPointer" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MatrixPointer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixPointer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixPointer" title="Link to this definition">¶</a></dt>
 <dd><p>Matrix reader with control on the 2D pointer position.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parent<span class="colon">:</span></dt>
@@ -905,17 +905,17 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.MatrixPointer.matrix">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">matrix</span></span><a class="headerlink" href="#pyo.MatrixPointer.matrix" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">matrix</span></span><a class="headerlink" href="#pyo.MatrixPointer.matrix" title="Link to this definition">¶</a></dt>
 <dd><p>PyoMatrixObject. Matrix containing the samples.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.MatrixPointer.x">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">x</span></span><a class="headerlink" href="#pyo.MatrixPointer.x" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">x</span></span><a class="headerlink" href="#pyo.MatrixPointer.x" title="Link to this definition">¶</a></dt>
 <dd><p>PyoObject. Normalized X position in the matrix.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.MatrixPointer.y">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">y</span></span><a class="headerlink" href="#pyo.MatrixPointer.y" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">y</span></span><a class="headerlink" href="#pyo.MatrixPointer.y" title="Link to this definition">¶</a></dt>
 <dd><p>PyoObject. Normalized Y position in the matrix.</p>
 </dd></dl>
 </dd></dl>
@@ -924,7 +924,7 @@ the server GUI before showing the controller window.</p>
 <h2><em>MatrixRec</em><a class="headerlink" href="#matrixrec" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.MatrixRec">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MatrixRec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fadetime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixRec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixRec" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MatrixRec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fadetime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixRec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixRec" title="Link to this definition">¶</a></dt>
 <dd><p>MatrixRec records samples into a previously created NewMatrix.</p>
 <p>See <a class="reference internal" href="matrices.html#pyo.NewMatrix" title="pyo.NewMatrix"><code class="xref py py-class docutils literal notranslate"><span class="pre">NewMatrix</span></code></a> to create an empty matrix.</p>
 <p>The play method is not called at the object creation time. It starts
@@ -1342,12 +1342,12 @@ assigned to successive streams.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.MatrixRec.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.MatrixRec.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.MatrixRec.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoObject. Audio signal to record in the matrix.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.MatrixRec.matrix">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">matrix</span></span><a class="headerlink" href="#pyo.MatrixRec.matrix" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">matrix</span></span><a class="headerlink" href="#pyo.MatrixRec.matrix" title="Link to this definition">¶</a></dt>
 <dd><p>PyoMatrixObject. The matrix where to write samples.</p>
 </dd></dl>
 </dd></dl>
@@ -1356,7 +1356,7 @@ assigned to successive streams.</p>
 <h2><em>MatrixRecLoop</em><a class="headerlink" href="#matrixrecloop" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.MatrixRecLoop">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MatrixRecLoop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixRecLoop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixRecLoop" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MatrixRecLoop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixRecLoop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixRecLoop" title="Link to this definition">¶</a></dt>
 <dd><p>MatrixRecLoop records samples in loop into a previously created NewMatrix.</p>
 <p>See <a class="reference internal" href="matrices.html#pyo.NewMatrix" title="pyo.NewMatrix"><code class="xref py py-class docutils literal notranslate"><span class="pre">NewMatrix</span></code></a> to create an empty matrix.</p>
 <p>MatrixRecLoop records samples into the matrix, row after row, until
@@ -1390,7 +1390,7 @@ obj[‘trig’]. See <cite>TableRec</cite> documentation for an example.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.CosTable" title="pyo.lib.tables.CosTable"><span class="n">env</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.CosTable" title="pyo.lib.tables.CosTable"><span class="n">CosTable</span></a><span class="p">([(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">300</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1000</span><span class="p">,</span><span class="mf">.4</span><span class="p">),</span> <span class="p">(</span><span class="mi">8191</span><span class="p">,</span><span class="mi">0</span><span class="p">)])</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/matrices.html#pyo.NewMatrix" title="pyo.lib.matrix.NewMatrix"><span class="n">matrix</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/matrices.html#pyo.NewMatrix" title="pyo.lib.matrix.NewMatrix"><span class="n">NewMatrix</span></a><span class="p">(</span><span class="mi">8192</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">src</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span><span class="o">+</span><span class="s1">'/transparent.aif'</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">src</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span><span class="o">+</span><span class="s1">'/transparent.aif'</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/matrixprocess.html#pyo.MatrixRecLoop" title="pyo.lib.matrixprocess.MatrixRecLoop"><span class="n">m_rec</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/matrixprocess.html#pyo.MatrixRecLoop" title="pyo.lib.matrixprocess.MatrixRecLoop"><span class="n">MatrixRecLoop</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">src</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/matrices.html#pyo.NewMatrix" title="pyo.lib.matrix.NewMatrix"><span class="n">matrix</span></a><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">period</span> <span class="o">=</span> <span class="mi">8192</span> <span class="o">/</span> <span class="n">s</span><span class="o">.</span><span class="n">getSamplingRate</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">metro</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.Metro" title="pyo.lib.triggers.Metro"><span class="n">Metro</span></a><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">period</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">poly</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
@@ -1764,12 +1764,12 @@ assigned to successive streams.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.MatrixRecLoop.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.MatrixRecLoop.input" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.MatrixRecLoop.input" title="Link to this definition">¶</a></dt>
 <dd><p>PyoObject. Audio signal to record in the matrix.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.MatrixRecLoop.matrix">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">matrix</span></span><a class="headerlink" href="#pyo.MatrixRecLoop.matrix" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">matrix</span></span><a class="headerlink" href="#pyo.MatrixRecLoop.matrix" title="Link to this definition">¶</a></dt>
 <dd><p>PyoMatrixObject. The matrix where to write samples.</p>
 </dd></dl>
 </dd></dl>
@@ -1797,7 +1797,7 @@ assigned to successive streams.</p>
 <div class="right">
 <div class="footer" role="contentinfo">
     © Copyright 2025, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
 </div>
 <div class="clearer"></div>

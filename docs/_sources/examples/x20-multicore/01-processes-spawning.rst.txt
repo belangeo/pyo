@@ -1,4 +1,4 @@
-01-processes-spawning.py - Simple processes spawning, no synchronization. 
+01-processes-spawning.py - Simple processes spawning, no synchronization.
 ============================================================================================================================================
 
 

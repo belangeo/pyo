@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+
+<html data-content_root="../../" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>04-process-calls.py - Calling python functions every processing frame — Pyo 1.0.6 documentation</title>
+<link href="../../_static/pygments.css?v=03e43079" rel="stylesheet" type="text/css"/>
+<link href="../../_static/agogo.css?v=227e5aac" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css?v=b2176991" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css?v=08871587" rel="stylesheet" type="text/css"/>
+<script src="../../_static/documentation_options.js?v=e2a723ec"></script>
+<script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+<script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="../x10-tables/index.html" rel="next" title="x10-tables"/>
+<link href="03-delayed-calls.html" rel="prev" title="03-delayed-calls.py - Calling a function once, after a given delay."/>
+</head><body>
+<div class="header-wrapper" role="banner">
+<div class="header">
+<div class="headertitle"><a href="../../index.html">Pyo 1.0.6 documentation</a></div>
+<div aria-label="Related" class="rel" role="navigation">
+<a accesskey="P" href="03-delayed-calls.html" title="03-delayed-calls.py - Calling a function once, after a given delay.">previous</a> |
+          <a accesskey="N" href="../x10-tables/index.html" title="x10-tables">next</a> |
+          <a accesskey="I" href="../../genindex.html" title="General Index">index</a>
+</div>
+</div>
+</div>
+<div class="content-wrapper">
+<div class="content">
+<div class="sidebar">
+<h3>Table of Contents</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about.html">About pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../download.html">Installing pyo with pip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../compiling.html">Compiling pyo from sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../structure.html">Structure of the library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gettingstarted.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../winaudioinspect.html">Configuring the audio output (Windows)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../perftips.html">Improve performance of pyo programs</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../x01-intro/index.html">First steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../x02-controls/index.html">Parameter control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../x03-generators/index.html">Synthesis generators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../x04-soundfiles/index.html">Playing with soundfiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../x05-envelopes/index.html">Amplitude envelopes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../x06-filters/index.html">Filtering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../x07-effects/index.html">Creating sound effects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../x08-dynamics/index.html">Dynamic range of audio signals</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Calling python functions from audio objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../x10-tables/index.html">Using tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../x14-spectral/index.html">Processing in the spectral domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../x15-matrix/index.html">Using 2D tables (matrix)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../x16-midi/index.html">How to use MIDI with pyo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../x17-osc/index.html">How to use OSC with pyo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../x19-multirate/index.html">Multirate audio processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../x20-multicore/index.html">Multicore audio programming</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../x21-utilities/index.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../x22-events/index.html">Events framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../x23-expression/index.html">Evaluating prefix expression</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Advanced tutorials</a></li>
+</ul>
+<search role="search">
+<h3 style="margin-top: 1.5em;">Search</h3>
+<form action="../../search.html" class="search" method="get">
+<input name="q" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</search>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="process-calls-py-calling-python-functions-every-processing-frame">
+<h1>04-process-calls.py - Calling python functions every processing frame<a class="headerlink" href="#process-calls-py-calling-python-functions-every-processing-frame" title="Link to this heading">¶</a></h1>
+<p>This example shows two things:</p>
+<ol class="arabic simple">
+<li><p>How to share memory from a PyoTableObject to a numpy array with the
+<cite>getBuffer()</cite> method of the PyoTableObject. Numpy functions can then
+be used to modify the table’s content without copying every samples.</p></li>
+<li><p>How to call a python function every processing frame with the
+CallAlways object.</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The numpy module <strong>must</strong> be installed for this example to work.</p>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># Get the length of an audio block.</span>
+<span class="n">bs</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">getBufferSize</span><span class="p">()</span>
+
+<span class="c1"># Create a table of length `buffer size`.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.DataTable" title="pyo.lib.tables.DataTable"><span class="n">t</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.DataTable" title="pyo.lib.tables.DataTable"><span class="n">DataTable</span></a><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">bs</span><span class="p">)</span>
+
+<span class="c1"># Share the table's memory with a numpy array.</span>
+<span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">getBuffer</span><span class="p">())</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">proc1</span><span class="p">():</span>
+    <span class="s2">"Fill the array (so the table) with white noise."</span>
+    <span class="n">arr</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">bs</span><span class="p">)</span>
+
+<span class="c1"># Fill the table.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/pattern.html#pyo.CallAlways" title="pyo.lib.pattern.CallAlways"><span class="n">call1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pattern.html#pyo.CallAlways" title="pyo.lib.pattern.CallAlways"><span class="n">CallAlways</span></a><span class="p">(</span><span class="n">proc1</span><span class="p">)</span>
+
+<span class="c1"># You can do other pyo processes here (read the table, process the signal, feed into another shared table, etc.).</span>
+
+<span class="c1"># numpy filter's kernel.</span>
+<span class="n">kernel_len</span> <span class="o">=</span> <span class="mi">32</span>
+<span class="n">window</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">kernel_len</span><span class="p">)</span> <span class="o">/</span> <span class="n">kernel_len</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">proc2</span><span class="p">():</span>
+    <span class="s2">"Lowpass filter the array content."</span>
+    <span class="n">arr</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">window</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">'same'</span><span class="p">)</span>
+
+<span class="c1"># Lowpass filter the table content.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/pattern.html#pyo.CallAlways" title="pyo.lib.pattern.CallAlways"><span class="n">call2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pattern.html#pyo.CallAlways" title="pyo.lib.pattern.CallAlways"><span class="n">CallAlways</span></a><span class="p">(</span><span class="n">proc2</span><span class="p">)</span>
+
+<span class="c1"># Read the table in loop.</span>
+<span class="n">osc</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.TableRead" title="pyo.lib.tableprocess.TableRead"><span class="n">TableRead</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.DataTable" title="pyo.lib.tables.DataTable"><span class="n">t</span></a><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="n">t</span><span class="o">.</span><span class="n">getRate</span><span class="p">(),</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+</div>
+<div class="footer-wrapper">
+<div class="footer">
+<div class="left">
+<div aria-label="Related" role="navigation">
+<a href="03-delayed-calls.html" title="03-delayed-calls.py - Calling a function once, after a given delay.">previous</a> |
+            <a href="../x10-tables/index.html" title="x10-tables">next</a> |
+            <a href="../../genindex.html" title="General Index">index</a>
+</div>
+<div aria-label="source link" role="note">
+</div>
+</div>
+<div class="right">
+<div class="footer" role="contentinfo">
+    © Copyright 2025, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    </div>
+</div>
+<div class="clearer"></div>
+</div>
+</div>
+</body>
+</html>

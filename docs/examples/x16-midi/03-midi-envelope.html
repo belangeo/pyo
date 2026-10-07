@@ -10,8 +10,8 @@
 <link href="../../_static/sphinx-codeautolink.css?v=b2176991" rel="stylesheet" type="text/css"/>
 <link href="../../_static/autoclasstoc.css?v=08871587" rel="stylesheet" type="text/css"/>
 <script src="../../_static/documentation_options.js?v=e2a723ec"></script>
-<script src="../../_static/doctools.js?v=9bcbadda"></script>
-<script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+<script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+<script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
 <link href="../../_static/E-PyoIcon.ico" rel="icon"/>
 <link href="../../about.html" rel="author" title="About these documents"/>
 <link href="../../genindex.html" rel="index" title="Index"/>
@@ -92,7 +92,7 @@ sound of a MIDI synthesizer with two MIDI-triggered envelope objects:</p>
 The first part is an oscillator at the root frequency with a sharp attack.
 The second part is a pair of oscillators slightly out-of-tune raising smoothly
 after a half-second delay. This gradually introduces beating into the sound.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 
 <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">s</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span>
 <span class="n">s</span><span class="o">.</span><span class="n">setMidiInputDevice</span><span class="p">(</span><span class="mi">99</span><span class="p">)</span>  <span class="c1"># Open all input devices.</span>
@@ -106,7 +106,9 @@ after a half-second delay. This gradually introduces beating into the sound.</p>
 <a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.MidiAdsr" title="pyo.lib.midi.MidiAdsr"><span class="n">env1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.MidiAdsr" title="pyo.lib.midi.MidiAdsr"><span class="n">MidiAdsr</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.Notein" title="pyo.lib.midi.Notein"><span class="n">notes</span></a><span class="p">[</span><span class="s2">"velocity"</span><span class="p">],</span> <span class="n">attack</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">sustain</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">release</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
 
 <span class="c1"># MIDI-triggered DADSR envelope (a classic ADSR with an adjustable pre-delay).</span>
-<a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.MidiDelAdsr" title="pyo.lib.midi.MidiDelAdsr"><span class="n">env2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.MidiDelAdsr" title="pyo.lib.midi.MidiDelAdsr"><span class="n">MidiDelAdsr</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.Notein" title="pyo.lib.midi.Notein"><span class="n">notes</span></a><span class="p">[</span><span class="s2">"velocity"</span><span class="p">],</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">attack</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">sustain</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">release</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.MidiDelAdsr" title="pyo.lib.midi.MidiDelAdsr"><span class="n">env2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.MidiDelAdsr" title="pyo.lib.midi.MidiDelAdsr"><span class="n">MidiDelAdsr</span></a><span class="p">(</span>
+    <a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.Notein" title="pyo.lib.midi.Notein"><span class="n">notes</span></a><span class="p">[</span><span class="s2">"velocity"</span><span class="p">],</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">attack</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">sustain</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">release</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.1</span>
+<span class="p">)</span>
 
 <span class="c1"># Root frequency appears instantly.</span>
 <span class="n">sig1</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.RCOsc" title="pyo.lib.generators.RCOsc"><span class="n">RCOsc</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.Notein" title="pyo.lib.midi.Notein"><span class="n">notes</span></a><span class="p">[</span><span class="s2">"pitch"</span><span class="p">],</span> <span class="n">sharp</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.MidiAdsr" title="pyo.lib.midi.MidiAdsr"><span class="n">env1</span></a><span class="p">)</span><span class="o">.</span><span class="n">mix</span><span class="p">()</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
@@ -147,7 +149,7 @@ after a half-second delay. This gradually introduces beating into the sound.</p>
 <div class="right">
 <div class="footer" role="contentinfo">
     © Copyright 2025, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
 </div>
 <div class="clearer"></div>

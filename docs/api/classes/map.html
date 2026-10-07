@@ -10,8 +10,8 @@
 <link href="../../_static/sphinx-codeautolink.css?v=b2176991" rel="stylesheet" type="text/css"/>
 <link href="../../_static/autoclasstoc.css?v=08871587" rel="stylesheet" type="text/css"/>
 <script src="../../_static/documentation_options.js?v=e2a723ec"></script>
-<script src="../../_static/doctools.js?v=9bcbadda"></script>
-<script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+<script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+<script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
 <link href="../../_static/E-PyoIcon.ico" rel="icon"/>
 <link href="../../about.html" rel="author" title="About these documents"/>
 <link href="../../genindex.html" rel="index" title="Index"/>
@@ -85,7 +85,7 @@
 <h2><em>Map</em><a class="headerlink" href="#map" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.Map">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_maps.html#Map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Map" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_maps.html#Map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Map" title="Link to this definition">¶</a></dt>
 <dd><p>Converts value between 0 and 1 on various scales.</p>
 <p>Base class for Map objects.</p>
 <dl class="field-list simple">
@@ -201,17 +201,17 @@
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Map.min">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">min</span></span><a class="headerlink" href="#pyo.Map.min" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">min</span></span><a class="headerlink" href="#pyo.Map.min" title="Link to this definition">¶</a></dt>
 <dd><p>int or float. Lowest value of the range.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Map.max">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max</span></span><a class="headerlink" href="#pyo.Map.max" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">max</span></span><a class="headerlink" href="#pyo.Map.max" title="Link to this definition">¶</a></dt>
 <dd><p>int or float. Highest value of the range.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Map.scale">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">scale</span></span><a class="headerlink" href="#pyo.Map.scale" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">scale</span></span><a class="headerlink" href="#pyo.Map.scale" title="Link to this definition">¶</a></dt>
 <dd><p>string. Method used to scale the input value.</p>
 </dd></dl>
 </dd></dl>
@@ -220,7 +220,7 @@
 <h2><em>SLMap</em><a class="headerlink" href="#slmap" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.SLMap">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SLMap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'float'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ramp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.025</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataOnly</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_maps.html#SLMap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.SLMap" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SLMap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'float'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ramp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.025</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataOnly</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_maps.html#SLMap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.SLMap" title="Link to this definition">¶</a></dt>
 <dd><p>Base Map class used to manage control sliders.</p>
 <p>Derived from Map class, a few parameters are added for sliders
 initialization.</p>
@@ -259,7 +259,7 @@ marked with a star symbol (*). Defaults to False.</p>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/map.html#pyo.SLMap" title="pyo.lib._maps.SLMap"><span class="n">slmapfreq</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/map.html#pyo.SLMap" title="pyo.lib._maps.SLMap"><span class="n">SLMap</span></a><span class="p">(</span><span class="mf">20.</span><span class="p">,</span> <span class="mf">2000.</span><span class="p">,</span> <span class="s1">'log'</span><span class="p">,</span> <span class="s1">'freq'</span><span class="p">,</span> <span class="n">ifs</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/map.html#pyo.SLMap" title="pyo.lib._maps.SLMap"><span class="n">slmapfeed</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/map.html#pyo.SLMap" title="pyo.lib._maps.SLMap"><span class="n">SLMap</span></a><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="s1">'lin'</span><span class="p">,</span> <span class="s1">'feedback'</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">maps</span> <span class="o">=</span> <span class="p">[</span><a class="sphinx-codeautolink-a" href="../../api/classes/map.html#pyo.SLMap" title="pyo.lib._maps.SLMap"><span class="n">slmapfreq</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/map.html#pyo.SLMap" title="pyo.lib._maps.SLMap"><span class="n">slmapfeed</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/map.html#pyo.SLMapMul" title="pyo.lib._maps.SLMapMul"><span class="n">SLMapMul</span></a><span class="p">(</span><span class="mf">.1</span><span class="p">)]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">SineLoop</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="n">ifs</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.1</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">SineLoop</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="n">ifs</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="n">maps</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -333,27 +333,27 @@ marked with a star symbol (*). Defaults to False.</p>
 <hr class="docutils"/>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.SLMap.name">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#pyo.SLMap.name" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#pyo.SLMap.name" title="Link to this definition">¶</a></dt>
 <dd><p>string. Name of the parameter to control.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.SLMap.init">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">init</span></span><a class="headerlink" href="#pyo.SLMap.init" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">init</span></span><a class="headerlink" href="#pyo.SLMap.init" title="Link to this definition">¶</a></dt>
 <dd><p>float. Initial value of the slider.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.SLMap.res">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">res</span></span><a class="headerlink" href="#pyo.SLMap.res" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">res</span></span><a class="headerlink" href="#pyo.SLMap.res" title="Link to this definition">¶</a></dt>
 <dd><p>string. Slider resolution {int or float}.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.SLMap.ramp">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ramp</span></span><a class="headerlink" href="#pyo.SLMap.ramp" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ramp</span></span><a class="headerlink" href="#pyo.SLMap.ramp" title="Link to this definition">¶</a></dt>
 <dd><p>float. Ramp time in seconds.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.SLMap.dataOnly">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dataOnly</span></span><a class="headerlink" href="#pyo.SLMap.dataOnly" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">dataOnly</span></span><a class="headerlink" href="#pyo.SLMap.dataOnly" title="Link to this definition">¶</a></dt>
 <dd><p>boolean. True if argument does not accept audio stream.</p>
 </dd></dl>
 </dd></dl>
@@ -362,7 +362,7 @@ marked with a star symbol (*). Defaults to False.</p>
 <h2><em>SLMapFreq</em><a class="headerlink" href="#slmapfreq" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.SLMapFreq">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SLMapFreq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_maps.html#SLMapFreq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.SLMapFreq" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SLMapFreq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_maps.html#SLMapFreq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.SLMapFreq" title="Link to this definition">¶</a></dt>
 <dd><p>SLMap with normalized values for a ‘freq’ slider.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parent<span class="colon">:</span></dt>
@@ -466,14 +466,14 @@ Defaults to 1000.</p>
 </tbody>
 </table>
 </details></div>
+<hr class="docutils"/>
 </dd></dl>
 </section>
-<hr class="docutils"/>
 <section id="slmapmul">
 <h2><em>SLMapMul</em><a class="headerlink" href="#slmapmul" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.SLMapMul">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SLMapMul</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_maps.html#SLMapMul"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.SLMapMul" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SLMapMul</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_maps.html#SLMapMul"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.SLMapMul" title="Link to this definition">¶</a></dt>
 <dd><p>SLMap with normalized values for a ‘mul’ slider.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parent<span class="colon">:</span></dt>
@@ -577,14 +577,14 @@ Defaults to 1.</p>
 </tbody>
 </table>
 </details></div>
+<hr class="docutils"/>
 </dd></dl>
 </section>
-<hr class="docutils"/>
 <section id="slmapphase">
 <h2><em>SLMapPhase</em><a class="headerlink" href="#slmapphase" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.SLMapPhase">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SLMapPhase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_maps.html#SLMapPhase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.SLMapPhase" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SLMapPhase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_maps.html#SLMapPhase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.SLMapPhase" title="Link to this definition">¶</a></dt>
 <dd><p>SLMap with normalized values for a ‘phase’ slider.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parent<span class="colon">:</span></dt>
@@ -688,14 +688,14 @@ Defaults to 0.</p>
 </tbody>
 </table>
 </details></div>
+<hr class="docutils"/>
 </dd></dl>
 </section>
-<hr class="docutils"/>
 <section id="slmapq">
 <h2><em>SLMapQ</em><a class="headerlink" href="#slmapq" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.SLMapQ">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SLMapQ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_maps.html#SLMapQ"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.SLMapQ" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SLMapQ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_maps.html#SLMapQ"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.SLMapQ" title="Link to this definition">¶</a></dt>
 <dd><p>SLMap with normalized values for a ‘q’ slider.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parent<span class="colon">:</span></dt>
@@ -799,14 +799,14 @@ Defaults to 1.</p>
 </tbody>
 </table>
 </details></div>
+<hr class="docutils"/>
 </dd></dl>
 </section>
-<hr class="docutils"/>
 <section id="slmapdur">
 <h2><em>SLMapDur</em><a class="headerlink" href="#slmapdur" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.SLMapDur">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SLMapDur</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_maps.html#SLMapDur"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.SLMapDur" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SLMapDur</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_maps.html#SLMapDur"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.SLMapDur" title="Link to this definition">¶</a></dt>
 <dd><p>SLMap with normalized values for a ‘dur’ slider.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parent<span class="colon">:</span></dt>
@@ -910,14 +910,14 @@ Defaults to 1.</p>
 </tbody>
 </table>
 </details></div>
+<hr class="docutils"/>
 </dd></dl>
 </section>
-<hr class="docutils"/>
 <section id="slmappan">
 <h2><em>SLMapPan</em><a class="headerlink" href="#slmappan" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.SLMapPan">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SLMapPan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_maps.html#SLMapPan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.SLMapPan" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SLMapPan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_maps.html#SLMapPan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.SLMapPan" title="Link to this definition">¶</a></dt>
 <dd><p>SLMap with normalized values for a ‘pan’ slider.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parent<span class="colon">:</span></dt>
@@ -1047,7 +1047,7 @@ Defaults to 0.</p>
 <div class="right">
 <div class="footer" role="contentinfo">
     © Copyright 2025, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
 </div>
 <div class="clearer"></div>

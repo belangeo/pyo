@@ -10,8 +10,8 @@
 <link href="../../_static/sphinx-codeautolink.css?v=b2176991" rel="stylesheet" type="text/css"/>
 <link href="../../_static/autoclasstoc.css?v=08871587" rel="stylesheet" type="text/css"/>
 <script src="../../_static/documentation_options.js?v=e2a723ec"></script>
-<script src="../../_static/doctools.js?v=9bcbadda"></script>
-<script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+<script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+<script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
 <link href="../../_static/E-PyoIcon.ico" rel="icon"/>
 <link href="../../about.html" rel="author" title="About these documents"/>
 <link href="../../genindex.html" rel="index" title="Index"/>
@@ -85,7 +85,7 @@
 <p>A more elaborate MIDI synthesizer built in a custom python class. This
 makes easier to use it multiple times. In this example, two objects are
 created, one for the played pitch and another playing one octave lower.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">random</span><span class="w"> </span><span class="kn">import</span> <span class="n">random</span>
 
 
@@ -98,7 +98,14 @@ created, one for the played pitch and another playing one octave lower.</p>
 
         <span class="c1"># Handle pitch and velocity (Notein outputs normalized amplitude (0 -&gt; 1)).</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">note</span><span class="p">[</span><span class="s2">"pitch"</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">transpo</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">amp</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.MidiAdsr" title="pyo.lib.midi.MidiAdsr"><span class="n">MidiAdsr</span></a><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">note</span><span class="p">[</span><span class="s2">"velocity"</span><span class="p">],</span> <span class="n">attack</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">sustain</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">release</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">amp</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.MidiAdsr" title="pyo.lib.midi.MidiAdsr"><span class="n">MidiAdsr</span></a><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">note</span><span class="p">[</span><span class="s2">"velocity"</span><span class="p">],</span>
+            <span class="n">attack</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
+            <span class="n">decay</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+            <span class="n">sustain</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
+            <span class="n">release</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">mul</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="c1"># Anti-aliased stereo square waves, mixed from 10 streams to 1 stream</span>
         <span class="c1"># to avoid channel alternation on new notes.</span>
@@ -165,7 +172,7 @@ created, one for the played pitch and another playing one octave lower.</p>
 <div class="right">
 <div class="footer" role="contentinfo">
     © Copyright 2025, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
 </div>
 <div class="clearer"></div>

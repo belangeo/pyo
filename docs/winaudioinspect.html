@@ -10,8 +10,8 @@
 <link href="_static/sphinx-codeautolink.css?v=b2176991" rel="stylesheet" type="text/css"/>
 <link href="_static/autoclasstoc.css?v=08871587" rel="stylesheet" type="text/css"/>
 <script src="_static/documentation_options.js?v=e2a723ec"></script>
-<script src="_static/doctools.js?v=9bcbadda"></script>
-<script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+<script src="_static/doctools.js?v=fd6eb6e6"></script>
+<script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
 <link href="_static/E-PyoIcon.ico" rel="icon"/>
 <link href="about.html" rel="author" title="About these documents"/>
 <link href="genindex.html" rel="index" title="Index"/>
@@ -61,27 +61,26 @@
 <div class="body" role="main">
 <section id="configuring-the-audio-output-windows">
 <h1>Configuring the audio output (Windows)<a class="headerlink" href="#configuring-the-audio-output-windows" title="Link to this heading">¶</a></h1>
-<p>Here is some tips to help you to configure the audio input/output on Windows.
+<p>Here are some tips to help you configure the audio input/output on Windows.
 Some of these procedures are also valid for other systems.</p>
 <section id="how-to-choose-the-audio-host-api-on-windows">
 <h2>How to choose the audio host api on Windows<a class="headerlink" href="#how-to-choose-the-audio-host-api-on-windows" title="Link to this heading">¶</a></h2>
-<p>Choosing the good audio API on Windows can turn out to be a real headache.</p>
-<p>This document presents a script that will inspect your system and tell you if:</p>
+<p>Choosing a good audio API on Windows can turn out to be a real headache.</p>
+<p>This document presents a script that will inspect your system and tell you whether:</p>
 <ul class="simple">
 <li><p>Pyo can run in duplex mode. That means both audio input and output instead of output only.</p></li>
 <li><p>Pyo is able to connect to the different host APIs that are usually available on Windows.</p></li>
 </ul>
-<p>In the hope that this will help you having a good experience with pyo under Windows!</p>
+<p>In the hope that this will help you have a good experience with Pyo under Windows!</p>
 <p><a class="reference external" href="https://github.com/belangeo/pyo/tree/master/scripts/win_audio_drivers_inspector.py">https://github.com/belangeo/pyo/tree/master/scripts/win_audio_drivers_inspector.py</a></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">"""</span>
 <span class="sd">Windows audio host inspector.</span>
 
-<span class="sd">This script will check if pyo can run in duplex mode (both audio input and output)</span>
-<span class="sd">and will test every host API to help the user in making his audio device choice.</span>
-
+<span class="sd">This script will check whether Pyo can run in duplex mode (both audio input and output)</span>
+<span class="sd">and will test every host API to help the user make their audio device choice.</span>
 <span class="sd">"""</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span><span class="o">,</span><span class="w"> </span><span class="nn">time</span>
-<span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 
 <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s2">"win32"</span><span class="p">:</span>
     <span class="n">host_apis</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"mme"</span><span class="p">,</span> <span class="s2">"directsound"</span><span class="p">,</span> <span class="s2">"asio"</span><span class="p">,</span> <span class="s2">"wasapi"</span><span class="p">,</span> <span class="s2">"wdm-ks"</span><span class="p">]</span>
@@ -138,23 +137,23 @@ Some of these procedures are also valid for other systems.</p>
 <section id="tunning-the-windows-wasapi-driver">
 <h2>Tunning the Windows WASAPI driver<a class="headerlink" href="#tunning-the-windows-wasapi-driver" title="Link to this heading">¶</a></h2>
 <p>The Windows Audio Session API (WASAPI) is Microsoft’s most modern method for talking with audio devices.
-It is available in Windows since Vista. Pyo’s default host is DIRECTSOUND but you can change it to WASAPI
+It is available in Windows since Vista. Pyo’s default host is DIRECTSOUND, but you can change it to WASAPI
 by changing the <cite>winhost</cite> argument of the <strong>Server</strong> object. If the script above tells you:</p>
 <blockquote>
 <div><p>Host: wasapi ==&gt; Failed…</p>
 </div></blockquote>
-<p>there is some things you can do to make it work. Open the <strong>Sound</strong> window by double-clicking on the volume
-icon and choosing <em>Playback Devices</em>. Here, select your device and click on the <em>Properties</em> button. In
-the <em>advanced</em> tab, make sure that the sampling rate is the same that the one used by pyo (pyo defaults to
-44100 Hz). You can check the exclusive mode box if you want, this will bypass the system mixer, default
+<p>there are some things you can do to make it work. Open the <strong>Sound</strong> window by double-clicking on the volume
+icon and choose <em>Playback Devices</em>. Here, select your device and click on the <em>Properties</em> button. In
+the <em>advanced</em> tab, make sure that the sampling rate is the same as the one used by Pyo (Pyo defaults to
+44100 Hz). You can check the exclusive mode box if you want. This will bypass the system mixer, default
 settings, and typically any effects provided by the audio driver.</p>
-<p>Perform the same in the <em>recording</em> tab if you want to run pyo in duplex mode. If you got the message:</p>
+<p>Perform the same in the <em>recording</em> tab if you want to run Pyo in duplex mode. If you got the message:</p>
 <blockquote>
 <div><p>No input available. Duplex mode should be turned off.</p>
 </div></blockquote>
 <p>you’ll have to make sure first that there is an available input device in that tab.</p>
-<p>If you use a cheap soundcard (typically, any built in soundcard is not very good!), you may have to increase
-the buffer size of the pyo’s Server in order to avoid glitches in the audio streams.</p>
+<p>If you use a cheap soundcard (typically, any built-in soundcard is not very good!), you may have to increase
+the buffer size of Pyo’s Server in order to avoid glitches in the audio streams.</p>
 </section>
 <section id="server-initialization-examples">
 <h2>Server initialization examples<a class="headerlink" href="#server-initialization-examples" title="Link to this heading">¶</a></h2>
@@ -181,13 +180,13 @@ the buffer size of the pyo’s Server in order to avoid glitches in the audio st
 <p>There is some useful functions that can help you in the choice of the audio device:</p>
 <ul class="simple">
 <li><p><strong>pa_list_host_apis()</strong>: Prints the list of audio host APIs.</p></li>
-<li><p><strong>pa_list_devices()</strong>: Prints the list of audio devices. The first column if the index of the device.</p></li>
+<li><p><strong>pa_list_devices()</strong>: Prints the list of audio devices. The first column is the index of the device.</p></li>
 <li><p><strong>pa_get_default_input()</strong>: Returns the index of the default input device.</p></li>
 <li><p><strong>pa_get_default_output()</strong>: Returns the index of the default output device.</p></li>
 <li><p><strong>pa_get_default_devices_from_host(host)</strong>: Returns the default input and output devices for a given audio host.</p></li>
 </ul>
 <p>Run this code to see the current state of your audio setup:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">"Audio host APIS:"</span><span class="p">)</span>
 <a class="sphinx-codeautolink-a" href="api/functions/audio.html#pyo.pa_list_host_apis" title="pyo.pa_list_host_apis"><span class="n">pa_list_host_apis</span></a><span class="p">()</span>
@@ -197,15 +196,15 @@ the buffer size of the pyo’s Server in order to avoid glitches in the audio st
 </pre></div>
 </div>
 <p>If the default device for the desired host is not the one you want, you can tell the Server
-which device you want to use with the <em>setInputDevice(x)</em> and <em>setOutputDevice(x)</em> methods. These
-methods take the index of the desired device and must be called before booting the Server. Ex:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
-
-<a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">s</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">(</span><span class="n">duplex</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">s</span><span class="o">.</span><span class="n">setOutputDevice</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">s</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
-</pre></div>
-</div>
+which device you want to use with the <cite>setInputDevice(x)</cite> and <cite>setOutputDevice(x)</cite> methods. These
+methods take the index of the desired device and must be called before booting the Server. E.g.:
+.. code-block:: python</p>
+<blockquote>
+<div><p>from pyo import *</p>
+<p>s = Server(duplex=0)
+s.setOutputDevice(0)
+s.boot()</p>
+</div></blockquote>
 </section>
 </section>
 <div class="clearer"></div>
@@ -230,7 +229,7 @@ methods take the index of the desired device and must be called before booting t
 <div class="right">
 <div class="footer" role="contentinfo">
     © Copyright 2025, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
 </div>
 <div class="clearer"></div>

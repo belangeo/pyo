@@ -29,12 +29,25 @@ are not allowed.
     
     # Random walk for the melody.
     e1 = Events(
-        degree=EventDrunk(scl, maxStep=-2), beat=1 / 4.0, db=-6, attack=0.001, decay=0.05, sustain=0.5, release=0.005,
+        degree=EventDrunk(scl, maxStep=-2),
+        beat=1 / 4.0,
+        db=-6,
+        attack=0.001,
+        decay=0.05,
+        sustain=0.5,
+        release=0.005,
     ).play()
     
     # Choose randomly for the bass.
     e2 = Events(
-        degree=EventChoice(scl), beat=1, db=-6, transpo=-12, attack=0.001, decay=0.05, sustain=0.5, release=0.005,
+        degree=EventChoice(scl),
+        beat=1,
+        db=-6,
+        transpo=-12,
+        attack=0.001,
+        decay=0.05,
+        sustain=0.5,
+        release=0.005,
     ).play()
     
     s.gui(locals())

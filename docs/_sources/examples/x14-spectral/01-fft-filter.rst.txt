@@ -53,7 +53,7 @@ implementation of the spectral filter: `PVFilter`.
     # Table values will be used as the new amplitude of analysis bins.
     amp = TableIndex(t, fin["bin"])
     
-    # Applies the amplitudes to the real/imaginary values of analysis bins. 
+    # Applies the amplitudes to the real/imaginary values of analysis bins.
     re = fin["real"] * amp
     im = fin["imag"] * amp
     

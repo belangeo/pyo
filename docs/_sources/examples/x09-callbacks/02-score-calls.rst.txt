@@ -4,7 +4,7 @@
 
 The Score object takes in input an audio stream containing integers
 and any time the integer changes, it calls a function with a generic
-name to which the integer is added. This allows the user to build a 
+name to which the integer is added. This allows the user to build a
 sequence of functions and to control how and when each one is called.
 
 This example uses a metronome and a counter to generate a stream of

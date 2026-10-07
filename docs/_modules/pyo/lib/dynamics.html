@@ -10,8 +10,8 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-codeautolink.css?v=b2176991" />
     <link rel="stylesheet" type="text/css" href="../../../_static/autoclasstoc.css?v=08871587" />
     <script src="../../../_static/documentation_options.js?v=e2a723ec"></script>
-    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="icon" href="../../../_static/E-PyoIcon.ico"/>
     <link rel="author" title="About these documents" href="../../../about.html" />
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -68,7 +68,6 @@
 <span class="sd">Objects to modify the dynamic range and sample quality of audio signals.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Copyright 2009-2015 Olivier Belanger</span>
@@ -133,7 +132,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
         <span class="n">in_fader</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">Clip_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="nb">min</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="nb">max</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+            <span class="n">Clip_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="nb">min</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="nb">max</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
         <span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
 
@@ -279,7 +279,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
         <span class="n">in_fader</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">Mirror_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="nb">min</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="nb">max</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+            <span class="n">Mirror_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="nb">min</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="nb">max</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
         <span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
 
@@ -421,9 +422,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_bitdepth</span> <span class="o">=</span> <span class="n">bitdepth</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_srscale</span> <span class="o">=</span> <span class="n">srscale</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
-        <span class="n">in_fader</span><span class="p">,</span> <span class="n">bitdepth</span><span class="p">,</span> <span class="n">srscale</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">bitdepth</span><span class="p">,</span> <span class="n">srscale</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">bitdepth</span><span class="p">,</span> <span class="n">srscale</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">bitdepth</span><span class="p">,</span> <span class="n">srscale</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">Degrade_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">bitdepth</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">srscale</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="n">Degrade_base</span><span class="p">(</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">bitdepth</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">srscale</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+            <span class="p">)</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
         <span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
@@ -593,7 +598,18 @@
         <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="n">pyoArgsAssert</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oOOOOnnbOO&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">ratio</span><span class="p">,</span> <span class="n">risetime</span><span class="p">,</span> <span class="n">falltime</span><span class="p">,</span> <span class="n">lookahead</span><span class="p">,</span> <span class="n">knee</span><span class="p">,</span> <span class="n">outputAmp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="s2">&quot;oOOOOnnbOO&quot;</span><span class="p">,</span>
+            <span class="nb">input</span><span class="p">,</span>
+            <span class="n">thresh</span><span class="p">,</span>
+            <span class="n">ratio</span><span class="p">,</span>
+            <span class="n">risetime</span><span class="p">,</span>
+            <span class="n">falltime</span><span class="p">,</span>
+            <span class="n">lookahead</span><span class="p">,</span>
+            <span class="n">knee</span><span class="p">,</span>
+            <span class="n">outputAmp</span><span class="p">,</span>
+            <span class="n">mul</span><span class="p">,</span>
+            <span class="n">add</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
@@ -604,8 +620,19 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_lookahead</span> <span class="o">=</span> <span class="n">lookahead</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_knee</span> <span class="o">=</span> <span class="n">knee</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
-        <span class="n">in_fader</span><span class="p">,</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">ratio</span><span class="p">,</span> <span class="n">risetime</span><span class="p">,</span> <span class="n">falltime</span><span class="p">,</span> <span class="n">lookahead</span><span class="p">,</span> <span class="n">knee</span><span class="p">,</span> <span class="n">outputAmp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">ratio</span><span class="p">,</span> <span class="n">risetime</span><span class="p">,</span> <span class="n">falltime</span><span class="p">,</span> <span class="n">lookahead</span><span class="p">,</span> <span class="n">knee</span><span class="p">,</span> <span class="n">outputAmp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">ratio</span><span class="p">,</span> <span class="n">risetime</span><span class="p">,</span> <span class="n">falltime</span><span class="p">,</span> <span class="n">lookahead</span><span class="p">,</span> <span class="n">knee</span><span class="p">,</span> <span class="n">outputAmp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">convertArgsToLists</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span>
+                <span class="n">thresh</span><span class="p">,</span>
+                <span class="n">ratio</span><span class="p">,</span>
+                <span class="n">risetime</span><span class="p">,</span>
+                <span class="n">falltime</span><span class="p">,</span>
+                <span class="n">lookahead</span><span class="p">,</span>
+                <span class="n">knee</span><span class="p">,</span>
+                <span class="n">outputAmp</span><span class="p">,</span>
+                <span class="n">mul</span><span class="p">,</span>
+                <span class="n">add</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">Compress_base</span><span class="p">(</span>
@@ -879,8 +906,20 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=-</span><span class="mi">70</span><span class="p">,</span> <span class="n">risetime</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">falltime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">lookahead</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">outputAmp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oOOOnbOO&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">risetime</span><span class="p">,</span> <span class="n">falltime</span><span class="p">,</span> <span class="n">lookahead</span><span class="p">,</span> <span class="n">outputAmp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="nb">input</span><span class="p">,</span>
+        <span class="n">thresh</span><span class="o">=-</span><span class="mi">70</span><span class="p">,</span>
+        <span class="n">risetime</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+        <span class="n">falltime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+        <span class="n">lookahead</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+        <span class="n">outputAmp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oOOOnbOO&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">risetime</span><span class="p">,</span> <span class="n">falltime</span><span class="p">,</span> <span class="n">lookahead</span><span class="p">,</span> <span class="n">outputAmp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span>
+        <span class="p">)</span>
         <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_thresh</span> <span class="o">=</span> <span class="n">thresh</span>
@@ -888,8 +927,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_falltime</span> <span class="o">=</span> <span class="n">falltime</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lookahead</span> <span class="o">=</span> <span class="n">lookahead</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
-        <span class="n">in_fader</span><span class="p">,</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">risetime</span><span class="p">,</span> <span class="n">falltime</span><span class="p">,</span> <span class="n">lookahead</span><span class="p">,</span> <span class="n">outputAmp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">risetime</span><span class="p">,</span> <span class="n">falltime</span><span class="p">,</span> <span class="n">lookahead</span><span class="p">,</span> <span class="n">outputAmp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">risetime</span><span class="p">,</span> <span class="n">falltime</span><span class="p">,</span> <span class="n">lookahead</span><span class="p">,</span> <span class="n">outputAmp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">convertArgsToLists</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">risetime</span><span class="p">,</span> <span class="n">falltime</span><span class="p">,</span> <span class="n">lookahead</span><span class="p">,</span> <span class="n">outputAmp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span>
+            <span class="p">)</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">Gate_base</span><span class="p">(</span>
@@ -1092,9 +1133,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span> <span class="o">=</span> <span class="n">freq</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader2</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="n">input2</span><span class="p">)</span>
-        <span class="n">in_fader</span><span class="p">,</span> <span class="n">in_fader2</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader2</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">in_fader2</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader2</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">Balance_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">in_fader2</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="n">Balance_base</span><span class="p">(</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">in_fader2</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+            <span class="p">)</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
         <span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
@@ -1229,7 +1274,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_comp</span> <span class="o">=</span> <span class="n">comp</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
         <span class="n">in_fader</span><span class="p">,</span> <span class="n">comp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">comp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">Min_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Min_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Min.setInput">
@@ -1328,7 +1376,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_comp</span> <span class="o">=</span> <span class="n">comp</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
         <span class="n">in_fader</span><span class="p">,</span> <span class="n">comp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">comp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">Max_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Max_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Max.setInput">
@@ -1471,7 +1522,18 @@
         <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="n">pyoArgsAssert</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oOOOOOnbOO&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">downthresh</span><span class="p">,</span> <span class="n">upthresh</span><span class="p">,</span> <span class="n">ratio</span><span class="p">,</span> <span class="n">risetime</span><span class="p">,</span> <span class="n">falltime</span><span class="p">,</span> <span class="n">lookahead</span><span class="p">,</span> <span class="n">outputAmp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="s2">&quot;oOOOOOnbOO&quot;</span><span class="p">,</span>
+            <span class="nb">input</span><span class="p">,</span>
+            <span class="n">downthresh</span><span class="p">,</span>
+            <span class="n">upthresh</span><span class="p">,</span>
+            <span class="n">ratio</span><span class="p">,</span>
+            <span class="n">risetime</span><span class="p">,</span>
+            <span class="n">falltime</span><span class="p">,</span>
+            <span class="n">lookahead</span><span class="p">,</span>
+            <span class="n">outputAmp</span><span class="p">,</span>
+            <span class="n">mul</span><span class="p">,</span>
+            <span class="n">add</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
@@ -1495,7 +1557,16 @@
             <span class="n">add</span><span class="p">,</span>
             <span class="n">lmax</span><span class="p">,</span>
         <span class="p">)</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">downthresh</span><span class="p">,</span> <span class="n">upthresh</span><span class="p">,</span> <span class="n">ratio</span><span class="p">,</span> <span class="n">risetime</span><span class="p">,</span> <span class="n">falltime</span><span class="p">,</span> <span class="n">lookahead</span><span class="p">,</span> <span class="n">outputAmp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span>
+            <span class="n">downthresh</span><span class="p">,</span>
+            <span class="n">upthresh</span><span class="p">,</span>
+            <span class="n">ratio</span><span class="p">,</span>
+            <span class="n">risetime</span><span class="p">,</span>
+            <span class="n">falltime</span><span class="p">,</span>
+            <span class="n">lookahead</span><span class="p">,</span>
+            <span class="n">outputAmp</span><span class="p">,</span>
+            <span class="n">mul</span><span class="p">,</span>
+            <span class="n">add</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">Expand_base</span><span class="p">(</span>
@@ -1745,7 +1816,7 @@
           
     <div class="footer" role="contentinfo">
     &#169; Copyright 2025, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
         </div>
         <div class="clearer"></div>

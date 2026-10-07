@@ -116,10 +116,10 @@ Two functions help us accomplish this:
                                 self._in_fader, depth, lfofreq, feedback, mul, add)
 
         # Apply processing
-        self._modamp = `Sig`(depth, mul=0.005)
-        self._mod = `Sine`(freq=lfofreq, mul=self._modamp, add=0.005)
-        self._dls = `Delay`(in_fader, delay=self._mod, feedback=feedback)
-        self._flange = `Interp`(in_fader, self._dls, mul=mul, add=add)
+        self._modamp = Sig(depth, mul=0.005)
+        self._mod = Sine(freq=lfofreq, mul=self._modamp, add=0.005)
+        self._dls = Delay(in_fader, delay=self._mod, feedback=feedback)
+        self._flange = Interp(in_fader, self._dls, mul=mul, add=add)
 
         # self._base_objs is the audio output seen by the outside world!
         self._base_objs = self._flange.getBaseObjects()
@@ -230,14 +230,16 @@ of the object. The initialization of sliders is done with a list of `SLMap` obje
 where we can set the range of the slider, the type of scaling, the name of the 
 attribute linked to the slider, and the initial value. We will define a default 
 ``self._map_list`` that will be used if the user doesn't provide one to the parameter 
-``map_list``. If the object doesn't have any parameter to control with a GUI, this
+``map_list``. If the object doesn't have any parameter to control with a GUI, this method
+can be omitted.
+
 .. code-block:: python
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0., 1., "lin", "depth", self._depth),
                           SLMap(0.001, 20., "log", "lfofreq", self._lfofreq),
                           SLMap(0., 1., "lin", "feedback", self._feedback),
-                          `SLMapMul`(self._mul)]
+                          SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
 Step 5 - Overriding the .play(), .stop() and .out() methods
@@ -324,10 +326,10 @@ Complete class definition and test
             in_fader, depth, lfofreq, feedback, mul, add, lmax = convertArgsToLists(
                                     self._in_fader, depth, lfofreq, feedback, mul, add)
 
-            self._modamp = `Sig`(depth, mul=0.005)
-            self._mod = `Sine`(freq=lfofreq, mul=self._modamp, add=0.005)
-            self._dls = `Delay`(in_fader, delay=self._mod, feedback=feedback)
-            self._flange = `Interp`(in_fader, self._dls, mul=mul, add=add)
+            self._modamp = Sig(depth, mul=0.005)
+            self._mod = Sine(freq=lfofreq, mul=self._modamp, add=0.005)
+            self._dls = Delay(in_fader, delay=self._mod, feedback=feedback)
+            self._flange = Interp(in_fader, self._dls, mul=mul, add=add)
 
             self._base_objs = self._flange.getBaseObjects()
 
@@ -407,7 +409,7 @@ Complete class definition and test
             self._map_list = [SLMap(0., 1., "lin", "depth", self._depth),
                               SLMap(0.001, 20., "log", "lfofreq", self._lfofreq),
                               SLMap(0., 1., "lin", "feedback", self._feedback),
-                              `SLMapMul`(self._mul)]
+                              SLMapMul(self._mul)]
             PyoObject.ctrl(self, map_list, title, wxnoserver)
 
         @property
@@ -434,9 +436,10 @@ Complete class definition and test
         def lfofreq(self, x): 
             self.setLfoFreq(x)
 
-            @property
-            def feedback(self): 
-                """float or PyoObject. Amount of output signal sent back in delay line."""            return self._feedback
+        @property
+        def feedback(self): 
+            """float or PyoObject. Amount of output signal sent back in delay line."""
+            return self._feedback
         @feedback.setter
         def feedback(self, x): 
             self.setFeedback(x)
@@ -446,4 +449,4 @@ Complete class definition and test
         s = Server().boot()
         src = BrownNoise([.2,.2]).out()
         fl = Flanger(src, depth=0.9, lfofreq=0.1, feedback=0.5, mul=0.5).out()
-        `s.gui(locals())`
+        s.gui(locals())

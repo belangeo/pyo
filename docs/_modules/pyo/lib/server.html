@@ -10,8 +10,8 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-codeautolink.css?v=b2176991" />
     <link rel="stylesheet" type="text/css" href="../../../_static/autoclasstoc.css?v=08871587" />
     <script src="../../../_static/documentation_options.js?v=e2a723ec"></script>
-    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="icon" href="../../../_static/E-PyoIcon.ico"/>
     <link rel="author" title="About these documents" href="../../../about.html" />
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -85,9 +85,11 @@
 <span class="sd">You should have received a copy of the GNU Lesser General Public</span>
 <span class="sd">License along with pyo.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">sys</span><span class="o">,</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">._core</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">._widgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">createServerGUI</span>
+
 
 <span class="c1">######################################################################</span>
 <span class="c1">### Proxy of Server object</span>
@@ -214,7 +216,12 @@
         <span class="n">midi</span><span class="o">=</span><span class="s2">&quot;portmidi&quot;</span><span class="p">,</span>
         <span class="n">verbosity</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="k">if</span> <span class="s2">&quot;PYO_SERVER_AUDIO&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="ow">and</span> <span class="n">audio</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;offline&quot;</span><span class="p">,</span> <span class="s2">&quot;offline_nb&quot;</span><span class="p">,</span> <span class="s2">&quot;embedded&quot;</span><span class="p">,</span> <span class="s2">&quot;manual&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="s2">&quot;PYO_SERVER_AUDIO&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="ow">and</span> <span class="n">audio</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="s2">&quot;offline&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;offline_nb&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;embedded&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;manual&quot;</span><span class="p">,</span>
+        <span class="p">]:</span>
             <span class="n">audio</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;PYO_SERVER_AUDIO&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="s2">&quot;PYO_SERVER_MIDI&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
             <span class="n">midi</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;PYO_SERVER_MIDI&quot;</span><span class="p">]</span>
@@ -239,7 +246,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_globalseed</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_resampling</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_isJackTransportSlave</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_server</span> <span class="o">=</span> <span class="n">Server_base</span><span class="p">(</span><span class="n">sr</span><span class="p">,</span> <span class="n">nchnls</span><span class="p">,</span> <span class="n">buffersize</span><span class="p">,</span> <span class="n">duplex</span><span class="p">,</span> <span class="n">audio</span><span class="p">,</span> <span class="n">jackname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ichnls</span><span class="p">,</span> <span class="n">midi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbosity</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_server</span> <span class="o">=</span> <span class="n">Server_base</span><span class="p">(</span>
+            <span class="n">sr</span><span class="p">,</span> <span class="n">nchnls</span><span class="p">,</span> <span class="n">buffersize</span><span class="p">,</span> <span class="n">duplex</span><span class="p">,</span> <span class="n">audio</span><span class="p">,</span> <span class="n">jackname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ichnls</span><span class="p">,</span> <span class="n">midi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbosity</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">_setDefaultRecPath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">),</span> <span class="s2">&quot;pyo_rec.wav&quot;</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;win&quot;</span><span class="p">):</span>
@@ -258,6 +267,13 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_audio</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;offline&quot;</span><span class="p">,</span> <span class="s2">&quot;offline_nb&quot;</span><span class="p">,</span> <span class="s2">&quot;embedded&quot;</span><span class="p">,</span> <span class="s2">&quot;manual&quot;</span><span class="p">]:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.25</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="fm">__del__</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">False</span>
 
 <div class="viewcode-block" id="Server.reinit">
 <a class="viewcode-back" href="../../../api/classes/server.html#pyo.Server.reinit">[docs]</a>
@@ -281,7 +297,12 @@
 <span class="sd">            Same as in the __init__ method.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s2">&quot;PYO_SERVER_AUDIO&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="ow">and</span> <span class="n">audio</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;offline&quot;</span><span class="p">,</span> <span class="s2">&quot;offline_nb&quot;</span><span class="p">,</span> <span class="s2">&quot;embedded&quot;</span><span class="p">,</span> <span class="s2">&quot;manual&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="s2">&quot;PYO_SERVER_AUDIO&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="ow">and</span> <span class="n">audio</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="s2">&quot;offline&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;offline_nb&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;embedded&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;manual&quot;</span><span class="p">,</span>
+        <span class="p">]:</span>
             <span class="n">audio</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;PYO_SERVER_AUDIO&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="s2">&quot;PYO_SERVER_MIDI&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
             <span class="n">midi</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;PYO_SERVER_MIDI&quot;</span><span class="p">]</span>
@@ -1168,7 +1189,9 @@
                 <span class="n">fileformat</span> <span class="o">=</span> <span class="n">FILE_FORMATS</span><span class="p">[</span><span class="n">ext</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">fileformat</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fileformat</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_fileformat</span> <span class="o">=</span> <span class="n">fileformat</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">recordOptions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dur</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fileformat</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sampletype</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">recordOptions</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_dur</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fileformat</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sampletype</span>
+                    <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">recstart</span><span class="p">(</span><span class="n">stringencode</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span></div>
 
@@ -1208,9 +1231,13 @@
 <span class="sd">                is sent to the output midi stream. A value of 0</span>
 <span class="sd">                means to play the note now. Defaults to 0.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">pitch</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">)</span>
+        <span class="n">pitch</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span>
+            <span class="n">pitch</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">timestamp</span>
+        <span class="p">)</span>
         <span class="p">[</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">noteout</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">velocity</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">noteout</span><span class="p">(</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">velocity</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+            <span class="p">)</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
         <span class="p">]</span></div>
 
@@ -1239,9 +1266,13 @@
 <span class="sd">                is sent to the output midi stream. A value of 0</span>
 <span class="sd">                means to play the note now. Defaults to 0.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">pitch</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">)</span>
+        <span class="n">pitch</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span>
+            <span class="n">pitch</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">timestamp</span>
+        <span class="p">)</span>
         <span class="p">[</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">afterout</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">velocity</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">afterout</span><span class="p">(</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">velocity</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+            <span class="p">)</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
         <span class="p">]</span></div>
 
@@ -1270,9 +1301,13 @@
 <span class="sd">                is sent to the output midi stream. A value of 0</span>
 <span class="sd">                means to play the note now. Defaults to 0.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">ctlnum</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">ctlnum</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">)</span>
+        <span class="n">ctlnum</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span>
+            <span class="n">ctlnum</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">timestamp</span>
+        <span class="p">)</span>
         <span class="p">[</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">ctlout</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">ctlnum</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">ctlout</span><span class="p">(</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">ctlnum</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+            <span class="p">)</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
         <span class="p">]</span></div>
 
@@ -1300,7 +1335,10 @@
 <span class="sd">                means to play the note now. Defaults to 0.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">value</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">)</span>
-        <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">programout</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span></div>
+        <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">programout</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="Server.pressout">
@@ -1326,7 +1364,10 @@
 <span class="sd">                means to play the note now. Defaults to 0.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">value</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">)</span>
-        <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">pressout</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span></div>
+        <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">pressout</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="Server.bendout">
@@ -1353,7 +1394,10 @@
 <span class="sd">                means to play the note now. Defaults to 0.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">value</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">)</span>
-        <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">bendout</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span></div>
+        <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">bendout</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="Server.sysexout">
@@ -1408,9 +1452,13 @@
 <span class="sd">                note is sent. A channel of 0 means all channels.</span>
 <span class="sd">                Defaults to 0.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">pitch</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">duration</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">duration</span><span class="p">,</span> <span class="n">channel</span><span class="p">)</span>
+        <span class="n">pitch</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">duration</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span>
+            <span class="n">pitch</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">duration</span><span class="p">,</span> <span class="n">channel</span>
+        <span class="p">)</span>
         <span class="p">[</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">makenote</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">velocity</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">duration</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">makenote</span><span class="p">(</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">velocity</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">duration</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+            <span class="p">)</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
         <span class="p">]</span></div>
 
@@ -1454,7 +1502,10 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">status</span><span class="p">,</span> <span class="n">data1</span><span class="p">,</span> <span class="n">data2</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">data1</span><span class="p">,</span> <span class="n">data2</span><span class="p">)</span>
-        <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">addMidiEvent</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">data1</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">data2</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span></div>
+        <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">addMidiEvent</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">data1</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">data2</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">getStreams</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1825,7 +1876,7 @@
           
     <div class="footer" role="contentinfo">
     &#169; Copyright 2025, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
         </div>
         <div class="clearer"></div>

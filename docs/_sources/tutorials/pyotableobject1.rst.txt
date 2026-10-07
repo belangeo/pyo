@@ -9,16 +9,15 @@ Creating a custom PyoTableObject - TriangleTable
         """
         Triangle waveform generator.
 
-        Generates triangle waveforms made up of fixed number of harmonics.
+        Generates triangle waveforms made up of a fixed number of harmonics.
 
         :Parent: :py:class:`PyoTableObject`
 
         :Args:
 
             order : int, optional
-                Number of harmonics triangle waveform is made of. The waveform will 
-                contains `order` odd harmonics. Defaults to 10.
-            size : int, optional
+                Number of harmonics the triangle waveform is made of. The waveform will 
+                contain `order` odd harmonics. Defaults to 10.            size : int, optional
                 Table size in samples. Defaults to 8192.
 
         >>> s = Server().boot()

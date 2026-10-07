@@ -10,6 +10,7 @@ Objects in this category
 ------------------------------
 
 - :py:class:`CallAfter` :     Calls a Python function after a given time.
+- :py:class:`CallAlways` :     Calls a Python function every processing frame.
 - :py:class:`Pattern` :     Periodically calls a Python function.
 - :py:class:`Score` :     Calls functions by incrementation of a preformatted name.
 
@@ -17,6 +18,14 @@ Objects in this category
 -----------------------------------
 
 .. autoclass:: CallAfter
+   :members:
+
+   .. autoclasstoc::
+
+*CallAlways*
+-----------------------------------
+
+.. autoclass:: CallAlways
    :members:
 
    .. autoclasstoc::
