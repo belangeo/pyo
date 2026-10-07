@@ -414,7 +414,7 @@
             "type": "pickString",
             "id": "pyMinVersion",
             "description": "Choose your python minor version...",
-            "options": ["9", "10", "11", "12", "13"],
+            "options": ["11", "12", "13", "14"],
             "default": "9"
         },
         {
