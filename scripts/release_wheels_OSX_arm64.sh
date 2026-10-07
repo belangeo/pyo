@@ -11,7 +11,7 @@ set -eu
 #   twine upload dist/*
 #
 
-version=1.0.6
+version=1.0.7
 
 parse_otool_dependencies() {
     awk '/^[[:space:]]/ { sub(/^[[:space:]]+/, ""); sub(/[[:space:]]+\(compatibility version.*$/, ""); print }'
