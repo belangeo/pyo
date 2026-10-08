@@ -28,7 +28,7 @@ jobs:
         run: |
           python3 -m pip install --disable-pip-version-check \
             "cibuildwheel==4.2.1" \
-            "twine==6.2.0"
+            "twine==7.0.0"
 
       - name: Build and test manylinux wheels
         run: python3 -m cibuildwheel --output-dir wheelhouse
