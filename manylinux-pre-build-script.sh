@@ -53,7 +53,8 @@ download \
     a8cfb1c09ea6e90eff4ca87322d4168cdbe5035cb48717b40bf77e751cc02163
 tar -xjf libsndfile-1.0.31.tar.bz2
 pushd libsndfile-1.0.31
-./autogen.sh
+# The release archive includes a generated configure script; autogen.sh is
+# present only in a source checkout.
 ./configure
 make -j"$(nproc)"
 make install
