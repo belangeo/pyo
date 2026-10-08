@@ -13,7 +13,7 @@ Dependencies
 
 To compile pyo with all its features, you will need the following dependencies: 
 
-- `Python 3.9, 3.10, 3.11, 3.12, or 3.13 <https://www.python.org/downloads/>`_.
+- `Python 3.11, 3.12, 3.13, or 3.14 <https://www.python.org/downloads/>`_.
 - `WxPython Phoenix 4.2.0 or higher <https://www.wxpython.org/pages/downloads/>`_
 - `Portaudio <http://www.portaudio.com/>`_
 - `Portmidi <http://portmedia.sourceforge.net/portmidi/>`_

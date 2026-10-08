@@ -14,13 +14,7 @@ MIDI protocol, for generating sound events and controlling process parameters.
 pyo allows creation of sophisticated signal processing chains with all the 
 benefits of a mature, and widely used, general programming language.
 
-Available from Pypi:
-
-- python 3.9 (Windows amd64, MacOS arm64, linux x86_64)
-- python 3.10 (Windows amd64, MacOS x86_64 et arm64, linux x86_64)
-- python 3.11 (Windows amd64, MacOS x86_64 et arm64, linux x86_64)
-- python 3.12 (Windows amd64, MacOS x86_64 et arm64, linux x86_64)
-- python 3.13 (Windows amd64, MacOS x86_64 et arm64, linux x86_64)
+Available on Pypi: [Download wheels](https://pypi.org/project/pyo/).
 
 **For more information and documentation**, visit the 
 [PYO DOCUMENTATION](https://belangeo.github.io/pyo/).
