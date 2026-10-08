@@ -1802,9 +1802,6 @@ class PeakAmp(PyoObject):
         pyoArgsAssert(self, "N", x)
         self._timer.time = x
 
-    def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self.play(dur, delay)
-
     def _buildList(self):
         if self._function is not None:
             values = [obj.getValue() for obj in self._base_objs]
@@ -1945,9 +1942,6 @@ class RMS(PyoObject):
         """
         pyoArgsAssert(self, "N", x)
         self._timer.time = x
-
-    def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self.play(dur, delay)
 
     def _buildList(self):
         if self._function is not None:

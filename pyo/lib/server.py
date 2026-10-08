@@ -1275,13 +1275,6 @@ class Server(object):
             for i in range(lmax)
         ]
 
-    def getStreams(self):
-        """
-        Return the list of streams loaded in the server.
-
-        """
-        return self._server.getStreams()
-
     def getSamplingRate(self):
         """
         Return the current sampling rate.
