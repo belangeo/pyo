@@ -139,8 +139,8 @@ Debian & Ubuntu (apt-get)
 
 Under Debian & Ubuntu, you can type the following commands to get pyo up and running.
 
-For Python 3.9 and higher
-*************************
+For Python 3.11 and higher
+**************************
 
 .. code-block:: bash
 
