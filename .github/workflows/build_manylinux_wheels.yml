@@ -1,33 +1,56 @@
+name: Build and publish manylinux wheels
+
 on:
-  workflow_dispatch:
   push:
-    branches:
-      - main
-  pull_request:
+    tags:
+      - "*"
+  workflow_dispatch:
+
+# The workflow only needs to read the repository. Publishing authenticates with
+# the TestPyPI token stored in Actions secrets, not with GITHUB_TOKEN.
+permissions:
+  contents: read
+
+concurrency:
+  group: manylinux-wheels-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+  build-and-publish:
+    runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v6
-    - name: Set up Python
-      uses: actions/setup-python@v6
-      with:
-        python-version: 3.9
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install twine
-    - name: Build manylinux Python wheels
-      uses: RalfG/python-wheels-manylinux-build@v0.5.0-manylinux2014_x86_64
-      with:
-        python-versions: 'cp39-cp39 cp310-cp310 cp311-cp311 cp312-cp312 cp313-cp313'
-        system-packages: 'guile-devel zlib-devel gettext portaudio-devel portmidi-devel autogen libdb-devel wget'
-        pre-build-command: 'sh manylinux-pre-build-script.sh'
-        pip-wheel-args: '-w ./dist --config-setting="--build-option=--use-double" --config-setting="--build-option=--use-jack"'
-    - name: Publish wheels to test PyPI
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: pypi-AgENdGVzdC5weXBpLm9yZwIkY2FkY2Y2MzktODE1NC00MDY1LTg5ZDctMzY0ODE1NGExYjgwAAILWzEsWyJweW8iXV0AAixbMixbIjJmMTZmZWQ3LTQ0ZmEtNGRmMC1hY2I0LTQ0M2ZmNDFkNzE5YiJdXQAABiD0UYJSUVETU3c-I0RJ8-E5Yi7dmtrH7fuMjngDX67khA
-      run: |
-        twine upload --verbose --repository testpypi dist/*-manylinux*.whl
+      - name: Check out the tagged source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install the release tools
+        run: |
+          python3 -m pip install --disable-pip-version-check \
+            "cibuildwheel==4.2.1" \
+            "twine==6.2.0"
+
+      - name: Build and test manylinux wheels
+        run: python3 -m cibuildwheel --output-dir wheelhouse
+        env:
+          CIBW_ARCHS_LINUX: x86_64
+          CIBW_BUILD: "cp311-manylinux_x86_64 cp312-manylinux_x86_64 cp313-manylinux_x86_64 cp314-manylinux_x86_64"
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
+          CIBW_BEFORE_ALL_LINUX: "bash {package}/manylinux-pre-build-script.sh"
+          CIBW_CONFIG_SETTINGS: "--build-option=--use-double --build-option=--use-jack"
+          CIBW_ENVIRONMENT_LINUX: "CFLAGS=-I/usr/local/include LDFLAGS=-L/usr/local/lib"
+          CIBW_TEST_COMMAND: "python -c \"import pyo; print(pyo.getVersion())\""
+
+      - name: Validate wheel metadata
+        run: python3 -m twine check wheelhouse/*.whl
+
+      - name: Publish wheels to TestPyPI
+        if: github.event_name == 'push'
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        run: |
+          test -n "$TWINE_PASSWORD"
+          python3 -m twine upload --non-interactive --skip-existing \
+            --repository-url https://test.pypi.org/legacy/ \
+            wheelhouse/*.whl
