@@ -1,97 +1,254 @@
 """
-Copyright 2009-2019 Olivier Belanger
+Copyright 2009-2026 Olivier Belanger
 
-This file is part of pyo, a python module to help digital signal
-processing script creation.
+This file is part of pyo, a Python module to help digital signal processing
+script creation.
 
-pyo is free software: you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as
-published by the Free Software Foundation, either version 3 of the
-License, or (at your option) any later version.
-
-pyo is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
+Load host ALSA and JACK libraries ahead of auditwheel-bundled copies.
 """
 
-# At first run, found and symlink system's libasound and libjack into
-# ~/.pyo/X.X_ARCH/libs.
-# At runtime, dlopen them before running any other code so that pyo
-# use these libraries instead of those embedded in the wheels (alsa
-# and jack just don't work with embedded ones).
-
-import os
-import sys
-import struct
 import ctypes
-import pyo
+import glob
+import os
+import platform
+import struct
+import subprocess
+import sys
+from pathlib import Path
 
-bitdepth = struct.calcsize("P") * 8
-version = "%d.%d_%d" % (sys.version_info[0], sys.version_info[1], bitdepth)
-userlibdir = os.path.join(os.path.expanduser("~"), ".pyo", version, "libs")
-try:
-    os.makedirs(userlibdir)
-except:
-    pass
 
-libs = os.listdir("{}{}".format(os.path.dirname(pyo.__file__), ".libs"))
+_LIBRARIES = (
+    ("libasound", "libasound.so.2"),
+    ("libjack", "libjack.so.0"),
+)
+_LOADED_LIBRARIES = []
 
-withlibasound = withlibjack = False
-libasound = libjack = ""
 
-for lib in libs:
-    if "libasound" in lib:
-        libasound = os.path.join(userlibdir, lib)
-        withlibasound = True
-    if "libjack" in lib:
-        libjack = os.path.join(userlibdir, lib)
-        withlibjack = True
+def _package_libs_directory():
+    """Return the wheel's .libs directory without recursively importing pyo."""
+    package = sys.modules.get(__package__)
+    package_file = getattr(package, "__file__", None)
+    if package_file is None:
+        return None
 
-# If libdir already exists, we still need to check if the symlinks are the
-# good ones. For a new installation, lib files will have different names.
-need_symlinks = False
-if not os.path.islink(libasound):
-    need_symlinks = True
+    try:
+        directory = Path(package_file).resolve().parent / ".libs"
+    except OSError:
+        return None
+    return directory if directory.is_dir() else None
 
-if need_symlinks:
-    libasoundfound = libjackfound = False
-    libasoundpath = libjackpath = ""
-    folders = [
-        "/usr/local/lib",
-        "/usr/local/lib%d" % bitdepth,
-        "/usr/lib",
-        "/usr/lib%d" % bitdepth,
-        "/lib",
-        "/lib%d" % bitdepth,
-    ]
-    for path in folders:
-        for root, dirs, files in os.walk(path):
-            for f in files:
-                if libasound:
-                    if not libasoundfound and "libasound.so" in f:
-                        libasoundpath = os.path.join(root, f)
-                        libasoundfound = True
-                if libjack:
-                    if not libjackfound and "libjack.so" in f:
-                        libjackpath = os.path.join(root, f)
-                        libjackfound = True
-                if withlibasound == libasoundfound and withlibjack == libjackfound:
-                    break
-                    break
 
-    if withlibasound and libasoundfound:
-        os.symlink(libasoundpath, libasound)
+def _bundled_library_name(directory, prefix):
+    try:
+        candidates = sorted(
+            path.name
+            for path in directory.iterdir()
+            if path.name.startswith(prefix) and ".so" in path.name
+        )
+    except OSError:
+        return None
+    return candidates[0] if candidates else None
 
-    if withlibjack and libjackfound:
-        os.symlink(libjackpath, libjack)
 
-# Now, we preload the libraries, before importing _pyo.
-if withlibasound:
-    libasound = ctypes.CDLL(libasound, mode=ctypes.RTLD_GLOBAL)
+def _expected_elf_machine():
+    machines = {
+        "aarch64": 183,
+        "amd64": 62,
+        "arm": 40,
+        "arm64": 183,
+        "armv7l": 40,
+        "i386": 3,
+        "i686": 3,
+        "ppc64": 21,
+        "ppc64le": 21,
+        "riscv64": 243,
+        "s390x": 22,
+        "x86_64": 62,
+    }
+    return machines.get(platform.machine().lower())
 
-if withlibjack and os.path.islink(libjack):
-    libjack = ctypes.CDLL(libjack, mode=ctypes.RTLD_GLOBAL)
+
+def _is_compatible_elf(path):
+    """Return whether *path* is an ELF library for this Python architecture."""
+    try:
+        if not path.is_file():
+            return False
+        with path.open("rb") as file:
+            header = file.read(20)
+    except OSError:
+        return False
+
+    if len(header) < 20 or header[:4] != b"\x7fELF":
+        return False
+
+    elf_class, byte_order = header[4], header[5]
+    expected_class = 2 if struct.calcsize("P") == 8 else 1
+    expected_byte_order = 1 if sys.byteorder == "little" else 2
+    if elf_class != expected_class or byte_order != expected_byte_order:
+        return False
+
+    expected_machine = _expected_elf_machine()
+    if expected_machine is None:
+        return True
+
+    byte_order_name = "little" if byte_order == 1 else "big"
+    return int.from_bytes(header[18:20], byte_order_name) == expected_machine
+
+
+def _ldconfig_candidates(soname):
+    """Yield native absolute paths recorded in the dynamic-linker cache."""
+    try:
+        result = subprocess.run(
+            ["ldconfig", "-p"],
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+        )
+    except (FileNotFoundError, OSError):
+        return
+
+    if result.returncode != 0:
+        return
+
+    for line in result.stdout.splitlines():
+        name, separator, location = line.strip().partition("=>")
+        if not separator or name.split(maxsplit=1)[0] != soname:
+            continue
+        path = Path(location.strip())
+        if _is_compatible_elf(path):
+            yield path
+
+
+def _library_directories():
+    """Yield native and multiarch library directories in priority order."""
+    directories = []
+    for path in os.environ.get("LD_LIBRARY_PATH", "").split(":"):
+        # An empty segment means the current directory. Do not load a library
+        # from an arbitrary working directory during import.
+        if path:
+            directories.append(Path(path))
+
+    for variable in ("CONDA_PREFIX", "VIRTUAL_ENV"):
+        value = os.environ.get(variable)
+        if value:
+            directories.append(Path(value) / "lib")
+
+    directories.extend(
+        [
+            Path(sys.prefix) / "lib",
+            Path("/usr/local/lib"),
+            Path("/usr/local/lib64"),
+            Path("/usr/lib"),
+            Path("/usr/lib64"),
+            Path("/lib"),
+            Path("/lib64"),
+            Path("/app/lib"),
+            Path("/run/current-system/sw/lib"),
+        ]
+    )
+    directories.extend(Path(path) for path in glob.glob("/usr/lib/*"))
+    directories.extend(Path(path) for path in glob.glob("/lib/*"))
+
+    seen = set()
+    for directory in directories:
+        if directory in seen or not directory.is_dir():
+            continue
+        seen.add(directory)
+        yield directory
+
+
+def _find_system_library(soname):
+    """Find a compatible system library without recursively walking /usr."""
+    seen = set()
+    for directory in _library_directories():
+        candidates = [directory / soname, *sorted(directory.glob("%s*" % soname))]
+        for path in candidates:
+            try:
+                resolved = path.resolve()
+            except OSError:
+                continue
+            if resolved in seen:
+                continue
+            seen.add(resolved)
+            if _is_compatible_elf(path):
+                return path
+
+    for path in _ldconfig_candidates(soname):
+        try:
+            resolved = path.resolve()
+        except OSError:
+            continue
+        if resolved not in seen:
+            seen.add(resolved)
+            return path
+    return None
+
+
+def _cache_directory():
+    version = "%d.%d_%d" % (
+        sys.version_info.major,
+        sys.version_info.minor,
+        struct.calcsize("P") * 8,
+    )
+    try:
+        directory = Path.home() / ".pyo" / version / "libs"
+        directory.mkdir(mode=0o700, parents=True, exist_ok=True)
+    except (OSError, RuntimeError):
+        return None
+    return directory if directory.is_dir() else None
+
+
+def _cache_link(directory, filename, target):
+    """Create or repair a cache symlink without overwriting a regular file."""
+    destination = directory / filename
+    try:
+        if os.path.lexists(destination):
+            if destination.is_symlink() and destination.exists():
+                try:
+                    if os.path.samefile(destination, target):
+                        return destination
+                except OSError:
+                    pass
+            if not destination.is_symlink():
+                return None
+            destination.unlink()
+        destination.symlink_to(target)
+        return destination
+    except OSError:
+        return None
+
+
+def _preload_library(libs_directory, prefix, soname):
+    filename = _bundled_library_name(libs_directory, prefix)
+    if filename is None:
+        return
+
+    system_library = _find_system_library(soname)
+    if system_library is None:
+        return
+
+    load_path = system_library
+    cache_directory = _cache_directory()
+    if cache_directory is not None:
+        cached_library = _cache_link(cache_directory, filename, system_library)
+        if cached_library is not None:
+            load_path = cached_library
+
+    try:
+        _LOADED_LIBRARIES.append(ctypes.CDLL(str(load_path), mode=ctypes.RTLD_GLOBAL))
+    except OSError:
+        # The bundled library remains available as a last-resort fallback.
+        pass
+
+
+def _preload_system_audio_libraries():
+    libs_directory = _package_libs_directory()
+    if libs_directory is None:
+        return
+
+    for prefix, soname in _LIBRARIES:
+        _preload_library(libs_directory, prefix, soname)
+
+
+_preload_system_audio_libraries()
