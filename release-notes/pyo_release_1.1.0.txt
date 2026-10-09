@@ -1,0 +1,162 @@
+[English version follows]
+
+Bonjour à tous,
+
+Je suis très heureux d'annoncer la sortie de pyo 1.1.0, disponible pour les versions
+de Python suivantes :
+
+3.11 (Windows amd64, macOS arm64, Linux x86_64)
+3.12 (Windows amd64, macOS arm64, Linux x86_64)
+3.13 (Windows amd64, macOS arm64, Linux x86_64)
+3.14 (Windows amd64, macOS arm64, Linux x86_64)
+
+Pyo est un module Python écrit en C pour faciliter la programmation de traitement
+de signal audio-numérique. Il fournit un ensemble complet de classes pour développer
+des logiciels audio, composer des musiques algorithmiques ou simplement explorer
+le traitement du signal audio. Il est disponible pour Windows, macOS et Linux.
+Il est publié sous la licence LGPL 3.
+
+Site web officiel : https://github.com/belangeo/pyo
+
+La documentation : https://belangeo.github.io/pyo/
+
+Sources et suivi des bugs : https://github.com/belangeo/pyo
+
+Installation :
+
+    python -m pip install --user pyo
+
+
+Voir plus bas pour le détail des changements apportés dans cette version !
+
+
+Olivier
+
+---
+
+Hello all,
+
+I'm very happy to announce the release of pyo 1.1.0, available for the following
+Python versions:
+
+3.11 (Windows amd64, macOS arm64, Linux x86_64)
+3.12 (Windows amd64, macOS arm64, Linux x86_64)
+3.13 (Windows amd64, macOS arm64, Linux x86_64)
+3.14 (Windows amd64, macOS arm64, Linux x86_64)
+
+Pyo is a Python module written in C to help real-time digital signal processing
+script creation. It provides a complete set of classes to build audio software,
+compose algorithmic music or simply explore audio processing. It is available for
+Windows, macOS and Linux. It is released under the LGPL 3 license.
+
+Official website: https://github.com/belangeo/pyo
+
+pyo's documentation: https://belangeo.github.io/pyo/
+
+Latest sources and bug tracker: https://github.com/belangeo/pyo
+
+Installation:
+
+    python -m pip install --user pyo
+
+
+Olivier
+
+
+WHAT CHANGED IN VERSION 1.1.0 (SINCE 1.0.6):
+
+New features:
+
+- Added CallAlways, which calls a Python function every processing frame.
+- Added context-manager support to the Server object.
+- Added PEP 489 multi-phase module initialization and support for multiple
+  sub-interpreters. Python types and module/runtime state are now local to each
+  interpreter.
+- Added spectral domain and 2D table (matrix) examples to the documentation.
+
+Build and integration updates:
+
+- Updated the JUCE and Pure Data files and the OpenFrameworks example.
+- Added GitHub Actions CI/CD workflows for cross-platform testing.
+- macOS: Replaced version-specific Homebrew dependency paths with stable opt/
+  symlinks, allowing builds against different installed dependency versions.
+  Verified on Python 3.14 (macOS arm64).
+
+Bug Fixes:
+
+- Fixed pyo embedding in Pure Data on Windows, including Python runtime discovery,
+  full-width pointer handling, and initialization error reporting. Linux and
+  macOS embedding were also validated.
+- Fixed GCC 15/C23 incompatibilities (issues #276, #295, and #311).
+- Fixed memory leaks in PyObject_Call and PyObject_CallMethod statements.
+- Improved error handling during object creation.
+- Server: Stream IDs are no longer reused after shutdown.
+- Removed shadowed duplicate method definitions in PeakAmp, RMS, and Server.
+
+================================================================================
+
+Hello all,
+
+I'm very happy to announce the release of pyo 1.1.0, available for the following
+Python versions:
+
+3.11 (Windows amd64, macOS arm64, Linux x86_64)
+3.12 (Windows amd64, macOS arm64, Linux x86_64)
+3.13 (Windows amd64, macOS arm64, Linux x86_64)
+3.14 (Windows amd64, macOS arm64, Linux x86_64)
+
+Pyo is a Python module written in C to help real-time digital signal processing
+script creation. It provides a complete set of classes to build audio software,
+compose algorithmic music or simply explore audio processing. It is available for
+Windows, macOS and Linux. It is released under the LGPL 3 license.
+
+Official website: https://github.com/belangeo/pyo
+
+pyo's documentation: https://belangeo.github.io/pyo/
+
+Latest sources and bug tracker: https://github.com/belangeo/pyo
+
+Installation:
+
+    python -m pip install --user pyo
+
+
+WHAT CHANGED IN VERSION 1.1.0 (SINCE 1.0.6):
+
+New features:
+
+- Added CallAlways, which calls a Python function every processing frame.
+- Added context-manager support to the Server object.
+- Added PEP 489 multi-phase module initialization and support for multiple
+  sub-interpreters. Python types and module/runtime state are now local to each
+  interpreter.
+- Added spectral domain and 2D table (matrix) examples to the documentation.
+
+Build and integration updates:
+
+- Updated the JUCE and Pure Data files and the OpenFrameworks example.
+- Added GitHub Actions CI/CD workflows for cross-platform testing.
+- macOS: Replaced version-specific Homebrew dependency paths with stable opt/
+  symlinks, allowing builds against different installed dependency versions.
+  Verified on Python 3.14 (macOS arm64).
+
+Bug Fixes:
+
+- Fixed pyo embedding in Pure Data on Windows, including Python runtime discovery,
+  full-width pointer handling, and initialization error reporting. Linux and
+  macOS embedding were also validated.
+- Fixed GCC 15/C23 incompatibilities (issues #276, #295, and #311).
+- Fixed memory leaks in PyObject_Call and PyObject_CallMethod statements.
+- Improved error handling during object creation.
+- Server: Stream IDs are no longer reused after shutdown.
+- Removed shadowed duplicate method definitions in PeakAmp, RMS, and Server.
+
+
+Olivier Belanger
+belangeo@gmail.com
+http://olivier.ajaxsoundstudio.com/
+
+----
+
+<P><A HREF="https://github.com/belangeo/pyo">Pyo 1.1.0</A> - short
+Python DSP library. (09-Oct-26)
