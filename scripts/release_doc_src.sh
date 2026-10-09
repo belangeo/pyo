@@ -13,7 +13,7 @@ doc_rep=pyo_XXX-doc
 doc_tar=pyo_XXX-doc.tar.bz2
 
 src_rep=pyo_XXX-src
-src_tar=pyo_XXX-src.tar.bz2
+src_tar=dist/pyo_XXX-src.tar.gz
 
 cp -R ./docs ./dist/${doc_rep/$replace/$version}
 cd dist
@@ -22,5 +22,5 @@ rm -R ${doc_rep/$replace/$version}
 cd ..
 
 git checkout-index -a -f --prefix=${src_rep/$replace/$version}/
-tar -cjvf ${src_tar/$replace/$version} ${src_rep/$replace/$version}
+tar -czvf ${src_tar/$replace/$version} ${src_rep/$replace/$version}
 rm -R ${src_rep/$replace/$version}
