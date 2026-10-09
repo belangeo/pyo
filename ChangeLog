@@ -1,3 +1,64 @@
+2026-09-13 Anai-Guo <antai12232931@outlook.com>
+
+    * Removed shadowed duplicate method definitions in PeakAmp, RMS, and Server.
+
+2026-08-01 Olivier Belanger <belangeo@gmail.com>
+
+    * Server: Do not reuse stream IDs after shutdown.
+
+2026-07-14 Olivier Belanger <belangeo@gmail.com>
+
+    * Added CallAlways, which calls a Python function every processing frame.
+
+2026-07-07 Olivier Belanger <belangeo@gmail.com>
+
+    * Fixed memory leaks in PyObject_Call statements.
+
+2026-07-07 Olivier Belanger <belangeo@gmail.com>
+
+    * Fixed memory leaks in PyObject_CallMethod statements.
+
+2026-07-07 Olivier Belanger <belangeo@gmail.com>
+
+    * Migrated process-global static Python types to interpreter-local,
+      heap-allocated types and module/runtime state.
+
+2026-07-06 Olivier Belanger <belangeo@gmail.com>
+
+    * Improved error handling during object creation.
+
+2026-06-02 Olivier Belanger <belangeo@gmail.com>
+
+    * Added PEP 489 support for multiple sub-interpreters.
+
+2026-05-30 Olivier Belanger <belangeo@gmail.com>
+
+    * Added PEP 489 multi-phase module initialization.
+
+2026-05-24 seanwayland <seanwayland@gmail.com>
+
+    * Added GitHub Actions CI/CD workflows for cross-platform testing.
+
+2026-05-24 Olivier Belanger <belangeo@gmail.com>
+
+    * Added context-manager support to the Server object.
+
+2026-05-18 alex <alexdrymonitis@gmail.com>
+
+    * Updated JUCE files.
+
+2026-05-18 alex <alexdrymonitis@gmail.com>
+
+    * Updated Pure Data files.
+
+2026-05-18 Olivier Belanger <belangeo@gmail.com>
+
+    * Fixed GCC 15/C23 incompatibilities (issues #276, #295, and #311).
+
+2026-05-04 alex <alex@debian.zte.com.cn>
+
+    * Updated the OpenFrameworks example.
+
 2026-04-14 nebul2 <bs@ctoic.net>
 
     * setup.py (macOS): Replaced hardcoded Homebrew Cellar versioned paths with
@@ -2584,5 +2645,3 @@
 2010-09-06 belangeo <belangeo@gmail.com>
 
     * rev 390 - pyo 0.01 release.
-
-
