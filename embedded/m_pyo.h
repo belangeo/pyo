@@ -18,6 +18,8 @@
  * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 #include <errno.h>
+#include <pthread.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -48,7 +50,7 @@ static PyThreadState *main_tstate = NULL;
 /* Function prototypes to redirect Python's stdout to C
  * Needed because it is called before it is defined
 */
-static inline void redirect_stdout_to_c(void);
+static inline int redirect_stdout_to_c(void);
 static PyObject* PyInit_cstdout(void);
 
 /*
@@ -56,13 +58,32 @@ static PyObject* PyInit_cstdout(void);
 ** This is called by every new [pyo~] object,
 ** but the global interpreter is initialized only once, using the py_global_initialized variable
 */
-static void pyo_python_global_init(void)
+static int pyo_python_global_init(void)
 {
     if (!py_global_initialized) {
 		/* redirect Python's stdout to m_pyo.h from where we can get it in here */
-		PyImport_AppendInittab("cstdout", PyInit_cstdout);
+		if (PyImport_AppendInittab("cstdout", PyInit_cstdout) == -1)
+            return -1;
 
+#ifdef PYO_PYTHON_HOME
+        /* Use the standard library belonging to the Python we linked against,
+         * rather than deriving its location from the host executable. */
+        PyConfig config;
+        PyStatus status;
+        PyConfig_InitPythonConfig(&config);
+        status = PyConfig_SetBytesString(&config, &config.home, PYO_PYTHON_HOME);
+        if (!PyStatus_Exception(status))
+            status = Py_InitializeFromConfig(&config);
+        if (PyStatus_Exception(status)) {
+            fprintf(stderr, "pyo: Python initialization failed: %s\n",
+                    status.err_msg ? status.err_msg : "unknown error");
+            PyConfig_Clear(&config);
+            return -1;
+        }
+        PyConfig_Clear(&config);
+#else
         Py_Initialize();
+#endif
 
         /* Save main interpreter state */
         main_tstate = PyThreadState_Get();
@@ -72,6 +93,7 @@ static void pyo_python_global_init(void)
 
         py_global_initialized = 1;
     }
+    return 0;
 }
 
 /*
@@ -91,43 +113,44 @@ INLINE PyThreadState * pyo_new_interpreter(float sr, int bufsize, int ichnls, in
     char msg[128];
     PyThreadState *interp;
 	
-	pyo_python_global_init();
+	if (pyo_python_global_init() != 0)
+        return NULL;
 
 	PyEval_AcquireThread(main_tstate);
 
     interp = Py_NewInterpreter();   /* add a new sub-interpreter */
-	redirect_stdout_to_c();
+    if (interp == NULL) {
+        PyErr_Print();
+        PyEval_ReleaseThread(main_tstate);
+        return NULL;
+    }
+	if (redirect_stdout_to_c() != 0)
+        goto fail;
 
     /* On MacOS, trying to import wxPython in embedded python hang the process.
 	 * On Linux, it crashes the host (at least in Pd)
 	 */
-    PyRun_SimpleString("import os; os.environ['PYO_GUI_WX'] = '0'");
+    if (PyRun_SimpleString("import os; os.environ['PYO_GUI_WX'] = '0'") != 0)
+        goto fail;
 
     /* Force embedded audio server. */
-    PyRun_SimpleString("os.environ['PYO_SERVER_AUDIO'] = 'embedded'");
+    if (PyRun_SimpleString("os.environ['PYO_SERVER_AUDIO'] = 'embedded'") != 0)
+        goto fail;
 
     /* Set the default BPM (60 beat per minute). */
-    PyRun_SimpleString("BPM = 60.0");
+    if (PyRun_SimpleString("BPM = 60.0") != 0)
+        goto fail;
 
-    PyRun_SimpleString("from pyo import *");
+    if (PyRun_SimpleString("from pyo import *") != 0)
+        goto fail;
     sprintf(msg, "_s_ = Server(sr=%f, nchnls=%d, buffersize=%d, duplex=1, ichnls=%d)", sr, ochnls, bufsize, ichnls);
-    PyRun_SimpleString(msg);
-    PyRun_SimpleString("_s_.boot()\n_s_.start()\n_s_.setServer()");
-    PyRun_SimpleString("_server_addr_ = _s_.getServerAddr()");
-
-    /* 
-    ** printf %p specifier behaves differently in Linux/MacOS and Windows.
-    */
-
-#if defined(_WIN32)
-    PyRun_SimpleString("_in_address_ = '0x' + _s_.getInputAddr().lower()");
-    PyRun_SimpleString("_out_address_ = '0x' + _s_.getOutputAddr().lower()");
-    PyRun_SimpleString("_emb_callback_ = '0x' + _s_.getEmbedICallbackAddr().lower()");
-#else
-    PyRun_SimpleString("_in_address_ = _s_.getInputAddr()");
-    PyRun_SimpleString("_out_address_ = _s_.getOutputAddr()");
-    PyRun_SimpleString("_emb_callback_ = _s_.getEmbedICallbackAddr()");
-#endif
+    if (PyRun_SimpleString(msg) != 0 ||
+        PyRun_SimpleString("_s_.boot()\n_s_.start()\n_s_.setServer()") != 0 ||
+        PyRun_SimpleString("_server_addr_ = _s_.getServerAddr()\n"
+                           "_in_address_ = _s_.getInputAddr()\n"
+                           "_out_address_ = _s_.getOutputAddr()\n"
+                           "_emb_callback_ = _s_.getEmbedICallbackAddr()") != 0)
+        goto fail;
 
     PyEval_ReleaseThread(interp);
 
@@ -135,28 +158,59 @@ INLINE PyThreadState * pyo_new_interpreter(float sr, int bufsize, int ichnls, in
 	py_instance_count++;
 
     return interp;
+
+fail:
+    if (PyErr_Occurred()) PyErr_Print();
+    Py_EndInterpreter(interp);
+    PyThreadState_Swap(main_tstate);
+    PyEval_ReleaseThread(main_tstate);
+    return NULL;
+}
+
+/* Addresses from %p are hexadecimal, with or without a 0x prefix.
+ * uintptr_t preserves the full pointer width, including on Win64 where
+ * unsigned long is only 32 bits. */
+static uintptr_t pyo_get_address(PyThreadState *interp, const char *name) {
+    PyObject *module, *obj = NULL;
+    const char *address;
+    char *end;
+    unsigned long long value;
+    uintptr_t result = 0;
+
+    if (interp == NULL) return 0;
+    PyEval_AcquireThread(interp);
+    module = PyImport_AddModule("__main__");
+    if (module == NULL) goto done;
+    obj = PyObject_GetAttrString(module, name);
+    if (obj == NULL) goto done;
+    address = PyUnicode_AsUTF8(obj);
+    if (address == NULL) goto done;
+    errno = 0;
+    value = strtoull(address, &end, 16);
+    if (errno == ERANGE || end == address || *end != '\0' ||
+        value == 0 || value > UINTPTR_MAX) {
+        PyErr_Format(PyExc_ValueError, "Invalid embedded address %s: %s", name, address);
+        goto done;
+    }
+    result = (uintptr_t)value;
+done:
+    Py_XDECREF(obj);
+    if (PyErr_Occurred()) PyErr_Print();
+    PyEval_ReleaseThread(interp);
+    return result;
 }
 
 /*
-** Returns the address, as unsigned long, of the pyo input buffer.
+** Returns the address, as uintptr_t, of the pyo input buffer.
 ** Used this function if pyo's audio samples resolution is 32-bit.
 **
 ** arguments:
 **  interp : pointer, pointer to the targeted Python thread state.
 **
-** returns an "unsigned long" that should be recast to a float pointer.
+** returns a "uintptr_t" that should be recast to a float pointer.
 */
-INLINE unsigned long pyo_get_input_buffer_address(PyThreadState *interp) {
-    PyObject *module, *obj;
-    const char *address;
-    unsigned long uadd;
-    PyEval_AcquireThread(interp);
-    module = PyImport_AddModule("__main__");
-    obj = PyObject_GetAttrString(module, "_in_address_");
-    address = PyUnicode_AsUTF8(obj);
-    uadd = strtoul(address, NULL, 0);
-    PyEval_ReleaseThread(interp);
-    return uadd;
+INLINE uintptr_t pyo_get_input_buffer_address(PyThreadState *interp) {
+    return pyo_get_address(interp, "_in_address_");
 }
 
 /*
@@ -169,38 +223,20 @@ INLINE unsigned long pyo_get_input_buffer_address(PyThreadState *interp) {
 ** returns an "unsigned long long" that should be recast to a double pointer.
 */
 INLINE unsigned long long pyo_get_input_buffer_address_64(PyThreadState *interp) {
-    PyObject *module, *obj;
-    const char *address;
-    unsigned long long uadd;
-    PyEval_AcquireThread(interp);
-    module = PyImport_AddModule("__main__");
-    obj = PyObject_GetAttrString(module, "_in_address_");
-    address = PyUnicode_AsUTF8(obj);
-    uadd = strtoull(address, NULL, 0);
-    PyEval_ReleaseThread(interp);
-    return uadd;
+    return (unsigned long long)pyo_get_input_buffer_address(interp);
 }
 
 /*
-** Returns the address, as unsigned long, of the pyo output buffer.
+** Returns the address, as uintptr_t, of the pyo output buffer.
 ** Used this function if pyo's audio samples resolution is 32-bit.
 **
 ** arguments:
 **  interp : pointer, pointer to the targeted Python thread state.
 **
-** returns an "unsigned long" that should be recast to a float pointer.
+** returns a "uintptr_t" that should be recast to a float pointer.
 */
-INLINE unsigned long pyo_get_output_buffer_address(PyThreadState *interp) {
-    PyObject *module, *obj;
-    const char *address;
-    unsigned long uadd;
-    PyEval_AcquireThread(interp);
-    module = PyImport_AddModule("__main__");
-    obj = PyObject_GetAttrString(module, "_out_address_");
-    address = PyUnicode_AsUTF8(obj);
-    uadd = strtoul(address, NULL, 0);
-    PyEval_ReleaseThread(interp);
-    return uadd;
+INLINE uintptr_t pyo_get_output_buffer_address(PyThreadState *interp) {
+    return pyo_get_address(interp, "_out_address_");
 }
 
 /*
@@ -213,44 +249,26 @@ INLINE unsigned long pyo_get_output_buffer_address(PyThreadState *interp) {
 ** returns an "unsigned long long" that should be recast to a double pointer.
 */
 INLINE unsigned long long pyo_get_output_buffer_address_64(PyThreadState *interp) {
-    PyObject *module, *obj;
-    const char *address;
-    unsigned long long uadd;
-    PyEval_AcquireThread(interp);
-    module = PyImport_AddModule("__main__");
-    obj = PyObject_GetAttrString(module, "_out_address_");
-    address = PyUnicode_AsUTF8(obj);
-    uadd = strtoull(address, NULL, 0);
-    PyEval_ReleaseThread(interp);
-    return uadd;
+    return (unsigned long long)pyo_get_output_buffer_address(interp);
 }
 
 /*
-** Returns the address, as unsigned long, of the pyo embedded callback.
+** Returns the address, as uintptr_t, of the pyo embedded callback.
 ** This callback must be called in the host's perform routine whenever
 ** pyo has to compute a new buffer of samples.
 **
 ** arguments:
 **  interp : pointer, pointer to the targeted Python thread state.
 **
-** returns an "unsigned long" that should be recast to a void pointer.
+** returns a "uintptr_t" that should be recast to a callback pointer.
 **
 ** The callback should be called with the server address (void *) as argument.
 **
 ** Prototype:
 ** int (*callback)(void *);
 */
-INLINE unsigned long pyo_get_embedded_callback_address(PyThreadState *interp) {
-    PyObject *module, *obj;
-    const char *address;
-    unsigned long uadd;
-    PyEval_AcquireThread(interp);
-    module = PyImport_AddModule("__main__");
-    obj = PyObject_GetAttrString(module, "_emb_callback_");
-    address = PyUnicode_AsUTF8(obj);
-    uadd = strtoul(address, NULL, 0);
-    PyEval_ReleaseThread(interp);
-    return uadd;
+INLINE uintptr_t pyo_get_embedded_callback_address(PyThreadState *interp) {
+    return pyo_get_address(interp, "_emb_callback_");
 }
 
 /*
@@ -269,38 +287,20 @@ INLINE unsigned long pyo_get_embedded_callback_address(PyThreadState *interp) {
 ** int (*callback)(void *);
 */
 INLINE unsigned long long pyo_get_embedded_callback_address_64(PyThreadState *interp) {
-    PyObject *module, *obj;
-    const char *address;
-    unsigned long long uadd;
-    PyEval_AcquireThread(interp);
-    module = PyImport_AddModule("__main__");
-    obj = PyObject_GetAttrString(module, "_emb_callback_");
-    address = PyUnicode_AsUTF8(obj);
-    uadd = strtoull(address, NULL, 0);
-    PyEval_ReleaseThread(interp);
-    return uadd;
+    return (unsigned long long)pyo_get_embedded_callback_address(interp);
 }
 
 /*
-** Returns the pyo server address of this thread, as an unsigned long.
+** Returns the pyo server address of this thread, as a uintptr_t.
 ** The address must be passed as argument to the callback function.
 **
 ** arguments:
 **  interp : pointer, pointer to the targeted Python thread state.
 **
-** returns an unsigned long.
+** returns a uintptr_t.
 */
-INLINE unsigned long pyo_get_server_address(PyThreadState *interp) {
-    PyObject *module, *obj;
-    const char *address;
-    unsigned long uadd;
-    PyEval_AcquireThread(interp);
-    module = PyImport_AddModule("__main__");
-    obj = PyObject_GetAttrString(module, "_server_addr_");
-    address = PyUnicode_AsUTF8(obj);
-    uadd = strtoul(address, NULL, 0);
-    PyEval_ReleaseThread(interp);
-    return uadd;
+INLINE uintptr_t pyo_get_server_address(PyThreadState *interp) {
+    return pyo_get_address(interp, "_server_addr_");
 }
 
 /*
@@ -310,15 +310,12 @@ INLINE unsigned long pyo_get_server_address(PyThreadState *interp) {
 **  interp : pointer, pointer to the targeted Python thread state.
 */
 INLINE void pyo_end_interpreter(PyThreadState *interp) {
+    if (interp == NULL) return;
     /* Clean up pyo's server. */
     PyEval_AcquireThread(interp);
     PyRun_SimpleString("_s_.setServer()\n_s_.stop()\n_s_.shutdown()");
-    PyEval_ReleaseThread(interp);
-
-    //PyGILState_STATE state = PyGILState_Ensure();
-    PyGILState_Ensure();
-
     Py_EndInterpreter(interp);
+    PyThreadState_Swap(main_tstate);
 
 	/* decrement the sub-interpreter counter */
 	py_instance_count--;
@@ -326,11 +323,12 @@ INLINE void pyo_end_interpreter(PyThreadState *interp) {
 	 * finalize it all
 	**/
 	if (py_instance_count == 0 && py_global_initialized) {
-		PyEval_AcquireThread(main_tstate);
         Py_FinalizeEx();
 		py_global_initialized = 0;
 		main_tstate = NULL;
-	}
+	} else {
+        PyEval_ReleaseThread(main_tstate);
+    }
 }
 
 /*
@@ -733,7 +731,7 @@ static PyObject* PyInit_cstdout(void) {
 }
 
 /* Call this after Py_Initialize() while holding the GIL/threadstate. */
-static inline void redirect_stdout_to_c(void) {
+static inline int redirect_stdout_to_c(void) {
     /* Build and run Python code that sets sys.stdout/sys.stderr to call cstdout.write */
     const char *code =
         "import sys, cstdout\n"
@@ -748,9 +746,7 @@ static inline void redirect_stdout_to_c(void) {
         "sys.stdout = _CStdout()\n"
         "sys.stderr = _CStdout()\n";
 
-    if (PyRun_SimpleString(code) != 0) {
-        PyErr_Print();
-    }
+    return PyRun_SimpleString(code);
 }
 /*
 ** Functions to redirect Python's stdout in here done

@@ -5,6 +5,8 @@
 
 static t_class *pyo_tilde_class;
 
+#define PYO_MSG_SIZE (262144 * sizeof(char *))
+
 typedef struct _pyo_tilde {
     t_object  obj;
     t_sample  f;
@@ -19,7 +21,7 @@ typedef struct _pyo_tilde {
     const char *file;
     t_sample **in;
     t_sample **out;
-	t_outlet *stdout;
+	t_outlet *stdout_outlet;
 	t_atom *stdout_vec;
     void *server;           /* pyo server address */
     float *inbuf;           /* pyo input buffer */
@@ -91,12 +93,13 @@ static void pyo_load_file(t_pyo_tilde *x) {
 }
 
 static void pyo_tilde_free(t_pyo_tilde *x) {
-    freebytes(x->in, sizeof(x->in));
-    freebytes(x->out, sizeof(x->out));
-    freebytes(x->msg, sizeof(x->msg));
-    pyo_end_interpreter(x->interp);
-	if (x->stdout_set)
-		outlet_free(x->stdout);
+    if (x->in) freebytes(x->in, x->ichnls * sizeof(*x->in));
+    if (x->out) freebytes(x->out, x->ochnls * sizeof(*x->out));
+    if (x->msg) freebytes(x->msg, PYO_MSG_SIZE);
+    if (x->interp) pyo_end_interpreter(x->interp);
+    if (x->stdout_vec) freebytes(x->stdout_vec, sizeof(*x->stdout_vec));
+	if (x->stdout_outlet)
+		outlet_free(x->stdout_outlet);
 }
 
 static void pyo_tilde_set_value(t_pyo_tilde *x, char *att, int argc, t_atom *argv) {
@@ -173,10 +176,16 @@ static void pyo_tilde_create(t_pyo_tilde *x, t_symbol *s, int argc, t_atom *argv
 static int pyo_tilde_get_stdout(t_pyo_tilde *x)
 {
 	int counter = 0;
+	size_t used = 0;
 	char *msg;
+	x->msg[0] = '\0';
 	while (pyo_dequeue_stdout(&msg)) {
-		if (counter == 0) sprintf(x->msg, msg);
-		else strcat(x->msg, msg);
+		size_t available = PYO_MSG_SIZE - used - 1;
+        size_t length = strlen(msg);
+        if (length > available) length = available;
+        memcpy(x->msg + used, msg, length);
+        used += length;
+        x->msg[used] = '\0';
 		free(msg);
 		counter++;
 	}
@@ -209,7 +218,7 @@ static void pyo_tilde_exec(t_pyo_tilde *x, t_symbol *s, int argc, t_atom *argv) 
 		if (x->stderr_set) {
 			t_atom *stdout_vec = x->stdout_vec;
 			SETSYMBOL(stdout_vec, gensym(x->msg));
-			outlet_anything(x->stdout, gensym("stderr"), 1, stdout_vec);
+			outlet_anything(x->stdout_outlet, gensym("stderr"), 1, stdout_vec);
 		}
 		else {
 			pd_error(x, x->msg);
@@ -222,7 +231,7 @@ static void pyo_tilde_exec(t_pyo_tilde *x, t_symbol *s, int argc, t_atom *argv) 
 		if (x->stdout_set) {
 			t_atom *stdout_vec = x->stdout_vec;
 			SETSYMBOL(stdout_vec, gensym(x->msg));
-			outlet_anything(x->stdout, gensym("stdout"), 1, stdout_vec);
+			outlet_anything(x->stdout_outlet, gensym("stdout"), 1, stdout_vec);
 		}
 		else {
 			post(x->msg);
@@ -416,12 +425,12 @@ static void *pyo_tilde_new(t_symbol *s, int argc, t_atom *argv) {
 	}
 	/* if set by the user, create a control outlet to route STDOUT and/or STDERR inside the patch */
 	if (x->stdout_set || x->stderr_set) {
-		x->stdout = outlet_new(&x->obj, 0);
+		x->stdout_outlet = outlet_new(&x->obj, 0);
 	}
 
-    x->in = (t_sample **)getbytes(x->ichnls * sizeof(t_sample **));
-    x->out = (t_sample **)getbytes(x->ochnls * sizeof(t_sample **));
-    x->msg = (char *)getbytes(262144 * sizeof(char *));
+    x->in = (t_sample **)getbytes(x->ichnls * sizeof(*x->in));
+    x->out = (t_sample **)getbytes(x->ochnls * sizeof(*x->out));
+    x->msg = (char *)getbytes(PYO_MSG_SIZE);
 
     for (i=0; i<x->ichnls; i++)
         x->in[i] = 0;
@@ -430,11 +439,23 @@ static void *pyo_tilde_new(t_symbol *s, int argc, t_atom *argv) {
         x->out[i] = 0;
 
     x->interp = pyo_new_interpreter(x->sr, x->bs, x->ichnls, x->ochnls);
+    if (x->interp == NULL) {
+        pd_error(x, "pyo~: initialization failed using Python %s. pyo must be installed for this Python runtime.", PY_VERSION);
+        if (pyo_tilde_get_stdout(x)) pd_error(x, "%s", x->msg);
+        pd_free((t_pd *)x);
+        return NULL;
+    }
     
     x->inbuf = (float *)pyo_get_input_buffer_address(x->interp);
     x->outbuf = (float *)pyo_get_output_buffer_address(x->interp);
-    x->callback = (void *)pyo_get_embedded_callback_address(x->interp);
+    x->callback = (int (*)(void *))pyo_get_embedded_callback_address(x->interp);
     x->server = (void *)pyo_get_server_address(x->interp);
+    if (!x->inbuf || !x->outbuf || !x->callback || !x->server) {
+        pd_error(x, "pyo~: unable to retrieve embedded server addresses.");
+        if (pyo_tilde_get_stdout(x)) pd_error(x, "%s", x->msg);
+        pd_free((t_pd *)x);
+        return NULL;
+    }
 
 	/* dump the first stdout note about wdPython */
 	pyo_tilde_get_stdout(x);
