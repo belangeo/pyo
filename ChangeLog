@@ -1,3 +1,7 @@
+2026-10-09 belangeo <belangeo@gmail.com>
+
+    * Git tag: 1.1.0.
+
 2026-10-09 Olivier Belanger <belangeo@gmail.com>
 
     * Fixed pyo embedding in Pure Data on Windows, including Python runtime
