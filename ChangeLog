@@ -1,3 +1,9 @@
+2026-10-09 Olivier Belanger <belangeo@gmail.com>
+
+    * Fixed pyo embedding in Pure Data on Windows, including Python runtime
+      discovery, full-width pointer handling, and initialization error reporting.
+      Linux and macOS validated.
+
 2026-09-13 Anai-Guo <antai12232931@outlook.com>
 
     * Removed shadowed duplicate method definitions in PeakAmp, RMS, and Server.
