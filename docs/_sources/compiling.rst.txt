@@ -151,7 +151,7 @@ For Python 3.11 and higher
     git clone https://github.com/belangeo/pyo.git
     cd pyo
     python3 -m build --config-setting="--build-option=--use-jack" --config-setting="--build-option=--use-double"
-    python3 -m pip install dist/pyo-1.0.7-cp311-cp311-linux_x86_64.whl
+    python3 -m pip install dist/pyo-1.1.0-cp311-cp311-linux_x86_64.whl
 
 If you want to be able to use all of pyo's GUI widgets, you will need WxPython Phoenix 4.2.0 or higher. 
 

@@ -50,7 +50,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "Pyo"
-copyright = "2025, Olivier Bélanger"
+copyright = "2026, Olivier Bélanger"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

@@ -4,12 +4,12 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>Audio Server — Pyo 1.0.7 documentation</title>
+<title>Audio Server — Pyo 1.1.0 documentation</title>
 <link href="../../_static/pygments.css?v=03e43079" rel="stylesheet" type="text/css"/>
 <link href="../../_static/agogo.css?v=227e5aac" rel="stylesheet" type="text/css"/>
 <link href="../../_static/sphinx-codeautolink.css?v=b2176991" rel="stylesheet" type="text/css"/>
 <link href="../../_static/autoclasstoc.css?v=08871587" rel="stylesheet" type="text/css"/>
-<script src="../../_static/documentation_options.js?v=46dfa7f5"></script>
+<script src="../../_static/documentation_options.js?v=fc837d61"></script>
 <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
 <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
 <link href="../../_static/E-PyoIcon.ico" rel="icon"/>
@@ -21,7 +21,7 @@
 </head><body>
 <div class="header-wrapper" role="banner">
 <div class="header">
-<div class="headertitle"><a href="../../index.html">Pyo 1.0.7 documentation</a></div>
+<div class="headertitle"><a href="../../index.html">Pyo 1.1.0 documentation</a></div>
 <div aria-label="Related" class="rel" role="navigation">
 <a accesskey="P" href="index.html" title="Classes by category">previous</a> |
           <a accesskey="N" href="listener.html" title="Controller listeners">next</a> |
@@ -363,38 +363,38 @@ the user’s responsibility to manage the audio/midi configuration of its system
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">addMidiEvent</span></code>(status[, data1, data2])</p></td>
 <td><p>Add a MIDI event in the server processing loop.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getStreams</span></code>()</p></td>
-<td><p>Returns the list of Stream objects currently in the Server memory.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getSamplingRate</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getSamplingRate</span></code>()</p></td>
 <td><p>Return the current sampling rate.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getNchnls</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getNchnls</span></code>()</p></td>
 <td><p>Return the current number of channels.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBufferSize</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBufferSize</span></code>()</p></td>
 <td><p>Return the current buffer size.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getGlobalDur</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getGlobalDur</span></code>()</p></td>
 <td><p>Return the current global duration.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getGlobalDel</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getGlobalDel</span></code>()</p></td>
 <td><p>Return the current global delay time.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getGlobalSeed</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getGlobalSeed</span></code>()</p></td>
 <td><p>Return the current global seed.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getIsStarted</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getIsStarted</span></code>()</p></td>
 <td><p>Returns 1 if the server is started, otherwise returns 0.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getIsBooted</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getIsBooted</span></code>()</p></td>
 <td><p>Returns 1 if the server is booted, otherwise returns 0.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">deactivateMidi</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">deactivateMidi</span></code>()</p></td>
 <td><p>Deactivate Midi callback.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getMidiActive</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getMidiActive</span></code>()</p></td>
 <td><p>Returns 1 if Midi callback is active, otherwise returns 0.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getStreams</span></code>()</p></td>
+<td><p>Returns the list of Stream objects currently in the Server memory.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getNumberOfStreams</span></code>()</p></td>
 <td><p>Returns the number of streams currently in the Server memory.</p></td>
@@ -1563,7 +1563,7 @@ It’s probably only useful in the context of internal testing.</p>
 </div>
 <div class="right">
 <div class="footer" role="contentinfo">
-    © Copyright 2025, Olivier Bélanger.
+    © Copyright 2026, Olivier Bélanger.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
 </div>
