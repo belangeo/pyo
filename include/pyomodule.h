@@ -26,7 +26,7 @@
 #include <stdint.h>
 #include <math.h>
 
-#define PYO_VERSION "1.0.7"
+#define PYO_VERSION "1.1.0"
 
 #define MAX_NBR_SERVER 256
 #define PYO_NUM_RND_OBJS 29

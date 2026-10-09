@@ -1,8 +1,6 @@
 This is a list of features/fixes to implement for future releases
 =================================================================
 
-Roadmap 1.0.7
--------------
 
 - Doc page about multichannel expansion.
 
@@ -12,8 +10,6 @@ Roadmap 1.0.7
     3) the necessity of keeping the python process alive (no sound because the main python process quits)
     4) scoping problems (defining a PyoObject in a function that gets garbage-collected before it produces sound)
 
-Roadmap 1.0.9
--------------
 
 - HiDPI on Windows:
 

@@ -268,7 +268,7 @@
 #X text 14 33 Author : Olivier Belanger;
 #X text 15 10 pyo~ : Embedded pyo scripting inside puredata.;
 #X text 15 163 For more details about how pyo can be embedded inside an host program \, see m_pyo.h in the "embedded" folder of pyo sources.;
-#X text 14 57 Version : 1.0.7;
+#X text 14 57 Version : 1.1.0;
 #X text 14 81 Last update : March 2026;
 #X text 15 108 pyo website : https://belangeo.github.io/pyo/;
 #X text 15 135 pyo sources : https://github.com/pyo-org/pyo;

@@ -57,9 +57,9 @@ copyright = "2025, Olivier Bélanger"
 # built documents.
 #
 # The short X.Y version.
-version = "1.0.7"
+version = "1.1.0"
 # The full version, including alpha/beta/rc tags.
-release = "1.0.7"
+release = "1.1.0"
 
 # sphinx-codeautolink config.
 codeautolink_autodoc_inject = False
