@@ -34,7 +34,7 @@ jobs:
         run: python3 -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_ARCHS_LINUX: x86_64
-          CIBW_BUILD: "cp311-manylinux_x86_64 cp312-manylinux_x86_64 cp313-manylinux_x86_64 cp314-manylinux_x86_64"
+          CIBW_BUILD: "cp311-manylinux_x86_64 cp312-manylinux_x86_64 cp313-manylinux_x86_64 cp314-manylinux_x86_64 cp315-manylinux_x86_64"
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
           CIBW_BEFORE_ALL_LINUX: "bash {package}/manylinux-pre-build-script.sh"
           CIBW_CONFIG_SETTINGS: "--build-option=--use-double --build-option=--use-jack"
@@ -44,13 +44,9 @@ jobs:
       - name: Validate wheel metadata
         run: python3 -m twine check wheelhouse/*.whl
 
-      - name: Publish wheels to TestPyPI
-        if: github.event_name == 'push'
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
-        run: |
-          test -n "$TWINE_PASSWORD"
-          python3 -m twine upload --non-interactive --skip-existing \
-            --repository-url https://test.pypi.org/legacy/ \
-            wheelhouse/*.whl
+      - name: Upload manylinux wheels
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: manylinux-wheels
+          path: wheelhouse/*.whl
+          if-no-files-found: error
