@@ -85,7 +85,7 @@ sign_macos_libraries() {
 #### Clean up.
 rm -rf build dist
 
-for python_version in 3.11 3.12 3.13 3.14; do
+for python_version in 3.11 3.12 3.13 3.14 3.15; do
     python_tag="cp$(printf '%s' "$python_version" | tr -d '.')"
     /usr/local/bin/python"$python_version" -m build --wheel \
         --config-setting="--build-option=--use-coreaudio" \
