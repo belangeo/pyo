@@ -71,6 +71,8 @@ Harmonizer_transform_ii(Harmonizer *self)
     {
         /* first overlap */
         pos = self->pointerPos;
+        if (pos >= 1.0)
+            pos -= 1.0;
         envpos = pos * 8192.0;
         ipart = (int)envpos;
         fpart = envpos - ipart;
@@ -157,6 +159,8 @@ Harmonizer_transform_ai(Harmonizer *self)
 
         /* first overlap */
         pos = self->pointerPos;
+        if (pos >= 1.0)
+            pos -= 1.0;
         envpos = pos * 8192.0;
         ipart = (int)envpos;
         fpart = envpos - ipart;
@@ -242,6 +246,8 @@ Harmonizer_transform_ia(Harmonizer *self)
 
         /* first overlap */
         pos = self->pointerPos;
+        if (pos >= 1.0)
+            pos -= 1.0;
         envpos = pos * 8192.0;
         ipart = (int)envpos;
         fpart = envpos - ipart;
@@ -261,7 +267,7 @@ Harmonizer_transform_ia(Harmonizer *self)
         /* second overlap */
         pos = self->pointerPos + 0.5;
 
-        if (pos > 1)
+        if (pos >= 1)
             pos -= 1.0;
 
         envpos = pos * 8192.0;
@@ -330,6 +336,8 @@ Harmonizer_transform_aa(Harmonizer *self)
 
         /* first overlap */
         pos = self->pointerPos;
+        if (pos >= 1.0)
+            pos -= 1.0;
         envpos = pos * 8192.0;
         ipart = (int)envpos;
         fpart = envpos - ipart;
@@ -349,7 +357,7 @@ Harmonizer_transform_aa(Harmonizer *self)
         /* second overlap */
         pos = self->pointerPos + 0.5;
 
-        if (pos > 1)
+        if (pos >= 1)
             pos -= 1.0;
 
         envpos = pos * 8192.0;

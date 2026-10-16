@@ -1,3 +1,7 @@
+2026-10-16 belangeo <belangeo@gmail.com>
+
+    * Fix Harmonizer bug: Wraps the envelope phase before interpolation and fixes the endpoint comparisons.
+
 2026-10-09 belangeo <belangeo@gmail.com>
 
     * Git tag: 1.1.0.
