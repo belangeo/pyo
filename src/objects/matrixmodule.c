@@ -67,11 +67,17 @@ MatrixStream_getInterpPointFromPos(MatrixStream *self, MYFLT x, MYFLT y)
     if (xpos < 0)
         xpos += self->width;
     else if (xpos >= self->width)
+        xpos -= self->width;
+
+    if (xpos < 0 || xpos >= self->width)
     {
-        while (xpos >= self->width)
-        {
-            xpos -= self->width;
-        }
+        xpos = MYFMOD(xpos, self->width);
+        if (xpos < 0)
+            xpos += self->width;
+
+        /* Negative remainders can round up to the endpoint. */
+        if (xpos >= self->width)
+            xpos = 0;
     }
 
     ypos = y * self->height;
@@ -79,11 +85,17 @@ MatrixStream_getInterpPointFromPos(MatrixStream *self, MYFLT x, MYFLT y)
     if (ypos < 0)
         ypos += self->height;
     else if (ypos >= self->height)
+        ypos -= self->height;
+
+    if (ypos < 0 || ypos >= self->height)
     {
-        while (ypos >= self->height)
-        {
-            ypos -= self->height;
-        }
+        ypos = MYFMOD(ypos, self->height);
+        if (ypos < 0)
+            ypos += self->height;
+
+        /* Negative remainders can round up to the endpoint. */
+        if (ypos >= self->height)
+            ypos = 0;
     }
 
     xipart = (int)xpos;
@@ -383,39 +395,64 @@ NewMatrix_getImageData(NewMatrix *self)
 static PyObject *
 NewMatrix_setMatrix(NewMatrix *self, PyObject *value)
 {
-    int i, j;
+    Py_ssize_t i, j, count;
     PyObject *innerlist;
+    MYFLT *data;
 
-    if (value == NULL)
+    if (value == NULL || !PyList_Check(value))
     {
-        PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
-        return PyLong_FromLong(-1);
+        PyErr_SetString(PyExc_TypeError, "Matrix data must be a list of rows.");
+        return NULL;
     }
-
-    if (! PyList_Check(value))
+    if (PyList_Size(value) != self->height)
     {
-        PyErr_SetString(PyExc_TypeError, "The matrix value value must be a list.");
-        return PyLong_FromLong(-1);
+        PyErr_SetString(PyExc_ValueError, "Matrix data must match the matrix height.");
+        return NULL;
     }
-
-    int height = PyList_Size(value);
-    int width = PyList_Size(PyList_GetItem(value, 0));
-
-    if (height != self->height || width != self->width)
+    for (i = 0; i < self->height; i++)
     {
-        PyErr_SetString(PyExc_TypeError, "New matrix must be of the same size as actual matrix.");
-        return PyLong_FromLong(-1);
+        innerlist = PyList_GetItem(value, i);
+        if (!PyList_Check(innerlist))
+        {
+            PyErr_SetString(PyExc_TypeError, "Each matrix row must be a list.");
+            return NULL;
+        }
+        if (PyList_Size(innerlist) != self->width)
+        {
+            PyErr_SetString(PyExc_ValueError, "Every matrix row must match the matrix width.");
+            return NULL;
+        }
     }
+    if (self->width < 1 || self->height < 1 ||
+            self->width > PY_SSIZE_T_MAX / (Py_ssize_t)sizeof(MYFLT) / self->height)
+    {
+        PyErr_SetString(PyExc_ValueError, "Matrix dimensions are invalid.");
+        return NULL;
+    }
+    count = (Py_ssize_t)self->width * self->height;
+    data = (MYFLT *)PyMem_RawMalloc(count * sizeof(MYFLT));
+    if (data == NULL)
+        return PyErr_NoMemory();
 
     for (i = 0; i < self->height; i++)
     {
         innerlist = PyList_GetItem(value, i);
-
         for (j = 0; j < self->width; j++)
         {
-            self->data[i][j] = PyFloat_AsDouble(PyList_GET_ITEM(innerlist, j));
+            data[i * self->width + j] = PyFloat_AsDouble(PyList_GET_ITEM(innerlist, j));
+            if (PyErr_Occurred())
+            {
+                PyMem_RawFree(data);
+                return NULL;
+            }
         }
     }
+    for (i = 0; i < self->height; i++)
+    {
+        for (j = 0; j < self->width; j++)
+            self->data[i][j] = data[i * self->width + j];
+    }
+    PyMem_RawFree(data);
 
     Py_RETURN_NONE;
 }
@@ -943,7 +980,57 @@ typedef struct
     PyObject *matrix;
     PyObject *sources;
     MYFLT *buffer;
+    Py_ssize_t buffer_size;
 } MatrixMorph;
+
+static Py_ssize_t
+MatrixMorph_validateDimensions(PyObject *matrix, PyObject *sources)
+{
+    Py_ssize_t i, width, height;
+    PyTypeObject *matrix_type = PyoType_GetCurrent(PYO_RUNTIME_TYPE_NEWMATRIX);
+
+    if (!PyObject_TypeCheck(matrix, matrix_type))
+    {
+        PyErr_SetString(PyExc_TypeError, "MatrixMorph destination must be a NewMatrix.");
+        return -1;
+    }
+    if (!PyList_Check(sources))
+    {
+        PyErr_SetString(PyExc_TypeError, "MatrixMorph sources must be a list.");
+        return -1;
+    }
+    if (PyList_Size(sources) < 2)
+    {
+        PyErr_SetString(PyExc_ValueError, "MatrixMorph requires at least two sources.");
+        return -1;
+    }
+
+    width = NewMatrix_getWidth((NewMatrix *)matrix);
+    height = NewMatrix_getHeight((NewMatrix *)matrix);
+    if (width < 1 || height < 1 || width > PY_SSIZE_T_MAX / (Py_ssize_t)sizeof(MYFLT) / height)
+    {
+        PyErr_SetString(PyExc_ValueError, "MatrixMorph destination dimensions are invalid.");
+        return -1;
+    }
+
+    for (i = 0; i < PyList_Size(sources); i++)
+    {
+        PyObject *source = PyList_GetItem(sources, i);
+        if (!PyObject_TypeCheck(source, matrix_type))
+        {
+            PyErr_SetString(PyExc_TypeError, "MatrixMorph sources must contain NewMatrix objects.");
+            return -1;
+        }
+        if (NewMatrix_getWidth((NewMatrix *)source) != width ||
+                NewMatrix_getHeight((NewMatrix *)source) != height)
+        {
+            PyErr_SetString(PyExc_ValueError, "MatrixMorph sources and destination must have matching dimensions.");
+            return -1;
+        }
+    }
+
+    return width * height;
+}
 
 static MYFLT
 MatrixMorph_clip(MYFLT x)
@@ -960,14 +1047,19 @@ static void
 MatrixMorph_compute_next_data_frame(MatrixMorph *self)
 {
     int x, y;
-    long i, j, width, height, numsamps, index;
+    Py_ssize_t i, j, width, height, numsamps, index;
     MYFLT input, interp, interp1;
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     width = NewMatrix_getWidth((NewMatrix *)self->matrix);
     height = NewMatrix_getHeight((NewMatrix *)self->matrix);
+    if (width < 1 || height < 1 || width > self->buffer_size / height)
+        return;
+
     numsamps = width * height;
     int len = PyList_Size(self->sources);
+    if (len < 2)
+        return;
 
     input = MatrixMorph_clip(in[0]);
 
@@ -977,8 +1069,23 @@ MatrixMorph_compute_next_data_frame(MatrixMorph *self)
 
     PyObject *tabobj1 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->sources, x), "getMatrixStream", "");
     PyObject *tabobj2 = PYO_CALL_METHOD_RET((PyObject *)PyList_GET_ITEM(self->sources, y), "getMatrixStream", "");
+    if (tabobj1 == NULL || tabobj2 == NULL)
+    {
+        Py_XDECREF(tabobj1);
+        Py_XDECREF(tabobj2);
+        PyErr_Clear();
+        return;
+    }
+
     MatrixStream *tab1 = (MatrixStream *)tabobj1;
     MatrixStream *tab2 = (MatrixStream *)tabobj2;
+    if (MatrixStream_getWidth(tab1) != width || MatrixStream_getHeight(tab1) != height ||
+            MatrixStream_getWidth(tab2) != width || MatrixStream_getHeight(tab2) != height)
+    {
+        Py_DECREF(tabobj1);
+        Py_DECREF(tabobj2);
+        return;
+    }
 
     interp = MYFMOD(interp, 1.0);
     interp1 = 1. - interp;
@@ -1032,7 +1139,7 @@ static PyObject *
 MatrixMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    long width, height, numsamps;
+    Py_ssize_t numsamps;
     PyObject *inputtmp, *input_streamtmp, *matrixtmp, *sourcestmp;
     MatrixMorph *self;
     self = (MatrixMorph *)type->tp_alloc(type, 0);
@@ -1052,15 +1159,25 @@ MatrixMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    self->matrix = (PyObject *)matrixtmp;
+    numsamps = MatrixMorph_validateDimensions(matrixtmp, sourcestmp);
+    if (numsamps < 0)
+    {
+        Py_DECREF(self);
+        return NULL;
+    }
+
+    self->buffer = (MYFLT *)PyMem_RawMalloc(numsamps * sizeof(MYFLT));
+    if (self->buffer == NULL)
+    {
+        PyErr_NoMemory();
+        Py_DECREF(self);
+        return NULL;
+    }
+    self->buffer_size = numsamps;
+
+    self->matrix = matrixtmp;
     Py_INCREF(self->matrix);
-
-    width = NewMatrix_getWidth((NewMatrix *)self->matrix);
-    height = NewMatrix_getHeight((NewMatrix *)self->matrix);
-    numsamps = width * height;
-    self->buffer = (MYFLT *)PyMem_RawRealloc(self->buffer, (numsamps) * sizeof(MYFLT));
-
-    self->sources = (PyObject *)sourcestmp;
+    self->sources = sourcestmp;
     Py_INCREF(self->sources);
 
     PYO_ADD_STREAM_OR_RETURN_NULL(self);
@@ -1079,9 +1196,19 @@ MatrixMorph_setMatrix(MatrixMorph *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
+    Py_ssize_t numsamps = MatrixMorph_validateDimensions(arg, self->sources);
+    if (numsamps < 0)
+        return NULL;
+
+    MYFLT *buffer = (MYFLT *)PyMem_RawRealloc(self->buffer, numsamps * sizeof(MYFLT));
+    if (buffer == NULL)
+        return PyErr_NoMemory();
+
+    self->buffer = buffer;
+    self->buffer_size = numsamps;
+    Py_INCREF(arg);
     Py_DECREF(self->matrix);
-    self->matrix = (PyObject *)arg;
-    Py_INCREF(self->matrix);
+    self->matrix = arg;
 
     Py_RETURN_NONE;
 }
@@ -1091,11 +1218,8 @@ MatrixMorph_setSources(MatrixMorph *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    if (! PyList_Check(arg))
-    {
-        PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list.");
-        return PyLong_FromLong(-1);
-    }
+    if (MatrixMorph_validateDimensions(self->matrix, arg) < 0)
+        return NULL;
 
     Py_INCREF(arg);
     Py_DECREF(self->sources);

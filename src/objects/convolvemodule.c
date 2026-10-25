@@ -50,13 +50,15 @@ Convolve_filters(Convolve *self)
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
     MYFLT *impulse = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T impulse_size = TableStream_getSize((TableStream *)self->table);
+    T_SIZE_T convolution_size = impulse_size < self->size ? impulse_size : self->size;
 
     for (i = 0; i < self->bufsize; i++)
     {
         self->data[i] = 0.0;
         tmp_count = self->count;
 
-        for (j = 0; j < self->size; j++)
+        for (j = 0; j < convolution_size; j++)
         {
             if (tmp_count < 0)
                 tmp_count += self->size;

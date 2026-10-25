@@ -2458,6 +2458,12 @@ Server_addMidiEvent(Server *self, PyObject *args)
     if (! PyArg_ParseTuple(args, "iii", &status, &data1, &data2))
         return PyLong_FromLong(-1);
 
+    if (self->midi_count >= PYO_MIDI_EVENT_CAPACITY)
+    {
+        PyErr_SetString(PyExc_BufferError, "Server MIDI event buffer is full.");
+        return NULL;
+    }
+
     buffer.timestamp = 0;
     buffer.message = PyoMidi_Message(status, data1, data2);
     self->midiEvents[self->midi_count++] = buffer;

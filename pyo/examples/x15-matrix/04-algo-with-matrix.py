@@ -7,7 +7,7 @@ This script demonstrates how to use a matrix to do some algorithmic generation o
 
 from pyo import *
 
-s = Server(duplex=0, audio="jack").boot()
+s = Server(duplex=0).boot()
 
 # Matrix of 4 rows of 4 MIDI notes each.
 mat = [[36, 41, 43, 48], [48, 51, 53, 57], [60, 62, 67, 68], [70, 72, 74, 77]]

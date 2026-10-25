@@ -78,6 +78,22 @@ Granulator_transform_iii(Granulator *self)
         self->data[i] = 0.0;
         self->pointerPos += inc;
 
+        if (self->pointerPos < 0.0)
+            self->pointerPos += 1.0;
+        else if (self->pointerPos >= 1.0)
+            self->pointerPos -= 1.0;
+
+        if (self->pointerPos < 0.0 || self->pointerPos >= 1.0)
+        {
+            self->pointerPos = fmod(self->pointerPos, 1.0);
+            if (self->pointerPos < 0.0)
+                self->pointerPos += 1.0;
+
+            /* Negative remainders can round up to the endpoint. */
+            if (self->pointerPos >= 1.0)
+                self->pointerPos = 0.0;
+        }
+
         for (j = 0; j < self->ngrains; j++)
         {
             ppos = self->pointerPos + self->gphase[j];
@@ -119,11 +135,6 @@ Granulator_transform_iii(Granulator *self)
 
             self->data[i] += (val * amp);
         }
-
-        if (self->pointerPos < 0)
-            self->pointerPos += 1.0;
-        else if (self->pointerPos >= 1)
-            self->pointerPos -= 1.0;
     }
 }
 
@@ -152,6 +163,22 @@ Granulator_transform_aii(Granulator *self)
         inc = pit[i] * frtosamps;
         self->pointerPos += inc;
 
+        if (self->pointerPos < 0.0)
+            self->pointerPos += 1.0;
+        else if (self->pointerPos >= 1.0)
+            self->pointerPos -= 1.0;
+
+        if (self->pointerPos < 0.0 || self->pointerPos >= 1.0)
+        {
+            self->pointerPos = fmod(self->pointerPos, 1.0);
+            if (self->pointerPos < 0.0)
+                self->pointerPos += 1.0;
+
+            /* Negative remainders can round up to the endpoint. */
+            if (self->pointerPos >= 1.0)
+                self->pointerPos = 0.0;
+        }
+
         for (j = 0; j < self->ngrains; j++)
         {
             ppos = self->pointerPos + self->gphase[j];
@@ -193,11 +220,6 @@ Granulator_transform_aii(Granulator *self)
 
             self->data[i] += (val * amp);
         }
-
-        if (self->pointerPos < 0)
-            self->pointerPos += 1.0;
-        else if (self->pointerPos >= 1)
-            self->pointerPos -= 1.0;
     }
 }
 
@@ -232,6 +254,22 @@ Granulator_transform_iai(Granulator *self)
         self->data[i] = 0.0;
         self->pointerPos += inc;
 
+        if (self->pointerPos < 0.0)
+            self->pointerPos += 1.0;
+        else if (self->pointerPos >= 1.0)
+            self->pointerPos -= 1.0;
+
+        if (self->pointerPos < 0.0 || self->pointerPos >= 1.0)
+        {
+            self->pointerPos = fmod(self->pointerPos, 1.0);
+            if (self->pointerPos < 0.0)
+                self->pointerPos += 1.0;
+
+            /* Negative remainders can round up to the endpoint. */
+            if (self->pointerPos >= 1.0)
+                self->pointerPos = 0.0;
+        }
+
         for (j = 0; j < self->ngrains; j++)
         {
             ppos = self->pointerPos + self->gphase[j];
@@ -272,11 +310,6 @@ Granulator_transform_iai(Granulator *self)
 
             self->data[i] += (val * amp);
         }
-
-        if (self->pointerPos < 0)
-            self->pointerPos += 1.0;
-        else if (self->pointerPos >= 1)
-            self->pointerPos -= 1.0;
     }
 }
 
@@ -304,6 +337,22 @@ Granulator_transform_aai(Granulator *self)
         self->data[i] = 0.0;
         inc = pit[i] * frtosamps;
         self->pointerPos += inc;
+
+        if (self->pointerPos < 0.0)
+            self->pointerPos += 1.0;
+        else if (self->pointerPos >= 1.0)
+            self->pointerPos -= 1.0;
+
+        if (self->pointerPos < 0.0 || self->pointerPos >= 1.0)
+        {
+            self->pointerPos = fmod(self->pointerPos, 1.0);
+            if (self->pointerPos < 0.0)
+                self->pointerPos += 1.0;
+
+            /* Negative remainders can round up to the endpoint. */
+            if (self->pointerPos >= 1.0)
+                self->pointerPos = 0.0;
+        }
 
         for (j = 0; j < self->ngrains; j++)
         {
@@ -346,11 +395,6 @@ Granulator_transform_aai(Granulator *self)
 
             self->data[i] += (val * amp);
         }
-
-        if (self->pointerPos < 0)
-            self->pointerPos += 1.0;
-        else if (self->pointerPos >= 1)
-            self->pointerPos -= 1.0;
     }
 }
 
@@ -377,6 +421,22 @@ Granulator_transform_iia(Granulator *self)
     {
         self->data[i] = 0.0;
         self->pointerPos += inc;
+
+        if (self->pointerPos < 0.0)
+            self->pointerPos += 1.0;
+        else if (self->pointerPos >= 1.0)
+            self->pointerPos -= 1.0;
+
+        if (self->pointerPos < 0.0 || self->pointerPos >= 1.0)
+        {
+            self->pointerPos = fmod(self->pointerPos, 1.0);
+            if (self->pointerPos < 0.0)
+                self->pointerPos += 1.0;
+
+            /* Negative remainders can round up to the endpoint. */
+            if (self->pointerPos >= 1.0)
+                self->pointerPos = 0.0;
+        }
 
         for (j = 0; j < self->ngrains; j++)
         {
@@ -419,11 +479,6 @@ Granulator_transform_iia(Granulator *self)
 
             self->data[i] += (val * amp);
         }
-
-        if (self->pointerPos < 0)
-            self->pointerPos += 1.0;
-        else if (self->pointerPos >= 1)
-            self->pointerPos -= 1.0;
     }
 }
 
@@ -452,6 +507,22 @@ Granulator_transform_aia(Granulator *self)
         inc = pit[i] * frtosamps;
         self->pointerPos += inc;
 
+        if (self->pointerPos < 0.0)
+            self->pointerPos += 1.0;
+        else if (self->pointerPos >= 1.0)
+            self->pointerPos -= 1.0;
+
+        if (self->pointerPos < 0.0 || self->pointerPos >= 1.0)
+        {
+            self->pointerPos = fmod(self->pointerPos, 1.0);
+            if (self->pointerPos < 0.0)
+                self->pointerPos += 1.0;
+
+            /* Negative remainders can round up to the endpoint. */
+            if (self->pointerPos >= 1.0)
+                self->pointerPos = 0.0;
+        }
+
         for (j = 0; j < self->ngrains; j++)
         {
             ppos = self->pointerPos + self->gphase[j];
@@ -493,11 +564,6 @@ Granulator_transform_aia(Granulator *self)
 
             self->data[i] += (val * amp);
         }
-
-        if (self->pointerPos < 0)
-            self->pointerPos += 1.0;
-        else if (self->pointerPos >= 1)
-            self->pointerPos -= 1.0;
     }
 }
 
@@ -524,6 +590,22 @@ Granulator_transform_iaa(Granulator *self)
     {
         self->data[i] = 0.0;
         self->pointerPos += inc;
+
+        if (self->pointerPos < 0.0)
+            self->pointerPos += 1.0;
+        else if (self->pointerPos >= 1.0)
+            self->pointerPos -= 1.0;
+
+        if (self->pointerPos < 0.0 || self->pointerPos >= 1.0)
+        {
+            self->pointerPos = fmod(self->pointerPos, 1.0);
+            if (self->pointerPos < 0.0)
+                self->pointerPos += 1.0;
+
+            /* Negative remainders can round up to the endpoint. */
+            if (self->pointerPos >= 1.0)
+                self->pointerPos = 0.0;
+        }
 
         for (j = 0; j < self->ngrains; j++)
         {
@@ -566,11 +648,6 @@ Granulator_transform_iaa(Granulator *self)
 
             self->data[i] += (val * amp);
         }
-
-        if (self->pointerPos < 0)
-            self->pointerPos += 1.0;
-        else if (self->pointerPos >= 1)
-            self->pointerPos -= 1.0;
     }
 }
 
@@ -599,6 +676,22 @@ Granulator_transform_aaa(Granulator *self)
         inc = pit[i] * frtosamps;
         self->pointerPos += inc;
 
+        if (self->pointerPos < 0.0)
+            self->pointerPos += 1.0;
+        else if (self->pointerPos >= 1.0)
+            self->pointerPos -= 1.0;
+
+        if (self->pointerPos < 0.0 || self->pointerPos >= 1.0)
+        {
+            self->pointerPos = fmod(self->pointerPos, 1.0);
+            if (self->pointerPos < 0.0)
+                self->pointerPos += 1.0;
+
+            /* Negative remainders can round up to the endpoint. */
+            if (self->pointerPos >= 1.0)
+                self->pointerPos = 0.0;
+        }
+
         for (j = 0; j < self->ngrains; j++)
         {
             ppos = self->pointerPos + self->gphase[j];
@@ -640,11 +733,6 @@ Granulator_transform_aaa(Granulator *self)
 
             self->data[i] += (val * amp);
         }
-
-        if (self->pointerPos < 0)
-            self->pointerPos += 1.0;
-        else if (self->pointerPos >= 1)
-            self->pointerPos -= 1.0;
     }
 }
 

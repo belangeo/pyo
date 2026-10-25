@@ -58,6 +58,8 @@ Sine_clip(MYFLT x)
     if (x < 0)
     {
         x += ((int)(-x * ONE_OVER_512) + 1) * 512;
+        if (x >= 512)
+            x = 0;
     }
     else if (x >= 512)
     {
@@ -97,6 +99,17 @@ Sine_readframes_ii(Sine *self)
         if (pos >= 512)
             pos -= 512;
 
+        if (pos < 0 || pos >= 512)
+        {
+            pos = MYFMOD(pos, 512);
+            if (pos < 0)
+                pos += 512;
+
+            /* Negative remainders can round up to the endpoint. */
+            if (pos >= 512)
+                pos = 0;
+        }
+
         ipart = (int)pos;
         self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart + 1] - SINE_ARRAY[ipart]) * (pos - ipart);
         self->pointerPos += inc;
@@ -123,6 +136,17 @@ Sine_readframes_ai(Sine *self)
         if (pos >= 512)
             pos -= 512;
 
+        if (pos < 0 || pos >= 512)
+        {
+            pos = MYFMOD(pos, 512);
+            if (pos < 0)
+                pos += 512;
+
+            /* Negative remainders can round up to the endpoint. */
+            if (pos >= 512)
+                pos = 0;
+        }
+
         ipart = (int)pos;
         self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart + 1] - SINE_ARRAY[ipart]) * (pos - ipart);
         self->pointerPos += inc;
@@ -146,6 +170,17 @@ Sine_readframes_ia(Sine *self)
 
         if (pos >= 512)
             pos -= 512;
+
+        if (pos < 0 || pos >= 512)
+        {
+            pos = MYFMOD(pos, 512);
+            if (pos < 0)
+                pos += 512;
+
+            /* Negative remainders can round up to the endpoint. */
+            if (pos >= 512)
+                pos = 0;
+        }
 
         ipart = (int)pos;
         self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart + 1] - SINE_ARRAY[ipart]) * (pos - ipart);
@@ -172,6 +207,17 @@ Sine_readframes_aa(Sine *self)
 
         if (pos >= 512)
             pos -= 512;
+
+        if (pos < 0 || pos >= 512)
+        {
+            pos = MYFMOD(pos, 512);
+            if (pos < 0)
+                pos += 512;
+
+            /* Negative remainders can round up to the endpoint. */
+            if (pos >= 512)
+                pos = 0;
+        }
 
         ipart = (int)pos;
         self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart + 1] - SINE_ARRAY[ipart]) * (pos - ipart);
@@ -1301,6 +1347,8 @@ Osc_clip(double x, T_SIZE_T size)
     if (x < 0)
     {
         x += ((T_SIZE_T)(-x / size) + 1) * size;
+        if (x >= size)
+            x = 0;
     }
     else if (x >= size)
     {
@@ -1349,6 +1397,17 @@ Osc_readframes_ii(Osc *self)
         if (pos >= size)
             pos -= size;
 
+        if (pos < 0 || pos >= size)
+        {
+            pos = fmod(pos, size);
+            if (pos < 0)
+                pos += size;
+
+            /* Negative remainders can round up to the endpoint. */
+            if (pos >= size)
+                pos = 0;
+        }
+
         ipart = (T_SIZE_T)pos;
         fpart = pos - ipart;
         self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
@@ -1381,6 +1440,17 @@ Osc_readframes_ai(Osc *self)
         if (pos >= size)
             pos -= size;
 
+        if (pos < 0 || pos >= size)
+        {
+            pos = fmod(pos, size);
+            if (pos < 0)
+                pos += size;
+
+            /* Negative remainders can round up to the endpoint. */
+            if (pos >= size)
+                pos = 0;
+        }
+
         ipart = (T_SIZE_T)pos;
         fpart = pos - ipart;
         self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
@@ -1410,6 +1480,17 @@ Osc_readframes_ia(Osc *self)
 
         if (pos >= size)
             pos -= size;
+
+        if (pos < 0 || pos >= size)
+        {
+            pos = fmod(pos, size);
+            if (pos < 0)
+                pos += size;
+
+            /* Negative remainders can round up to the endpoint. */
+            if (pos >= size)
+                pos = 0;
+        }
 
         ipart = (T_SIZE_T)pos;
         fpart = pos - ipart;
@@ -1442,6 +1523,17 @@ Osc_readframes_aa(Osc *self)
 
         if (pos >= size)
             pos -= size;
+
+        if (pos < 0 || pos >= size)
+        {
+            pos = fmod(pos, size);
+            if (pos < 0)
+                pos += size;
+
+            /* Negative remainders can round up to the endpoint. */
+            if (pos >= size)
+                pos = 0;
+        }
 
         ipart = (T_SIZE_T)pos;
         fpart = pos - ipart;
@@ -1795,6 +1887,17 @@ OscLoop_readframes_ii(OscLoop *self)
         else if (pos < 0)
             pos += size;
 
+        if (pos < 0 || pos >= size)
+        {
+            pos = MYFMOD(pos, size);
+            if (pos < 0)
+                pos += size;
+
+            /* Negative remainders can round up to the endpoint. */
+            if (pos >= size)
+                pos = 0;
+        }
+
         ipart = (T_SIZE_T)pos;
         self->data[i] = self->lastValue = tablelist[ipart] + (tablelist[ipart + 1] - tablelist[ipart]) * (pos - ipart);
     }
@@ -1826,6 +1929,17 @@ OscLoop_readframes_ai(OscLoop *self)
         else if (pos < 0)
             pos += size;
 
+        if (pos < 0 || pos >= size)
+        {
+            pos = MYFMOD(pos, size);
+            if (pos < 0)
+                pos += size;
+
+            /* Negative remainders can round up to the endpoint. */
+            if (pos >= size)
+                pos = 0;
+        }
+
         ipart = (T_SIZE_T)pos;
         self->data[i] = self->lastValue = tablelist[ipart] + (tablelist[ipart + 1] - tablelist[ipart]) * (pos - ipart);
     }
@@ -1855,6 +1969,17 @@ OscLoop_readframes_ia(OscLoop *self)
             pos -= size;
         else if (pos < 0)
             pos += size;
+
+        if (pos < 0 || pos >= size)
+        {
+            pos = MYFMOD(pos, size);
+            if (pos < 0)
+                pos += size;
+
+            /* Negative remainders can round up to the endpoint. */
+            if (pos >= size)
+                pos = 0;
+        }
 
         ipart = (T_SIZE_T)pos;
         self->data[i] = self->lastValue = tablelist[ipart] + (tablelist[ipart + 1] - tablelist[ipart]) * (pos - ipart);
@@ -1887,6 +2012,17 @@ OscLoop_readframes_aa(OscLoop *self)
             pos -= size;
         else if (pos < 0)
             pos += size;
+
+        if (pos < 0 || pos >= size)
+        {
+            pos = MYFMOD(pos, size);
+            if (pos < 0)
+                pos += size;
+
+            /* Negative remainders can round up to the endpoint. */
+            if (pos >= size)
+                pos = 0;
+        }
 
         ipart = (T_SIZE_T)pos;
         self->data[i] = self->lastValue = tablelist[ipart] + (tablelist[ipart + 1] - tablelist[ipart]) * (pos - ipart);

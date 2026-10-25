@@ -47,6 +47,12 @@ MYFLT cosine(MYFLT *buf, T_SIZE_T index, MYFLT frac, T_SIZE_T size)
 MYFLT cubic(MYFLT *buf, T_SIZE_T index, MYFLT frac, T_SIZE_T size)
 {
     MYFLT x0, x3, a0, a1, a2, a3;
+
+    if (size == 1)
+        return buf[0];
+    else if (size == 2)
+        return linear(buf, index, frac, size);
+
     MYFLT x1 = buf[index];
     MYFLT x2 = buf[index + 1];
 

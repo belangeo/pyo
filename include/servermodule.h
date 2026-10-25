@@ -94,7 +94,7 @@ struct Server
     PyObject *jackMidiOutputPortName; /* string (midi output port short names for jack server) */
     int isJackTransportSlave;
     int jack_transport_state; /* 0 = stopped, 1 = started */
-    PyoMidiEvent midiEvents[200];
+    PyoMidiEvent midiEvents[PYO_MIDI_EVENT_CAPACITY];
     int midiin_count;
     int midiout_count;
     int midi_count;

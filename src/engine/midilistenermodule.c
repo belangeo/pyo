@@ -31,9 +31,9 @@ typedef struct
 {
     PyObject_HEAD
     PyObject *midicallable;
-    PmStream *midiin[64];
+    PmStream *midiin[PYO_MIDI_DEVICE_CAPACITY];
     PyObject *mididev;
-    int ids[64];
+    int ids[PYO_MIDI_DEVICE_CAPACITY];
     int midicount;
     int active;
     int reportdevice;
@@ -230,7 +230,7 @@ static PyObject * MidiListener_play(MidiListener *self)
             {
                 self->midicount = 0;
 
-                for (i = 0; i < num_devices; i++)
+                for (i = 0; i < num_devices && self->midicount < PYO_MIDI_DEVICE_CAPACITY; i++)
                 {
                     const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
 
@@ -262,7 +262,7 @@ static PyObject * MidiListener_play(MidiListener *self)
         {
             self->midicount = 0;
 
-            for (i = 0; i < num_devices; i++)
+            for (i = 0; i < num_devices && self->midicount < PYO_MIDI_DEVICE_CAPACITY; i++)
             {
                 if (PySequence_Contains(self->mididev, PyLong_FromLong(i)) == 0)
                     continue;
@@ -412,9 +412,9 @@ PyoCreateMidiListenerType(PyObject *module)
 typedef struct
 {
     PyObject_HEAD
-    PmStream *midiout[64];
+    PmStream *midiout[PYO_MIDI_DEVICE_CAPACITY];
     PyObject *mididev;
-    int ids[64];
+    int ids[PYO_MIDI_DEVICE_CAPACITY];
     int midicount;
     int active;
 } MidiDispatcher;
@@ -537,7 +537,7 @@ static PyObject * MidiDispatcher_play(MidiDispatcher *self)
             {
                 self->midicount = 0;
 
-                for (i = 0; i < num_devices; i++)
+                for (i = 0; i < num_devices && self->midicount < PYO_MIDI_DEVICE_CAPACITY; i++)
                 {
                     const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
 
@@ -569,7 +569,7 @@ static PyObject * MidiDispatcher_play(MidiDispatcher *self)
         {
             self->midicount = 0;
 
-            for (i = 0; i < num_devices; i++)
+            for (i = 0; i < num_devices && self->midicount < PYO_MIDI_DEVICE_CAPACITY; i++)
             {
                 if (PySequence_Contains(self->mididev, PyLong_FromLong(i)) == 0)
                     continue;

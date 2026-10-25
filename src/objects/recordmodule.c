@@ -833,20 +833,65 @@ static PyObject * ControlRead_inplace_sub(ControlRead *self, PyObject *arg) { IN
 static PyObject * ControlRead_div(ControlRead *self, PyObject *arg) { DIV };
 static PyObject * ControlRead_inplace_div(ControlRead *self, PyObject *arg) { INPLACE_DIV };
 
+static MYFLT *
+Read_copyValues(PyObject *arg, Py_ssize_t *size)
+{
+    Py_ssize_t i;
+    MYFLT *values;
+
+    if (!PyList_Check(arg))
+    {
+        PyErr_SetString(PyExc_TypeError, "Playback values must be a list.");
+        return NULL;
+    }
+    *size = PyList_Size(arg);
+    if (*size < 1)
+    {
+        PyErr_SetString(PyExc_ValueError, "Playback values must not be empty.");
+        return NULL;
+    }
+    if (*size > PY_SSIZE_T_MAX / (Py_ssize_t)sizeof(MYFLT) - 1)
+    {
+        PyErr_NoMemory();
+        return NULL;
+    }
+    values = (MYFLT *)PyMem_RawMalloc((*size + 1) * sizeof(MYFLT));
+    if (values == NULL)
+    {
+        PyErr_NoMemory();
+        return NULL;
+    }
+    for (i = 0; i < *size; i++)
+    {
+        values[i] = PyFloat_AsDouble(PyList_GET_ITEM(arg, i));
+        if (PyErr_Occurred())
+        {
+            PyMem_RawFree(values);
+            return NULL;
+        }
+    }
+    /* Linear and cosine interpolation need a guard for a singleton list. */
+    values[*size] = values[*size - 1];
+    return values;
+}
+
 static PyObject *
 ControlRead_setValues(ControlRead *self, PyObject *arg)
 {
-    Py_ssize_t i;
+    Py_ssize_t size;
+    MYFLT *values;
 
     ASSERT_ARG_NOT_NULL
 
-    self->size = PyList_Size(arg);
-    self->values = (MYFLT *)PyMem_RawRealloc(self->values, self->size * sizeof(MYFLT));
+    values = Read_copyValues(arg, &size);
+    if (values == NULL)
+        return NULL;
 
-    for (i = 0; i < self->size; i++)
-    {
-        self->values[i] = PyFloat_AsDouble(PyList_GET_ITEM(arg, i));
-    }
+    PyMem_RawFree(self->values);
+    self->values = values;
+    self->size = size;
+    self->count = 0;
+    self->time = 0;
 
     Py_RETURN_NONE;
 }
@@ -1179,7 +1224,9 @@ typedef struct
     int modebuffer[2];
     long count;
     long time;
-    long size;
+    Py_ssize_t size;
+    Py_ssize_t values_size;
+    Py_ssize_t timestamps_size;
     MYFLT *trigsBuffer;
     TriggerStream *trig_stream;
 } NoteinRead;
@@ -1196,7 +1243,7 @@ NoteinRead_readframes_i(NoteinRead *self)
     {
         self->trigsBuffer[i] = 0.0;
 
-        if (self->go == 1)
+        if (self->go == 1 && self->count < self->size)
         {
             if (self->time >= self->timestamps[self->count])
             {
@@ -1412,17 +1459,21 @@ static PyObject * NoteinRead_inplace_div(NoteinRead *self, PyObject *arg) { INPL
 static PyObject *
 NoteinRead_setValues(NoteinRead *self, PyObject *arg)
 {
-    Py_ssize_t i;
+    Py_ssize_t size;
+    MYFLT *values;
 
     ASSERT_ARG_NOT_NULL
 
-    self->size = PyList_Size(arg);
-    self->values = (MYFLT *)PyMem_RawRealloc(self->values, self->size * sizeof(MYFLT));
+    values = Read_copyValues(arg, &size);
+    if (values == NULL)
+        return NULL;
 
-    for (i = 0; i < self->size; i++)
-    {
-        self->values[i] = PyFloat_AsDouble(PyList_GET_ITEM(arg, i));
-    }
+    PyMem_RawFree(self->values);
+    self->values = values;
+    self->values_size = size;
+    self->size = size < self->timestamps_size ? size : self->timestamps_size;
+    self->count = self->time = 0;
+    self->value = 0.0;
 
     Py_RETURN_NONE;
 }
@@ -1430,19 +1481,56 @@ NoteinRead_setValues(NoteinRead *self, PyObject *arg)
 static PyObject *
 NoteinRead_setTimestamps(NoteinRead *self, PyObject *arg)
 {
-    Py_ssize_t i;
+    Py_ssize_t i, size;
+    long *timestamps;
+    double seconds;
+    PyObject *sample;
 
     ASSERT_ARG_NOT_NULL
 
-    self->size = PyList_Size(arg);
-    self->timestamps = (long *)PyMem_RawRealloc(self->timestamps, self->size * sizeof(long));
-
-    for (i = 0; i < self->size; i++)
+    if (!PyList_Check(arg))
     {
-        self->timestamps[i] = (long)(PyFloat_AsDouble(PyList_GET_ITEM(arg, i)) * self->sr);
+        PyErr_SetString(PyExc_TypeError, "Playback timestamps must be a list.");
+        return NULL;
+    }
+    size = PyList_Size(arg);
+    if (size < 1)
+    {
+        PyErr_SetString(PyExc_ValueError, "Playback timestamps must not be empty.");
+        return NULL;
+    }
+    if (size > PY_SSIZE_T_MAX / (Py_ssize_t)sizeof(long))
+        return PyErr_NoMemory();
+
+    timestamps = (long *)PyMem_RawMalloc(size * sizeof(long));
+    if (timestamps == NULL)
+        return PyErr_NoMemory();
+    for (i = 0; i < size; i++)
+    {
+        seconds = PyFloat_AsDouble(PyList_GET_ITEM(arg, i));
+        if (PyErr_Occurred())
+            goto error;
+        sample = PyLong_FromDouble(seconds * self->sr);
+        if (sample == NULL)
+            goto error;
+        timestamps[i] = PyLong_AsLong(sample);
+        Py_DECREF(sample);
+        if (PyErr_Occurred())
+            goto error;
     }
 
+    PyMem_RawFree(self->timestamps);
+    self->timestamps = timestamps;
+    self->timestamps_size = size;
+    self->size = size < self->values_size ? size : self->values_size;
+    self->count = self->time = 0;
+    self->value = 0.0;
+
     Py_RETURN_NONE;
+
+error:
+    PyMem_RawFree(timestamps);
+    return NULL;
 }
 
 static PyObject *

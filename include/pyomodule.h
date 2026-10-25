@@ -31,6 +31,9 @@
 #define MAX_NBR_SERVER 256
 #define PYO_NUM_RND_OBJS 29
 
+#define PYO_MIDI_DEVICE_CAPACITY 64
+#define PYO_MIDI_EVENT_CAPACITY 200
+
 typedef struct Server Server;
 
 static inline long

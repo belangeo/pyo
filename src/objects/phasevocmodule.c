@@ -7397,6 +7397,17 @@ PVBufLoops_process(PVBufLoops *self)
                     else if (pos >= 1.0)
                         pos -= 1.0;
 
+                    if (pos < 0.0 || pos >= 1.0)
+                    {
+                        pos = MYFMOD(pos, 1.0);
+                        if (pos < 0.0)
+                            pos += 1.0;
+
+                        /* Negative remainders can round up to the endpoint. */
+                        if (pos >= 1.0)
+                            pos = 0.0;
+                    }
+
                     self->pointers[k] = pos;
                 }
 
@@ -7817,6 +7828,17 @@ PVBufTabLoops_process(PVBufTabLoops *self)
                             pos += 1.0;
                         else if (pos >= 1.0)
                             pos -= 1.0;
+
+                        if (pos < 0.0 || pos >= 1.0)
+                        {
+                            pos = MYFMOD(pos, 1.0);
+                            if (pos < 0.0)
+                                pos += 1.0;
+
+                            /* Negative remainders can round up to the endpoint. */
+                            if (pos >= 1.0)
+                                pos = 0.0;
+                        }
                     }
 
                     self->pointers[k] = pos;

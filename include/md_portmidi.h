@@ -28,8 +28,8 @@
 
 typedef struct
 {
-    PmStream *midiin[64];
-    PmStream *midiout[64];
+    PmStream *midiin[PYO_MIDI_DEVICE_CAPACITY];
+    PmStream *midiout[PYO_MIDI_DEVICE_CAPACITY];
 } PyoPmBackendData;
 
 void portmidiGetEvents(Server *self);

@@ -1153,7 +1153,7 @@ Yin_process(Yin *self)
         self->y1 = in[i] + (self->y1 - in[i]) * self->c2;
         self->input_buffer[self->input_count] = self->y1;
 
-        if (self->input_count++ == self->winsize)
+        if (++self->input_count == self->winsize)
         {
             self->input_count = 0;
 
@@ -2332,9 +2332,15 @@ Scope_display(Scope *self)
     for (i = 0; i < self->width; i++)
     {
         pos = i * step;
-        ipos = (int)pos;
         tuple = PyTuple_New(2);
-        mag = ((self->buffer[ipos] + (self->buffer[ipos + 1] - self->buffer[ipos]) * (pos - ipos)) * self->gain * h2 + h2);
+        if (pos >= self->size - 1)
+            mag = self->buffer[self->size - 1];
+        else
+        {
+            ipos = (int)pos;
+            mag = self->buffer[ipos] + (self->buffer[ipos + 1] - self->buffer[ipos]) * (pos - ipos);
+        }
+        mag = mag * self->gain * h2 + h2;
         PyTuple_SET_ITEM(tuple, 0, PyLong_FromLong(i));
         PyTuple_SET_ITEM(tuple, 1, PyLong_FromLong(self->height - (int)mag));
         PyList_SET_ITEM(points, i, tuple);

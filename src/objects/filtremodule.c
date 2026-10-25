@@ -7178,7 +7178,10 @@ SVF2_filters_ii(SVF2 *self)
 
         ipart = (int)type;
         fpart = type - ipart;
-        self->data[i] = interp[ipart] + (interp[ipart + 1] - interp[ipart]) * fpart;
+        if (type >= 10.0)
+            self->data[i] = interp[0];
+        else
+            self->data[i] = interp[ipart] + (interp[ipart + 1] - interp[ipart]) * fpart;
     }
 }
 
@@ -7289,7 +7292,10 @@ SVF2_filters_ai(SVF2 *self)
 
         ipart = (int)type;
         fpart = type - ipart;
-        self->data[i] = interp[ipart] + (interp[ipart + 1] - interp[ipart]) * fpart;
+        if (type >= 10.0)
+            self->data[i] = interp[0];
+        else
+            self->data[i] = interp[ipart] + (interp[ipart + 1] - interp[ipart]) * fpart;
     }
 }
 
@@ -7400,7 +7406,10 @@ SVF2_filters_ia(SVF2 *self)
 
         ipart = (int)type;
         fpart = type - ipart;
-        self->data[i] = interp[ipart] + (interp[ipart + 1] - interp[ipart]) * fpart;
+        if (type >= 10.0)
+            self->data[i] = interp[0];
+        else
+            self->data[i] = interp[ipart] + (interp[ipart + 1] - interp[ipart]) * fpart;
     }
 }
 
@@ -7513,7 +7522,10 @@ SVF2_filters_aa(SVF2 *self)
 
         ipart = (int)type;
         fpart = type - ipart;
-        self->data[i] = interp[ipart] + (interp[ipart + 1] - interp[ipart]) * fpart;
+        if (type >= 10.0)
+            self->data[i] = interp[0];
+        else
+            self->data[i] = interp[ipart] + (interp[ipart + 1] - interp[ipart]) * fpart;
     }
 }
 
@@ -7744,7 +7756,9 @@ static PyObject * SVF2_setType(SVF2 *self, PyObject *arg) {SET_PARAM(self->type,
 static PyObject *
 SVF2_setOrder(SVF2 *self, PyObject *arg)
 {
-    int i, size;
+    int i, order[10];
+    Py_ssize_t size;
+    long value;
 
     if (PyList_Check(arg))
     {
@@ -7755,10 +7769,24 @@ SVF2_setOrder(SVF2 *self, PyObject *arg)
 
         for (i = 0; i < size; i++)
         {
-            self->order[i] = PyLong_AsLong(PyList_GetItem(arg, i));
+            value = PyLong_AsLong(PyList_GetItem(arg, i));
+            if (PyErr_Occurred())
+                return NULL;
+
+            if (value < 0 || value > 9)
+            {
+                PyErr_SetString(PyExc_ValueError, "SVF2 order entries must be between 0 and 9.");
+                return NULL;
+            }
+
+            order[i] = (int)value;
         }
 
-        self->order[size] = self->order[0];
+        for (i = 0; i < size; i++)
+            self->order[i] = order[i];
+
+        if (size < 10)
+            self->order[size] = self->order[0];
     }
 
     Py_RETURN_NONE;

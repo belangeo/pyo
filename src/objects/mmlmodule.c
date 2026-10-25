@@ -159,9 +159,21 @@ MMLMain_consume(MMLMain *self, int i)
             value = RANDOM_UNIFORM * (high - low) + low;
         }
 
-        char temp[128];
-        sprintf(temp, "%f", value);
+        char *temp = PyOS_double_to_string(value, 'f', 6, 0, NULL);
+        if (temp == NULL)
+        {
+            Py_DECREF(randRangeToken);
+            PyErr_Print();
+            return;
+        }
         PyObject *val = PyUnicode_FromString(temp);
+        PyMem_Free(temp);
+        if (val == NULL)
+        {
+            Py_DECREF(randRangeToken);
+            PyErr_Print();
+            return;
+        }
         PyObject *head = PySequence_GetSlice(event, 0, mpos);
         PyObject *tail = PySequence_GetSlice(event, pos2 + 1, PySequence_Size(event));
         event = PyUnicode_Concat(head, val);

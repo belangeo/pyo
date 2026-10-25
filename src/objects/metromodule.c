@@ -1962,6 +1962,9 @@ Beater_calculateDurations(Beater *self)
 {
     int i;
 
+    if (self->tapLength == 0)
+        return;
+
     for (i = 0; i < (self->tapLength - 1); i++)
     {
         self->durations[self->tapList[i]] = (self->tapList[i + 1] - self->tapList[i]) * self->tapDur - 0.005;
@@ -1976,7 +1979,12 @@ Beater_makePresetActive(Beater *self, int n)
     int i, j, len;
 
     self->preCall = -1;
+    if (n < 0 || n >= 32)
+        return;
+
     len = self->preset[n][0];
+    if (len < 1 || len > 64)
+        return;
 
     if (len != self->taps)
     {
@@ -2350,6 +2358,13 @@ Beater_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
+    if (self->taps < 1 || self->taps > 64)
+    {
+        PyErr_SetString(PyExc_ValueError, "Beat taps must be between 1 and 64.");
+        Py_DECREF(self);
+        return NULL;
+    }
+
     if (timetmp)
     {
         PYO_CALL_METHOD_O_OR_RETURN_NULL(self, "setTime", timetmp);
@@ -2414,8 +2429,22 @@ Beater_reset(Beater *self)
 static PyObject *
 Beater_setTaps(Beater *self, PyObject *arg)
 {
+    long taps;
+
     if (PyLong_Check(arg))
-        self->taps = PyLong_AsLong(arg);
+    {
+        taps = PyLong_AsLong(arg);
+        if (PyErr_Occurred())
+            return NULL;
+
+        if (taps < 1 || taps > 64)
+        {
+            PyErr_SetString(PyExc_ValueError, "Beat taps must be between 1 and 64.");
+            return NULL;
+        }
+
+        self->taps = (int)taps;
+    }
 
     Py_RETURN_NONE;
 }
@@ -2473,11 +2502,21 @@ Beater_fillPattern(Beater *self)
 static PyObject *
 Beater_storePreset(Beater *self, PyObject *arg)
 {
-    int i, n;
+    int i;
+    long n;
 
     if (PyLong_Check(arg))
     {
         n = PyLong_AsLong(arg);
+        if (PyErr_Occurred())
+            return NULL;
+
+        if (n < 0 || n >= 32)
+        {
+            PyErr_SetString(PyExc_IndexError, "Beat preset index must be between 0 and 31.");
+            return NULL;
+        }
+
         self->preset[n][0] = self->taps;
 
         for (i = 0; i < self->taps; i++)
@@ -2492,21 +2531,36 @@ Beater_storePreset(Beater *self, PyObject *arg)
 static PyObject *
 Beater_recallPreset(Beater *self, PyObject *arg)
 {
-    int x;
+    long x;
 
-    if (PyLong_Check(arg))
+    if (!PyLong_Check(arg))
     {
-        x = PyLong_AsLong(arg);
-
-        if (x >= 0 && x < 32)
-            self->preCall = x;
+        PyErr_SetString(PyExc_TypeError, "Beat preset index must be an integer.");
+        return NULL;
     }
+
+    x = PyLong_AsLong(arg);
+    if (PyErr_Occurred())
+        return NULL;
+
+    if (x < 0 || x >= 32)
+    {
+        PyErr_SetString(PyExc_IndexError, "Beat preset index must be between 0 and 31.");
+        return NULL;
+    }
+
+    if (self->preset[x][0] < 1 || self->preset[x][0] > 64)
+    {
+        PyErr_SetString(PyExc_ValueError, "Beat preset slot is empty or invalid.");
+        return NULL;
+    }
+
+    self->preCall = (int)x;
 
     if (Stream_getStreamActive(self->stream) == 0)
         Beater_makePresetActive(self, self->preCall);
 
     Py_RETURN_NONE;
-
 }
 
 static PyObject *
@@ -2539,27 +2593,65 @@ Beater_getPresets(Beater *self)
 static PyObject *
 Beater_setPresets(Beater *self, PyObject *arg)
 {
-    int i, j, len, len2;
+    int i, j, presets[32][65];
+    Py_ssize_t len;
+    long taps, value;
     PyObject *tmp;
 
     if (PyList_Check(arg))
     {
         len = PyList_Size(arg);
+        if (len > 32)
+        {
+            PyErr_SetString(PyExc_ValueError, "Beat accepts at most 32 presets.");
+            return NULL;
+        }
 
         for (i = 0; i < len; i++)
         {
             tmp = PyList_GetItem(arg, i);
-
-            if (PyList_Check(tmp))
+            if (!PyList_Check(tmp))
             {
-                len2 = PyLong_AsLong(PyList_GetItem(tmp, 0));
-                self->preset[i][0] = len2;
-
-                for (j = 0; j < len2; j++)
-                {
-                    self->preset[i][j + 1] = PyLong_AsLong(PyList_GetItem(tmp, j + 1));
-                }
+                PyErr_SetString(PyExc_TypeError, "Each Beat preset must be a list.");
+                return NULL;
             }
+
+            if (PyList_Size(tmp) == 0)
+            {
+                PyErr_SetString(PyExc_ValueError, "Beat preset must include a tap count.");
+                return NULL;
+            }
+
+            taps = PyLong_AsLong(PyList_GetItem(tmp, 0));
+            if (PyErr_Occurred())
+                return NULL;
+
+            if (taps < 1 || taps > 64)
+            {
+                PyErr_SetString(PyExc_ValueError, "Beat preset taps must be between 1 and 64.");
+                return NULL;
+            }
+
+            if (PyList_Size(tmp) < taps + 1)
+            {
+                PyErr_SetString(PyExc_ValueError, "Beat preset has fewer values than its tap count.");
+                return NULL;
+            }
+
+            presets[i][0] = (int)taps;
+            for (j = 0; j < taps; j++)
+            {
+                value = PyLong_AsLong(PyList_GetItem(tmp, j + 1));
+                if (PyErr_Occurred())
+                    return NULL;
+                presets[i][j + 1] = (int)value;
+            }
+        }
+
+        for (i = 0; i < len; i++)
+        {
+            for (j = 0; j <= presets[i][0]; j++)
+                self->preset[i][j] = presets[i][j];
         }
     }
 

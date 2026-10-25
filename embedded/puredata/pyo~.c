@@ -1,4 +1,7 @@
 #include <stdlib.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
 #include <m_pd.h>
 #include "Python.h"
 #include "m_pyo.h"
@@ -30,6 +33,41 @@ typedef struct _pyo_tilde {
     int (*callback)(void *);  /* pointer to pyo embedded server callback */
     PyThreadState *interp;  /* Python thread state linked to this sub interpreter */
 } t_pyo_tilde;
+
+static int pyo_tilde_append(t_pyo_tilde *x, size_t *used, const char *format, ...) {
+    int length;
+    size_t available;
+    va_list args;
+
+    if (x->msg == NULL) {
+        pd_error(x, "pyo~: message buffer is unavailable.");
+        return 0;
+    }
+    if (*used >= PYO_MSG_SIZE) {
+        x->msg[0] = '\0';
+        pd_error(x, "pyo~: command exceeds message buffer capacity.");
+        return 0;
+    }
+    available = PYO_MSG_SIZE - *used;
+    va_start(args, format);
+    length = vsnprintf(x->msg + *used, available, format, args);
+    va_end(args);
+    if (length < 0 || (size_t)length >= available) {
+        x->msg[0] = '\0';
+        pd_error(x, "pyo~: command formatting failed or exceeds message buffer capacity.");
+        return 0;
+    }
+    *used += (size_t)length;
+    return 1;
+}
+
+static int pyo_tilde_append_atom(t_pyo_tilde *x, size_t *used, const t_atom *atom) {
+    if (atom->a_type == A_SYMBOL)
+        return pyo_tilde_append(x, used, "%s", atom_getsymbol(atom)->s_name);
+    if (atom->a_type == A_FLOAT)
+        return pyo_tilde_append(x, used, "%.6f", (double)atom_getfloat(atom));
+    return 1;
+}
 
 t_int *pyo_tilde_perform(t_int *w) {
     int i, j, n;
@@ -70,7 +108,7 @@ void pyo_tilde_dsp(t_pyo_tilde *x, t_signal **sp) {
                 post("Unable to open file < %s >", x->file);
                 x->file = NULL;
             } else if (err == 2) {
-                pd_error(x, x->msg);
+                pd_error(x, "%s", x->msg);
                 x->file = NULL;
             }
         }
@@ -86,7 +124,7 @@ static void pyo_load_file(t_pyo_tilde *x) {
             post("Unable to open file < %s >", x->file);
             x->file = NULL;
         } else if (err == 2) {
-			pd_error(x, x->msg);
+			pd_error(x, "%s", x->msg);
             x->file = NULL;
         }
     }
@@ -103,32 +141,28 @@ static void pyo_tilde_free(t_pyo_tilde *x) {
 }
 
 static void pyo_tilde_set_value(t_pyo_tilde *x, char *att, int argc, t_atom *argv) {
-    int err, bracket = 0;
-    char fchar[32];
-    t_symbol *c = atom_getsymbol(argv);
-    argc--; argv++;
-    sprintf(x->msg, "%s%s=", c->s_name, att);
-    if (argc > 1) {
-        strcat(x->msg, "[");
-        bracket = 1;    
+    int err, bracket;
+    size_t used = 0;
+    t_symbol *c;
+
+    if (argc < 2 || argv[0].a_type != A_SYMBOL) {
+        pd_error(x, "pyo~: set/value requires a target name and at least one value.");
+        return;
     }
+    c = atom_getsymbol(argv);
+    argc--; argv++;
+    if (!pyo_tilde_append(x, &used, "%s%s=", c->s_name, att)) return;
+    bracket = argc > 1;
+    if (bracket && !pyo_tilde_append(x, &used, "[")) return;
     while (argc-- > 0) {
-        if (argv->a_type == A_SYMBOL) {
-            strcat(x->msg, atom_getsymbol(argv)->s_name);
-        }
-        else if (argv->a_type == A_FLOAT) {
-            sprintf(fchar, "%.6f", atom_getfloat(argv));
-            strcat(x->msg, fchar);
-        }
-        if (argc > 0)
-            strcat(x->msg, ",");
+        if (!pyo_tilde_append_atom(x, &used, argv)) return;
+        if (argc > 0 && !pyo_tilde_append(x, &used, ",")) return;
         argv++;
     }
-    if (bracket)
-        strcat(x->msg, "]");
+    if (bracket && !pyo_tilde_append(x, &used, "]")) return;
     err = pyo_exec_statement(x->interp, x->msg, x->debug);
     if (err)
-        pd_error(x, x->msg);
+        pd_error(x, "%s", x->msg);
 }
 
 static void pyo_tilde_value(t_pyo_tilde *x, t_symbol *s, int argc, t_atom *argv) {
@@ -145,32 +179,28 @@ static void pyo_tilde_set(t_pyo_tilde *x, t_symbol *s, int argc, t_atom *argv) {
 
 static void pyo_tilde_create(t_pyo_tilde *x, t_symbol *s, int argc, t_atom *argv) {
     int err;
+    size_t used = 0;
     const char *varname, *object;
-    char fchar[32];
-    t_symbol *c = atom_getsymbol(argv);
-	(void)(s); /* unused */
-    varname = c->s_name;
+    (void)(s); /* unused */
+
+    if (argc < 2 || argv[0].a_type != A_SYMBOL || argv[1].a_type != A_SYMBOL) {
+        pd_error(x, "pyo~: create requires a variable name and object name.");
+        return;
+    }
+    varname = atom_getsymbol(argv)->s_name;
     argc--; argv++;
-    c = atom_getsymbol(argv);
-    object = c->s_name;
+    object = atom_getsymbol(argv)->s_name;
     argc--; argv++;
-    sprintf(x->msg, "%s=%s(", varname, object);
+    if (!pyo_tilde_append(x, &used, "%s=%s(", varname, object)) return;
     while (argc-- > 0) {
-        if (argv->a_type == A_SYMBOL) {
-            strcat(x->msg, atom_getsymbol(argv)->s_name);
-        }
-        else if (argv->a_type == A_FLOAT) {
-            sprintf(fchar, "%f", atom_getfloat(argv));
-            strcat(x->msg, fchar);
-        }
-        if (argc > 0)
-            strcat(x->msg, ",");
+        if (!pyo_tilde_append_atom(x, &used, argv)) return;
+        if (argc > 0 && !pyo_tilde_append(x, &used, ",")) return;
         argv++;
     }
-    strcat(x->msg, ")");
+    if (!pyo_tilde_append(x, &used, ")")) return;
     err = pyo_exec_statement(x->interp, x->msg, x->debug);
     if (err)
-        pd_error(x, x->msg);
+        pd_error(x, "%s", x->msg);
 }
 
 static int pyo_tilde_get_stdout(t_pyo_tilde *x)
@@ -194,47 +224,48 @@ static int pyo_tilde_get_stdout(t_pyo_tilde *x)
 
 static void pyo_tilde_exec(t_pyo_tilde *x, t_symbol *s, int argc, t_atom *argv) {
     int err, i;
-    char fchar[32];
-	(void)(s); /* unused */
+    size_t used = 0;
+    (void)(s); /* unused */
+
+    if (argc < 1) {
+        pd_error(x, "pyo~: exec requires a statement.");
+        return;
+    }
+    if (!pyo_tilde_append(x, &used, "%s", "")) return;
     for (i = 0; i < argc; i++) {
-        if (argv->a_type == A_SYMBOL) {
-			if (i == 0) sprintf(x->msg, atom_getsymbol(argv)->s_name);
-			else strcat(x->msg, atom_getsymbol(argv)->s_name);
-        }
-        else if (argv->a_type == A_FLOAT) {
-            sprintf(fchar, "%f", atom_getfloat(argv));
-			if (i == 0) sprintf(x->msg, fchar);
-			else strcat(x->msg, fchar);
-        }
-        if (argc > 0)
-            strcat(x->msg, " ");
+        if (!pyo_tilde_append_atom(x, &used, argv)) return;
+        if (!pyo_tilde_append(x, &used, " ")) return;
         argv++;
     }
     err = pyo_exec_statement(x->interp, x->msg, x->debug);
     if (err) {
 		/* remove the newline character at the end of STDOUT
 		 * by placing the null terminating character at its position */
-		x->msg[strlen(x->msg)-1] = '\0';
+		size_t length = strlen(x->msg);
+		if (length > 0 && x->msg[length - 1] == '\n')
+			x->msg[length - 1] = '\0';
 		if (x->stderr_set) {
 			t_atom *stdout_vec = x->stdout_vec;
 			SETSYMBOL(stdout_vec, gensym(x->msg));
 			outlet_anything(x->stdout_outlet, gensym("stderr"), 1, stdout_vec);
 		}
 		else {
-			pd_error(x, x->msg);
+			pd_error(x, "%s", x->msg);
 		}
 	}
 	else if (pyo_tilde_get_stdout(x)){
 		/* remove the newline character at the end of STDOUT
 		 * by placing the null terminating character at its position */
-		x->msg[strlen(x->msg)-1] = '\0';
+		size_t length = strlen(x->msg);
+		if (length > 0 && x->msg[length - 1] == '\n')
+			x->msg[length - 1] = '\0';
 		if (x->stdout_set) {
 			t_atom *stdout_vec = x->stdout_vec;
 			SETSYMBOL(stdout_vec, gensym(x->msg));
 			outlet_anything(x->stdout_outlet, gensym("stdout"), 1, stdout_vec);
 		}
 		else {
-			post(x->msg);
+			post("%s", x->msg);
 		}
 	}
 }
@@ -284,26 +315,24 @@ static void pyo_tilde_read(t_pyo_tilde *x, t_symbol *s, int argc, t_atom *argv) 
 
 static void pyo_tilde_call(t_pyo_tilde *x, t_symbol *s, int argc, t_atom *argv) {
     int err;
-    char fchar[32];
-	(void)(s); /* unused */
-    sprintf(x->msg, "%s(", atom_getsymbol(argv)->s_name);
+    size_t used = 0;
+    (void)(s); /* unused */
+
+    if (argc < 1 || argv[0].a_type != A_SYMBOL) {
+        pd_error(x, "pyo~: call requires a function name.");
+        return;
+    }
+    if (!pyo_tilde_append(x, &used, "%s(", atom_getsymbol(argv)->s_name)) return;
     argc--; argv++;
     while (argc-- > 0) {
-        if (argv->a_type == A_SYMBOL) {
-            strcat(x->msg, atom_getsymbol(argv)->s_name);
-        }
-        else if (argv->a_type == A_FLOAT) {
-            sprintf(fchar, "%f", atom_getfloat(argv));
-            strcat(x->msg, fchar);
-        }
-        if (argc > 0)
-            strcat(x->msg, ", ");
+        if (!pyo_tilde_append_atom(x, &used, argv)) return;
+        if (argc > 0 && !pyo_tilde_append(x, &used, ", ")) return;
         argv++;
     }
-    strcat(x->msg, ")");
+    if (!pyo_tilde_append(x, &used, ")")) return;
     err = pyo_exec_statement(x->interp, x->msg, x->debug);
     if (err)
-        pd_error(x, x->msg);
+        pd_error(x, "%s", x->msg);
 }
 
 static void *pyo_tilde_new(t_symbol *s, int argc, t_atom *argv) {

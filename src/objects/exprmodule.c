@@ -21,10 +21,14 @@
 #include <Python.h>
 #include "structmember.h"
 #include <math.h>
+#include <errno.h>
+#include <stdlib.h>
 #include "pyomodule.h"
 #include "streammodule.h"
 #include "servermodule.h"
 #include "dummymodule.h"
+
+#define EXPR_NODE_CAPACITY 2048
 
 // arithmetic operators
 #define OP_ADD 0
@@ -129,7 +133,7 @@ typedef struct
     MYFLT oneOverSr;
     MYFLT *input_buffer;
     MYFLT *output_buffer;
-    expr lexp[1024];
+    expr lexp[EXPR_NODE_CAPACITY];
 } Exprer;
 
 void
@@ -690,7 +694,9 @@ Exprer_process(Exprer *self)
                         break;
 
                     case OP_OUT:
-                        if ((int)self->lexp[j].values[0] >= self->chnls)
+                        if (!isfinite(self->lexp[j].values[0]) ||
+                                self->lexp[j].values[0] < 0.0 ||
+                                self->lexp[j].values[0] >= self->chnls)
                         {
                             outpos = i;
                         }
@@ -831,6 +837,98 @@ static PyObject * Exprer_getStream(Exprer* self) { GET_STREAM };
 static PyObject * Exprer_play(Exprer *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Exprer_stop(Exprer *self, PyObject *args, PyObject *kwds) { STOP };
 
+static int
+Exprer_validateReferences(Exprer *self, PyObject *sentence, Py_ssize_t node_count)
+{
+    PyObject *open = NULL, *close = NULL, *space = NULL;
+    PyObject *without_open = NULL, *without_braces = NULL, *tokens = NULL;
+    Py_ssize_t i, input_channels;
+    long channel, offset, node;
+    int output_channels = self->chnls < 1 ? 1 : self->chnls;
+    int result = -1;
+    const char *token, *cursor;
+    char *end;
+
+    input_channels = PyList_Size(self->input);
+    if (input_channels < 0)
+        return -1;
+
+    open = PyUnicode_FromString("(");
+    close = PyUnicode_FromString(")");
+    space = PyUnicode_FromString(" ");
+    if (open == NULL || close == NULL || space == NULL)
+        goto cleanup;
+
+    without_open = PyUnicode_Replace(sentence, open, space, -1);
+    if (without_open == NULL)
+        goto cleanup;
+    without_braces = PyUnicode_Replace(without_open, close, space, -1);
+    if (without_braces == NULL)
+        goto cleanup;
+    tokens = PyUnicode_Split(without_braces, NULL, -1);
+    if (tokens == NULL)
+        goto cleanup;
+
+    for (i = 0; i < PyList_Size(tokens); i++)
+    {
+        token = PyUnicode_AsUTF8(PyList_GetItem(tokens, i));
+        if (token == NULL)
+            goto cleanup;
+
+        if (token[0] == '_')
+        {
+            cursor = token + 1;
+            errno = 0;
+            node = strtol(cursor, &end, 0);
+            if (end == cursor || *end != '\0' || errno == ERANGE ||
+                    node < 0 || node >= node_count)
+                goto invalid_reference;
+        }
+        else if (strncmp(token, "$x", 2) == 0 || strncmp(token, "$y", 2) == 0)
+        {
+            cursor = token + 2;
+            channel = 0;
+            if (*cursor != '[')
+            {
+                errno = 0;
+                channel = strtol(cursor, &end, 0);
+                if (end == cursor || errno == ERANGE)
+                    goto invalid_reference;
+                cursor = end;
+            }
+
+            if (*cursor != '[' || channel < 0 ||
+                    (token[1] == 'x' && channel >= input_channels) ||
+                    (token[1] == 'y' && channel >= output_channels))
+                goto invalid_reference;
+
+            cursor++;
+            errno = 0;
+            offset = strtol(cursor, &end, 0);
+            if (end == cursor || errno == ERANGE || *end != ']' || end[1] != '\0' ||
+                    offset < -self->bufsize ||
+                    (token[1] == 'x' && offset > 0) ||
+                    (token[1] == 'y' && offset >= 0))
+                goto invalid_reference;
+        }
+    }
+
+    result = 0;
+    goto cleanup;
+
+invalid_reference:
+    PyErr_Format(PyExc_ValueError, "Invalid or out-of-range Expr reference: %s", token);
+
+cleanup:
+    Py_XDECREF(open);
+    Py_XDECREF(close);
+    Py_XDECREF(space);
+    Py_XDECREF(without_open);
+    Py_XDECREF(without_braces);
+    Py_XDECREF(tokens);
+    return result;
+}
+
 static PyObject *
 Exprer_setExpr(Exprer *self, PyObject *arg)
 {
@@ -840,6 +938,25 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
 
     if (PyUnicode_Check(arg))
     {
+        PyObject *closeToken = PyUnicode_FromString(")");
+        if (closeToken == NULL)
+            return NULL;
+
+        Py_ssize_t node_count = PyUnicode_Count(arg, closeToken, 0, PyUnicode_GetLength(arg));
+        Py_DECREF(closeToken);
+        if (node_count < 0)
+            return NULL;
+
+        /* Reserve one additional node for the final root expression. */
+        if (node_count >= EXPR_NODE_CAPACITY)
+        {
+            PyErr_Format(PyExc_ValueError, "Expr supports at most %d nodes, including the final root expression.", EXPR_NODE_CAPACITY);
+            return NULL;
+        }
+
+        if (Exprer_validateReferences(self, arg, node_count + 1) < 0)
+            return NULL;
+
         Py_INCREF(arg);
         Py_XDECREF(sentence);
         sentence = arg;

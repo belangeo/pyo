@@ -3752,11 +3752,27 @@ Spectrum_realloc_memories(Spectrum *self)
     self->allocated = 1;
 }
 
+static MYFLT
+Spectrum_getMagnitude(Spectrum *self, MYFLT pos)
+{
+    int index;
+    MYFLT frac;
+
+    if (pos <= 0.0)
+        return self->magnitude[0];
+    else if (pos >= self->hsize - 1)
+        return self->magnitude[self->hsize - 1];
+
+    index = (int)pos;
+    frac = pos - index;
+    return self->magnitude[index] + (self->magnitude[index + 1] - self->magnitude[index]) * frac;
+}
+
 static PyObject *
 Spectrum_display(Spectrum *self)
 {
-    int i, p1, b1, b2, bins;
-    MYFLT pos, step, frac, iw, mag, h4;
+    int i, b1, b2, bins;
+    MYFLT pos, step, iw, mag, h4;
     MYFLT logmin, logrange;
     PyObject *points, *tuple;
 
@@ -3783,10 +3799,8 @@ Spectrum_display(Spectrum *self)
         for (i = 0; i < self->width; i++)
         {
             pos = i * step + b1;
-            p1 = (int)pos;
-            frac = pos - p1;
             tuple = PyTuple_New(2);
-            mag = ((self->magnitude[p1] + (self->magnitude[p1 + 1] - self->magnitude[p1]) * frac) * self->gain * 4 * h4);
+            mag = (Spectrum_getMagnitude(self, pos) * self->gain * 4 * h4);
             PyTuple_SET_ITEM(tuple, 0, PyLong_FromLong(i));
             PyTuple_SET_ITEM(tuple, 1, PyLong_FromLong(self->height - (int)mag));
             PyList_SET_ITEM(points, i + 1, tuple);
@@ -3797,10 +3811,8 @@ Spectrum_display(Spectrum *self)
         for (i = 0; i < self->width; i++)
         {
             pos = i * step + b1;
-            p1 = (int)pos;
-            frac = pos - p1;
             tuple = PyTuple_New(2);
-            mag = ((self->magnitude[p1] + (self->magnitude[p1 + 1] - self->magnitude[p1]) * frac) * 0.7 * self->gain);
+            mag = (Spectrum_getMagnitude(self, pos) * 0.7 * self->gain);
             mag = mag > 0.001 ? mag : 0.001;
             mag = (60.0 + (20.0 * MYLOG10(mag))) * 0.01666 * h4;
             PyTuple_SET_ITEM(tuple, 0, PyLong_FromLong(i));
@@ -3819,10 +3831,8 @@ Spectrum_display(Spectrum *self)
         for (i = 0; i < self->width; i++)
         {
             pos = MYPOW(10.0, i * iw * logrange + logmin) / self->freqPerBin;
-            p1 = (int)pos;
-            frac = pos - p1;
             tuple = PyTuple_New(2);
-            mag = ((self->magnitude[p1] + (self->magnitude[p1 + 1] - self->magnitude[p1]) * frac) * self->gain * 4 * h4);
+            mag = (Spectrum_getMagnitude(self, pos) * self->gain * 4 * h4);
             PyTuple_SET_ITEM(tuple, 0, PyLong_FromLong(i));
             PyTuple_SET_ITEM(tuple, 1, PyLong_FromLong(self->height - (int)mag));
             PyList_SET_ITEM(points, i + 1, tuple);
@@ -3839,10 +3849,8 @@ Spectrum_display(Spectrum *self)
         for (i = 0; i < self->width; i++)
         {
             pos = MYPOW(10.0, i * iw * logrange + logmin) / self->freqPerBin;
-            p1 = (int)pos;
-            frac = pos - p1;
             tuple = PyTuple_New(2);
-            mag = ((self->magnitude[p1] + (self->magnitude[p1 + 1] - self->magnitude[p1]) * frac) * 0.7 * self->gain);
+            mag = (Spectrum_getMagnitude(self, pos) * 0.7 * self->gain);
             mag = mag > 0.001 ? mag : 0.001;
             mag = (60.0 + (20.0 * MYLOG10(mag))) * 0.01666 * self->height;
             PyTuple_SET_ITEM(tuple, 0, PyLong_FromLong(i));

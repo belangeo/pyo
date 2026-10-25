@@ -1291,19 +1291,42 @@ int OscListReceiver_handler(const char *path, const char *types, lo_arg **argv, 
 
     int i;
     PyObject *flist;
+
+    if (argc < self->num || types == NULL)
+        return 0;
+
+    for (i = 0; i < self->num; i++)
+    {
+        if (types[i] != TYPE_F[0])
+            return 0;
+    }
+
     flist = PyList_New(self->num);
+    if (flist == NULL)
+    {
+        PyErr_Print();
+        return 0;
+    }
 
     for (i = 0; i < self->num; i++)
     {
         PyObject *valueObj = PyFloat_FromDouble(argv[i]->FLOAT_VALUE);
+        if (valueObj == NULL)
+        {
+            Py_DECREF(flist);
+            PyErr_Print();
+            return 0;
+        }
         PyList_SET_ITEM(flist, i, valueObj);
-        Py_DECREF(valueObj);
     }
 
     PyObject *pathObj = PyUnicode_FromString(path);
-    PyDict_SetItem(self->dict, pathObj, flist);
-    Py_DECREF(pathObj);
+    if (pathObj != NULL)
+        PyDict_SetItem(self->dict, pathObj, flist);
+    Py_XDECREF(pathObj);
     Py_DECREF(flist);
+    if (PyErr_Occurred())
+        PyErr_Print();
     return 0;
 }
 

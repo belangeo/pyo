@@ -347,7 +347,6 @@ typedef struct
     PyObject *input;
     Stream *input_stream;
     char *fname;
-    char curfname[100];
     int last_value;
 } Score;
 
@@ -364,8 +363,20 @@ Score_selector(Score *self)
 
         if (inval != self->last_value)
         {
-            sprintf(self->curfname, "%s%i()\n", self->fname, inval);
-            PyRun_SimpleString(self->curfname);
+            PyObject *command = PyUnicode_FromFormat("%s%d()\n", self->fname, inval);
+            if (command == NULL)
+            {
+                PyErr_Print();
+                continue;
+            }
+
+            const char *text = PyUnicode_AsUTF8(command);
+            if (text != NULL)
+                PyRun_SimpleString(text);
+            else
+                PyErr_Print();
+
+            Py_DECREF(command);
             self->last_value = inval;
         }
     }

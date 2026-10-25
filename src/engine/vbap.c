@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <errno.h>
 #include <Python.h>
 #include "vbap.h"
 
@@ -819,22 +820,39 @@ void free_speakers_setup(SPEAKERS_SETUP *setup)
     PyMem_RawFree(setup);
 }
 
+static int validate_speaker_count(long count)
+{
+    if (count < 3 || count > MAX_LS_AMOUNT)
+    {
+        PyErr_Format(PyExc_ValueError, "VBAP requires between 3 and %d loudspeakers.", MAX_LS_AMOUNT);
+        return -1;
+    }
+    return 0;
+}
+
 SPEAKERS_SETUP *
 load_speakers_setup(int count, float *azi, float *ele)
 {
     int i;
     SPEAKERS_SETUP *setup;
+
+    if (validate_speaker_count(count) < 0)
+        return NULL;
+
     setup = (SPEAKERS_SETUP *)PyMem_RawMalloc(sizeof(SPEAKERS_SETUP));
-
-    if (count < 3)
+    if (setup == NULL)
     {
-        fprintf(stderr, "Too few loudspeakers %d\n", count);
-        PyMem_RawFree(setup);
-        exit(-1);
+        PyErr_NoMemory();
+        return NULL;
     }
-
     setup->azimuth = (float *)PyMem_RawCalloc(count, sizeof(float));
     setup->elevation = (float *)PyMem_RawCalloc(count, sizeof(float));
+    if (setup->azimuth == NULL || setup->elevation == NULL)
+    {
+        free_speakers_setup(setup);
+        PyErr_NoMemory();
+        return NULL;
+    }
 
     for (i = 0; i < count; i++)
     {
@@ -850,66 +868,76 @@ load_speakers_setup(int count, float *azi, float *ele)
 SPEAKERS_SETUP *
 load_speakers_setup_from_file(const char *filename)
 {
-    int i = 0, count;
+    int i;
+    long count;
     float azi, ele;
-    char *toke;
+    char *end;
     char c[10000];
     FILE *fp;
     SPEAKERS_SETUP *setup = NULL;
-    setup = (SPEAKERS_SETUP *)PyMem_RawMalloc(sizeof(SPEAKERS_SETUP));
 
-    if ((fp = fopen(filename, "r")) == NULL)
+    fp = fopen(filename, "r");
+    if (fp == NULL)
     {
-        fprintf(stderr, "Could not open loudspeaker setup file.\n");
-        PyMem_RawFree(setup);
-        exit(-1);
+        PyErr_SetFromErrnoWithFilename(PyExc_OSError, filename);
+        return NULL;
+    }
+    if (fgets(c, sizeof(c), fp) == NULL)
+    {
+        PyErr_SetString(PyExc_ValueError, "VBAP setup file must begin with a speaker count.");
+        goto error;
+    }
+    errno = 0;
+    count = strtol(c, &end, 10);
+    if (end == c || errno == ERANGE)
+    {
+        PyErr_SetString(PyExc_ValueError, "VBAP setup file has an invalid speaker count.");
+        goto error;
+    }
+    while (*end == ' ' || *end == '\t' || *end == '\r' || *end == '\n')
+        end++;
+    if (*end != '\0')
+    {
+        PyErr_SetString(PyExc_ValueError, "VBAP setup file has an invalid speaker count.");
+        goto error;
+    }
+    if (validate_speaker_count(count) < 0)
+        goto error;
+
+    setup = (SPEAKERS_SETUP *)PyMem_RawCalloc(1, sizeof(SPEAKERS_SETUP));
+    if (setup == NULL)
+    {
+        PyErr_NoMemory();
+        goto error;
+    }
+    setup->azimuth = (float *)PyMem_RawCalloc(count, sizeof(float));
+    setup->elevation = (float *)PyMem_RawCalloc(count, sizeof(float));
+    if (setup->azimuth == NULL || setup->elevation == NULL)
+    {
+        PyErr_NoMemory();
+        goto error;
     }
 
-    if ( fgets(c, 10000, fp) != NULL )
+    for (i = 0; i < count; i++)
     {
-        toke = (char *)strtok(c, " ");
-        sscanf(toke, "%d", &count);
-
-        if (count < 3)
+        if (fgets(c, sizeof(c), fp) == NULL || sscanf(c, "%f %f", &azi, &ele) != 2)
         {
-            fprintf(stderr, "Too few loudspeakers %d\n", count);
-            PyMem_RawFree(setup);
-            exit(-1);
+            PyErr_SetString(PyExc_ValueError, "VBAP setup file must contain one azimuth/elevation pair per speaker.");
+            goto error;
         }
-
-        setup->azimuth = (float *)PyMem_RawCalloc(count, sizeof(float));
-        setup->elevation = (float *)PyMem_RawCalloc(count, sizeof(float));
-
-        while (1)
-        {
-            if (fgets(c, 10000, fp) == NULL)
-                break;
-
-            toke = (char *)strtok(c, " ");
-
-            if (sscanf(toke, "%f", &azi) > 0)
-            {
-                toke = (char *)strtok(NULL, " ");
-                sscanf(toke, "%f", &ele);
-            }
-            else
-            {
-                break;
-            }
-
-            setup->azimuth[i] = azi;
-            setup->elevation[i] = ele;
-            i++;
-
-            if (i == count)
-                break;
-        }
-
-        setup->dimension = 3;
-        setup->count = count;
+        setup->azimuth[i] = azi;
+        setup->elevation[i] = ele;
     }
-
+    setup->dimension = 3;
+    setup->count = (int)count;
+    fclose(fp);
     return setup;
+
+error:
+    fclose(fp);
+    if (setup != NULL)
+        free_speakers_setup(setup);
+    return NULL;
 }
 
 /* Build a speakers list from a SPEAKERS_SETUP structure.
@@ -1393,7 +1421,23 @@ VBAP_DATA * init_vbap_data(SPEAKERS_SETUP *setup, int **triplets)
     ls lss[MAX_LS_AMOUNT];
     ls_triplet_chain *ls_triplets = NULL;
     ls_triplet_chain *ls_ptr;
-    VBAP_DATA *data = (VBAP_DATA *)PyMem_RawMalloc(sizeof(VBAP_DATA));
+    VBAP_DATA *data;
+
+    if (setup == NULL)
+    {
+        if (!PyErr_Occurred())
+            PyErr_SetString(PyExc_ValueError, "VBAP speaker setup is required.");
+        return NULL;
+    }
+    if (validate_speaker_count(setup->count) < 0)
+        return NULL;
+
+    data = (VBAP_DATA *)PyMem_RawMalloc(sizeof(VBAP_DATA));
+    if (data == NULL)
+    {
+        PyErr_NoMemory();
+        return NULL;
+    }
 
     build_speakers_list(setup, lss);
 

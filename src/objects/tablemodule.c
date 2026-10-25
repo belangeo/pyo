@@ -1708,6 +1708,129 @@ PyoCreateParaTableType(PyObject *module)
     return (PyTypeObject *)PyType_FromModuleAndSpec(module, &ParaTableType_spec, NULL);
 }
 
+static int
+Table_validatePoints(PyObject *points, T_SIZE_T size)
+{
+    Py_ssize_t i;
+    long position, previous = -1;
+
+    if (size < 1 || size > PY_SSIZE_T_MAX / (Py_ssize_t)sizeof(MYFLT) - 1)
+    {
+        PyErr_SetString(PyExc_ValueError, "Point-based table size must be positive and fit in memory.");
+        return -1;
+    }
+    if (!PyList_Check(points))
+    {
+        PyErr_SetString(PyExc_TypeError, "Table points must be a list of (position, value) tuples.");
+        return -1;
+    }
+    if (PyList_Size(points) < 2)
+    {
+        PyErr_SetString(PyExc_ValueError, "Point-based tables require at least two points.");
+        return -1;
+    }
+
+    for (i = 0; i < PyList_Size(points); i++)
+    {
+        PyObject *point = PyList_GetItem(points, i);
+        if (!PyTuple_Check(point) || PyTuple_Size(point) != 2)
+        {
+            PyErr_SetString(PyExc_TypeError, "Each table point must be a (position, value) tuple.");
+            return -1;
+        }
+        PyObject *number = PyNumber_Long(PyTuple_GetItem(point, 0));
+        if (number == NULL)
+            return -1;
+        position = PyLong_AsLong(number);
+        Py_DECREF(number);
+        if (PyErr_Occurred())
+            return -1;
+
+        if (position < 0 || position > size || position <= previous)
+        {
+            PyErr_SetString(PyExc_ValueError, "Table point positions must increase strictly and lie between 0 and the table size.");
+            return -1;
+        }
+        previous = position;
+        PyFloat_AsDouble(PyTuple_GetItem(point, 1));
+        if (PyErr_Occurred())
+            return -1;
+    }
+    return 0;
+}
+
+static int
+Table_resizeWithPoints(T_SIZE_T *size, MYFLT **data, PyObject **points,
+                       TableStream *stream, PyObject *value)
+{
+    T_SIZE_T i, new_size, position;
+    PyObject *rescaled, *point, *number, *new_point;
+    MYFLT *new_data;
+
+    if (value == NULL || !PyLong_Check(value))
+    {
+        PyErr_SetString(PyExc_TypeError, "Table size must be an integer.");
+        return -1;
+    }
+    new_size = PyLong_AsSsize_t(value);
+    if (PyErr_Occurred())
+        return -1;
+    if (new_size < 1 || new_size > PY_SSIZE_T_MAX / (Py_ssize_t)sizeof(MYFLT) - 1)
+    {
+        PyErr_SetString(PyExc_ValueError, "Point-based table size must be positive and fit in memory.");
+        return -1;
+    }
+    if (Table_validatePoints(*points, *size) < 0)
+        return -1;
+
+    rescaled = PyList_New(PyList_Size(*points));
+    if (rescaled == NULL)
+        return -1;
+    for (i = 0; i < PyList_Size(*points); i++)
+    {
+        point = PyList_GetItem(*points, i);
+        number = PyNumber_Long(PyTuple_GetItem(point, 0));
+        if (number == NULL)
+            goto error;
+        position = PyLong_AsLong(number);
+        Py_DECREF(number);
+        if (PyErr_Occurred())
+            goto error;
+
+        if (position == *size)
+            position = new_size;
+        else
+        {
+            double scaled = (double)position / *size * new_size;
+            position = scaled >= new_size ? new_size : (T_SIZE_T)scaled;
+        }
+        new_point = Py_BuildValue("(nO)", position, PyTuple_GetItem(point, 1));
+        if (new_point == NULL)
+            goto error;
+        PyList_SET_ITEM(rescaled, i, new_point);
+    }
+    if (Table_validatePoints(rescaled, new_size) < 0)
+        goto error;
+
+    new_data = (MYFLT *)PyMem_RawRealloc(*data, (new_size + 1) * sizeof(MYFLT));
+    if (new_data == NULL)
+    {
+        PyErr_NoMemory();
+        goto error;
+    }
+    *data = new_data;
+    *size = new_size;
+    Py_DECREF(*points);
+    *points = rescaled;
+    TableStream_setSize(stream, new_size);
+    TableStream_setData(stream, new_data);
+    return 0;
+
+error:
+    Py_DECREF(rescaled);
+    return -1;
+}
+
 /***********************/
 /* LinTable structure */
 /***********************/
@@ -1720,6 +1843,9 @@ typedef struct
 static void
 LinTable_generate(LinTable *self)
 {
+    if (Table_validatePoints(self->pointslist, self->size) < 0)
+        return;
+
     T_SIZE_T i, j, steps;
     T_SIZE_T listsize;
     PyObject *tup, *tup2;
@@ -1847,10 +1973,21 @@ LinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyLong_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
 
+    if (Table_validatePoints(self->pointslist, self->size) < 0)
+    {
+        Py_DECREF(self);
+        return NULL;
+    }
+
     self->data = (MYFLT *)PyMem_RawRealloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     LinTable_generate(self);
+    if (PyErr_Occurred())
+    {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     PyObject *srobj = PYO_CALL_METHOD_RET(self->server, "getSamplingRate", NULL);
     double sr = PyFloat_AsDouble(srobj);
@@ -1892,9 +2029,13 @@ static PyObject * LinTable_div(LinTable *self, PyObject *arg) { TABLE_DIV };
 static PyObject *
 LinTable_setSize(LinTable *self, PyObject *value)
 {
-    TABLE_SET_SIZE_WITH_POINT_LIST
+    if (Table_resizeWithPoints(&self->size, &self->data, &self->pointslist,
+                               self->tablestream, value) < 0)
+        return NULL;
 
     LinTable_generate(self);
+    if (PyErr_Occurred())
+        return NULL;
 
     Py_RETURN_NONE;
 }
@@ -1927,11 +2068,16 @@ LinTable_replace(LinTable *self, PyObject *value)
         return PyLong_FromLong(-1);
     }
 
+    if (Table_validatePoints(value, self->size) < 0)
+        return NULL;
+
     Py_INCREF(value);
     Py_DECREF(self->pointslist);
     self->pointslist = value;
 
     LinTable_generate(self);
+    if (PyErr_Occurred())
+        return NULL;
 
     Py_RETURN_NONE;
 }
@@ -2019,6 +2165,9 @@ typedef struct
 static void
 LogTable_generate(LogTable *self)
 {
+    if (Table_validatePoints(self->pointslist, self->size) < 0)
+        return;
+
     T_SIZE_T i, j, steps;
     T_SIZE_T listsize;
     PyObject *tup, *tup2;
@@ -2178,10 +2327,21 @@ LogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyLong_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
 
+    if (Table_validatePoints(self->pointslist, self->size) < 0)
+    {
+        Py_DECREF(self);
+        return NULL;
+    }
+
     self->data = (MYFLT *)PyMem_RawRealloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     LogTable_generate(self);
+    if (PyErr_Occurred())
+    {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     PyObject *srobj = PYO_CALL_METHOD_RET(self->server, "getSamplingRate", NULL);
     double sr = PyFloat_AsDouble(srobj);
@@ -2223,9 +2383,13 @@ static PyObject * LogTable_div(LogTable *self, PyObject *arg) { TABLE_DIV };
 static PyObject *
 LogTable_setSize(LogTable *self, PyObject *value)
 {
-    TABLE_SET_SIZE_WITH_POINT_LIST
+    if (Table_resizeWithPoints(&self->size, &self->data, &self->pointslist,
+                               self->tablestream, value) < 0)
+        return NULL;
 
     LogTable_generate(self);
+    if (PyErr_Occurred())
+        return NULL;
 
     Py_RETURN_NONE;
 }
@@ -2258,11 +2422,16 @@ LogTable_replace(LogTable *self, PyObject *value)
         return PyLong_FromLong(-1);
     }
 
+    if (Table_validatePoints(value, self->size) < 0)
+        return NULL;
+
     Py_INCREF(value);
     Py_DECREF(self->pointslist);
     self->pointslist = value;
 
     LogTable_generate(self);
+    if (PyErr_Occurred())
+        return NULL;
 
     Py_RETURN_NONE;
 }
@@ -2350,6 +2519,9 @@ typedef struct
 static void
 CosTable_generate(CosTable *self)
 {
+    if (Table_validatePoints(self->pointslist, self->size) < 0)
+        return;
+
     T_SIZE_T i, j, steps;
     T_SIZE_T listsize;
     PyObject *tup, *tup2;
@@ -2477,10 +2649,21 @@ CosTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyLong_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
 
+    if (Table_validatePoints(self->pointslist, self->size) < 0)
+    {
+        Py_DECREF(self);
+        return NULL;
+    }
+
     self->data = (MYFLT *)PyMem_RawRealloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     CosTable_generate(self);
+    if (PyErr_Occurred())
+    {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     PyObject *srobj = PYO_CALL_METHOD_RET(self->server, "getSamplingRate", NULL);
     double sr = PyFloat_AsDouble(srobj);
@@ -2522,9 +2705,13 @@ static PyObject * CosTable_div(CosTable *self, PyObject *arg) { TABLE_DIV };
 static PyObject *
 CosTable_setSize(CosTable *self, PyObject *value)
 {
-    TABLE_SET_SIZE_WITH_POINT_LIST
+    if (Table_resizeWithPoints(&self->size, &self->data, &self->pointslist,
+                               self->tablestream, value) < 0)
+        return NULL;
 
     CosTable_generate(self);
+    if (PyErr_Occurred())
+        return NULL;
 
     Py_RETURN_NONE;
 }
@@ -2557,11 +2744,16 @@ CosTable_replace(CosTable *self, PyObject *value)
         return PyLong_FromLong(-1);
     }
 
+    if (Table_validatePoints(value, self->size) < 0)
+        return NULL;
+
     Py_INCREF(value);
     Py_DECREF(self->pointslist);
     self->pointslist = value;
 
     CosTable_generate(self);
+    if (PyErr_Occurred())
+        return NULL;
 
     Py_RETURN_NONE;
 }
@@ -2649,6 +2841,9 @@ typedef struct
 static void
 CosLogTable_generate(CosLogTable *self)
 {
+    if (Table_validatePoints(self->pointslist, self->size) < 0)
+        return;
+
     T_SIZE_T i, j, steps;
     T_SIZE_T listsize;
     PyObject *tup, *tup2;
@@ -2809,10 +3004,21 @@ CosLogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyLong_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
 
+    if (Table_validatePoints(self->pointslist, self->size) < 0)
+    {
+        Py_DECREF(self);
+        return NULL;
+    }
+
     self->data = (MYFLT *)PyMem_RawRealloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     CosLogTable_generate(self);
+    if (PyErr_Occurred())
+    {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     PyObject *srobj = PYO_CALL_METHOD_RET(self->server, "getSamplingRate", NULL);
     double sr = PyFloat_AsDouble(srobj);
@@ -2854,9 +3060,13 @@ static PyObject * CosLogTable_div(CosLogTable *self, PyObject *arg) { TABLE_DIV 
 static PyObject *
 CosLogTable_setSize(CosLogTable *self, PyObject *value)
 {
-    TABLE_SET_SIZE_WITH_POINT_LIST
+    if (Table_resizeWithPoints(&self->size, &self->data, &self->pointslist,
+                               self->tablestream, value) < 0)
+        return NULL;
 
     CosLogTable_generate(self);
+    if (PyErr_Occurred())
+        return NULL;
 
     Py_RETURN_NONE;
 }
@@ -2889,11 +3099,16 @@ CosLogTable_replace(CosLogTable *self, PyObject *value)
         return PyLong_FromLong(-1);
     }
 
+    if (Table_validatePoints(value, self->size) < 0)
+        return NULL;
+
     Py_INCREF(value);
     Py_DECREF(self->pointslist);
     self->pointslist = value;
 
     CosLogTable_generate(self);
+    if (PyErr_Occurred())
+        return NULL;
 
     Py_RETURN_NONE;
 }
@@ -2983,6 +3198,9 @@ typedef struct
 static void
 CurveTable_generate(CurveTable *self)
 {
+    if (Table_validatePoints(self->pointslist, self->size) < 0)
+        return;
+
     T_SIZE_T i, j, steps;
     T_SIZE_T listsize;
     PyObject *tup;
@@ -3134,10 +3352,21 @@ CurveTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyLong_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
 
+    if (Table_validatePoints(self->pointslist, self->size) < 0)
+    {
+        Py_DECREF(self);
+        return NULL;
+    }
+
     self->data = (MYFLT *)PyMem_RawRealloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     CurveTable_generate(self);
+    if (PyErr_Occurred())
+    {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     PyObject *srobj = PYO_CALL_METHOD_RET(self->server, "getSamplingRate", NULL);
     double sr = PyFloat_AsDouble(srobj);
@@ -3194,6 +3423,8 @@ CurveTable_setTension(CurveTable *self, PyObject *value)
     self->tension = PyFloat_AsDouble(value);
 
     CurveTable_generate(self);
+    if (PyErr_Occurred())
+        return NULL;
 
     Py_RETURN_NONE;
 }
@@ -3216,6 +3447,8 @@ CurveTable_setBias(CurveTable *self, PyObject *value)
     self->bias = PyFloat_AsDouble(value);
 
     CurveTable_generate(self);
+    if (PyErr_Occurred())
+        return NULL;
 
     Py_RETURN_NONE;
 }
@@ -3223,9 +3456,13 @@ CurveTable_setBias(CurveTable *self, PyObject *value)
 static PyObject *
 CurveTable_setSize(CurveTable *self, PyObject *value)
 {
-    TABLE_SET_SIZE_WITH_POINT_LIST
+    if (Table_resizeWithPoints(&self->size, &self->data, &self->pointslist,
+                               self->tablestream, value) < 0)
+        return NULL;
 
     CurveTable_generate(self);
+    if (PyErr_Occurred())
+        return NULL;
 
     Py_RETURN_NONE;
 }
@@ -3258,11 +3495,16 @@ CurveTable_replace(CurveTable *self, PyObject *value)
         return PyLong_FromLong(-1);
     }
 
+    if (Table_validatePoints(value, self->size) < 0)
+        return NULL;
+
     Py_INCREF(value);
     Py_DECREF(self->pointslist);
     self->pointslist = value;
 
     CurveTable_generate(self);
+    if (PyErr_Occurred())
+        return NULL;
 
     Py_RETURN_NONE;
 }
@@ -3354,6 +3596,9 @@ typedef struct
 static void
 ExpTable_generate(ExpTable *self)
 {
+    if (Table_validatePoints(self->pointslist, self->size) < 0)
+        return;
+
     T_SIZE_T i, j, steps;
     T_SIZE_T listsize;
     PyObject *tup;
@@ -3505,10 +3750,21 @@ ExpTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyLong_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
 
+    if (Table_validatePoints(self->pointslist, self->size) < 0)
+    {
+        Py_DECREF(self);
+        return NULL;
+    }
+
     self->data = (MYFLT *)PyMem_RawRealloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     ExpTable_generate(self);
+    if (PyErr_Occurred())
+    {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     PyObject *srobj = PYO_CALL_METHOD_RET(self->server, "getSamplingRate", NULL);
     double sr = PyFloat_AsDouble(srobj);
@@ -3565,6 +3821,8 @@ ExpTable_setExp(ExpTable *self, PyObject *value)
     self->exp = PyFloat_AsDouble(value);
 
     ExpTable_generate(self);
+    if (PyErr_Occurred())
+        return NULL;
 
     Py_RETURN_NONE;
 }
@@ -3587,6 +3845,8 @@ ExpTable_setInverse(ExpTable *self, PyObject *value)
     self->inverse = PyLong_AsLong(value);
 
     ExpTable_generate(self);
+    if (PyErr_Occurred())
+        return NULL;
 
     Py_RETURN_NONE;
 }
@@ -3594,9 +3854,13 @@ ExpTable_setInverse(ExpTable *self, PyObject *value)
 static PyObject *
 ExpTable_setSize(ExpTable *self, PyObject *value)
 {
-    TABLE_SET_SIZE_WITH_POINT_LIST
+    if (Table_resizeWithPoints(&self->size, &self->data, &self->pointslist,
+                               self->tablestream, value) < 0)
+        return NULL;
 
     ExpTable_generate(self);
+    if (PyErr_Occurred())
+        return NULL;
 
     Py_RETURN_NONE;
 }
@@ -3629,11 +3893,16 @@ ExpTable_replace(ExpTable *self, PyObject *value)
         return PyLong_FromLong(-1);
     }
 
+    if (Table_validatePoints(value, self->size) < 0)
+        return NULL;
+
     Py_INCREF(value);
     Py_DECREF(self->pointslist);
     self->pointslist = value;
 
     ExpTable_generate(self);
+    if (PyErr_Occurred())
+        return NULL;
 
     Py_RETURN_NONE;
 }
@@ -6484,6 +6753,8 @@ TableMorph_compute_next_data_frame(TableMorph *self)
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
     int len = PyList_Size(self->sources);
+    if (len < 2)
+        return;
 
     if (size != self->last_size)
         TableMorph_alloc_memories(self);
@@ -6578,6 +6849,19 @@ TableMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->table = PYO_CALL_METHOD_RET((PyObject *)tabletmp, "getTableStream", "");
 
+    if (!PyList_Check(sourcestmp))
+    {
+        PyErr_SetString(PyExc_TypeError, "TableMorph sources must be a list.");
+        Py_DECREF(self);
+        return NULL;
+    }
+    if (PyList_Size(sourcestmp) < 2)
+    {
+        PyErr_SetString(PyExc_ValueError, "TableMorph requires at least two sources.");
+        Py_DECREF(self);
+        return NULL;
+    }
+
     self->sources = (PyObject *)sourcestmp;
     Py_INCREF(self->sources);
 
@@ -6612,8 +6896,13 @@ TableMorph_setSources(TableMorph *self, PyObject *arg)
 
     if (! PyList_Check(arg))
     {
-        PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list.");
-        return PyLong_FromLong(-1);
+        PyErr_SetString(PyExc_TypeError, "TableMorph sources must be a list.");
+        return NULL;
+    }
+    if (PyList_Size(arg) < 2)
+    {
+        PyErr_SetString(PyExc_ValueError, "TableMorph requires at least two sources.");
+        return NULL;
     }
 
     Py_INCREF(arg);

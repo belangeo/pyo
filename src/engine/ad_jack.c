@@ -139,7 +139,7 @@ jack_callback(jack_nframes_t nframes, void *arg)
         if (event_count > 0)
         {
             jack_nframes_t evt;
-            for (evt = 0; evt < event_count; evt++)
+            for (evt = 0; evt < event_count && server->midi_count < PYO_MIDI_EVENT_CAPACITY; evt++)
             {
                 jack_midi_event_get(&in_event, port_buf_in, evt);
                 server->midiEvents[server->midi_count++] = JackMidiEventToPyoMidiEvent(in_event);
@@ -735,7 +735,6 @@ jack_input_port_set_names(Server *self)
 {
     int i, err, lsize;
     const char *name;
-    char result[128];
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
 
     if (self->duplex == 0)
@@ -767,10 +766,27 @@ jack_input_port_set_names(Server *self)
     else if (PyUnicode_Check(self->jackInputPortNames))
     {
         name = PyUnicode_AsUTF8(self->jackInputPortNames);
+        if (name == NULL)
+        {
+            PyErr_Print();
+            return -1;
+        }
 
         for (i = 0; i < self->ichnls; i++)
         {
-            sprintf(result, "%s_%d", name, i);
+            PyObject *port_name = PyUnicode_FromFormat("%s_%d", name, i);
+            if (port_name == NULL)
+            {
+                PyErr_Print();
+                return -1;
+            }
+            const char *result = PyUnicode_AsUTF8(port_name);
+            if (result == NULL)
+            {
+                Py_DECREF(port_name);
+                PyErr_Print();
+                return -1;
+            }
 
             Py_BEGIN_ALLOW_THREADS
 #ifdef JACK_NEW_API
@@ -779,6 +795,8 @@ jack_input_port_set_names(Server *self)
             err = jack_port_set_name(be_data->jack_in_ports[i], result);
 #endif
             Py_END_ALLOW_THREADS
+
+            Py_DECREF(port_name);
 
             if (err)
                 Server_error(self, "Jack cannot change port short name.\n");
@@ -795,7 +813,6 @@ jack_output_port_set_names(Server *self)
 {
     int i, err, lsize;
     const char *name;
-    char result[128];
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
 
     if (PyList_Check(self->jackOutputPortNames))
@@ -821,10 +838,27 @@ jack_output_port_set_names(Server *self)
     else if (PyUnicode_Check(self->jackOutputPortNames))
     {
         name = PyUnicode_AsUTF8(self->jackOutputPortNames);
+        if (name == NULL)
+        {
+            PyErr_Print();
+            return -1;
+        }
 
         for (i = 0; i < self->nchnls; i++)
         {
-            sprintf(result, "%s_%d", name, i);
+            PyObject *port_name = PyUnicode_FromFormat("%s_%d", name, i);
+            if (port_name == NULL)
+            {
+                PyErr_Print();
+                return -1;
+            }
+            const char *result = PyUnicode_AsUTF8(port_name);
+            if (result == NULL)
+            {
+                Py_DECREF(port_name);
+                PyErr_Print();
+                return -1;
+            }
 
             Py_BEGIN_ALLOW_THREADS
 #ifdef JACK_NEW_API
@@ -833,6 +867,8 @@ jack_output_port_set_names(Server *self)
             err = jack_port_set_name(be_data->jack_out_ports[i], result);
 #endif
             Py_END_ALLOW_THREADS
+
+            Py_DECREF(port_name);
 
             if (err)
                 Server_error(self, "Jack cannot change port short name.\n");

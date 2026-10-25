@@ -46,7 +46,7 @@ void portmidiGetEvents(Server *self)
             {
                 length = Pm_Read(be_data->midiin[i], &buffer, 1);
 
-                if (length > 0)
+                if (length > 0 && self->midi_count < PYO_MIDI_EVENT_CAPACITY)
                     self->midiEvents[self->midi_count++] = PmEventToPyoMidiEvent(buffer);
             }
         }
@@ -148,7 +148,7 @@ Server_pm_init(Server *self)
                 Pt_Start(1, 0, 0); /* start a timer with millisecond accuracy */
                 Py_END_ALLOW_THREADS
 
-                for (i = 0; i < num_devices; i++)
+                for (i = 0; i < num_devices && self->midiin_count < PYO_MIDI_DEVICE_CAPACITY; i++)
                 {
                     const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
 
@@ -257,7 +257,7 @@ Server_pm_init(Server *self)
 
                 Py_END_ALLOW_THREADS
 
-                for (i = 0; i < num_devices; i++)
+                for (i = 0; i < num_devices && self->midiout_count < PYO_MIDI_DEVICE_CAPACITY; i++)
                 {
                     const PmDeviceInfo *outinfo = Pm_GetDeviceInfo(i);
 

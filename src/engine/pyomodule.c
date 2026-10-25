@@ -1315,78 +1315,142 @@ log: boolean, optional\n        Set this value to True if the Y axis has a logar
 static PyObject *
 linToCosCurve(PyObject *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *data, *fdata, *out, *inout, *ftup, *yrange = NULL, *fyrange = NULL;
-    int i, j, datasize, steps;
-    double tmp, x1, x2, y1, y2, mu, ydiff, log10ymin, log10ymax;
-    double *xdata, *ydata, *cxdata, *cydata;
+    PyObject *data, *yrange = NULL;
+    PyObject *fdata = NULL, *fyrange = NULL, *ftup = NULL, *out = NULL, *inout;
+    Py_ssize_t i, j, datasize, steps, count = 0, capacity = 1;
+    Py_ssize_t *segment_steps = NULL;
+    Py_ssize_t max_count = PY_SSIZE_T_MAX / (Py_ssize_t)sizeof(double);
+    double tmp, x1, y1, y2, mu, ydiff, log10ymin = 0.0, log10ymax = 0.0;
+    double *xdata = NULL, *ydata = NULL, *cxdata = NULL, *cydata = NULL;
     double totaldur = 1.0;
     double ymin = 0.0;
     double ymax = 1.0;
     int num = 1024;
     double inc = 1.0 / num;
     int log = 0;
-    int count = 0;
 
     static char *kwlist[] = {"data", "yrange", "totaldur", "points", "log", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|Odii", kwlist, &data, &yrange, &totaldur, &num, &log))
-        Py_RETURN_NONE;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|Odii", kwlist, &data, &yrange, &totaldur, &num, &log))
+        return NULL;
+
+    if (num <= 0 || !isfinite(totaldur) || totaldur <= 0.0)
+    {
+        PyErr_SetString(PyExc_ValueError, "points and totaldur must be positive, and totaldur must be finite.");
+        goto error;
+    }
 
     if (yrange)
     {
-        fyrange = PySequence_Fast(yrange, NULL);
+        fyrange = PySequence_Fast(yrange, "yrange must contain two numbers.");
+        if (fyrange == NULL)
+            goto error;
+        if (PySequence_Fast_GET_SIZE(fyrange) != 2)
+        {
+            PyErr_SetString(PyExc_ValueError, "yrange must contain exactly two numbers.");
+            goto error;
+        }
         ymin = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(fyrange, 0));
+        if (PyErr_Occurred())
+            goto error;
         ymax = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(fyrange, 1));
+        if (PyErr_Occurred())
+            goto error;
+    }
+    ydiff = ymax - ymin;
+    if (!isfinite(ymin) || !isfinite(ymax) || !isfinite(ydiff) || ydiff == 0.0 ||
+            (log && (ymin <= 0.0 || ymax <= 0.0)))
+    {
+        PyErr_SetString(PyExc_ValueError, "yrange must have distinct finite bounds, positive for logarithmic curves.");
+        goto error;
+    }
+    if (log)
+    {
+        log10ymin = log10(ymin);
+        log10ymax = log10(ymax);
     }
 
-    ydiff = ymax - ymin;
-    log10ymin = log10(ymin);
-    log10ymax = log10(ymax);
-
-    fdata = PySequence_Fast(data, NULL);
+    fdata = PySequence_Fast(data, "data must contain (time, value) pairs.");
+    if (fdata == NULL)
+        goto error;
     datasize = PySequence_Fast_GET_SIZE(fdata);
+    if (datasize == 0)
+    {
+        PyErr_SetString(PyExc_ValueError, "data must not be empty.");
+        goto error;
+    }
+    if (datasize > max_count || datasize > PY_SSIZE_T_MAX / (Py_ssize_t)sizeof(Py_ssize_t))
+        goto too_large;
     xdata = (double *)PyMem_RawMalloc(datasize * sizeof(double));
     ydata = (double *)PyMem_RawMalloc(datasize * sizeof(double));
-
-    /* acquire data + normalization */
-    if (log == 0)
+    segment_steps = (Py_ssize_t *)PyMem_RawMalloc(datasize * sizeof(Py_ssize_t));
+    if (xdata == NULL || ydata == NULL || segment_steps == NULL)
     {
-        for (i = 0; i < datasize; i++)
-        {
-            ftup = PySequence_Fast(PySequence_Fast_GET_ITEM(fdata, i), NULL);
-            tmp = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(ftup, 0));
-            xdata[i] = tmp / totaldur;
-            tmp = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(ftup, 1));
-            ydata[i] = (tmp - ymin) / ydiff;
-        }
-    }
-    else
-    {
-        for (i = 0; i < datasize; i++)
-        {
-            ftup = PySequence_Fast(PySequence_Fast_GET_ITEM(fdata, i), NULL);
-            tmp = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(ftup, 0));
-            xdata[i] = tmp / totaldur;
-            tmp = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(ftup, 1));
-            ydata[i] = log10(tmp / ymin) / log10(ymax / ymin);
-        }
+        PyErr_NoMemory();
+        goto error;
     }
 
-    cxdata = (double *)PyMem_RawMalloc((num + 5) * sizeof(double));
-    cydata = (double *)PyMem_RawMalloc((num + 5) * sizeof(double));
+    for (i = 0; i < datasize; i++)
+    {
+        ftup = PySequence_Fast(PySequence_Fast_GET_ITEM(fdata, i), "Each curve point must contain a time and value.");
+        if (ftup == NULL)
+            goto error;
+        if (PySequence_Fast_GET_SIZE(ftup) != 2)
+        {
+            PyErr_SetString(PyExc_ValueError, "Each curve point must contain exactly two numbers.");
+            goto error;
+        }
+        tmp = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(ftup, 0));
+        if (PyErr_Occurred())
+            goto error;
+        xdata[i] = tmp / totaldur;
+        tmp = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(ftup, 1));
+        if (PyErr_Occurred())
+            goto error;
+        if (!isfinite(tmp) || (log && tmp <= 0.0))
+        {
+            PyErr_SetString(PyExc_ValueError, "Curve values must be finite and positive for logarithmic curves.");
+            goto error;
+        }
+        ydata[i] = log ? log10(tmp / ymin) / log10(ymax / ymin) : (tmp - ymin) / ydiff;
+        if (!isfinite(xdata[i]) || !isfinite(ydata[i]))
+        {
+            PyErr_SetString(PyExc_ValueError, "Normalized curve points must be finite.");
+            goto error;
+        }
+        Py_CLEAR(ftup);
+    }
 
-    /* generates cos interpolation */
-    for (i = 0; i < (datasize - 1); i++)
+    /* Count the actual generated samples before allocating output storage. */
+    for (i = 0; i < datasize - 1; i++)
+    {
+        double segment_count = (xdata[i + 1] - xdata[i]) * num;
+        if (!isfinite(segment_count))
+            goto too_large;
+        if (segment_count <= 0.0)
+            segment_steps[i] = 0;
+        else
+        {
+            if (segment_count >= (double)(max_count - capacity))
+                goto too_large;
+            segment_steps[i] = (Py_ssize_t)segment_count;
+            capacity += segment_steps[i];
+        }
+    }
+    cxdata = (double *)PyMem_RawMalloc(capacity * sizeof(double));
+    cydata = (double *)PyMem_RawMalloc(capacity * sizeof(double));
+    if (cxdata == NULL || cydata == NULL)
+    {
+        PyErr_NoMemory();
+        goto error;
+    }
+
+    for (i = 0; i < datasize - 1; i++)
     {
         x1 = xdata[i];
-        x2 = xdata[i + 1];
         y1 = ydata[i];
         y2 = ydata[i + 1];
-        steps = (int)((x2 - x1) * num);
-
-        if (steps <= 0)
-            continue;
-
+        steps = segment_steps[i];
         for (j = 0; j < steps; j++)
         {
             mu = (1.0 - cos(j / (float)steps * PI)) * 0.5;
@@ -1394,44 +1458,36 @@ linToCosCurve(PyObject *self, PyObject *args, PyObject *kwds)
             cydata[count++] = y1 + (y2 - y1) * mu;
         }
     }
-
     cxdata[count] = xdata[datasize - 1];
     cydata[count++] = ydata[datasize - 1];
 
-    /* denormalization */
-    if (log == 0)
-    {
-        for (i = 0; i < count; i++)
-        {
-            cxdata[i] *= totaldur;
-            cydata[i] = cydata[i] * ydiff + ymin;
-        }
-    }
-    else
-    {
-        for (i = 0; i < count; i++)
-        {
-            cxdata[i] *= totaldur;
-            cydata[i] = pow(10.0, cydata[i] * (log10ymax - log10ymin) + log10ymin);
-        }
-    }
-
-    /* output Python's list of lists */
-    out = PyList_New(0);
-
+    out = PyList_New(count);
+    if (out == NULL)
+        goto error;
     for (i = 0; i < count; i++)
     {
-        inout = PyList_New(0);
-        PyList_Append(inout, PyFloat_FromDouble(cxdata[i]));
-        PyList_Append(inout, PyFloat_FromDouble(cydata[i]));
-        PyList_Append(out, inout);
+        cxdata[i] *= totaldur;
+        cydata[i] = log ? pow(10.0, cydata[i] * (log10ymax - log10ymin) + log10ymin) : cydata[i] * ydiff + ymin;
+        inout = Py_BuildValue("[dd]", cxdata[i], cydata[i]);
+        if (inout == NULL)
+            goto error;
+        PyList_SET_ITEM(out, i, inout);
     }
+    goto cleanup;
 
+too_large:
+    PyErr_SetString(PyExc_OverflowError, "Curve requires too many output samples.");
+error:
+    Py_CLEAR(out);
+cleanup:
+    Py_XDECREF(fdata);
+    Py_XDECREF(fyrange);
+    Py_XDECREF(ftup);
     PyMem_RawFree(xdata);
     PyMem_RawFree(ydata);
+    PyMem_RawFree(segment_steps);
     PyMem_RawFree(cxdata);
     PyMem_RawFree(cydata);
-
     return out;
 }
 
