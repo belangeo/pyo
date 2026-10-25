@@ -3179,6 +3179,44 @@ class ExprLexer(object):
                 start_pos += 1
 
 
+def _setEditorColours(editor, styles):
+    """Apply system colours and contrasting syntax colours to a text editor."""
+    background = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
+    foreground = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT)
+    highlight = wx.SystemSettings.GetColour(wx.SYS_COLOUR_HIGHLIGHT)
+    highlight_text = wx.SystemSettings.GetColour(wx.SYS_COLOUR_HIGHLIGHTTEXT)
+    # Use the actual window colour, including themes on older wx versions.
+    dark = (background.Red() * 299 + background.Green() * 587 + background.Blue() * 114) < 128000
+    colours = (
+        ("#BBAAFF", "#88AAFF", "#88CC88", "#DDCC77", "#AAAAAA")
+        if dark else
+        ("#3300DD", "#0033FF", "#006600", "#555500", "#444444")
+    )
+
+    editor.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%(mono)s,size:%(size)d" % editor.faces)
+    editor.StyleSetForeground(stc.STC_STYLE_DEFAULT, foreground)
+    editor.StyleSetBackground(stc.STC_STYLE_DEFAULT, background)
+    editor.StyleClearAll()
+    editor.SetBackgroundColour(background)
+    editor.SetForegroundColour(foreground)
+    editor.SetCaretForeground(foreground)
+    editor.SetCaretWidth(2)
+    editor.SetSelBackground(True, highlight)
+    editor.SetSelForeground(True, highlight_text)
+    editor.StyleSetBackground(stc.STC_STYLE_LINENUMBER, background)
+    editor.StyleSetForeground(stc.STC_STYLE_LINENUMBER, foreground)
+    editor.StyleSetBackground(stc.STC_STYLE_BRACELIGHT, highlight)
+    editor.StyleSetForeground(stc.STC_STYLE_BRACELIGHT, highlight_text)
+    editor.StyleSetBold(stc.STC_STYLE_BRACELIGHT, True)
+    editor.StyleSetSpec(stc.STC_STYLE_BRACEBAD, "fore:#000000,back:#FF6666,bold")
+
+    for style, colour in zip(styles, colours):
+        editor.StyleSetForeground(style, colour)
+        editor.StyleSetBold(style, style != styles[-1])
+    editor.StyleSetItalic(styles[-1], True)
+    editor.Refresh()
+
+
 class ExprEditor(stc.StyledTextCtrl):
     def __init__(self, parent, id=-1, obj=None):
         stc.StyledTextCtrl.__init__(self, parent, id)
@@ -3205,6 +3243,7 @@ class ExprEditor(stc.StyledTextCtrl):
         self.Bind(wx.EVT_MENU, self.undo, id=wx.ID_UNDO)
         self.Bind(wx.EVT_MENU, self.redo, id=wx.ID_REDO)
         self.Bind(stc.EVT_STC_UPDATEUI, self.OnUpdateUI)
+        self.Bind(wx.EVT_SYS_COLOUR_CHANGED, self.OnColourChanged)
 
         self.lexer = ExprLexer()
 
@@ -3241,43 +3280,20 @@ class ExprEditor(stc.StyledTextCtrl):
         self.SetStyleBits(5)
         self.Bind(wx.stc.EVT_STC_STYLENEEDED, self.OnStyling)
 
-        self.SetCaretForeground("#000000")
-        self.SetCaretWidth(2)
-        # Global default styles for all languages
-        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%(mono)s,size:%(size)d" % self.faces)
-        self.StyleClearAll()
+        self.setStyleColours()
 
-        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%(mono)s,size:%(size)d" % self.faces)
-        self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, "face:%(mono)s" % self.faces)
-        self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT, "fore:#FFFFFF,back:#0000FF,bold")
-        self.StyleSetSpec(stc.STC_STYLE_BRACEBAD, "fore:#000000,back:#FF0000,bold")
+    def OnColourChanged(self, evt):
+        self.setStyleColours()
+        evt.Skip()
 
-        # Expr specific styles
-        self.StyleSetSpec(
-            self.lexer.STC_EXPR_DEFAULT, "fore:#000000,face:%(mono)s,size:%(size)d" % self.faces
-        )
-        self.StyleSetSpec(
+    def setStyleColours(self):
+        _setEditorColours(self, (
             self.lexer.STC_EXPR_KEYWORD,
-            "fore:#3300DD,face:%(mono)s,size:%(size)d,bold" % self.faces,
-        )
-        self.StyleSetSpec(
             self.lexer.STC_EXPR_KEYWORD2,
-            "fore:#0033FF,face:%(mono)s,size:%(size)d,bold" % self.faces,
-        )
-        self.StyleSetSpec(
             self.lexer.STC_EXPR_VARIABLE,
-            "fore:#006600,face:%(mono)s,size:%(size)d,bold" % self.faces,
-        )
-        self.StyleSetSpec(
             self.lexer.STC_EXPR_LETVARIABLE,
-            "fore:#555500,face:%(mono)s,size:%(size)d,bold" % self.faces,
-        )
-        self.StyleSetSpec(
             self.lexer.STC_EXPR_COMMENT,
-            "fore:#444444,face:%(mono)s,size:%(size)d,italic" % self.faces,
-        )
-
-        self.SetSelBackground(1, "#CCCCDD")
+        ))
 
     def OnStyling(self, evt):
         self.lexer.StyleText(evt)
@@ -3510,6 +3526,7 @@ class MMLEditor(stc.StyledTextCtrl):
         self.Bind(wx.EVT_MENU, self.undo, id=wx.ID_UNDO)
         self.Bind(wx.EVT_MENU, self.redo, id=wx.ID_REDO)
         self.Bind(stc.EVT_STC_UPDATEUI, self.OnUpdateUI)
+        self.Bind(wx.EVT_SYS_COLOUR_CHANGED, self.OnColourChanged)
 
         self.lexer = MMLLexer()
 
@@ -3552,42 +3569,20 @@ class MMLEditor(stc.StyledTextCtrl):
         self.SetStyleBits(5)
         self.Bind(wx.stc.EVT_STC_STYLENEEDED, self.OnStyling)
 
-        self.SetCaretForeground("#000000")
-        self.SetCaretWidth(2)
-        # Global default styles for all languages
-        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%(mono)s,size:%(size)d" % self.faces)
-        self.StyleClearAll()
+        self.setStyleColours()
 
-        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%(mono)s,size:%(size)d" % self.faces)
-        self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, "face:%(mono)s" % self.faces)
-        self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT, "fore:#FFFFFF,back:#0000FF,bold")
-        self.StyleSetSpec(stc.STC_STYLE_BRACEBAD, "fore:#000000,back:#FF0000,bold")
+    def OnColourChanged(self, evt):
+        self.setStyleColours()
+        evt.Skip()
 
-        # MML specific styles
-        self.StyleSetSpec(
-            self.lexer.STC_MML_DEFAULT, "fore:#000000,face:%(mono)s,size:%(size)d" % self.faces
-        )
-        self.StyleSetSpec(
-            self.lexer.STC_MML_KEYWORD, "fore:#3300DD,face:%(mono)s,size:%(size)d,bold" % self.faces
-        )
-        self.StyleSetSpec(
+    def setStyleColours(self):
+        _setEditorColours(self, (
+            self.lexer.STC_MML_KEYWORD,
             self.lexer.STC_MML_KEYWORD2,
-            "fore:#0033FF,face:%(mono)s,size:%(size)d,bold" % self.faces,
-        )
-        self.StyleSetSpec(
             self.lexer.STC_MML_VARIABLE,
-            "fore:#006600,face:%(mono)s,size:%(size)d,bold" % self.faces,
-        )
-        self.StyleSetSpec(
             self.lexer.STC_MML_VOICE_TOKEN,
-            "fore:#555500,face:%(mono)s,size:%(size)d,bold" % self.faces,
-        )
-        self.StyleSetSpec(
             self.lexer.STC_MML_COMMENT,
-            "fore:#444444,face:%(mono)s,size:%(size)d,italic" % self.faces,
-        )
-
-        self.SetSelBackground(1, "#CCCCDD")
+        ))
 
     def OnStyling(self, evt):
         self.lexer.StyleText(evt)
