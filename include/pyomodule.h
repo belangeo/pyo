@@ -1976,18 +1976,18 @@ typedef Py_ssize_t T_SIZE_T;
 
 /* Matrix macros */
 #define MATRIX_BLUR \
-    int i,j; \
+    if (self->width < 3 || self->height < 3) \
+        Py_RETURN_NONE; \
+ \
+    int i, j; \
     MYFLT tmp[self->height][self->width]; \
  \
     int lw = self->width - 1; \
     int lh = self->height - 1; \
+ \
     for (i=1; i<lw; i++) { \
         tmp[0][i] = (self->data[0][i-1] + self->data[0][i] + self->data[1][i] + self->data[0][i+1]) * 0.25; \
         tmp[lh][i] = (self->data[lh][i-1] + self->data[lh][i] + self->data[lh-1][i] + self->data[lh][i+1]) * 0.25; \
-    } \
-    for (i=1; i<lh; i++) { \
-        tmp[i][0] = (self->data[i-1][0] + self->data[i][0] + self->data[i][1] + self->data[i+1][0]) * 0.25; \
-        tmp[i][lw] = (self->data[i-1][lw] + self->data[i][lw] + self->data[i][lw-1] + self->data[i+1][lw]) * 0.25; \
     } \
  \
     for (i=1; i<lh; i++) { \
